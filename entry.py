@@ -118,7 +118,7 @@ torch.cuda.empty_cache()
 torch.cuda.ipc_collect()
 
 shape = (1, 4, 128, 128)
-randn = torch.randn(shape).cuda()
+randn = torch.randn(shape).to(torch.float16).cuda()
 
 
 def denoiser(input, sigma, c):
