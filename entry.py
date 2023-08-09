@@ -91,6 +91,7 @@ sampler = EulerAncestralSampler(
 config_path = './sd_xl_base.yaml'
 config = OmegaConf.load(config_path)
 model = instantiate_from_config(config.model).cpu()
+model.to(torch.float16)
 model.eval()
 model.load_state_dict(safetensors.torch.load_file('./sd_xl_base_1.0.safetensors'), strict=False)
 
