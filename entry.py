@@ -106,7 +106,7 @@ value_dict = {
 batch, batch_uc = get_batch(
     get_unique_embedder_keys_from_conditioner(model.conditioner),
     value_dict,
-    1,
+    [1],
 )
 
 c, uc = model.conditioner.get_unconditional_conditioning(
