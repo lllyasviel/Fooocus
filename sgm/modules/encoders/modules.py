@@ -166,7 +166,7 @@ class GeneralConditioner(nn.Module):
                     emb = torch.zeros_like(emb)
                 if out_key in output:
                     output[out_key] = torch.cat(
-                        (output[out_key], emb), self.KEY2CATDIM[out_key]
+                        (output[out_key].cuda(), emb.cuda()), self.KEY2CATDIM[out_key]
                     )
                 else:
                     output[out_key] = emb
