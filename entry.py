@@ -70,6 +70,11 @@ def get_batch(keys, value_dict, N, device="cuda"):
                 .to(device)
                 .repeat(*N, 1)
             )
+            batch_uc["target_size_as_tuple"] = (
+                torch.tensor([value_dict["target_height"], value_dict["target_width"]])
+                .to(device)
+                .repeat(*N, 1) / 2.0
+            )
         else:
             batch[key] = value_dict[key]
 
@@ -94,6 +99,8 @@ sampler = EulerAncestralSampler(
     s_noise=1.0,
     verbose=True,
 )
+
+torch.manual_seed(123)
 
 config_path = './sd_xl_base.yaml'
 config = OmegaConf.load(config_path)
