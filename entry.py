@@ -151,6 +151,6 @@ with torch.no_grad():
         model.first_stage_model.cpu()
 
     import cv2
-    samples = einops.rearrange(samples, 'b c h w -> b h w c')[0] * 255.0
+    samples = einops.rearrange(samples, 'b c h w -> b h w c')[0, :, :, ::-1] * 255.0
     samples = samples.cpu().numpy().clip(0, 255).astype(np.uint8)
     cv2.imwrite('img.png', samples)
