@@ -1,5 +1,7 @@
 import os
 import math
+
+import einops
 import numpy as np
 import torch
 import gc
@@ -141,3 +143,15 @@ torch.cuda.empty_cache()
 torch.cuda.ipc_collect()
 
 a = 0
+
+
+with torch.no_grad():
+    model.first_stage_model.cuda()
+    samples_x = model.decode_first_stage(samples_z)
+    samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0)
+    model.first_stage_model.cpu()
+
+import cv2
+samples = einops.rearrange(samples, 'b c h w -> b h w c')[0] * 127.5 + 127.5
+samples = samples.cpu().numpy().clip(0, 255).astype(np.uint8)
+cv2.imwrite('img.png', samples)
