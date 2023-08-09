@@ -272,8 +272,8 @@ class SiLU(nn.Module):
 
 class GroupNorm32(nn.GroupNorm):
     def forward(self, x):
-        self.weight.to(torch.float32)
-        self.bias.to(torch.float32)
+        self.weight = self.weight.float()
+        self.bias = self.bias.float()
         return super().forward(x.float()).type(x.dtype)
 
 
