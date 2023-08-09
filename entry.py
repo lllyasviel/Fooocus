@@ -116,7 +116,7 @@ with torch.no_grad():
     model.conditioner.embedders[1].device = 'cpu'
 
     value_dict = {
-        "prompt": "dragon, digital art", "negative_prompt": "ugly, bad", "orig_height": 1024, "orig_width": 1024,
+        "prompt": "a handsome in forest", "negative_prompt": "ugly, bad", "orig_height": 1024, "orig_width": 1024,
         "crop_coords_top": 0, "crop_coords_left": 0, "target_height": 1024, "target_width": 1024, "aesthetic_score": 7.5,
         "negative_aesthetic_score": 2.0,
     }
