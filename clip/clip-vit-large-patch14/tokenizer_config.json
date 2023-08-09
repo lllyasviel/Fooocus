@@ -1,0 +1,34 @@
+{
+    "unk_token": {
+        "content": "<|endoftext|>",
+        "single_word": false,
+        "lstrip": false,
+        "rstrip": false,
+        "normalized": true,
+        "__type": "AddedToken"
+    },
+    "bos_token": {
+        "content": "<|startoftext|>",
+        "single_word": false,
+        "lstrip": false,
+        "rstrip": false,
+        "normalized": true,
+        "__type": "AddedToken"
+    },
+    "eos_token": {
+        "content": "<|endoftext|>",
+        "single_word": false,
+        "lstrip": false,
+        "rstrip": false,
+        "normalized": true,
+        "__type": "AddedToken"
+    },
+    "pad_token": "<|endoftext|>",
+    "add_prefix_space": false,
+    "errors": "replace",
+    "do_lower_case": true,
+    "name_or_path": "openai/clip-vit-base-patch32",
+    "model_max_length": 77,
+    "special_tokens_map_file": "./special_tokens_map.json",
+    "tokenizer_class": "CLIPTokenizer"
+}

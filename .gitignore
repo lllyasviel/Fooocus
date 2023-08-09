@@ -12,6 +12,7 @@ results/
 *.safetensors
 *.mp4
 *.avi
+*.bin
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

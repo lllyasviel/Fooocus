@@ -347,7 +347,7 @@ class FrozenCLIPEmbedder(AbstractEmbModel):
 
     def __init__(
         self,
-        version="openai/clip-vit-large-patch14",
+        version="./clip/clip-vit-large-patch14",
         device="cuda",
         max_length=77,
         freeze=True,
