@@ -78,10 +78,6 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=9.0, sa
     if "noise_mask" in latent:
         noise_mask = latent["noise_mask"]
 
-    preview_format = "JPEG"
-    if preview_format not in ["JPEG", "PNG"]:
-        preview_format = "JPEG"
-
     previewer = get_previewer(device, model.model.latent_format)
 
     pbar = comfy.utils.ProgressBar(steps)
