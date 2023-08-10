@@ -9,7 +9,7 @@ def add_text(history, text):
 
 
 def add_file(history, file):
-    history = history + [((file.name,), None)]
+    history = history + [(('./outputs/a.png',), None)]
     return history
 
 
