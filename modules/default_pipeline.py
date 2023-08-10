@@ -27,7 +27,7 @@ def process(positive_prompt, negative_prompt, width=1024, height=1024, batch_siz
         model=xl_base.unet,
         positive=positive_conditions,
         negative=negative_conditions,
-        refiner=xl_refiner,
+        refiner=xl_refiner.unet,
         refiner_positive=positive_conditions_refiner,
         refiner_negative=negative_conditions_refiner,
         refiner_switch_step=20,

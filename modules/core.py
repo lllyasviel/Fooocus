@@ -178,7 +178,6 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
         noise_mask = prepare_mask(noise_mask, noise.shape, device)
 
     comfy.model_management.load_model_gpu(model)
-    real_model = model.model
 
     noise = noise.to(device)
     latent_image = latent_image.to(device)
@@ -188,8 +187,9 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
 
     models = load_additional_models(positive, negative, model.model_dtype())
 
-    sampler = KSamplerWithRefiner(real_model, steps=steps, device=device, sampler=sampler_name, scheduler=scheduler,
-                       denoise=denoise, model_options=model.model_options)
+    sampler = KSamplerWithRefiner(model=model.model, refiner_model=refiner.model, steps=steps, device=device,
+                                  sampler=sampler_name, scheduler=scheduler,
+                                  denoise=denoise, model_options=model.model_options)
 
     samples = sampler.sample(noise, positive_copy, negative_copy, cfg=cfg, latent_image=latent_image,
                              start_step=start_step, last_step=last_step, force_full_denoise=force_full_denoise,

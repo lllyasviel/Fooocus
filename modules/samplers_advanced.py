@@ -7,15 +7,26 @@ class KSamplerWithRefiner:
                 "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
                 "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "ddim", "uni_pc", "uni_pc_bh2"]
 
-    def __init__(self, model, steps, device, sampler=None, scheduler=None, denoise=None, model_options={}):
+    def __init__(self, model, refiner_model, steps, device, sampler=None, scheduler=None, denoise=None, model_options={}):
         self.model = model
+        self.refiner_model = refiner_model
+
         self.model_denoise = CFGNoisePredictor(self.model)
+        self.refiner_model_denoise = CFGNoisePredictor(self.refiner_model)
+
         if self.model.model_type == model_base.ModelType.V_PREDICTION:
             self.model_wrap = CompVisVDenoiser(self.model_denoise, quantize=True)
         else:
             self.model_wrap = k_diffusion_external.CompVisDenoiser(self.model_denoise, quantize=True)
 
+        if self.refiner_model.model_type == model_base.ModelType.V_PREDICTION:
+            self.refiner_model_wrap = CompVisVDenoiser(self.refiner_model_denoise, quantize=True)
+        else:
+            self.refiner_model_wrap = k_diffusion_external.CompVisDenoiser(self.refiner_model_denoise, quantize=True)
+
         self.model_k = KSamplerX0Inpaint(self.model_wrap)
+        self.refiner_model_k = KSamplerX0Inpaint(self.refiner_model_wrap)
+
         self.device = device
         if scheduler not in self.SCHEDULERS:
             scheduler = self.SCHEDULERS[0]
