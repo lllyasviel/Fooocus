@@ -1,6 +1,8 @@
 import os
 import sys
 
+from modules.launch_util import commit_hash, fooocus_tag
+
 
 def prepare_environment():
     torch_index_url = os.environ.get('TORCH_INDEX_URL', "https://download.pytorch.org/whl/cu118")
@@ -12,7 +14,12 @@ def prepare_environment():
     comfy_repo = os.environ.get('COMFY_REPO', "https://github.com/comfyanonymous/ComfyUI.git")
     comfy_commit_hash = os.environ.get('COMFY_COMMIT_HASH', "5ac96897e9782805cd5e8fe85bd98ad03eae2b6f")
 
+    commit = commit_hash()
+    tag = fooocus_tag
+
     print(f"Python {sys.version}")
+    print(f"Version: {tag}")
+    print(f"Commit hash: {commit}")
 
 
 prepare_environment()
