@@ -46,5 +46,5 @@ with gr.Blocks() as demo:
         bot, chatbot, chatbot
     )
 
-demo.queue()
+demo.queue()  # number size style quality
 demo.launch()
