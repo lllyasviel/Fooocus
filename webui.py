@@ -22,6 +22,7 @@ del xl_base_clipvision
 opCLIPTextEncode = CLIPTextEncode()
 opEmptyLatentImage = EmptyLatentImage()
 opKSamplerAdvanced = KSamplerAdvanced()
+opVAEDecode = VAEDecode()
 
 positive_conditions = opCLIPTextEncode.encode(clip=xl_base_clip, text='a handsome man in forest')[0]
 negative_conditions = opCLIPTextEncode.encode(clip=xl_base_clip, text='bad, ugly')[0]
@@ -42,6 +43,8 @@ samples = opKSamplerAdvanced.sample(
     positive=positive_conditions,
     negative=negative_conditions,
     latent_image=initial_latent_image,
-)
+)[0]
+
+vaedecodeed = opVAEDecode.decode(samples=samples, vae=xl_base_vae)[0]
 
 a = 0
