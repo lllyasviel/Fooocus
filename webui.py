@@ -2,7 +2,6 @@ import gradio as gr
 import random
 import time
 
-# Chatbot demo with multimodal input (text, markdown, LaTeX, code blocks, image, audio, & video). Plus shows support for streaming text.
 
 def add_text(history, text):
     history = history + [(text, None)]
