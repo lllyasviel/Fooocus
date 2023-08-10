@@ -190,7 +190,7 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
 
     models = load_additional_models(positive, negative, model.model_dtype())
 
-    sampler = KSamplerWithRefiner(model=model.model, refiner_model=refiner.model, steps=steps, device=device,
+    sampler = KSamplerWithRefiner(model=model, refiner_model=refiner, steps=steps, device=device,
                                   sampler=sampler_name, scheduler=scheduler,
                                   denoise=denoise, model_options=model.model_options)
 
@@ -198,7 +198,7 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
                              refiner_negative=refiner_negative_copy, refiner_switch_step=refiner_switch_step,
                              cfg=cfg, latent_image=latent_image,
                              start_step=start_step, last_step=last_step, force_full_denoise=force_full_denoise,
-                             denoise_mask=noise_mask, sigmas=sigmas, callback=callback, disable_pbar=disable_pbar,
+                             denoise_mask=noise_mask, sigmas=sigmas, callback_function=callback, disable_pbar=disable_pbar,
                              seed=seed)
 
     samples = samples.cpu()

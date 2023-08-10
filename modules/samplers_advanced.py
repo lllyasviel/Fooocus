@@ -1,5 +1,7 @@
 from comfy.samplers import *
 
+import comfy.model_management
+
 
 class KSamplerWithRefiner:
     SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
@@ -8,8 +10,11 @@ class KSamplerWithRefiner:
                 "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "ddim", "uni_pc", "uni_pc_bh2"]
 
     def __init__(self, model, refiner_model, steps, device, sampler=None, scheduler=None, denoise=None, model_options={}):
-        self.model = model
-        self.refiner_model = refiner_model
+        self.model_patcher = model
+        self.refiner_model_patcher = refiner_model
+
+        self.model = model.model
+        self.refiner_model = refiner_model.model
 
         self.model_denoise = CFGNoisePredictor(self.model)
         self.refiner_model_denoise = CFGNoisePredictor(self.refiner_model)
@@ -77,7 +82,7 @@ class KSamplerWithRefiner:
 
     def sample(self, noise, positive, negative, refiner_positive, refiner_negative, cfg, latent_image=None,
                start_step=None, last_step=None, refiner_switch_step=None,
-               force_full_denoise=False, denoise_mask=None, sigmas=None, callback=None, disable_pbar=False, seed=None):
+               force_full_denoise=False, denoise_mask=None, sigmas=None, callback_function=None, disable_pbar=False, seed=None):
         if sigmas is None:
             sigmas = self.sigmas
         sigma_min = self.sigma_min
@@ -124,6 +129,42 @@ class KSamplerWithRefiner:
                                   "positive")
             negative = encode_adm(self.model, negative, noise.shape[0], noise.shape[3], noise.shape[2], self.device,
                                   "negative")
+
+        refiner_positive = refiner_positive[:]
+        refiner_negative = refiner_negative[:]
+
+        resolve_cond_masks(refiner_positive, noise.shape[2], noise.shape[3], self.device)
+        resolve_cond_masks(refiner_negative, noise.shape[2], noise.shape[3], self.device)
+
+        calculate_start_end_timesteps(self.refiner_model_wrap, refiner_positive)
+        calculate_start_end_timesteps(self.refiner_model_wrap, refiner_negative)
+
+        # make sure each cond area has an opposite one with the same area
+        for c in refiner_positive:
+            create_cond_with_same_area_if_none(refiner_negative, c)
+        for c in refiner_negative:
+            create_cond_with_same_area_if_none(refiner_positive, c)
+
+        if self.model.is_adm():
+            refiner_positive = encode_adm(self.refiner_model, refiner_positive, noise.shape[0],
+                                          noise.shape[3], noise.shape[2], self.device, "positive")
+            refiner_negative = encode_adm(self.refiner_model, refiner_negative, noise.shape[0],
+                                          noise.shape[3], noise.shape[2], self.device, "negative")
+
+        def refiner_switch():
+            comfy.model_management.load_model_gpu(self.refiner_model_patcher)
+            self.model_denoise.inner_model = self.refiner_model_denoise.inner_model
+            for i in range(len(positive)):
+                positive[i] = refiner_positive[i]
+            for i in range(len(negative)):
+                negative[i] = refiner_negative[i]
+            return
+
+        def callback(step, x0, x, total_steps):
+            if step == refiner_switch_step:
+                refiner_switch()
+            if callback_function is not None:
+                callback_function(step, x0, x, total_steps)
 
         if latent_image is not None:
             latent_image = self.model.process_latent_in(latent_image)
