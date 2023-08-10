@@ -23,20 +23,20 @@ def process(positive_prompt, negative_prompt, width=1024, height=1024, batch_siz
 
     empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=batch_size)
 
-    sampled_latent = core.ksample(
-        unet=xl_base.unet,
-        positive_condition=positive_conditions,
-        negative_condition=negative_conditions,
-        latent_image=empty_latent,
-        steps=30, start_at_step=0, end_at_step=20, return_with_leftover_noise=True, add_noise=True
+    sampled_latent = core.ksampler(
+        model=xl_base.unet,
+        positive=positive_conditions,
+        negative=negative_conditions,
+        latent=empty_latent,
+        steps=30, start_step=0, last_step=20, disable_noise=False, force_full_denoise=False
     )
 
-    sampled_latent = core.ksample(
-        unet=xl_refiner.unet,
-        positive_condition=positive_conditions_refiner,
-        negative_condition=negative_conditions_refiner,
-        latent_image=sampled_latent,
-        steps=30, start_at_step=20, end_at_step=30, return_with_leftover_noise=False, add_noise=False
+    sampled_latent = core.ksampler(
+        model=xl_refiner.unet,
+        positive=positive_conditions_refiner,
+        negative=negative_conditions_refiner,
+        latent=sampled_latent,
+        steps=30, start_step=20, last_step=30, disable_noise=True, force_full_denoise=True
     )
 
     decoded_latent = core.decode_vae(vae=xl_refiner.vae, latent_image=sampled_latent)
