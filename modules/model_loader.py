@@ -3,11 +3,11 @@ from urllib.parse import urlparse
 
 
 def load_file_from_url(
-    url: str,
-    *,
-    model_dir: str,
-    progress: bool = True,
-    file_name: str | None = None,
+        url: str,
+        *,
+        model_dir: str,
+        progress: bool = True,
+        file_name: str | None = None,
 ) -> str:
     """Download a file from `url` into `model_dir`, using the file present if possible.
 
