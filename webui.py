@@ -9,16 +9,16 @@ def add_text(history, text):
 
 
 def add_file(history, file):
-    history = history + [(('./outputs/a.png',), None)]
+    history = history + [(('./outputs/a.png',), ('./outputs/a.png', './outputs/a.png'))]
     return history
 
 
 def bot(history):
     response = "**That's cool!**"
-    history[-1][1] = ""
+    # history[-1][1] = ""
     for character in response:
-        history[-1][1] += character
-        time.sleep(0.05)
+        # history[-1][1] += character
+        # time.sleep(0.05)
         yield history
 
 
