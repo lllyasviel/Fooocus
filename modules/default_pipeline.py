@@ -1,6 +1,6 @@
+import modules.core as core
 import os
 import torch
-import modules.core as core
 
 from modules.path import modelfile_path
 
