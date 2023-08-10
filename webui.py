@@ -35,6 +35,9 @@ with gr.Blocks() as demo:
         with gr.Column(scale=0.15, min_width=0):
             btn = gr.UploadButton("Generate", file_types=["image"])
 
+    with gr.Row():
+        gr.Checkbox(label='Advanced Setting', value=False, container=False)
+
     txt_msg = txt.submit(add_text, [chatbot, txt], [chatbot, txt], queue=False).then(
         bot, chatbot, chatbot
     )
