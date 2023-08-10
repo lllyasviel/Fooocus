@@ -2,6 +2,7 @@ import os
 import random
 
 from comfy.sd import load_checkpoint_guess_config
+from comfy.model_management import unload_model
 
 from nodes import (
     VAEDecode,
@@ -26,6 +27,7 @@ opVAEDecode = VAEDecode()
 
 positive_conditions = opCLIPTextEncode.encode(clip=xl_base_clip, text='a handsome man in forest')[0]
 negative_conditions = opCLIPTextEncode.encode(clip=xl_base_clip, text='bad, ugly')[0]
+unload_model()
 
 initial_latent_image = opEmptyLatentImage.generate(width=1024, height=1024, batch_size=1)[0]
 
@@ -44,6 +46,7 @@ samples = opKSamplerAdvanced.sample(
     negative=negative_conditions,
     latent_image=initial_latent_image,
 )[0]
+unload_model()
 
 vae_decoded = opVAEDecode.decode(samples=samples, vae=xl_base_vae)[0]
 
