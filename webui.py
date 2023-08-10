@@ -1,6 +1,7 @@
 import os
 import random
 import torch
+import numpy as np
 
 from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, KSamplerAdvanced, EmptyLatentImage, SaveImage, CLIPTextEncode
@@ -42,4 +43,8 @@ with torch.no_grad():
 
     vae_decoded = opVAEDecode.decode(samples=samples, vae=xl_base_vae)[0]
 
-    a = 0
+    for image in vae_decoded:
+        i = 255. * image.cpu().numpy()
+        img = np.clip(i, 0, 255).astype(np.uint8)
+        import cv2
+        cv2.imwrite('a.png', img[:, :, ::-1])
