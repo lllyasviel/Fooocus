@@ -5,6 +5,7 @@ import platform
 from modules.launch_util import commit_hash, fooocus_tag, is_installed, run, python, \
     run_pip, repo_dir, git_clone, requirements_met, script_path, dir_repos
 from modules.model_loader import load_file_from_url
+from modules.path import modelfile_path
 
 
 REINSTALL_ALL = False
@@ -52,7 +53,6 @@ def prepare_environment():
     return
 
 
-model_file_path = os.path.abspath('./model_files/')
 model_filenames = [
     ('sd_xl_base_1.0.safetensors', 'https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors'),
     ('sd_xl_refiner_1.0.safetensors', 'https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0.safetensors')
@@ -61,7 +61,7 @@ model_filenames = [
 
 def download_models():
     for file_name, url in model_filenames:
-        load_file_from_url(url=url, model_dir=model_file_path, file_name=file_name)
+        load_file_from_url(url=url, model_dir=modelfile_path, file_name=file_name)
     return
 
 

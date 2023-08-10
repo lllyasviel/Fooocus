@@ -1,0 +1,3 @@
+import os
+
+modelfile_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../model_files'))
