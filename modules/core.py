@@ -185,13 +185,18 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
     positive_copy = broadcast_cond(positive, noise.shape[0], device)
     negative_copy = broadcast_cond(negative, noise.shape[0], device)
 
+    refiner_positive_copy = broadcast_cond(refiner_positive, noise.shape[0], device)
+    refiner_negative_copy = broadcast_cond(refiner_negative, noise.shape[0], device)
+
     models = load_additional_models(positive, negative, model.model_dtype())
 
     sampler = KSamplerWithRefiner(model=model.model, refiner_model=refiner.model, steps=steps, device=device,
                                   sampler=sampler_name, scheduler=scheduler,
                                   denoise=denoise, model_options=model.model_options)
 
-    samples = sampler.sample(noise, positive_copy, negative_copy, cfg=cfg, latent_image=latent_image,
+    samples = sampler.sample(noise, positive_copy, negative_copy, refiner_positive=refiner_positive_copy,
+                             refiner_negative=refiner_negative_copy, refiner_switch_step=refiner_switch_step,
+                             cfg=cfg, latent_image=latent_image,
                              start_step=start_step, last_step=last_step, force_full_denoise=force_full_denoise,
                              denoise_mask=noise_mask, sigmas=sigmas, callback=callback, disable_pbar=disable_pbar,
                              seed=seed)

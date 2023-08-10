@@ -75,7 +75,8 @@ class KSamplerWithRefiner:
             sigmas = self.calculate_sigmas(new_steps).to(self.device)
             self.sigmas = sigmas[-(steps + 1):]
 
-    def sample(self, noise, positive, negative, cfg, latent_image=None, start_step=None, last_step=None,
+    def sample(self, noise, positive, negative, refiner_positive, refiner_negative, cfg, latent_image=None,
+               start_step=None, last_step=None, refiner_switch_step=None,
                force_full_denoise=False, denoise_mask=None, sigmas=None, callback=None, disable_pbar=False, seed=None):
         if sigmas is None:
             sigmas = self.sigmas
