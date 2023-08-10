@@ -109,8 +109,6 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=9.0, sa
     sigmas = None
     disable_pbar = False
 
-    device = comfy.model_management.get_torch_device()
-
     if noise_mask is not None:
         noise_mask = prepare_mask(noise_mask, noise.shape, device)
 
