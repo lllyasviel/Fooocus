@@ -89,8 +89,8 @@ def close_all_preview():
 
 
 @torch.no_grad()
-def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='euler_ancestral',
-             scheduler='normal', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
+def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
+             scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False):
     seed = seed if isinstance(seed, int) else random.randint(1, 2 ** 64)
 
@@ -153,8 +153,8 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 
 @torch.no_grad()
 def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, refiner_negative, latent,
-                          seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='euler_ancestral',
-                          scheduler='normal', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
+                          seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
+                          scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
                           force_full_denoise=False):
     seed = seed if isinstance(seed, int) else random.randint(1, 2 ** 64)
 
