@@ -27,7 +27,7 @@ opVAEDecode = VAEDecode()
 positive_conditions = opCLIPTextEncode.encode(clip=xl_base_clip, text='a handsome man in forest')[0]
 negative_conditions = opCLIPTextEncode.encode(clip=xl_base_clip, text='bad, ugly')[0]
 
-initial_latent_image = opEmptyLatentImage.generate(width=1024, height=1536, batch_size=1)[0]
+initial_latent_image = opEmptyLatentImage.generate(width=1024, height=1024, batch_size=1)[0]
 
 samples = opKSamplerAdvanced.sample(
     add_noise="enable",
