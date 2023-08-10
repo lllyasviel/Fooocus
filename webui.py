@@ -1,30 +1,20 @@
-import os
-import modules.core as core
-
-from modules.path import modelfile_path
+import gradio as gr
+from modules.default_pipeline import process
 
 
-xl_base_filename = os.path.join(modelfile_path, 'sd_xl_base_1.0.safetensors')
-xl_refiner_filename = os.path.join(modelfile_path, 'sd_xl_refiner_1.0.safetensors')
+def generate_clicked(positive_prompt):
+    return process(positive_prompt=positive_prompt, negative_prompt='bad, ugly')
 
-xl_base = core.load_model(xl_base_filename)
 
-positive_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt='a beautiful woman in forest')
-negative_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt='bad, ugly')
+block = gr.Blocks().queue()
+with block:
+    with gr.Row():
+        with gr.Column():
+            prompt = gr.Textbox(label="Prompt", value='a handsome man in forest')
+            run_button = gr.Button(label="Run")
+        with gr.Column():
+            result_gallery = gr.Gallery(label='Output', show_label=False, elem_id="gallery").style(grid=2, height='auto')
+    run_button.click(fn=generate_clicked, inputs=[prompt], outputs=[result_gallery])
 
-empty_latent = core.generate_empty_latent(width=1024, height=1024, batch_size=1)
 
-sampled_latent = core.ksample(
-    unet=xl_base.unet,
-    positive_condition=positive_conditions,
-    negative_condition=negative_conditions,
-    latent_image=empty_latent
-)
-
-decoded_latent = core.decode_vae(vae=xl_base.vae, latent_image=sampled_latent)
-
-images = core.image_to_numpy(decoded_latent)
-
-for image in images:
-    import cv2
-    cv2.imwrite('a.png', image[:, :, ::-1])
+block.launch()
