@@ -44,5 +44,5 @@ def process(positive_prompt, negative_prompt, width=1024, height=1024, batch_siz
     images = core.image_to_numpy(decoded_latent)
 
     core.close_all_preview()
-    
+
     return images

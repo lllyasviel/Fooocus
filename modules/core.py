@@ -58,13 +58,14 @@ def get_previewer(device, latent_format):
 
     taesd = TAESD(None, taesd_decoder_path).to(device)
 
-    def preview_function(x0):
+    def preview_function(x0, step, total_steps):
         with torch.no_grad():
             x_sample = taesd.decoder(x0).detach() * 255.0
             x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')
             x_sample = x_sample.cpu().numpy()[..., ::-1].copy().clip(0, 255).astype(np.uint8)
             for i, s in enumerate(x_sample):
                 cv2.imshow(f'Preview {i}', s)
+                cv2.setWindowTitle(f'Preview {i}', f'Preview {i}, [{step}/{total_steps}]')
                 cv2.waitKey(1)
 
     taesd.preview = preview_function
@@ -99,7 +100,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=9.0, sa
 
     def callback(step, x0, x, total_steps):
         if previewer and step % 3 == 0:
-            previewer.preview(x0)
+            previewer.preview(x0, step, total_steps)
         pbar.update_absolute(step + 1, total_steps, None)
 
     samples = comfy.sample.sample(model, noise, steps, cfg, sampler_name, scheduler, positive, negative, latent_image,
