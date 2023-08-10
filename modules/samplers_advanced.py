@@ -1,7 +1,7 @@
 from comfy.samplers import *
 
 
-class KSamplerAdvanced:
+class KSamplerWithRefiner:
     SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
     SAMPLERS = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
                 "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",

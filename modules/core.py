@@ -11,8 +11,7 @@ import comfy.utils
 from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, CLIPTextEncode
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
-from modules.samplers_advanced import KSamplerAdvanced
-
+from modules.samplers_advanced import KSampler, KSamplerWithRefiner
 
 opCLIPTextEncode = CLIPTextEncode()
 opEmptyLatentImage = EmptyLatentImage()
@@ -81,7 +80,9 @@ def close_all_preview():
 
 
 @torch.no_grad()
-def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=9.0, sampler_name='dpmpp_2m_sde', scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None, force_full_denoise=False):
+def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=9.0, sampler_name='dpmpp_2m_sde',
+             scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
+             force_full_denoise=False):
     seed = seed if isinstance(seed, int) else random.randint(1, 2 ** 64)
 
     device = comfy.model_management.get_torch_device()
@@ -123,7 +124,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=9.0, sa
 
     models = load_additional_models(positive, negative, model.model_dtype())
 
-    sampler = KSamplerAdvanced(real_model, steps=steps, device=device, sampler=sampler_name, scheduler=scheduler,
+    sampler = KSampler(real_model, steps=steps, device=device, sampler=sampler_name, scheduler=scheduler,
                        denoise=denoise, model_options=model.model_options)
 
     samples = sampler.sample(noise, positive_copy, negative_copy, cfg=cfg, latent_image=latent_image,
