@@ -3,7 +3,7 @@ from modules.default_pipeline import process
 
 
 def generate_clicked(positive_prompt):
-    return process(positive_prompt=positive_prompt, negative_prompt='bad, ugly')
+    return process(positive_prompt=positive_prompt, negative_prompt='bad, ugly, lowres, bad anatomy, bad hands, cropped, worst quality')
 
 
 block = gr.Blocks().queue()
