@@ -20,6 +20,8 @@ opCLIPTextEncode = CLIPTextEncode()
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
 
+cv2_is_top = False
+
 
 class StableDiffusionModel:
     def __init__(self, unet, vae, clip, clip_vision):
@@ -62,6 +64,7 @@ def get_previewer(device, latent_format):
     taesd = TAESD(None, taesd_decoder_path).to(device)
 
     def preview_function(x0, step, total_steps):
+        global cv2_is_top
         with torch.no_grad():
             x_sample = taesd.decoder(x0).detach() * 255.0
             x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')
@@ -70,7 +73,9 @@ def get_previewer(device, latent_format):
                 flag = f'OpenCV Diffusion Preview {i}'
                 cv2.imshow(flag, s)
                 cv2.setWindowTitle(flag, f'Preview Image {i} [{step}/{total_steps}]')
-                cv2.setWindowProperty(flag, cv2.WND_PROP_TOPMOST, 1)
+                if not cv2_is_top:
+                    cv2.setWindowProperty(flag, cv2.WND_PROP_TOPMOST, 1)
+                    cv2_is_top = True
                 cv2.waitKey(1)
 
     taesd.preview = preview_function
@@ -79,6 +84,7 @@ def get_previewer(device, latent_format):
 
 
 def close_all_preview():
+    cv2_is_top = False
     cv2.destroyAllWindows()
 
 
