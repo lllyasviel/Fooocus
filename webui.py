@@ -23,7 +23,7 @@ def bot(history):
 
 
 with gr.Blocks() as demo:
-    chatbot = gr.Chatbot([], elem_id="chatbot").style(height=750)
+    chatbot = gr.Chatbot([], elem_id="chatbot", label='Fooocus').style(height=750)
 
     with gr.Row():
         with gr.Column(scale=0.85):
@@ -32,7 +32,7 @@ with gr.Blocks() as demo:
                 placeholder="Enter text and press enter, or upload an image",
             ).style(container=False)
         with gr.Column(scale=0.15, min_width=0):
-            btn = gr.UploadButton("📁", file_types=["image", "video", "audio"])
+            btn = gr.UploadButton("Generate", file_types=["image", "video", "audio"])
 
     txt_msg = txt.submit(add_text, [chatbot, txt], [chatbot, txt], queue=False).then(
         bot, chatbot, chatbot
