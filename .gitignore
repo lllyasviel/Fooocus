@@ -5,8 +5,6 @@ __pycache__
 /repositories
 /venv
 /tmp
-/model.ckpt
-/models/*
 /ui-config.json
 /outputs
 /config.json
