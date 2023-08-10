@@ -12,11 +12,8 @@ def sdxl_encode_adm_patched(self, **kwargs):
     target_height = kwargs.get("target_height", height)
 
     if kwargs.get("prompt_type", "") == "negative":
-        admk = 0.8
-        width *= admk
-        height *= admk
-        target_width *= admk
-        target_height *= admk
+        width *= 0.8
+        height *= 0.8
 
     out = []
     out.append(self.embedder(torch.Tensor([height])))
