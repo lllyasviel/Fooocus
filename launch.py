@@ -2,10 +2,11 @@ import os
 import sys
 import platform
 
-from modules.launch_util import commit_hash, fooocus_tag, is_installed, run, python, run_pip, repo_dir, git_clone
+from modules.launch_util import commit_hash, fooocus_tag, is_installed, run, python, \
+    run_pip, repo_dir, git_clone, requirements_met
 
 
-REINSTALL_ALL = True
+REINSTALL_ALL = False
 
 
 def prepare_environment():
@@ -42,6 +43,10 @@ def prepare_environment():
         elif platform.system() == "Linux":
             run_pip(f"install -U -I --no-deps {xformers_package}", "xformers")
 
+    if REINSTALL_ALL or not requirements_met(requirements_file):
+        run_pip(f"install -r \"{requirements_file}\"", "requirements")
+
+    return
 
 
 prepare_environment()
