@@ -42,4 +42,7 @@ def process(positive_prompt, negative_prompt, width=1024, height=1024, batch_siz
     decoded_latent = core.decode_vae(vae=xl_refiner.vae, latent_image=sampled_latent)
 
     images = core.image_to_numpy(decoded_latent)
+
+    core.close_all_preview()
+    
     return images

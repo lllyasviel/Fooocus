@@ -72,6 +72,10 @@ def get_previewer(device, latent_format):
     return taesd
 
 
+def close_all_preview():
+    cv2.destroyAllWindows()
+
+
 @torch.no_grad()
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=9.0, sampler_name='euler_ancestral', scheduler='normal', denoise=1.0, disable_noise=False, start_step=None, last_step=None, force_full_denoise=False):
     seed = seed if isinstance(seed, int) else random.randint(1, 2 ** 64)
@@ -103,9 +107,6 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=9.0, sa
                                   force_full_denoise=force_full_denoise, noise_mask=noise_mask, callback=callback, seed=seed)
     out = latent.copy()
     out["samples"] = samples
-
-    if previewer:
-        cv2.destroyAllWindows()
 
     return out
 
