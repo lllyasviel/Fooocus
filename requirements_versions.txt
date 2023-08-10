@@ -12,3 +12,4 @@ opencv-python==4.7.0.72
 numpy==1.23.5
 pytorch_lightning==1.9.4
 omegaconf==2.2.3
+gradio==3.32.0
