@@ -9,7 +9,7 @@ xl_refiner_filename = os.path.join(modelfile_path, 'sd_xl_refiner_1.0.safetensor
 
 xl_base = core.load_model(xl_base_filename)
 
-positive_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt='a handsome man in forest')
+positive_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt='a beautiful woman in forest')
 negative_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt='bad, ugly')
 
 empty_latent = core.generate_empty_latent(width=1024, height=1024, batch_size=1)
