@@ -4,8 +4,13 @@ import importlib.util
 import subprocess
 import sys
 import re
+import logging
 
 from functools import lru_cache
+
+
+logging.getLogger("torch.distributed.nn").setLevel(logging.ERROR)  # sshh...
+logging.getLogger("xformers").addFilter(lambda record: 'A matching Triton is not available' not in record.getMessage())
 
 
 python = sys.executable
