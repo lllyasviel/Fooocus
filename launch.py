@@ -19,7 +19,7 @@ def prepare_environment():
     xformers_package = os.environ.get('XFORMERS_PACKAGE', 'xformers==0.0.20')
 
     comfy_repo = os.environ.get('COMFY_REPO', "https://github.com/lllyasviel/ComfyUI-Embedded.git")
-    comfy_commit_hash = os.environ.get('COMFY_COMMIT_HASH', "026fa0ed3db9ab0681aaee06aba77234c2c5dfde")
+    comfy_commit_hash = os.environ.get('COMFY_COMMIT_HASH', "9fc06f0827b08229956660c4bf7e1231f07aea0c")
 
     commit = commit_hash()
     tag = fooocus_tag
