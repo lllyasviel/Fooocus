@@ -45,6 +45,6 @@ samples = opKSamplerAdvanced.sample(
     latent_image=initial_latent_image,
 )[0]
 
-vaedecodeed = opVAEDecode.decode(samples=samples, vae=xl_base_vae)[0]
+vae_decoded = opVAEDecode.decode(samples=samples, vae=xl_base_vae)[0]
 
 a = 0
