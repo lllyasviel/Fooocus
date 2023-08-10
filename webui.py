@@ -1,10 +1,18 @@
 import gradio as gr
+
+from modules.sdxl_styles import apply_style
 from modules.default_pipeline import process
 
 
 def generate_clicked(positive_prompt):
-    return process(positive_prompt=positive_prompt,
-                   negative_prompt='')
+
+    p, n = apply_style('sai-cinematic', positive_prompt, '')
+
+    print(p)
+    print(n)
+
+    return process(positive_prompt=p,
+                   negative_prompt=n)
 
 
 block = gr.Blocks().queue()
