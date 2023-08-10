@@ -66,7 +66,7 @@ def get_previewer(device, latent_format):
             for i, s in enumerate(x_sample):
                 flag = f'OpenCV Diffusion Preview {i}'
                 cv2.imshow(flag, s)
-                cv2.setWindowTitle(flag, f'Preview {i}, [{step}/{total_steps}]')
+                cv2.setWindowTitle(flag, f'Preview Image {i} [{step}/{total_steps}]')
                 cv2.setWindowProperty(flag, cv2.WND_PROP_TOPMOST, 1)
                 cv2.waitKey(1)
 
