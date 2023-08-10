@@ -14,6 +14,9 @@ def sdxl_encode_adm_patched(self, **kwargs):
     if kwargs.get("prompt_type", "") == "negative":
         width *= 0.8
         height *= 0.8
+    elif kwargs.get("prompt_type", "") == "positive":
+        width *= 1.5
+        height *= 1.5
 
     out = []
     out.append(self.embedder(torch.Tensor([height])))
