@@ -81,7 +81,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=9.0, sa
                                   force_full_denoise=force_full_denoise, noise_mask=noise_mask, callback=callback, seed=seed)
     out = latent.copy()
     out["samples"] = samples
-    return (out, )
+    return out
 
 
 @torch.no_grad()
