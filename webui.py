@@ -4,7 +4,7 @@ from modules.default_pipeline import process
 
 def generate_clicked(positive_prompt):
     return process(positive_prompt=positive_prompt,
-                   negative_prompt='plastic, blur, blurred, lack of detail, surface, plain, toon, clip art, flat')
+                   negative_prompt='')
 
 
 block = gr.Blocks().queue()

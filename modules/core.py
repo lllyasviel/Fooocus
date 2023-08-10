@@ -15,7 +15,7 @@ from modules.samplers_advanced import KSampler, KSamplerWithRefiner
 from modules.adm_patch import patch_negative_adm
 
 
-# patch_negative_adm()
+patch_negative_adm()
 opCLIPTextEncode = CLIPTextEncode()
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
