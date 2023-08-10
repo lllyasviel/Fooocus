@@ -26,8 +26,9 @@ def prepare_environment():
     print(f"Version: {tag}")
     print(f"Commit hash: {commit}")
 
-    git_clone(comfy_repo, repo_dir('StabilityAI-official-comfyui'), "Inference Engine", comfy_commit_hash)
-    sys.path.append(os.path.join(script_path, dir_repos, 'StabilityAI-official-comfyui'))
+    comfyui_name = 'ComfyUI-from-StabilityAI-Official'
+    git_clone(comfy_repo, repo_dir(comfyui_name), "Inference Engine", comfy_commit_hash)
+    sys.path.append(os.path.join(script_path, dir_repos, comfyui_name))
 
     if REINSTALL_ALL or not is_installed("torch") or not is_installed("torchvision"):
         run(f'"{python}" -m {torch_command}', "Installing torch and torchvision", "Couldn't install torch", live=True)
