@@ -6,11 +6,12 @@ import torch
 import numpy as np
 
 import comfy.model_management
-import comfy.sample
 import comfy.utils
 
 from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, CLIPTextEncode
+from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
+from comfy.samplers import KSampler
 
 
 opCLIPTextEncode = CLIPTextEncode()
@@ -105,9 +106,37 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=9.0, sa
             previewer.preview(x0, step, total_steps)
         pbar.update_absolute(step + 1, total_steps, None)
 
-    samples = comfy.sample.sample(model, noise, steps, cfg, sampler_name, scheduler, positive, negative, latent_image,
-                                  denoise=denoise, disable_noise=disable_noise, start_step=start_step, last_step=last_step,
-                                  force_full_denoise=force_full_denoise, noise_mask=noise_mask, callback=callback, seed=seed)
+    sigmas = None
+    disable_pbar = False
+
+    device = comfy.model_management.get_torch_device()
+
+    if noise_mask is not None:
+        noise_mask = prepare_mask(noise_mask, noise.shape, device)
+
+    comfy.model_management.load_model_gpu(model)
+    real_model = model.model
+
+    noise = noise.to(device)
+    latent_image = latent_image.to(device)
+
+    positive_copy = broadcast_cond(positive, noise.shape[0], device)
+    negative_copy = broadcast_cond(negative, noise.shape[0], device)
+
+    models = load_additional_models(positive, negative, model.model_dtype())
+
+    sampler = KSampler(real_model, steps=steps, device=device, sampler=sampler_name, scheduler=scheduler,
+                       denoise=denoise, model_options=model.model_options)
+
+    samples = sampler.sample(noise, positive_copy, negative_copy, cfg=cfg, latent_image=latent_image,
+                             start_step=start_step, last_step=last_step, force_full_denoise=force_full_denoise,
+                             denoise_mask=noise_mask, sigmas=sigmas, callback=callback, disable_pbar=disable_pbar,
+                             seed=seed)
+
+    samples = samples.cpu()
+
+    cleanup_additional_models(models)
+
     out = latent.copy()
     out["samples"] = samples
 
