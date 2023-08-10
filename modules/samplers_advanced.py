@@ -158,6 +158,7 @@ class KSamplerWithRefiner:
                 positive[i] = refiner_positive[i]
             for i in range(len(negative)):
                 negative[i] = refiner_negative[i]
+            print('Refiner swapped.')
             return
 
         def callback(step, x0, x, total_steps):
