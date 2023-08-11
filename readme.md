@@ -36,7 +36,7 @@ If you already have these files, you can copy them to the above locations to spe
 
 Coming soon ...
 
-## List of Techniques Used in Improving the Result Quality
+## List of Tricks Used in Improving the Result
 <a name="tech_list"></a>
 
 123
