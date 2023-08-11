@@ -73,6 +73,9 @@ def download_models():
 
 
 prepare_environment()
+
+import cuda_malloc
+
 download_models()
 
 from webui import *

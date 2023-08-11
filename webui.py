@@ -1,5 +1,3 @@
-import cuda_malloc
-
 import gradio as gr
 import random
 import fooocus_version
