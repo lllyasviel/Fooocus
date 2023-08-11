@@ -1,50 +1,31 @@
 import gradio as gr
-import random
-import time
+
+from modules.sdxl_styles import apply_style
+from modules.default_pipeline import process
 
 
-def add_text(history, text):
-    history = history + [(text, None)]
-    return history, gr.update(value="", interactive=False)
+def generate_clicked(positive_prompt):
+
+    p, n = apply_style('cinematic-default', positive_prompt, '')
+
+    print(p)
+    print(n)
+
+    return process(positive_prompt=p,
+                   negative_prompt=n)
 
 
-def add_file(history, file):
-    history = history + [(('./outputs/a.png',), ('./outputs/a.png', './outputs/a.png'))]
-    return history
+block = gr.Blocks().queue()
+with block:
+    with gr.Column():
+        gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=768)
+        with gr.Row():
+            with gr.Column(scale=0.85):
+                prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", container=False)
+            with gr.Column(scale=0.15, min_width=0):
+                run_button = gr.Button(label="Generate", value="Generate")
+        with gr.Row():
+            advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False)
+    run_button.click(fn=generate_clicked, inputs=[prompt], outputs=[gallery])
 
-
-def bot(history):
-    response = "**That's cool!**"
-    # history[-1][1] = ""
-    for character in response:
-        # history[-1][1] += character
-        # time.sleep(0.05)
-        yield history
-
-
-with gr.Blocks() as demo:
-    chatbot = gr.Chatbot([], label='Fooocus', height=750)
-
-    with gr.Row():
-        with gr.Column(scale=0.85):
-            txt = gr.Textbox(
-                show_label=False,
-                placeholder="Type prompt here.",
-                container=False
-            )
-        with gr.Column(scale=0.15, min_width=0):
-            btn = gr.UploadButton("Generate", file_types=["image"])
-
-    with gr.Row():
-        gr.Checkbox(label='Advanced Setting', value=False, container=False)
-
-    txt_msg = txt.submit(add_text, [chatbot, txt], [chatbot, txt], queue=False).then(
-        bot, chatbot, chatbot
-    )
-    txt_msg.then(lambda: gr.update(interactive=True), None, [txt], queue=False)
-    file_msg = btn.upload(add_file, [chatbot, btn], [chatbot], queue=False).then(
-        bot, chatbot, chatbot
-    )
-
-demo.queue()  # number size style quality seed
-demo.launch()
+block.launch()
