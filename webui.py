@@ -28,7 +28,7 @@ def generate_clicked(prompt, negative_prompt, style_selction, performance_selcti
     all_steps = steps * image_number
 
     def callback(step, x0, x, total_steps):
-        done_steps = i * image_number + step
+        done_steps = i * steps + step
         progress(float(done_steps) / float(all_steps), f'Step {step}/{total_steps} in the {i}-th Sampling')
 
     for i in range(image_number):
