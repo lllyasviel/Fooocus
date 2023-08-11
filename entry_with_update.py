@@ -1,6 +1,11 @@
 import os
+import sys
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+root = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(root)
+os.chdir(root)
+
 
 try:
     import pygit2
