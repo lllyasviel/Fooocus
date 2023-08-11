@@ -81,7 +81,10 @@ def get_previewer(device, latent_format):
             x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')
             x_sample = x_sample.cpu().numpy().clip(0, 255).astype(np.uint8)
             for i, s in enumerate(x_sample):
-                show_preview(f'OpenCV Diffusion Preview {i}', s, title=f'Preview Image {i} [{step}/{total_steps}]')
+                if i > 0:
+                    show_preview(f'OpenCV Diffusion Preview {i}', s, title=f'Preview Image {i} [{step}/{total_steps}]')
+                else:
+                    show_preview(f'OpenCV Diffusion Preview {i}', s, title=f'Preview Image [{step}/{total_steps}]')
 
     taesd.preview = preview_function
 
