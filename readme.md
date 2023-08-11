@@ -17,9 +17,9 @@ Fooocus has simplified the installation. Between pressing "download" and generat
 `[1]` Midjourney About, David Holz, 2020.
 
 
-### Download
+## Download
 
-**Windows**
+### Windows
 
 **[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_1-1-10.7z)**
 
@@ -32,15 +32,15 @@ In the first time you launch the software, it will automatically download models
 
 If you already have these files, you can copy them to the above locations to speed up installation.
 
-**Linux and Mac**
+### Linux and Mac
 
-Under construction ...
+Coming soon ...
 
-### List of Techniques Used in Improving the Result Quality
+## List of Techniques Used in Improving the Result Quality
 <a name="tech_list"></a>
 
 123
 
-### Thanks
+## Thanks
 
 The codebase starts from an odd mixture of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) and [ComfyUI](https://github.com/comfyanonymous/ComfyUI).
