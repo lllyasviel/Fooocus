@@ -1,5 +1,3 @@
-import cuda_malloc
-
 import os
 import random
 import cv2
