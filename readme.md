@@ -41,6 +41,10 @@ Coming soon ...
 
 Below things are already inside the software, and users do not need to do anything.
 
+Note that many of these tricks are currently (2023 Aug 11) impossible to reproduce in Automatic1111's interface or ComfyUI's node system. You can expect better results from Fooocus than other software even when they use similar models/pipelines.
+
+1. 
+
 ## Thanks
 
 The codebase starts from an odd mixture of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) and [ComfyUI](https://github.com/comfyanonymous/ComfyUI).
