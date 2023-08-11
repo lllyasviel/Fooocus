@@ -3,6 +3,7 @@ import os
 import torch
 
 from modules.path import modelfile_path, lorafile_path
+from modules.cv2win32 import close_all_preview
 
 
 xl_base_filename = os.path.join(modelfile_path, 'sd_xl_base_1.0.safetensors')
@@ -43,6 +44,6 @@ def process(positive_prompt, negative_prompt, width=1024, height=1024, batch_siz
 
     images = core.image_to_numpy(decoded_latent)
 
-    core.close_all_preview()
+    close_all_preview()
 
     return images

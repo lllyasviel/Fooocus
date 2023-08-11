@@ -15,14 +15,13 @@ from nodes import VAEDecode, EmptyLatentImage, CLIPTextEncode
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from modules.samplers_advanced import KSampler, KSamplerWithRefiner
 from modules.adm_patch import patch_negative_adm
+from modules.cv2win32 import show_preview
 
 
 patch_negative_adm()
 opCLIPTextEncode = CLIPTextEncode()
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
-
-cv2_is_top = False
 
 
 class StableDiffusionModel:
@@ -82,24 +81,11 @@ def get_previewer(device, latent_format):
             x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')
             x_sample = x_sample.cpu().numpy()[..., ::-1].copy().clip(0, 255).astype(np.uint8)
             for i, s in enumerate(x_sample):
-                flag = f'OpenCV Diffusion Preview {i}'
-                cv2.imshow(flag, s)
-                cv2.setWindowTitle(flag, f'Preview Image {i} [{step}/{total_steps}]')
-                if not cv2_is_top:
-                    cv2.setWindowProperty(flag, cv2.WND_PROP_TOPMOST, 1)
-                    cv2_is_top = True
-                else:
-                    cv2.setWindowProperty(flag, cv2.WND_PROP_TOPMOST, 0)
-                cv2.waitKey(1)
+                show_preview(f'OpenCV Diffusion Preview {i}', s, title=f'Preview Image {i} [{step}/{total_steps}]')
 
     taesd.preview = preview_function
 
     return taesd
-
-
-def close_all_preview():
-    cv2_is_top = False
-    cv2.destroyAllWindows()
 
 
 @torch.no_grad()
