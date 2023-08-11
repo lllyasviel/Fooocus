@@ -8,7 +8,7 @@ Fooocus is a rethinking of Stable Diffusion and Midjourney’s designs:
 
 * Learned from Stable Diffusion, the Fooocus is offline, open source, and free.
 
-* Learned from Midjourney, the Fooocus only have one textbox, and users only need to focus on the prompts and images.
+* Learned from Midjourney, the parameter tweaking is not needed, and users only need to focus on the prompts and images.
 
 Fooocus has automated [lots of inner optimizations and quality improvements](tech_list). Users can forget everything about technical parameters, and just enjoy the interaction between human and computer to "explore new mediums of thought and expanding the imaginative powers of the human species" `[1]`.
 
