@@ -3,7 +3,6 @@ import os
 import torch
 
 from modules.path import modelfile_path, lorafile_path
-from modules.cv2win32 import close_all_preview
 
 
 xl_base_filename = os.path.join(modelfile_path, 'sd_xl_base_1.0.safetensors')
@@ -43,7 +42,5 @@ def process(positive_prompt, negative_prompt, steps, switch, width, height, imag
     decoded_latent = core.decode_vae(vae=xl_refiner.vae, latent_image=sampled_latent)
 
     images = core.image_to_numpy(decoded_latent)
-
-    close_all_preview()
 
     return images

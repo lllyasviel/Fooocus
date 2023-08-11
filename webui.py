@@ -3,6 +3,7 @@ import random
 
 from modules.sdxl_styles import apply_style, style_keys, aspect_ratios
 from modules.default_pipeline import process
+from modules.cv2win32 import close_all_preview
 
 
 def generate_clicked(prompt, negative_prompt, style_selction, performance_selction,
@@ -29,6 +30,7 @@ def generate_clicked(prompt, negative_prompt, style_selction, performance_selcti
         seed += 1
         results += imgs
 
+    close_all_preview()
     return results
 
 
