@@ -79,7 +79,7 @@ def get_previewer(device, latent_format):
         with torch.no_grad():
             x_sample = taesd.decoder(torch.nn.functional.avg_pool2d(x0, kernel_size=(2, 2))).detach() * 255.0
             x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')
-            x_sample = x_sample.cpu().numpy()[..., ::-1].copy().clip(0, 255).astype(np.uint8)
+            x_sample = x_sample.cpu().numpy().clip(0, 255).astype(np.uint8)
             for i, s in enumerate(x_sample):
                 show_preview(f'OpenCV Diffusion Preview {i}', s, title=f'Preview Image {i} [{step}/{total_steps}]')
 
