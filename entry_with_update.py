@@ -31,6 +31,7 @@ try:
         print("Already up-to-date")
     elif merge_result & pygit2.GIT_MERGE_ANALYSIS_FASTFORWARD:
         local_branch.set_target(remote_commit.id)
+        repo.head.set_target(remote_commit.id)
         print("Fast-forward merge")
     elif merge_result & pygit2.GIT_MERGE_ANALYSIS_NORMAL:
         print("Update failed - Did you modified any file?")
