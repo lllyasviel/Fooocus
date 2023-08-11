@@ -18,7 +18,7 @@ xl_refiner = core.load_model(xl_refiner_filename)
 
 
 @torch.no_grad()
-def process(positive_prompt, negative_prompt, width=1024, height=1024, batch_size=1):
+def process(positive_prompt, negative_prompt, width=1280, height=960, batch_size=1):
     positive_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt=positive_prompt)
     negative_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt=negative_prompt)
 
