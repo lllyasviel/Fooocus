@@ -40,7 +40,7 @@ def generate_clicked(prompt, negative_prompt, style_selction, performance_selcti
     return results
 
 
-block = gr.Blocks().queue()
+block = gr.Blocks(title='Fooocus').queue()
 with block:
     with gr.Row():
         with gr.Column():
