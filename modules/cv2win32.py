@@ -2,12 +2,11 @@ import threading
 import cv2
 
 
-flag = 'fooocus_cv2win32'
 buffer = []
 
 
 def worker():
-    global buffer, flag
+    global buffer
     while True:
         cv2.waitKey(50)
         try:
@@ -16,7 +15,7 @@ def worker():
                 if task is None:
                     cv2.destroyAllWindows()
                 else:
-                    img, title = task
+                    flag, img, title = task
                     cv2.imshow(flag, img)
                     cv2.setWindowTitle(flag, title)
                     cv2.setWindowProperty(flag, cv2.WND_PROP_TOPMOST, 1)
@@ -25,8 +24,8 @@ def worker():
     pass
 
 
-def show_preview(img, title='preview'):
-    buffer.append((img, title))
+def show_preview(flag, img, title='preview'):
+    buffer.append((flag, img.copy(), title))
 
 
 def close_all_preview():
