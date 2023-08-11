@@ -106,6 +106,11 @@ def close_all_preview():
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False):
+    # SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
+    # SAMPLERS = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
+    #             "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
+    #             "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "ddim", "uni_pc", "uni_pc_bh2"]
+
     seed = seed if isinstance(seed, int) else random.randint(1, 2 ** 64)
 
     device = comfy.model_management.get_torch_device()
@@ -170,6 +175,11 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
                           seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
                           scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
                           force_full_denoise=False):
+    # SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
+    # SAMPLERS = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
+    #             "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
+    #             "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "ddim", "uni_pc", "uni_pc_bh2"]
+
     seed = seed if isinstance(seed, int) else random.randint(1, 2 ** 64)
 
     device = comfy.model_management.get_torch_device()
