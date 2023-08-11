@@ -21,6 +21,8 @@ Fooocus has simplified the installation. Between pressing "download" and generat
 
 ### Windows
 
+You can directly download Fooocus with:
+
 **[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_1-1-10.7z)**
 
 After you download the file, please uncompress it, and then run the "run.bat".
