@@ -20,7 +20,7 @@ with block:
     with gr.Column():
         prompt = gr.Textbox(label="Prompt", value='a handsome man in forest')
         run_button = gr.Button(label="Run")
-        result_gallery = gr.Gallery(label='Output', show_label=False, elem_id="gallery",
+        result_gallery = gr.Gallery(label='Fooocus', show_label=True, elem_id="gallery",
                                     object_fit='contain', height=768)
     run_button.click(fn=generate_clicked, inputs=[prompt], outputs=[result_gallery])
 
