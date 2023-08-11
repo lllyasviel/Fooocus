@@ -78,6 +78,8 @@ def get_previewer(device, latent_format):
                 if not cv2_is_top:
                     cv2.setWindowProperty(flag, cv2.WND_PROP_TOPMOST, 1)
                     cv2_is_top = True
+                else:
+                    cv2.setWindowProperty(flag, cv2.WND_PROP_TOPMOST, 0)
                 cv2.waitKey(1)
 
     taesd.preview = preview_function
