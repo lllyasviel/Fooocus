@@ -1,7 +1,10 @@
-try:
+import os
+import sys
 
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+try:
     import pygit2
-    import os
 
     repo = pygit2.Repository(os.path.abspath(os.path.dirname(__file__)))
 
