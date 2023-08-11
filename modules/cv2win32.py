@@ -25,7 +25,7 @@ def worker():
 
 
 def show_preview(flag, img, title='preview'):
-    buffer.append((flag, img.copy(), title))
+    buffer.append((flag, img[..., ::-1].copy(), title))
 
 
 def close_all_preview():
