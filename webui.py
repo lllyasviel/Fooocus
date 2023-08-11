@@ -47,7 +47,7 @@ with block:
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=768)
             with gr.Row():
                 with gr.Column(scale=0.85):
-                    prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", container=False)
+                    prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", container=False, autofocus=True)
                 with gr.Column(scale=0.15, min_width=0):
                     run_button = gr.Button(label="Generate", value="Generate")
             with gr.Row():
