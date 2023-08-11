@@ -36,7 +36,7 @@ def process(positive_prompt, negative_prompt, width=1024, height=1024, batch_siz
         refiner_switch_step=20,
         latent=empty_latent,
         steps=30, start_step=0, last_step=30, disable_noise=False, force_full_denoise=True,
-        seed=12345
+        seed=123456
     )
 
     decoded_latent = core.decode_vae(vae=xl_refiner.vae, latent_image=sampled_latent)
