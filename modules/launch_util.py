@@ -20,8 +20,6 @@ modules_path = os.path.dirname(os.path.realpath(__file__))
 script_path = os.path.dirname(modules_path)
 dir_repos = "repositories"
 
-fooocus_tag = '1.0.0'
-
 
 def git_clone(url, dir, name, hash=None):
     try:

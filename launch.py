@@ -1,8 +1,9 @@
 import os
 import sys
 import platform
+import fooocus_version
 
-from modules.launch_util import fooocus_tag, is_installed, run, python, \
+from modules.launch_util import is_installed, run, python, \
     run_pip, repo_dir, git_clone, requirements_met, script_path, dir_repos
 from modules.model_loader import load_file_from_url
 from modules.path import modelfile_path, lorafile_path
@@ -21,10 +22,8 @@ def prepare_environment():
     comfy_repo = os.environ.get('COMFY_REPO', "https://github.com/comfyanonymous/ComfyUI")
     comfy_commit_hash = os.environ.get('COMFY_COMMIT_HASH', "2bc12d3d22efb5c63ae3a7fc342bb2dd16b31735")
 
-    tag = fooocus_tag
-
     print(f"Python {sys.version}")
-    print(f"Version: {tag}")
+    print(f"Fooocus version: {fooocus_version.version}")
 
     comfyui_name = 'ComfyUI-from-StabilityAI-Official'
     git_clone(comfy_repo, repo_dir(comfyui_name), "Inference Engine", comfy_commit_hash)
