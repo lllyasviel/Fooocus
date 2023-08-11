@@ -47,7 +47,7 @@ with block:
         with gr.Column(scale=0.5, visible=False) as right_col:
             with gr.Tab(label='Generator Setting'):
                 performance_selction = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
-                aspect_ratios_selction = gr.Radio(label='Aspect Ratios', choices=list(aspect_ratios.keys()),
+                aspect_ratios_selction = gr.Radio(label='Aspect Ratios (width × height)', choices=list(aspect_ratios.keys()),
                                                   value='1152×896')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=2)
                 image_seed = gr.Number(label='Random Seed', value=-1, precision=0)
