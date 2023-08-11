@@ -1,5 +1,3 @@
-import cuda_malloc
-
 import os
 import sys
 import platform

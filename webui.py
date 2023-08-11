@@ -1,3 +1,5 @@
+import cuda_malloc
+
 import gradio as gr
 import random
 
