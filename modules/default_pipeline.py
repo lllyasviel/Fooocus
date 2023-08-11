@@ -10,7 +10,7 @@ xl_refiner_filename = os.path.join(modelfile_path, 'sd_xl_refiner_1.0.safetensor
 xl_base_offset_lora_filename = os.path.join(lorafile_path, 'sd_xl_offset_example-lora_1.0.safetensors')
 
 xl_base = core.load_model(xl_base_filename)
-xl_base = core.load_lora(xl_base, xl_base_offset_lora_filename, strength_model=1.0, strength_clip=0.0)
+xl_base = core.load_lora(xl_base, xl_base_offset_lora_filename, strength_model=0.5, strength_clip=0.0)
 del xl_base.vae
 
 xl_refiner = core.load_model(xl_refiner_filename)
