@@ -46,4 +46,4 @@ def process(positive_prompt, negative_prompt, width=1280, height=960, batch_size
 
     close_all_preview()
 
-    return images
+    return images * 2
