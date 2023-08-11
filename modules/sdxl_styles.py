@@ -1,3 +1,5 @@
+# https://github.com/twri/sdxl_prompt_styler/blob/main/sdxl_styles.json
+
 styles = [
     {
         "name": "sai-base",
