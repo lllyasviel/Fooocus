@@ -1,7 +1,7 @@
 import gradio as gr
 
-from modules.sdxl_styles import apply_style
-from modules.default_pipeline import process
+from modules.sdxl_styles import apply_style, style_keys, aspect_ratios
+# from modules.default_pipeline import process
 
 
 def generate_clicked(positive_prompt):
@@ -18,7 +18,7 @@ def generate_clicked(positive_prompt):
 block = gr.Blocks()
 with block:
     with gr.Row():
-        with gr.Column(scale=0.7):
+        with gr.Column():
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=768)
             with gr.Row():
                 with gr.Column(scale=0.85):
@@ -27,9 +27,22 @@ with block:
                     run_button = gr.Button(label="Generate", value="Generate")
             with gr.Row():
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False)
-        with gr.Column(scale=0.3):
-            with gr.Group():
-                gr.Textbox()
-        run_button.click(fn=generate_clicked, inputs=[prompt], outputs=[gallery])
+        with gr.Column(scale=0.5, visible=False) as right_col:
+            with gr.Tab(label='Generator Setting'):
+                performance_selction = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
+                aspect_ratios_selction = gr.Radio(label='Aspect Ratios', choices=list(aspect_ratios.keys()),
+                                                  value='1152×896')
+                image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=2)
+                image_seed = gr.Number(label='Random Seed', value=-1, precision=0)
+                negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.")
+            with gr.Tab(label='Image Style'):
+                style_selction = gr.Radio(show_label=False, container=True,
+                                          choices=style_keys, value='cinematic-default')
+        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col)
+        ctrls = [
+            prompt, negative_prompt, style_selction,
+            performance_selction, aspect_ratios_selction, image_number, image_seed
+        ]
+        run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[gallery])
 
 block.launch()
