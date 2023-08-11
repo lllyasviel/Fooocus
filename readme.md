@@ -14,7 +14,7 @@ Fooocus has automated [lots of inner optimizations and quality improvements](tec
 
 Fooocus has simplified the installation. Between pressing "download" and generating the first image, the number of needed mouse clicks is strictly limited to less than 5. Minimal GPU memory requirement is 4GB (Nvidia).
 
-`[1]` Midjourney About, David Holz, 2020.
+`[1]` David Holz, 2019.
 
 
 ## Download
