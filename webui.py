@@ -7,7 +7,7 @@ from modules.cv2win32 import close_all_preview
 
 
 def generate_clicked(prompt, negative_prompt, style_selction, performance_selction,
-                     aspect_ratios_selction, image_number, image_seed):
+                     aspect_ratios_selction, image_number, image_seed, progress=gr.Progress()):
 
     p_txt, n_txt = apply_style(style_selction, prompt, negative_prompt)
 
@@ -25,7 +25,7 @@ def generate_clicked(prompt, negative_prompt, style_selction, performance_selcti
     if not isinstance(seed, int) or seed < 0 or seed > 65535:
         seed = random.randint(1, 65535)
 
-    for i in range(image_number):
+    for i in progress.tqdm(range(image_number)):
         imgs = process(p_txt, n_txt, steps, switch, width, height, seed)
         seed += 1
         results += imgs
@@ -34,7 +34,7 @@ def generate_clicked(prompt, negative_prompt, style_selction, performance_selcti
     return results
 
 
-block = gr.Blocks()
+block = gr.Blocks().queue()
 with block:
     with gr.Row():
         with gr.Column():
