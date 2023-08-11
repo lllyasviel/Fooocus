@@ -40,3 +40,7 @@ Under construction ...
 <a name="tech_list"></a>
 
 123
+
+### Thanks
+
+The codebase is a wired mixture of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) and [ComfyUI](https://github.com/comfyanonymous/ComfyUI).
