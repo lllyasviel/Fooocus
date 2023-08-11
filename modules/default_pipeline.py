@@ -2,13 +2,16 @@ import modules.core as core
 import os
 import torch
 
-from modules.path import modelfile_path
+from modules.path import modelfile_path, lorafile_path
 
 
 xl_base_filename = os.path.join(modelfile_path, 'sd_xl_base_1.0.safetensors')
 xl_refiner_filename = os.path.join(modelfile_path, 'sd_xl_refiner_1.0.safetensors')
+xl_base_offset_lora_filename = os.path.join(lorafile_path, 'sd_xl_offset_example-lora_1.0.safetensors')
 
 xl_base = core.load_model(xl_base_filename)
+xl_base = core.load_lora(xl_base, xl_base_offset_lora_filename, strength_model=0.618, strength_clip=0.0)
+
 xl_refiner = core.load_model(xl_refiner_filename)
 del xl_base.vae
 

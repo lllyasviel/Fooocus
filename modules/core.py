@@ -10,7 +10,7 @@ import numpy as np
 import comfy.model_management
 import comfy.utils
 
-from comfy.sd import load_checkpoint_guess_config
+from comfy.sd import load_checkpoint_guess_config, load_lora_for_models
 from nodes import VAEDecode, EmptyLatentImage, CLIPTextEncode
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from modules.samplers_advanced import KSampler, KSamplerWithRefiner
@@ -37,6 +37,16 @@ class StableDiffusionModel:
 def load_model(ckpt_filename):
     unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename)
     return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision)
+
+
+@torch.no_grad()
+def load_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
+    if strength_model == 0 and strength_clip == 0:
+        return model
+
+    lora = comfy.utils.load_torch_file(lora_filename, safe_load=True)
+    model.unet, model.clip = comfy.sd.load_lora_for_models(model.unet, model.clip, lora, strength_model, strength_clip)
+    return model
 
 
 @torch.no_grad()
