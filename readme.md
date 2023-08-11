@@ -8,7 +8,7 @@ Fooocus is also a rethinking of Stable Diffusion’s merits and Midjourney’s d
 
 * Learned from Stable Diffusion, the Fooocus is offline, open source, and free.
 
-* Learned from Midjourney, the Fooocus only have one textbox and one button - users only need to focus on the contents.
+* Learned from Midjourney, the Fooocus only have one textbox, and users only need to focus on the prompts and images.
 
 
 
