@@ -10,5 +10,8 @@ Fooocus is also a rethinking of Stable Diffusion’s merits and Midjourney’s d
 
 * Learned from Midjourney, the Fooocus only have one textbox, and users only need to focus on the prompts and images.
 
+Fooocus has automated lots of inner optimizations. Users can forget everything about technical parameters and just enjoy the interaction between human and computer to "explore new mediums of thought and expanding the imaginative powers of the human species" [1].
 
 
+
+[1] Midjourney About, David Holz, 2020.
