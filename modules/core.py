@@ -163,7 +163,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, refiner_negative, latent,
                           seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
                           scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
-                          force_full_denoise=False):
+                          force_full_denoise=False, callback_function=None):
     # SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
     # SAMPLERS = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
     #             "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
@@ -189,6 +189,8 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
     pbar = comfy.utils.ProgressBar(steps)
 
     def callback(step, x0, x, total_steps):
+        if callback_function is not None:
+            callback_function(step, x0, x, total_steps)
         if previewer and step % 3 == 0:
             previewer.preview(x0, step, total_steps)
         pbar.update_absolute(step + 1, total_steps, None)

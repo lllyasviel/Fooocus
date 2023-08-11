@@ -17,7 +17,7 @@ xl_refiner = core.load_model(xl_refiner_filename)
 
 
 @torch.no_grad()
-def process(positive_prompt, negative_prompt, steps, switch, width, height, image_seed):
+def process(positive_prompt, negative_prompt, steps, switch, width, height, image_seed, callback):
     positive_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt=positive_prompt)
     negative_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt=negative_prompt)
 
@@ -36,7 +36,8 @@ def process(positive_prompt, negative_prompt, steps, switch, width, height, imag
         refiner_switch_step=switch,
         latent=empty_latent,
         steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
-        seed=image_seed
+        seed=image_seed,
+        callback_function=callback
     )
 
     decoded_latent = core.decode_vae(vae=xl_refiner.vae, latent_image=sampled_latent)

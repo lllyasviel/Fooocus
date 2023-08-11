@@ -25,8 +25,14 @@ def generate_clicked(prompt, negative_prompt, style_selction, performance_selcti
     if not isinstance(seed, int) or seed < 0 or seed > 65535:
         seed = random.randint(1, 65535)
 
-    for i in progress.tqdm(range(image_number)):
-        imgs = process(p_txt, n_txt, steps, switch, width, height, seed)
+    all_steps = steps * image_number
+
+    def callback(step, x0, x, total_steps):
+        done_steps = i * image_number + step
+        progress(float(done_steps) / float(all_steps), f'Step {step}/{total_steps} in the {i}-th Sampling')
+
+    for i in range(image_number):
+        imgs = process(p_txt, n_txt, steps, switch, width, height, seed, callback=callback)
         seed += 1
         results += imgs
 
