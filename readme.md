@@ -36,7 +36,7 @@ If you already have these files, you can copy them to the above locations to spe
 
 Coming soon ...
 
-## List of Tricks Used in Improving the Result
+## List of Implemented Tricks
 <a name="tech_list"></a>
 
 Below things are already inside the software, and **users do not need to do anything about these**.
