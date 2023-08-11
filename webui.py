@@ -45,7 +45,7 @@ block = gr.Blocks(title='Fooocus ' + fooocus_version.version).queue()
 with block:
     with gr.Row():
         with gr.Column():
-            gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=768)
+            gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=720)
             with gr.Row():
                 with gr.Column(scale=0.85):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", container=False, autofocus=True)
