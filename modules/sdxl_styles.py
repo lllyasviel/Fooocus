@@ -7,6 +7,11 @@ styles = [
         "negative_prompt": ""
     },
     {
+        "name": "cinematic-default",
+        "prompt": "cinematic still {prompt} . emotional, harmonious, vignette, highly detailed, high budget, bokeh, cinemascope, moody, epic, gorgeous, film grain, grainy",
+        "negative_prompt": "anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured"
+    },
+    {
         "name": "sai-3d-model",
         "prompt": "professional 3d model {prompt} . octane render, highly detailed, volumetric, dramatic lighting",
         "negative_prompt": "ugly, deformed, noisy, low poly, blurry, painting"

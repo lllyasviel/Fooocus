@@ -6,7 +6,7 @@ from modules.default_pipeline import process
 
 def generate_clicked(positive_prompt):
 
-    p, n = apply_style('sai-cinematic', positive_prompt, '')
+    p, n = apply_style('cinematic-default', positive_prompt, '')
 
     print(p)
     print(n)
