@@ -70,4 +70,4 @@ with block:
         ]
         run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[gallery])
 
-block.launch()
+block.launch(inbrowser=True)
