@@ -17,6 +17,25 @@ Fooocus has simplified the installation. Between pressing "download" and generat
 `[1]` Midjourney About, David Holz, 2020.
 
 
+### Download
+
+**Windows**
+
+**[Click here to download.](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_1-1-10.7z)**
+
+After you download the file, please uncompress it, and then run the "run.bat".
+
+In the first time you launch the software, it will automatically download models:
+
+1. It will download [sd_xl_base_1.0.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_base_1.0.safetensors".
+2. It will download [sd_xl_refiner_1.0.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_refiner_1.0.safetensors".
+
+If you already have these files, you can copy them to the above locations to speed up installation.
+
+**Linux and Mac**
+
+Under construction ...
+
 ### List of Techniques Used in Improving the Result Quality
 <a name="tech_list"></a>
 
