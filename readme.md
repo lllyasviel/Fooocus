@@ -2,9 +2,9 @@
 
 <img src="https://raw.githubusercontent.com/lllyasviel/misc_files/main/202308/fsm2.png" width=100%>
 
-Fooocus is an image generating software that allows you to focus on your prompts and generated contents.
+Fooocus is an image generating software.
 
-Fooocus is also a rethinking of Stable Diffusion’s merits and Midjourney’s design principles:
+Fooocus is a rethinking of Stable Diffusion and Midjourney’s designs:
 
 * Learned from Stable Diffusion, the Fooocus is offline, open source, and free.
 
