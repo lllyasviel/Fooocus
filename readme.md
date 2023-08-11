@@ -41,7 +41,7 @@ Coming soon ...
 
 Below things are already inside the software, and **users do not need to do anything about these**.
 
-Note that many of these tricks are currently (2023 Aug 11) impossible to reproduce in Automatic1111's interface or ComfyUI's node system. You can expect better results from Fooocus than other software even when they use similar models/pipelines.
+Note that some of these tricks are currently (2023 Aug 11) impossible to reproduce in Automatic1111's interface or ComfyUI's node system. You can expect better results from Fooocus than other software even when they use similar models/pipelines.
 
 1. Native refiner swap inside one single k-sampler. The advantage is that now the refiner model can reuse the base model's momentum collected from k-sampling to achieve more coherent sampling. In Automatic1111's high-ref fix and ComfyUI's node system, the base model and refiner use two independent k-samplers, which means the momentum is largely wasted, and the sampling continuity is broken. Fooocus uses its own advanced k-diffusion sampling that ensures seamless, native, and continues swap in a refiner setup.
 2. Negative ADM guidance. Because the lowest resolution level of XL Base does not have cross attentions, the positive and negative signals for XL's lowest resolution level cannot receive enough contrasts during the CFG sampling, causing the results look a bit plastic or overly smooth in certain cases. Fortunately, since the XL's lowest resolution level is conditioned on image aspect ratios (ADM), we can modify the adm on the positive/negative side to compensate for the lack of CFG contrast in the lowest resolution level.
