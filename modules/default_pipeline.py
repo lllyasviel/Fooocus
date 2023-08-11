@@ -18,14 +18,14 @@ xl_refiner = core.load_model(xl_refiner_filename)
 
 
 @torch.no_grad()
-def process(positive_prompt, negative_prompt, width=1280, height=960, batch_size=1):
+def process(positive_prompt, negative_prompt, steps, switch, width, height, image_seed):
     positive_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt=positive_prompt)
     negative_conditions = core.encode_prompt_condition(clip=xl_base.clip, prompt=negative_prompt)
 
     positive_conditions_refiner = core.encode_prompt_condition(clip=xl_refiner.clip, prompt=positive_prompt)
     negative_conditions_refiner = core.encode_prompt_condition(clip=xl_refiner.clip, prompt=negative_prompt)
 
-    empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=batch_size)
+    empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
 
     sampled_latent = core.ksampler_with_refiner(
         model=xl_base.unet,
@@ -34,10 +34,10 @@ def process(positive_prompt, negative_prompt, width=1280, height=960, batch_size
         refiner=xl_refiner.unet,
         refiner_positive=positive_conditions_refiner,
         refiner_negative=negative_conditions_refiner,
-        refiner_switch_step=20,
+        refiner_switch_step=switch,
         latent=empty_latent,
-        steps=30, start_step=0, last_step=30, disable_noise=False, force_full_denoise=True,
-        seed=123456
+        steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
+        seed=image_seed
     )
 
     decoded_latent = core.decode_vae(vae=xl_refiner.vae, latent_image=sampled_latent)
@@ -46,4 +46,4 @@ def process(positive_prompt, negative_prompt, width=1280, height=960, batch_size
 
     close_all_preview()
 
-    return images * 2
+    return images

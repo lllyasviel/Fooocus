@@ -1,18 +1,35 @@
 import gradio as gr
+import random
 
 from modules.sdxl_styles import apply_style, style_keys, aspect_ratios
-# from modules.default_pipeline import process
+from modules.default_pipeline import process
 
 
-def generate_clicked(positive_prompt):
+def generate_clicked(prompt, negative_prompt, style_selction, performance_selction,
+                     aspect_ratios_selction, image_number, image_seed):
 
-    p, n = apply_style('cinematic-default', positive_prompt, '')
+    p_txt, n_txt = apply_style(style_selction, prompt, negative_prompt)
 
-    print(p)
-    print(n)
+    if performance_selction == 'Speed':
+        steps = 30
+        switch = 20
+    else:
+        steps = 60
+        switch = 40
 
-    return process(positive_prompt=p,
-                   negative_prompt=n)
+    width, height = aspect_ratios[aspect_ratios_selction]
+
+    results = []
+    seed = image_seed
+    if not isinstance(seed, int) or seed < 0 or seed > 65535:
+        seed = random.randint(1, 65535)
+
+    for i in range(image_number):
+        imgs = process(p_txt, n_txt, steps, switch, width, height, seed)
+        seed += 1
+        results += imgs
+
+    return results
 
 
 block = gr.Blocks()
