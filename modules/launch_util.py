@@ -1,18 +1,18 @@
 import os
 import importlib
 import importlib.util
+import shutil
 import subprocess
 import sys
 import re
 import logging
+import pygit2
 
-from functools import lru_cache
 
 logging.getLogger("torch.distributed.nn").setLevel(logging.ERROR)  # sshh...
 logging.getLogger("xformers").addFilter(lambda record: 'A matching Triton is not available' not in record.getMessage())
 
 python = sys.executable
-git = os.environ.get('GIT', "git")
 default_command_live = (os.environ.get('LAUNCH_LIVE_OUTPUT') == "1")
 index_url = os.environ.get('INDEX_URL', "")
 
@@ -23,35 +23,27 @@ dir_repos = "repositories"
 fooocus_tag = '1.0.0'
 
 
-@lru_cache()
-def commit_hash():
+def git_clone(url, dir, name, hash=None):
     try:
-        return subprocess.check_output([git, "rev-parse", "HEAD"], shell=False, encoding='utf8').strip()
-    except Exception:
-        return "<none>"
+        try:
+            repo = pygit2.Repository(dir)
+            print(f'{name} exists.')
+        except:
+            if os.path.exists(dir):
+                shutil.rmtree(dir, ignore_errors=True)
+            os.makedirs(dir, exist_ok=True)
+            repo = pygit2.clone_repository(url, dir)
+            print(f'{name} cloned.')
 
+        remote = repo.remotes['origin']
+        remote.fetch()
 
-def git_clone(url, dir, name, commithash=None):
-    # TODO clone into temporary dir and move if successful
+        commit = repo.get(hash)
 
-    if os.path.exists(dir):
-        if commithash is None:
-            return
-
-        current_hash = run(f'"{git}" -C "{dir}" rev-parse HEAD', None,
-                           f"Couldn't determine {name}'s hash: {commithash}", live=False).strip()
-        if current_hash == commithash:
-            return
-
-        run(f'"{git}" -C "{dir}" fetch', f"Fetching updates for {name}...", f"Couldn't fetch {name}")
-        run(f'"{git}" -C "{dir}" checkout {commithash}', f"Checking out commit for {name} with hash: {commithash}...",
-            f"Couldn't checkout commit {commithash} for {name}", live=True)
-        return
-
-    run(f'"{git}" clone "{url}" "{dir}"', f"Cloning {name} into {dir}...", f"Couldn't clone {name}", live=True)
-
-    if commithash is not None:
-        run(f'"{git}" -C "{dir}" checkout {commithash}', None, "Couldn't checkout {name}'s hash: {commithash}")
+        repo.checkout_tree(commit, strategy=pygit2.GIT_CHECKOUT_FORCE)
+        print(f'{name} checkout finished.')
+    except Exception as e:
+        print(f'Git clone failed for {name}: {str(e)}')
 
 
 def repo_dir(name):
