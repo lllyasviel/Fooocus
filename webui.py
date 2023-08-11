@@ -2,6 +2,7 @@ import cuda_malloc
 
 import gradio as gr
 import random
+import fooocus_version
 
 from modules.sdxl_styles import apply_style, style_keys, aspect_ratios
 from modules.default_pipeline import process
@@ -42,7 +43,7 @@ def generate_clicked(prompt, negative_prompt, style_selction, performance_selcti
     return results
 
 
-block = gr.Blocks(title='Fooocus').queue()
+block = gr.Blocks(title='Fooocus ' + fooocus_version.version).queue()
 with block:
     with gr.Row():
         with gr.Column():
