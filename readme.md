@@ -60,4 +60,4 @@ The codebase starts from an odd mixture of [Automatic1111](https://github.com/AU
 
 ## Update Log
 
-The Log is [here](update_log.md).
+The log is [here](update_log.md).
