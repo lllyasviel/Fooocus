@@ -2,7 +2,7 @@
 
 styles = [
     {
-        "name": "None",
+        "name": "Disabled",
         "prompt": "{prompt}",
         "negative_prompt": ""
     },
