@@ -2,7 +2,7 @@
 
 styles = [
     {
-        "name": "sai-base",
+        "name": "None",
         "prompt": "{prompt}",
         "negative_prompt": ""
     },
