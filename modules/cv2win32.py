@@ -29,6 +29,7 @@ def worker():
 def save_image(path, img):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     cv2.imwrite(path, img[..., ::-1].copy())
+    print(f'Image saved: {path}')
 
 
 def show_preview(flag, img, title='preview'):
