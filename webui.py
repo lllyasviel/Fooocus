@@ -86,7 +86,7 @@ with block:
                     lora_ctrls = []
                     for i in range(5):
                         with gr.Row():
-                            lora_model = gr.Dropdown(label=f'LoRA {i+1}', choices=['None'] + modules.path.lora_filenames, value=modules.path.default_lora_name if i == 0 else 'None')
+                            lora_model = gr.Dropdown(label=f'SDXL LoRA {i+1}', choices=['None'] + modules.path.lora_filenames, value=modules.path.default_lora_name if i == 0 else 'None')
                             lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=0.5)
                             lora_ctrls += [lora_model, lora_weight]
                 model_refresh = gr.Button(label='Refresh', value='Refresh All Files', variant='secondary')
