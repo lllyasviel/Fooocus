@@ -1,6 +1,6 @@
 ### 1.0.16
 
-* Implemented "output" folder for saving user results.
+* Implemented "Fooocus/outputs" folder for saving user results.
 * Ignored cv2 errors when preview fails.
 * Mentioned future AMD support in Readme.
 * Created this log.
