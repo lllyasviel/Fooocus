@@ -34,7 +34,7 @@ In the first time you launch the software, it will automatically download models
 
 If you already have these files, you can copy them to the above locations to speed up installation.
 
-### Linux and Mac
+### Linux/Mac/Windows(AMD GPUs)
 
 Coming soon ...
 
