@@ -1,8 +1,8 @@
 ### 1.0.16
 
-* Implement "output" folder for saving user results.
-* Ignore cv2 errors when preview fails.
-* Mention future AMD support in Readme.
+* Implemented "output" folder for saving user results.
+* Ignored cv2 errors when preview fails.
+* Mentioned future AMD support in Readme.
 * Created this log.
 
 ### 1.0.15
