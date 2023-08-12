@@ -61,14 +61,14 @@ with block:
             with gr.Row():
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False)
         with gr.Column(scale=0.5, visible=False) as right_col:
-            with gr.Tab(label='Generator Setting'):
+            with gr.Tab(label='Setting'):
                 performance_selction = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
                 aspect_ratios_selction = gr.Radio(label='Aspect Ratios (width × height)', choices=list(aspect_ratios.keys()),
                                                   value='1152×896')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=2)
                 image_seed = gr.Number(label='Random Seed', value=-1, precision=0)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.")
-            with gr.Tab(label='Image Style'):
+            with gr.Tab(label='Style'):
                 style_selction = gr.Radio(show_label=False, container=True,
                                           choices=style_keys, value='cinematic-default')
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col)
