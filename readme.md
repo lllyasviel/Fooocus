@@ -29,8 +29,8 @@ After you download the file, please uncompress it, and then run the "run.bat".
 
 In the first time you launch the software, it will automatically download models:
 
-1. It will download [sd_xl_base_1.0.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_base_1.0.safetensors".
-2. It will download [sd_xl_refiner_1.0.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_refiner_1.0.safetensors".
+1. It will download [sd_xl_base_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_base_1.0_0.9vae.safetensors".
+2. It will download [sd_xl_refiner_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_refiner_1.0_0.9vae.safetensors".
 
 If you already have these files, you can copy them to the above locations to speed up installation.
 

@@ -1,3 +1,7 @@
+### 1.0.17
+
+* Change default model to SDXL-1.0-vae-0.9.
+
 ### 1.0.16
 
 * Implemented "Fooocus/outputs" folder for saving user results.
