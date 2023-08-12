@@ -4,7 +4,9 @@ import fooocus_version
 
 from modules.sdxl_styles import apply_style, style_keys, aspect_ratios
 from modules.default_pipeline import process
-from modules.cv2win32 import close_all_preview
+from modules.cv2win32 import close_all_preview, save_image
+from modules.util import generate_temp_filename
+from modules.path import temp_outputs_path
 
 
 def generate_clicked(prompt, negative_prompt, style_selction, performance_selction,
@@ -34,6 +36,11 @@ def generate_clicked(prompt, negative_prompt, style_selction, performance_selcti
 
     for i in range(image_number):
         imgs = process(p_txt, n_txt, steps, switch, width, height, seed, callback=callback)
+
+        for x in imgs:
+            local_temp_filename = generate_temp_filename(folder=temp_outputs_path, extension='png')
+            save_image(local_temp_filename, x)
+
         seed += 1
         results += imgs
 
