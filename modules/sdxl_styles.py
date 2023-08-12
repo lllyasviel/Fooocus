@@ -529,7 +529,7 @@ styles = [
 ]
 
 styles = {k['name']: (k['prompt'], k['negative_prompt']) for k in styles}
-default_style = styles['sai-base']
+default_style = styles['Disabled']
 style_keys = list(styles.keys())
 
 
