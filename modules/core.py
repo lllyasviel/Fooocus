@@ -42,8 +42,8 @@ def load_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
         return model
 
     lora = comfy.utils.load_torch_file(lora_filename, safe_load=True)
-    model.unet, model.clip = comfy.sd.load_lora_for_models(model.unet, model.clip, lora, strength_model, strength_clip)
-    return model
+    unet, clip = comfy.sd.load_lora_for_models(model.unet, model.clip, lora, strength_model, strength_clip)
+    return StableDiffusionModel(unet=unet, clip=clip, vae=model.vae, clip_vision=model.clip_vision)
 
 
 @torch.no_grad()
@@ -92,7 +92,7 @@ def get_previewer(device, latent_format):
 @torch.no_grad()
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
-             force_full_denoise=False):
+             force_full_denoise=False, callback_function=None):
     # SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
     # SAMPLERS = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
     #             "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
@@ -118,6 +118,8 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
     pbar = comfy.utils.ProgressBar(steps)
 
     def callback(step, x0, x, total_steps):
+        if callback_function is not None:
+            callback_function(step, x0, x, total_steps)
         if previewer and step % 3 == 0:
             previewer.preview(x0, step, total_steps)
         pbar.update_absolute(step + 1, total_steps, None)

@@ -2,7 +2,7 @@
 
 styles = [
     {
-        "name": "Disabled",
+        "name": "None",
         "prompt": "{prompt}",
         "negative_prompt": ""
     },
@@ -529,7 +529,7 @@ styles = [
 ]
 
 styles = {k['name']: (k['prompt'], k['negative_prompt']) for k in styles}
-default_style = styles['Disabled']
+default_style = styles['None']
 style_keys = list(styles.keys())
 
 
