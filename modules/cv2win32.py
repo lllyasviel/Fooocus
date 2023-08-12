@@ -1,4 +1,6 @@
 import threading
+import datetime
+import random
 import cv2
 import os
 
@@ -29,6 +31,14 @@ def worker():
 def write_image(path, img):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     cv2.imwrite(path, img[..., ::-1].copy())
+
+
+def generate_temp_filename(extension='png'):
+    current_time = datetime.datetime.now()
+    time_string = current_time.strftime("%Y-%m-%d/%Y-%m-%d_%H-%M-%S")
+    random_number = random.randint(1000, 9999)
+    filename = f"{time_string}_{random_number}.{extension}"
+    return filename
 
 
 def show_preview(flag, img, title='preview'):
