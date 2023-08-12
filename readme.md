@@ -34,7 +34,7 @@ In the first time you launch the software, it will automatically download models
 
 If you already have these files, you can copy them to the above locations to speed up installation.
 
-### Linux and Mac
+### Linux/Mac/Windows(AMD GPUs)
 
 Coming soon ...
 
@@ -57,3 +57,7 @@ Note that some of these tricks are currently (2023 Aug 11) impossible to reprodu
 ## Thanks
 
 The codebase starts from an odd mixture of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) and [ComfyUI](https://github.com/comfyanonymous/ComfyUI). (And they both use GPL license.)
+
+## Update Log
+
+The log is [here](update_log.md).

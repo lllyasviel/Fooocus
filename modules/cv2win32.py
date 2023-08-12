@@ -1,5 +1,6 @@
 import threading
 import cv2
+import os
 
 
 buffer = []
@@ -7,9 +8,9 @@ buffer = []
 
 def worker():
     global buffer
-    while True:
-        cv2.waitKey(50)
-        try:
+    try:
+        while True:
+            cv2.waitKey(50)
             if len(buffer) > 0:
                 task = buffer.pop(0)
                 if task is None:
@@ -19,9 +20,16 @@ def worker():
                     cv2.imshow(flag, img)
                     cv2.setWindowTitle(flag, title)
                     cv2.setWindowProperty(flag, cv2.WND_PROP_TOPMOST, 1)
-        except Exception as e:
-            print(e)
+    except Exception as e:
+        print('Failed to open preview window. You are not using a local device with GUI support.')
+        print(e)
     pass
+
+
+def save_image(path, img):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    cv2.imwrite(path, img[..., ::-1].copy())
+    print(f'Image saved: {path}')
 
 
 def show_preview(flag, img, title='preview'):
