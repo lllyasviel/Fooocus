@@ -1,6 +1,6 @@
 ### 1.0.17
 
-* Change default model to SDXL-1.0-vae-0.9.
+* Change default model to SDXL-1.0-vae-0.9. (This means the models will be downloaded again, but we should do it as early as possible so that all new users only need to download once. Really sorry for day-0 users. But frankly this is not too late considering that the project is just publicly available in less than 24 hours - if it has been a week then we will prefer more lightweight tricks to update.)
 
 ### 1.0.16
 
