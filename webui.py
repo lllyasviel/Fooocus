@@ -1,4 +1,5 @@
 import gradio as gr
+import sys
 import time
 import modules.path
 import fooocus_version
@@ -92,4 +93,4 @@ with block:
         ctrls += [base_model, refiner_model] + lora_ctrls
         run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])
 
-block.launch(inbrowser=True)
+block.launch(inbrowser=True, server_name='0.0.0.0' if '--listen' in sys.argv else None)
