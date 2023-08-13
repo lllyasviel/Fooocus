@@ -30,9 +30,12 @@ class StableDiffusionModel:
         self.clip_vision = clip_vision
 
     def to_meta(self):
-        self.unet.model.to('meta')
-        self.clip.cond_stage_model.to('meta')
-        self.vae.first_stage_model.to('meta')
+        if self.unet is not None:
+            self.unet.model.to('meta')
+        if self.clip is not None:
+            self.clip.cond_stage_model.to('meta')
+        if self.vae is not None:
+            self.vae.first_stage_model.to('meta')
 
 
 @torch.no_grad()
