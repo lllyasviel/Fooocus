@@ -22,12 +22,15 @@ def refresh_base_model(name):
         return
 
     filename = os.path.join(modules.path.modelfile_path, name)
-    model = core.load_model(filename)
-    if not isinstance(model.unet.model, SDXL):
+    xl_base = core.load_model(filename)
+    if not isinstance(xl_base.unet.model, SDXL):
         print('Model not supported. Fooocus only support SDXL model as the base model.')
+        refresh_base_model(modules.path.default_base_model_name)
+        xl_base_hash = name
+        xl_base_patched = xl_base
+        xl_base_patched_hash = ''
         return
 
-    xl_base = model
     xl_base_hash = name
     xl_base_patched = xl_base
     xl_base_patched_hash = ''
@@ -48,12 +51,13 @@ def refresh_refiner_model(name):
         return
 
     filename = os.path.join(modules.path.modelfile_path, name)
-    model = core.load_model(filename)
-    if not isinstance(model.unet.model, SDXLRefiner):
+    xl_refiner = core.load_model(filename)
+    if not isinstance(xl_refiner.unet.model, SDXLRefiner):
         print('Model not supported. Fooocus only support SDXL refiner as the refiner.')
+        refresh_base_model(modules.path.default_refiner_model_name)
+        xl_refiner_hash = name
         return
 
-    xl_refiner = model
     xl_refiner_hash = name
     print(f'Refiner model loaded: {xl_refiner_hash}')
 
