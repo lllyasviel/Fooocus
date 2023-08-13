@@ -30,6 +30,8 @@ def refresh_base_model(name):
     xl_base = core.load_model(filename)
     if not isinstance(xl_base.unet.model, SDXL):
         print('Model not supported. Fooocus only support SDXL model as the base model.')
+        xl_base = None
+        xl_base_hash = ''
         refresh_base_model(modules.path.default_base_model_name)
         xl_base_hash = name
         xl_base_patched = xl_base
