@@ -9,7 +9,10 @@ from modules.sdxl_styles import style_keys, aspect_ratios
 
 
 def generate_clicked(*args):
-    yield gr.update(interactive=False), gr.update(), gr.update(), gr.update()
+    yield gr.update(interactive=False), \
+        gr.update(visible=True, value=modules.html.make_progress_html(1, 'Processing text encoding ...')), \
+        gr.update(visible=True, value=None), \
+        gr.update(visible=False)
 
     worker.buffer.append(list(args))
     finished = False
