@@ -10,6 +10,7 @@ def worker():
 
     import os
     import time
+    import shared
     import random
     import modules.default_pipeline as pipeline
     import modules.path
@@ -17,6 +18,12 @@ def worker():
     from PIL import Image
     from modules.sdxl_styles import apply_style, aspect_ratios
     from modules.util import generate_temp_filename
+
+    try:
+        async_gradio_app = shared.gradio_root
+        print(f'''App started successful. Use the app with {str(async_gradio_app.local_url)} or {str(async_gradio_app.server_name)}:{str(async_gradio_app.server_port)}''')
+    except Exception as e:
+        print(e)
 
     def handler(task):
         prompt, negative_prompt, style_selction, performance_selction, \

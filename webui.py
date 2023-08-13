@@ -1,6 +1,7 @@
 import gradio as gr
 import sys
 import time
+import shared
 import modules.path
 import fooocus_version
 import modules.html
@@ -37,8 +38,8 @@ def generate_clicked(*args):
     return
 
 
-block = gr.Blocks(title='Fooocus ' + fooocus_version.version, css=modules.html.css).queue()
-with block:
+shared.gradio_root = gr.Blocks(title='Fooocus ' + fooocus_version.version, css=modules.html.css).queue()
+with shared.gradio_root:
     with gr.Row():
         with gr.Column():
             progress_window = gr.Image(label='Preview', show_label=True, height=640, visible=False)
@@ -93,4 +94,4 @@ with block:
         ctrls += [base_model, refiner_model] + lora_ctrls
         run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])
 
-block.launch(inbrowser=True, server_name='0.0.0.0' if '--listen' in sys.argv else None)
+shared.gradio_root.launch(inbrowser=True, server_name='0.0.0.0' if '--listen' in sys.argv else None)
