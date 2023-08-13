@@ -27,7 +27,7 @@ You can directly download Fooocus with:
 
 After you download the file, please uncompress it, and then run the "run.bat".
 
-![image](https://github.com/lllyasviel/Fooocus/assets/19834515/43d259e2-1eaf-4054-8077-58c4bca392f0)
+![image](https://github.com/lllyasviel/Fooocus/assets/19834515/c49269c4-c274-4893-b368-047c401cc58c)
 
 In the first time you launch the software, it will automatically download models:
 
