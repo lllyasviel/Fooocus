@@ -1,65 +1,45 @@
 import gradio as gr
+import time
 import modules.path
-import random
 import fooocus_version
-import modules.default_pipeline as pipeline
+import modules.html
+import modules.async_worker as worker
 
-from modules.sdxl_styles import apply_style, style_keys, aspect_ratios
-from modules.cv2win32 import close_all_preview, save_image
-from modules.util import generate_temp_filename
-
-
-def generate_clicked(prompt, negative_prompt, style_selction, performance_selction,
-                     aspect_ratios_selction, image_number, image_seed, base_model_name, refiner_model_name,
-                     l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, progress=gr.Progress()):
-
-    loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
-
-    pipeline.refresh_base_model(base_model_name)
-    pipeline.refresh_refiner_model(refiner_model_name)
-    pipeline.refresh_loras(loras)
-
-    p_txt, n_txt = apply_style(style_selction, prompt, negative_prompt)
-
-    if performance_selction == 'Speed':
-        steps = 30
-        switch = 20
-    else:
-        steps = 60
-        switch = 40
-
-    width, height = aspect_ratios[aspect_ratios_selction]
-
-    results = []
-    seed = image_seed
-    if not isinstance(seed, int) or seed < 0 or seed > 65535:
-        seed = random.randint(1, 65535)
-
-    all_steps = steps * image_number
-
-    def callback(step, x0, x, total_steps):
-        done_steps = i * steps + step
-        progress(float(done_steps) / float(all_steps), f'Step {step}/{total_steps} in the {i}-th Sampling')
-
-    for i in range(image_number):
-        imgs = pipeline.process(p_txt, n_txt, steps, switch, width, height, seed, callback=callback)
-
-        for x in imgs:
-            local_temp_filename = generate_temp_filename(folder=modules.path.temp_outputs_path, extension='png')
-            save_image(local_temp_filename, x)
-
-        seed += 1
-        results += imgs
-
-    close_all_preview()
-    return results
+from modules.sdxl_styles import style_keys, aspect_ratios
 
 
-block = gr.Blocks(title='Fooocus ' + fooocus_version.version).queue()
+def generate_clicked(*args):
+    yield gr.update(interactive=False), gr.update(), gr.update(), gr.update()
+
+    worker.buffer.append(list(args))
+    finished = False
+
+    while not finished:
+        time.sleep(0.01)
+        if len(worker.outputs) > 0:
+            flag, product = worker.outputs.pop(0)
+            if flag == 'preview':
+                percentage, title, image = product
+                yield gr.update(interactive=False), \
+                    gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
+                    gr.update(visible=True, value=image) if image is not None else gr.update(), \
+                    gr.update(visible=False)
+            if flag == 'results':
+                yield gr.update(interactive=True), \
+                    gr.update(visible=False), \
+                    gr.update(visible=False), \
+                    gr.update(visible=True, value=product)
+                finished = True
+    return
+
+
+block = gr.Blocks(title='Fooocus ' + fooocus_version.version, css=modules.html.css).queue()
 with block:
     with gr.Row():
         with gr.Column():
-            gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=720)
+            progress_window = gr.Image(label='Preview', show_label=True, height=640, visible=False)
+            progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False, elem_id='progress-bar', elem_classes='progress-bar')
+            gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=720, visible=True)
             with gr.Row():
                 with gr.Column(scale=0.85):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", container=False, autofocus=True)
@@ -107,6 +87,6 @@ with block:
             performance_selction, aspect_ratios_selction, image_number, image_seed
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
-        run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[gallery])
+        run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])
 
 block.launch(inbrowser=True)
