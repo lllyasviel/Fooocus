@@ -34,7 +34,25 @@ In the first time you launch the software, it will automatically download models
 
 If you already have these files, you can copy them to the above locations to speed up installation.
 
-### Linux/Mac/Windows(AMD GPUs)
+### Linux
+
+The command lines are
+
+    git clone https://github.com/lllyasviel/Fooocus.git
+    cd Fooocus
+    conda env create -f environment.yaml
+    conda activate fooocus
+    pip install -r requirements_versions.txt
+
+Then download the models manually: download [sd_xl_base_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_base_1.0_0.9vae.safetensors", and download [sd_xl_refiner_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_refiner_1.0_0.9vae.safetensors". Or let Fooocus automatically download the models using the launcher:
+
+    python launch.py
+
+Or if you want to open a remote port, use
+
+    python launch.py --listen
+
+### Mac/Windows(AMD GPUs)
 
 Coming soon ...
 
