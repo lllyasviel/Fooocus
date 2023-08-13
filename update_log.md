@@ -1,6 +1,10 @@
 ### 1.0.20
 
-* Speed-up text encoder
+* Support linux.
+
+### 1.0.20
+
+* Speed-up text encoder.
 
 ### 1.0.20
 
