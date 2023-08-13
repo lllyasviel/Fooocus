@@ -8,6 +8,7 @@ outputs = []
 def worker():
     global buffer, outputs
 
+    import os
     import time
     import random
     import modules.default_pipeline as pipeline
@@ -59,6 +60,7 @@ def worker():
 
             for x in imgs:
                 local_temp_filename = generate_temp_filename(folder=modules.path.temp_outputs_path, extension='png')
+                os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
                 Image.fromarray(x).save(local_temp_filename)
 
             seed += 1
