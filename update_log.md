@@ -1,6 +1,6 @@
 ### 1.0.19
 
-* Unlock default settings to allow changing model (only in advanced settings).
+* Unlock to allow changing model.
 
 ### 1.0.17
 
