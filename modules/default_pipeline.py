@@ -71,6 +71,7 @@ def refresh_refiner_model(name):
     xl_refiner_hash = name
     print(f'Refiner model loaded: {xl_refiner_hash}')
 
+    xl_refiner.vae.first_stage_model.to('meta')
     xl_refiner.vae = None
     return
 
