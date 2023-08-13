@@ -27,6 +27,7 @@ def worker():
         pipeline.refresh_base_model(base_model_name)
         pipeline.refresh_refiner_model(refiner_model_name)
         pipeline.refresh_loras(loras)
+        pipeline.clean_prompt_cond_caches()
 
         p_txt, n_txt = apply_style(style_selction, prompt, negative_prompt)
 
