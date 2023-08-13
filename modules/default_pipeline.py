@@ -71,7 +71,7 @@ def refresh_refiner_model(name):
     xl_refiner_hash = name
     print(f'Refiner model loaded: {xl_refiner_hash}')
 
-    del xl_refiner.vae
+    xl_refiner.vae = None
     return
 
 
