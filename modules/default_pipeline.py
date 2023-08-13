@@ -64,8 +64,9 @@ def refresh_refiner_model(name):
     xl_refiner = core.load_model(filename)
     if not isinstance(xl_refiner.unet.model, SDXLRefiner):
         print('Model not supported. Fooocus only support SDXL refiner as the refiner.')
-        refresh_refiner_model(modules.path.default_refiner_model_name)
-        xl_refiner_hash = name
+        xl_refiner = None
+        xl_refiner_hash = ''
+        print(f'Refiner unloaded.')
         return
 
     xl_refiner_hash = name
