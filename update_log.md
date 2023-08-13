@@ -1,5 +1,9 @@
 ### 1.0.20
 
+* Speed-up text encoder
+
+### 1.0.20
+
 * Re-write UI to use async codes: (1) for faster start, and (2) for better live preview.
 * Removed opencv dependency
 * Plan to support Linux soon
