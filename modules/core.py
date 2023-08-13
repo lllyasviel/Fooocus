@@ -1,6 +1,5 @@
 import os
 import random
-import cv2
 import einops
 import torch
 import numpy as np
@@ -8,12 +7,11 @@ import numpy as np
 import comfy.model_management
 import comfy.utils
 
-from comfy.sd import load_checkpoint_guess_config, load_lora_for_models
+from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, CLIPTextEncode
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from modules.samplers_advanced import KSampler, KSamplerWithRefiner
 from modules.adm_patch import patch_negative_adm
-from modules.cv2win32 import show_preview
 
 
 patch_negative_adm()
@@ -86,11 +84,7 @@ def get_previewer(device, latent_format):
             x_sample = taesd.decoder(torch.nn.functional.avg_pool2d(x0, kernel_size=(2, 2))).detach() * 255.0
             x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')
             x_sample = x_sample.cpu().numpy().clip(0, 255).astype(np.uint8)
-            for i, s in enumerate(x_sample):
-                if i > 0:
-                    show_preview(f'cv2_preview_{i}', s, title=f'Preview Image {i}, step = [{step}/{total_steps}')
-                else:
-                    show_preview(f'cv2_preview_{i}', s, title=f'Preview Image, step =  {step}/{total_steps}')
+            return x_sample[0]
 
     taesd.preview = preview_function
 
@@ -126,10 +120,11 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
     pbar = comfy.utils.ProgressBar(steps)
 
     def callback(step, x0, x, total_steps):
-        if callback_function is not None:
-            callback_function(step, x0, x, total_steps)
+        y = None
         if previewer and step % 3 == 0:
-            previewer.preview(x0, step, total_steps)
+            y = previewer.preview(x0, step, total_steps)
+        if callback_function is not None:
+            callback_function(step, x0, x, total_steps, y)
         pbar.update_absolute(step + 1, total_steps, None)
 
     sigmas = None
@@ -197,10 +192,11 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
     pbar = comfy.utils.ProgressBar(steps)
 
     def callback(step, x0, x, total_steps):
-        if callback_function is not None:
-            callback_function(step, x0, x, total_steps)
+        y = None
         if previewer and step % 3 == 0:
-            previewer.preview(x0, step, total_steps)
+            y = previewer.preview(x0, step, total_steps)
+        if callback_function is not None:
+            callback_function(step, x0, x, total_steps, y)
         pbar.update_absolute(step + 1, total_steps, None)
 
     sigmas = None

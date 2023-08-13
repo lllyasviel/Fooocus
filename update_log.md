@@ -1,3 +1,9 @@
+### 1.0.20
+
+* Re-write UI to use async codes: (1) for faster start, and (2) for better live preview.
+* Removed opencv dependency
+* Plan to support Linux soon
+
 ### 1.0.19
 
 * Unlock to allow changing model.
