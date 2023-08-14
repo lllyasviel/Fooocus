@@ -1,3 +1,7 @@
+### 1.0.27
+
+* Fix small problem in textbox css 
+
 ### 1.0.25
 
 * support sys.argv --listen --share --port
