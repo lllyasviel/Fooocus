@@ -55,6 +55,8 @@ Please open an issue if you use similar devices but still cannot achieve accepta
 
 ### Colab
 
+(Last tested - 2023 Aug 14)
+
 | Colab | Info
 | --- | --- |
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lllyasviel/Fooocus/blob/main/colab.ipynb) | Fooocus Colab (Official Version)
