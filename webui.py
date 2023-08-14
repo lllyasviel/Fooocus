@@ -2,6 +2,7 @@ import gradio as gr
 import sys
 import time
 import shared
+import argparse
 import modules.path
 import fooocus_version
 import modules.html
@@ -94,4 +95,10 @@ with shared.gradio_root:
         ctrls += [base_model, refiner_model] + lora_ctrls
         run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])
 
-shared.gradio_root.launch(inbrowser=True, server_name='0.0.0.0' if '--listen' in sys.argv else None)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--listen", action='store_true', help="Set the listen host server name.")
+parser.add_argument("--port", type=int, default=None, help="Set the listen port.")
+parser.add_argument("--shared", action='store_true', help="Set whether to share in Gradio.")
+args = parser.parse_args()
+shared.gradio_root.launch(inbrowser=True, server_name='0.0.0.0' if args.listen else None, server_port=args.port, shared=args.shared)

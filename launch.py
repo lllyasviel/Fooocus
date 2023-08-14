@@ -72,9 +72,16 @@ def download_models():
     return
 
 
+def cuda_malloc():
+    argv = sys.argv
+    sys.argv = [sys.argv[0]]
+    import cuda_malloc
+    sys.argv = argv
+
+
 prepare_environment()
 
-import cuda_malloc
+cuda_malloc()
 
 download_models()
 
