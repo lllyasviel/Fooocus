@@ -45,11 +45,11 @@ with shared.gradio_root:
             progress_window = gr.Image(label='Preview', show_label=True, height=640, visible=False)
             progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False, elem_id='progress-bar', elem_classes='progress-bar')
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=720, visible=True)
-            with gr.Row():
+            with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=0.85):
-                    prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", container=False, autofocus=True)
+                    prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", container=False, autofocus=True, elem_classes='type_row', lines=1024)
                 with gr.Column(scale=0.15, min_width=0):
-                    run_button = gr.Button(label="Generate", value="Generate")
+                    run_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row')
             with gr.Row():
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False)
         with gr.Column(scale=0.5, visible=False) as right_col:

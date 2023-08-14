@@ -68,6 +68,10 @@ progress::after {
   height: 30px !important;
 }
 
+.type_row{
+  height: 80px !important;
+}
+
 '''
 progress_html = '''
 <div class="loader-container">
