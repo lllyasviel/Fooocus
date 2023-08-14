@@ -1,3 +1,7 @@
+### 1.0.24
+
+* Taller input textbox.
+
 ### 1.0.23
 
 * Added some hints on linux after UI start so users know the App does not fail.
