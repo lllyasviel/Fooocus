@@ -97,8 +97,8 @@ with shared.gradio_root:
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--listen", action='store_true', help="Listen remote port.")
 parser.add_argument("--port", type=int, default=None, help="Set the listen port.")
 parser.add_argument("--share", action='store_true', help="Set whether to share on Gradio.")
+parser.add_argument("--listen", type=str, default=None, metavar="IP", nargs="?", const="0.0.0.0", help="Set the listen interface.")
 args = parser.parse_args()
-shared.gradio_root.launch(inbrowser=True, server_name='0.0.0.0' if args.listen else None, server_port=args.port, share=args.share)
+shared.gradio_root.launch(inbrowser=True, server_name=args.listen, server_port=args.port, share=args.share)
