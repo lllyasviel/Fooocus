@@ -72,6 +72,10 @@ progress::after {
   height: 80px !important;
 }
 
+.scroll-hide{
+  resize: none !important;
+}
+
 '''
 progress_html = '''
 <div class="loader-container">
