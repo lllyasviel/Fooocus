@@ -1,3 +1,7 @@
+### 1.0.25
+
+* support sys.argv --listen --share --port
+
 ### 1.0.24
 
 * Taller input textbox.
