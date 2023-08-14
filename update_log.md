@@ -1,3 +1,29 @@
+### 1.0.24
+
+* Taller input textbox.
+
+### 1.0.23
+
+* Added some hints on linux after UI start so users know the App does not fail.
+
+### 1.0.20
+
+* Support linux.
+
+### 1.0.20
+
+* Speed-up text encoder.
+
+### 1.0.20
+
+* Re-write UI to use async codes: (1) for faster start, and (2) for better live preview.
+* Removed opencv dependency
+* Plan to support Linux soon
+
+### 1.0.19
+
+* Unlock to allow changing model.
+
 ### 1.0.17
 
 * Change default model to SDXL-1.0-vae-0.9. (This means the models will be downloaded again, but we should do it as early as possible so that all new users only need to download once. Really sorry for day-0 users. But frankly this is not too late considering that the project is just publicly available in less than 24 hours - if it has been a week then we will prefer more lightweight tricks to update.)

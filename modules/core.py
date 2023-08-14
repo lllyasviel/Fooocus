@@ -1,6 +1,5 @@
 import os
 import random
-import cv2
 import einops
 import torch
 import numpy as np
@@ -8,12 +7,11 @@ import numpy as np
 import comfy.model_management
 import comfy.utils
 
-from comfy.sd import load_checkpoint_guess_config, load_lora_for_models
+from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, CLIPTextEncode
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from modules.samplers_advanced import KSampler, KSamplerWithRefiner
 from modules.adm_patch import patch_negative_adm
-from modules.cv2win32 import show_preview
 
 
 patch_negative_adm()
@@ -29,6 +27,14 @@ class StableDiffusionModel:
         self.clip = clip
         self.clip_vision = clip_vision
 
+    def to_meta(self):
+        if self.unet is not None:
+            self.unet.model.to('meta')
+        if self.clip is not None:
+            self.clip.cond_stage_model.to('meta')
+        if self.vae is not None:
+            self.vae.first_stage_model.to('meta')
+
 
 @torch.no_grad()
 def load_model(ckpt_filename):
@@ -42,8 +48,8 @@ def load_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
         return model
 
     lora = comfy.utils.load_torch_file(lora_filename, safe_load=True)
-    model.unet, model.clip = comfy.sd.load_lora_for_models(model.unet, model.clip, lora, strength_model, strength_clip)
-    return model
+    unet, clip = comfy.sd.load_lora_for_models(model.unet, model.clip, lora, strength_model, strength_clip)
+    return StableDiffusionModel(unet=unet, clip=clip, vae=model.vae, clip_vision=model.clip_vision)
 
 
 @torch.no_grad()
@@ -78,11 +84,7 @@ def get_previewer(device, latent_format):
             x_sample = taesd.decoder(torch.nn.functional.avg_pool2d(x0, kernel_size=(2, 2))).detach() * 255.0
             x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')
             x_sample = x_sample.cpu().numpy().clip(0, 255).astype(np.uint8)
-            for i, s in enumerate(x_sample):
-                if i > 0:
-                    show_preview(f'cv2_preview_{i}', s, title=f'Preview Image {i}, step = [{step}/{total_steps}')
-                else:
-                    show_preview(f'cv2_preview_{i}', s, title=f'Preview Image, step =  {step}/{total_steps}')
+            return x_sample[0]
 
     taesd.preview = preview_function
 
@@ -92,7 +94,7 @@ def get_previewer(device, latent_format):
 @torch.no_grad()
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
-             force_full_denoise=False):
+             force_full_denoise=False, callback_function=None):
     # SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
     # SAMPLERS = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
     #             "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
@@ -118,8 +120,11 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
     pbar = comfy.utils.ProgressBar(steps)
 
     def callback(step, x0, x, total_steps):
+        y = None
         if previewer and step % 3 == 0:
-            previewer.preview(x0, step, total_steps)
+            y = previewer.preview(x0, step, total_steps)
+        if callback_function is not None:
+            callback_function(step, x0, x, total_steps, y)
         pbar.update_absolute(step + 1, total_steps, None)
 
     sigmas = None
@@ -187,10 +192,11 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
     pbar = comfy.utils.ProgressBar(steps)
 
     def callback(step, x0, x, total_steps):
-        if callback_function is not None:
-            callback_function(step, x0, x, total_steps)
+        y = None
         if previewer and step % 3 == 0:
-            previewer.preview(x0, step, total_steps)
+            y = previewer.preview(x0, step, total_steps)
+        if callback_function is not None:
+            callback_function(step, x0, x, total_steps, y)
         pbar.update_absolute(step + 1, total_steps, None)
 
     sigmas = None

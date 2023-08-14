@@ -8,8 +8,8 @@ Pillow==9.2.0
 scipy==1.9.3
 tqdm==4.64.1
 psutil==5.9.5
-opencv-python==4.7.0.72
 numpy==1.23.5
 pytorch_lightning==1.9.4
 omegaconf==2.2.3
 gradio==3.39.0
+pygit2==1.12.2
