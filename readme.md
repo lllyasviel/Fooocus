@@ -14,9 +14,9 @@ Fooocus has included and automated [lots of inner optimizations and quality impr
 
 Fooocus has simplified the installation. Between pressing "download" and generating the first image, the number of needed mouse clicks is strictly limited to less than 3. Minimal GPU memory requirement is 4GB (Nvidia).
 
-`[1]` David Holz, 2019.
-
 Fooocus also developed many "fooocus-only" features for advanced users to get perfect results. [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
+
+`[1]` David Holz, 2019.
 
 ## Download
 
