@@ -2,13 +2,13 @@
 
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/701e32be-f7d2-4be8-b8cc-8115394de406)
 
-Fooocus is an image generating software.
+Fooocus is an image generator software.
 
 Fooocus is a rethinking of Stable Diffusion and Midjourney’s designs:
 
 * Learned from Stable Diffusion, the software is offline, open source, and free.
 
-* Learned from Midjourney, the manual tweaking is not needed, and users only need to focus on the prompts and images.
+* Learned from Midjourney, manual tweaking is not needed, and users only need to focus on the prompts and images.
 
 Fooocus has included and automated [lots of inner optimizations and quality improvements](#tech_list). Users can forget all those difficult technical parameters, and just enjoy the interaction between human and computer to "explore new mediums of thought and expanding the imaginative powers of the human species" `[1]`.
 
@@ -38,11 +38,11 @@ In the first time you launch the software, it will automatically download models
 
 If you already have these files, you can copy them to the above locations to speed up installation.
 
-Below is a test on a relatively low-end laptop with **16GB System RAM** and **6GB VRAM** (Nvidia 3060 laptop). The speed on this machine is about 1.35 seconds per iteration. Pretty impressive – nowadays laptops with 3060 are usually at very acceptable price.
+Below is a test on a relatively low-end laptop with **16GB System RAM** and **6GB VRAM** (Nvidia 3060 laptop). The speed on this machine is about 1.35 seconds per iteration. Pretty impressive – nowadays laptops with a 3060 are usually at a acceptable price.
 
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/938737a5-b105-4f19-b051-81356cb7c495)
 
-Note that the minimal requirement is **4GB Nvidia GPU memory (4GB VRAM)** and **8GB system memory (8GB RAM)**. This requires using Microsoft’s Virtual Swap technique, which is automatically enabled by your Windows installation in most cases, so you often do not need to do anything about it. However, if you are not sure, or if you manually turned it off (would anyone really do that?), you can enable it here:
+Note that the minimal requirements are **4GB Nvidia GPU memory (4GB VRAM)** and **8GB system memory (8GB RAM)**. This requires using Microsoft’s Virtual Swap feature, which is automatically enabled by your Windows installation in most cases, so you often do not need to do anything about it. However, if you are not sure, or if you manually turned it off (would anyone really do that?), you can enable it here:
 
 <details>
 <summary>Click here to the see the image instruction. </summary>
@@ -53,21 +53,21 @@ Note that the minimal requirement is **4GB Nvidia GPU memory (4GB VRAM)** and **
 
 Please open an issue if you use similar devices but still cannot achieve acceptable performances.
 
-### Colab
+### Google Colab
 
 (Last tested - 2023 Aug 14)
 
-| Colab | Info
+| Google Colab | Info
 | --- | --- |
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lllyasviel/Fooocus/blob/main/colab.ipynb) | Fooocus Colab (Official Version)
 
-Note that sometimes this Colab will say like "you must restart the runtime in order to use newly installed XX". This can be safely ignored.
+Note that sometimes Colab will say like "you must restart the runtime in order to use newly installed XX". This can be safely ignored.
 
 Thanks to [camenduru](https://github.com/camenduru)'s codes!
 
 ### Linux
 
-The command lines are
+The bash/zsh (or Bourne shell if you use FreeBSD) commands are
 
     git clone https://github.com/lllyasviel/Fooocus.git
     cd Fooocus
@@ -90,7 +90,7 @@ Coming soon ...
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>
 
-Below things are already inside the software, and **users do not need to do anything about these**.
+Below things are already in the software, and **users do not need to do anything about these**.
 
 Note that some of these tricks are currently (2023 Aug 11) impossible to reproduce in Automatic1111's interface or ComfyUI's node system. You may expect better results from Fooocus than other software even when they use similar models/pipelines.
 
@@ -106,7 +106,7 @@ Note that some of these tricks are currently (2023 Aug 11) impossible to reprodu
 
 ## Thanks
 
-The codebase starts from an odd mixture of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) and [ComfyUI](https://github.com/comfyanonymous/ComfyUI). (And they both use GPL license.)
+The codebase is based on a from an odd mixture of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) and [ComfyUI](https://github.com/comfyanonymous/ComfyUI). (And they both use the GPL license.)
 
 ## Update Log
 
