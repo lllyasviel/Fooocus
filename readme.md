@@ -2,7 +2,7 @@
 <h4 align="center">
     <p>
         <b>English</b> |
-        <a href="https://github.com/lishukan/Fooocus/blob/main/docs/zh/readme_zh.md">简体中文</a> |
+        <a href="https://github.com/lllyasviel/Fooocus/blob/main/docs/zh/readme_zh.md">简体中文</a> |
         Coming soon ...
 
     <p>
