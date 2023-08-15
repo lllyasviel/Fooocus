@@ -75,6 +75,8 @@ with shared.gradio_root:
                             lora_model = gr.Dropdown(label=f'SDXL LoRA {i+1}', choices=['None'] + modules.path.lora_filenames, value=modules.path.default_lora_name if i == 0 else 'None')
                             lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=modules.path.default_lora_weight)
                             lora_ctrls += [lora_model, lora_weight]
+                with gr.Row():
+                    sampler_selection = gr.Radio(label='Sampler', choices=['dpmpp_2m_sde_gpu', 'dpmpp_3m_sde_gpu'], value='dpmpp_2m_sde_gpu')
                 model_refresh = gr.Button(label='Refresh', value='Refresh All Files', variant='secondary')
 
                 def model_refresh_clicked():
@@ -90,7 +92,7 @@ with shared.gradio_root:
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col)
         ctrls = [
             prompt, negative_prompt, style_selction,
-            performance_selction, aspect_ratios_selction, image_number, image_seed
+            performance_selction, aspect_ratios_selction, image_number, image_seed, sampler_selection
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
         run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])

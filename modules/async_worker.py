@@ -30,7 +30,7 @@ def worker():
 
     def handler(task):
         prompt, negative_prompt, style_selction, performance_selction, \
-        aspect_ratios_selction, image_number, image_seed, base_model_name, refiner_model_name, \
+        aspect_ratios_selction, image_number, image_seed, sampler_selection, base_model_name, refiner_model_name, \
         l1, w1, l2, w2, l3, w3, l4, w4, l5, w5 = task
 
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
@@ -66,7 +66,7 @@ def worker():
                 y)])
 
         for i in range(image_number):
-            imgs = pipeline.process(p_txt, n_txt, steps, switch, width, height, seed, callback=callback)
+            imgs = pipeline.process(p_txt, n_txt, steps, switch, width, height, seed, sampler_selection, callback=callback)
 
             for x in imgs:
                 local_temp_filename = generate_temp_filename(folder=modules.path.temp_outputs_path, extension='png')

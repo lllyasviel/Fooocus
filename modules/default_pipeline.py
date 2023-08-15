@@ -119,7 +119,7 @@ def clean_prompt_cond_caches():
 
 
 @torch.no_grad()
-def process(positive_prompt, negative_prompt, steps, switch, width, height, image_seed, callback):
+def process(positive_prompt, negative_prompt, steps, switch, width, height, image_seed, sampler_name, callback):
     global positive_conditions_cache, negative_conditions_cache, \
         positive_conditions_refiner_cache, negative_conditions_refiner_cache
 
@@ -149,6 +149,7 @@ def process(positive_prompt, negative_prompt, steps, switch, width, height, imag
             latent=empty_latent,
             steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
+            sampler_name=sampler_name,
             callback_function=callback
         )
 
@@ -160,6 +161,7 @@ def process(positive_prompt, negative_prompt, steps, switch, width, height, imag
             latent=empty_latent,
             steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
+            sampler_name=sampler_name,
             callback_function=callback
         )
 
