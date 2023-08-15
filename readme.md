@@ -18,6 +18,7 @@ Fooocus also developed many "fooocus-only" features for advanced users to get pe
 
 `[1]` David Holz, 2019.
 
+
 ## Download
 
 ### Windows
