@@ -76,6 +76,12 @@ progress::after {
   resize: none !important;
 }
 
+.refresh_button{
+  border: none !important;
+  background: none !important;
+  font-size: none !important;
+}
+
 '''
 progress_html = '''
 <div class="loader-container">
