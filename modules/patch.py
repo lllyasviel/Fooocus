@@ -7,6 +7,8 @@ from comfy.samplers import model_management, lcm, math
 from comfy.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, forward_timestep_embed
 from modules.filters import gaussian_filter_2d
 
+sharpness = 2.0
+
 
 def sampling_function_patched(model_function, x, timestep, uncond, cond, cond_scale, cond_concat=None, model_options={},
                       seed=None):
@@ -346,7 +348,7 @@ def unet_forward_patched(self, x, timesteps=None, context=None, y=None, control=
     x0 = self.out(h)
 
     alpha = 1.0 - (timesteps / 999.0)[:, None, None, None].clone()
-    alpha *= 0.002
+    alpha *= 0.001 * sharpness
     degraded_x0 = gaussian_filter_2d(x0) * alpha + x0 * (1.0 - alpha)
 
     x0 = x0 * uc_mask + degraded_x0 * (1.0 - uc_mask)
