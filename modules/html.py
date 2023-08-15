@@ -80,6 +80,7 @@ progress::after {
   border: none !important;
   background: none !important;
   font-size: none !important;
+  box-shadow: none !important;
 }
 
 '''

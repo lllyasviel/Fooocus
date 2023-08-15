@@ -1,3 +1,7 @@
+### 1.0.31
+
+* Fix typo and UI.
+
 ### 1.0.29
 
 * Added "Advanced->Advanced->Advanced" block for future development.
