@@ -1,4 +1,12 @@
 # Fooocus
+<h4 align="center">
+    <p>
+        <b>English</b> |
+        <a href="https://github.com/lishukan/Fooocus/blob/main/docs/zh/readme_zh.md">简体中文</a> |
+        Coming soon ...
+
+    <p>
+</h4>
 
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/701e32be-f7d2-4be8-b8cc-8115394de406)
 
