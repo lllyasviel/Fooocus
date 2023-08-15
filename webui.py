@@ -76,8 +76,10 @@ with shared.gradio_root:
                             lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=modules.path.default_lora_weight)
                             lora_ctrls += [lora_model, lora_weight]
                 with gr.Row():
+                    model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
+                with gr.Accordion(label='Advanced', open=False):
+                    sharpness = gr.Slider(label='Image Sharpness', minimum=0.0, maximum=20.0, step=0.01, value=2.0)
                     sampler_selection = gr.Radio(label='Sampler', choices=['dpmpp_2m_sde_gpu', 'dpmpp_3m_sde_gpu'], value='dpmpp_2m_sde_gpu')
-                model_refresh = gr.Button(label='Refresh', value='Refresh All Files', variant='secondary')
 
                 def model_refresh_clicked():
                     modules.path.update_all_model_names()
@@ -92,7 +94,7 @@ with shared.gradio_root:
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col)
         ctrls = [
             prompt, negative_prompt, style_selction,
-            performance_selction, aspect_ratios_selction, image_number, image_seed, sampler_selection
+            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, sampler_selection
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
         run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])
