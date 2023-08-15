@@ -1,0 +1,9 @@
+version: "3.3"
+services:
+  fooocus_back:
+    restart: always
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+    volumes:
+      - ..:/application/src/
