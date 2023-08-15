@@ -105,6 +105,10 @@ Note that some of these tricks are currently (2023 Aug 11) impossible to reprodu
 8. Separated prompts for two different text encoders seem unnecessary. Separated prompts for base model and refiner may work but the effects are random, and we refrain from implement this.
 9. DPM family seems well-suited for XL, since XL sometimes generates overly smooth texture but DPM family sometimes generate overly dense detail in texture. Their joint effect looks neutral and appealing to human perception.
 
+## Advanced Features
+
+[Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
+
 ## Thanks
 
 The codebase starts from an odd mixture of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) and [ComfyUI](https://github.com/comfyanonymous/ComfyUI). (And they both use GPL license.)
