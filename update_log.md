@@ -1,3 +1,7 @@
+### 1.0.29
+
+* Fix overcook problem in 1.0.28
+
 ### 1.0.28
 
 * SAG implemented

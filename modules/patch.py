@@ -345,8 +345,8 @@ def unet_forward_patched(self, x, timesteps=None, context=None, y=None, control=
     h = h.type(x.dtype)
     x0 = self.out(h)
 
-    alpha = 1.0 - ((timesteps / 999.0)[:, None, None, None].clone() ** 2.0)
-    alpha *= 0.01
+    alpha = 1.0 - (timesteps / 999.0)[:, None, None, None].clone()
+    alpha *= 0.002
     degraded_x0 = gaussian_filter_2d(x0) * alpha + x0 * (1.0 - alpha)
 
     x0 = x0 * uc_mask + degraded_x0 * (1.0 - uc_mask)
