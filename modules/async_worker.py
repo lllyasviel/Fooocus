@@ -53,8 +53,8 @@ def worker():
 
         results = []
         seed = image_seed
-        if not isinstance(seed, int) or seed < 0 or seed > 65535:
-            seed = random.randint(1, 65535)
+        if not isinstance(seed, int) or seed < 0 or seed > 1024*1024*1024:
+            seed = random.randint(1, 1024*1024*1024)
 
         all_steps = steps * image_number
 
