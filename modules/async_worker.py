@@ -1,5 +1,5 @@
 import threading
-
+import json
 
 buffer = []
 outputs = []
@@ -69,12 +69,15 @@ def worker():
                 y)])
 
         for i in range(image_number):
-            imgs = pipeline.process(p_txt, n_txt, steps, switch, width, height, seed, callback=callback)
+            imgs, jsons = pipeline.process(p_txt, n_txt, steps, switch, width, height, seed, callback=callback)
 
-            for x in imgs:
+            for x, json_data in zip(imgs, jsons):
                 local_temp_filename = generate_temp_filename(folder=modules.path.temp_outputs_path, extension='png')
+                local_json_filename = os.path.splitext(local_temp_filename)[0] + ".json"
                 os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
                 Image.fromarray(x).save(local_temp_filename)
+                with open(local_json_filename, "w") as json_file:
+                    json.dump(json_data, json_file, indent=4)
 
             seed += 1
             results += imgs

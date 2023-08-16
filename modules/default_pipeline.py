@@ -117,6 +117,17 @@ def clean_prompt_cond_caches():
     negative_conditions_refiner_cache = None
     return
 
+def build_json(positive_prompt, negative_prompt, steps, switch, width, height, image_seed):
+    json_data = {
+        "positive_prompt": positive_prompt,
+        "negative_prompt": negative_prompt,
+        "steps": steps,
+        "switch": switch,
+        "width": width,
+        "height": height,
+        "image_seed": image_seed
+    }
+    return json_data
 
 @torch.no_grad()
 def process(positive_prompt, negative_prompt, steps, switch, width, height, image_seed, callback):
@@ -166,5 +177,7 @@ def process(positive_prompt, negative_prompt, steps, switch, width, height, imag
     decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent)
 
     images = core.image_to_numpy(decoded_latent)
+    json_data = []
+    json_data.append(build_json(positive_prompt, negative_prompt, steps, switch, width, height, image_seed))
 
-    return images
+    return images, json_data
