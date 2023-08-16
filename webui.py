@@ -78,7 +78,7 @@ with shared.gradio_root:
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
                 with gr.Accordion(label='Advanced', open=False):
-                    save_metadata = gr.Checkbox(label="Save Metadata")
+                    save_metadata = gr.Radio(label='Save Metadata', choices=['Disabled', 'JSON', 'PNG'], value='Disabled')
                     sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=40.0, step=0.01, value=2.0)
                     gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
 
