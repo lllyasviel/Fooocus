@@ -16,6 +16,7 @@ def worker():
     import modules.default_pipeline as pipeline
     import modules.path
     import modules.patch
+    import fooocus_version
 
     from PIL import Image
     from PIL.PngImagePlugin import PngInfo
@@ -76,16 +77,16 @@ def worker():
             pnginfo = None
             if save_metadata != 'Disabled':
                 prompt = {
-                    'p_txt': p_txt, 'n_txt': n_txt, 'steps': steps, 'switch': switch,
+                    'p_txt': p_txt, 'n_txt': n_txt, 'steps': steps, 'switch': switch, 'cfg': '7.0',
                     'width': width, 'height': height, 'seed': seed, 'sampler_name': 'dpmpp_2m_sde_gpu',
                     'base_model_name': base_model_name, 'refiner_model_name': refiner_model_name,
                     'l1': l1, 'w1': w1, 'l2': l2, 'w2': w2, 'l3': l3, 'w3': w3,
                     'l4': l4, 'w4': w4, 'l5': l5, 'w5': w5,
-                    'sharpness': sharpness, 'software': 'Fooocus'
+                    'sharpness': sharpness, 'software': 'Fooocus ' + fooocus_version.version
                 }
                 if save_metadata == 'PNG':
                     pnginfo = PngInfo()
-                    pnginfo.add_text("prompt", json.dumps(prompt))
+                    pnginfo.add_text("Comment", json.dumps(prompt))
 
             for x in imgs:
                 local_temp_filename = generate_temp_filename(folder=modules.path.temp_outputs_path, extension='png')
