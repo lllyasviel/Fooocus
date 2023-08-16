@@ -8,7 +8,6 @@ outputs = []
 def worker():
     global buffer, outputs
 
-    import os
     import time
     import shared
     import random
@@ -16,9 +15,8 @@ def worker():
     import modules.path
     import modules.patch
 
-    from PIL import Image
     from modules.sdxl_styles import apply_style, aspect_ratios
-    from modules.util import generate_temp_filename
+    from modules.private_logger import log
 
     try:
         async_gradio_app = shared.gradio_root
@@ -72,9 +70,20 @@ def worker():
             imgs = pipeline.process(p_txt, n_txt, steps, switch, width, height, seed, callback=callback)
 
             for x in imgs:
-                local_temp_filename = generate_temp_filename(folder=modules.path.temp_outputs_path, extension='png')
-                os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
-                Image.fromarray(x).save(local_temp_filename)
+                d = [
+                    ('Prompt', prompt),
+                    ('Negative Prompt', negative_prompt),
+                    ('Style', style_selction),
+                    ('Performance', performance_selction),
+                    ('Resolution', aspect_ratios_selction),
+                    ('Sharpness', sharpness),
+                    ('Base Model', base_model_name),
+                    ('Refiner Model', refiner_model_name),
+                ]
+                for n, w in loras:
+                    if n != 'None':
+                        d.append((f'Lora [{n}] weight', w))
+                log(x, d)
 
             seed += 1
             results += imgs
