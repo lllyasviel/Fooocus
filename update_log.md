@@ -1,3 +1,7 @@
+### 1.0.32
+
+* Fooocus private log
+
 ### 1.0.31
 
 * Fix typo and UI.
