@@ -75,7 +75,7 @@ def worker():
                     ('Negative Prompt', negative_prompt),
                     ('Style', style_selction),
                     ('Performance', performance_selction),
-                    ('Resolution', aspect_ratios_selction),
+                    ('Resolution', str((width, height))),
                     ('Sharpness', sharpness),
                     ('Base Model', base_model_name),
                     ('Refiner Model', refiner_model_name),
