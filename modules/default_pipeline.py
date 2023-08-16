@@ -128,7 +128,6 @@ def build_json(positive_prompt, negative_prompt, steps, switch, width, height, i
         "image_seed": image_seed,
         "base_model": modules.path.default_base_model_name,
         "refiner_model": modules.path.default_refiner_model_name,
-        "loras": modules.path.default_lora_name
     }
     return json_data
 
