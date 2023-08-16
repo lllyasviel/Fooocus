@@ -73,7 +73,7 @@ def worker():
         for i in range(image_number):
             imgs = pipeline.process(p_txt, n_txt, steps, switch, width, height, seed, callback=callback)
 
-            metadata = None
+            pnginfo = None
             if save_metadata:
                 prompt = {
                     'p_txt': p_txt, 'n_txt': n_txt, 'steps': steps, 'switch': switch,
