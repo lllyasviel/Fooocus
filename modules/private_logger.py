@@ -29,7 +29,7 @@ def log(img, dic):
                 else:
                     f.write(f"{k}: <b>{v}</b></p>\n")
             i += 1
-        f.write(f"<p><img src=\"{local_temp_filename}\" width=512></img></p>\n")
+        f.write(f"<p><img src=\"{only_name}\" width=512></img></p>\n")
 
     print(f'Image generated with private log at: {html_name}')
 
