@@ -78,6 +78,7 @@ with shared.gradio_root:
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
                 with gr.Accordion(label='Advanced', open=False):
+                    save_metadata = gr.Checkbox(label="Save Metadata")
                     sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=40.0, step=0.01, value=2.0)
                     gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
 
@@ -94,7 +95,7 @@ with shared.gradio_root:
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col)
         ctrls = [
             prompt, negative_prompt, style_selction,
-            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness
+            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, save_metadata
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
         run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])

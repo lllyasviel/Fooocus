@@ -9,6 +9,7 @@ def worker():
     global buffer, outputs
 
     import os
+    import json
     import time
     import shared
     import random
@@ -17,6 +18,7 @@ def worker():
     import modules.patch
 
     from PIL import Image
+    from PIL.PngImagePlugin import PngInfo
     from modules.sdxl_styles import apply_style, aspect_ratios
     from modules.util import generate_temp_filename
 
@@ -31,7 +33,7 @@ def worker():
 
     def handler(task):
         prompt, negative_prompt, style_selction, performance_selction, \
-        aspect_ratios_selction, image_number, image_seed, sharpness, base_model_name, refiner_model_name, \
+        aspect_ratios_selction, image_number, image_seed, sharpness, save_metadata, base_model_name, refiner_model_name, \
         l1, w1, l2, w2, l3, w3, l4, w4, l5, w5 = task
 
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
@@ -71,10 +73,23 @@ def worker():
         for i in range(image_number):
             imgs = pipeline.process(p_txt, n_txt, steps, switch, width, height, seed, callback=callback)
 
+            metadata = None
+            if save_metadata:
+                prompt = {
+                    'p_txt': p_txt, 'n_txt': n_txt, 'steps': steps, 'switch': switch,
+                    'width': width, 'height': height, 'seed': seed, 'sampler_name': 'dpmpp_2m_sde_gpu',
+                    'base_model_name': base_model_name, 'refiner_model_name': refiner_model_name,
+                    'l1': l1, 'w1': w1, 'l2': l2, 'w2': w2, 'l3': l3, 'w3': w3,
+                    'l4': l4, 'w4': w4, 'l5': l5, 'w5': w5,
+                    'sharpness': sharpness, 'software': 'Fooocus'
+                }
+                pnginfo = PngInfo()
+                pnginfo.add_text("prompt", json.dumps(prompt))
+
             for x in imgs:
                 local_temp_filename = generate_temp_filename(folder=modules.path.temp_outputs_path, extension='png')
                 os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
-                Image.fromarray(x).save(local_temp_filename)
+                Image.fromarray(x).save(local_temp_filename, pnginfo=pnginfo)
 
             seed += 1
             results += imgs
