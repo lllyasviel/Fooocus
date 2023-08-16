@@ -83,7 +83,7 @@ def worker():
                 ]
                 for n, w in loras:
                     if n != 'None':
-                        d.append((f'Lora [{n}] weight', w))
+                        d.append((f'LoRA [{n}] weight', w))
                 log(x, d)
 
             seed += 1
