@@ -79,6 +79,7 @@ def worker():
                     ('Sharpness', sharpness),
                     ('Base Model', base_model_name),
                     ('Refiner Model', refiner_model_name),
+                    ('Seed', seed)
                 ]
                 for n, w in loras:
                     if n != 'None':
