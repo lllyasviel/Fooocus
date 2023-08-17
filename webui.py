@@ -3,17 +3,18 @@ import sys
 import time
 import shared
 import argparse
-import modules.path
+from modules import path, html, async_worker as worker, sdxl_styles
+#import modules.path
 import fooocus_version
-import modules.html
-import modules.async_worker as worker
+#import modules.html
+#import modules.async_worker as worker
 
-from modules.sdxl_styles import style_keys, aspect_ratios
+#from modules.sdxl_styles import style_keys, aspect_ratios
 
 
 def generate_clicked(*args):
     yield gr.update(interactive=False), \
-        gr.update(visible=True, value=modules.html.make_progress_html(1, 'Processing text encoding ...')), \
+        gr.update(visible=True, value=html.make_progress_html(1, 'Processing text encoding ...')), \
         gr.update(visible=True, value=None), \
         gr.update(visible=False)
 
@@ -27,7 +28,7 @@ def generate_clicked(*args):
             if flag == 'preview':
                 percentage, title, image = product
                 yield gr.update(interactive=False), \
-                    gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
+                    gr.update(visible=True, value=html.make_progress_html(percentage, title)), \
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
                     gr.update(visible=False)
             if flag == 'results':
@@ -39,12 +40,12 @@ def generate_clicked(*args):
     return
 
 
-shared.gradio_root = gr.Blocks(title='Fooocus ' + fooocus_version.version, css=modules.html.css).queue()
+shared.gradio_root = gr.Blocks(title='Fooocus ' + fooocus_version.version, css=html.css).queue()
 with shared.gradio_root:
     with gr.Row():
         with gr.Column():
             progress_window = gr.Image(label='Preview', show_label=True, height=640, visible=False)
-            progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False, elem_id='progress-bar', elem_classes='progress-bar')
+            progress_html = gr.HTML(value=html.make_progress_html(32, 'Progress 32%'), visible=False, elem_id='progress-bar', elem_classes='progress-bar')
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=720, visible=True)
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=0.85):
@@ -56,24 +57,24 @@ with shared.gradio_root:
         with gr.Column(scale=0.5, visible=False) as right_col:
             with gr.Tab(label='Setting'):
                 performance_selction = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
-                aspect_ratios_selction = gr.Radio(label='Aspect Ratios (width × height)', choices=list(aspect_ratios.keys()),
+                aspect_ratios_selction = gr.Radio(label='Aspect Ratios (width × height)', choices=list(sdxl_styles.aspect_ratios.keys()),
                                                   value='1152×896')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=2)
                 image_seed = gr.Number(label='Random Seed', value=-1, precision=0)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.")
             with gr.Tab(label='Style'):
                 style_selction = gr.Radio(show_label=False, container=True,
-                                          choices=style_keys, value='cinematic-default')
+                                          choices=sdxl_styles.style_keys, value='cinematic-default')
             with gr.Tab(label='Advanced'):
                 with gr.Row():
-                    base_model = gr.Dropdown(label='SDXL Base Model', choices=modules.path.model_filenames, value=modules.path.default_base_model_name, show_label=True)
-                    refiner_model = gr.Dropdown(label='SDXL Refiner', choices=['None'] + modules.path.model_filenames, value=modules.path.default_refiner_model_name, show_label=True)
+                    base_model = gr.Dropdown(label='SDXL Base Model', choices=path.model_filenames, value=path.default_base_model_name, show_label=True)
+                    refiner_model = gr.Dropdown(label='SDXL Refiner', choices=['None'] + path.model_filenames, value=path.default_refiner_model_name, show_label=True)
                 with gr.Accordion(label='LoRAs', open=True):
                     lora_ctrls = []
                     for i in range(5):
                         with gr.Row():
-                            lora_model = gr.Dropdown(label=f'SDXL LoRA {i+1}', choices=['None'] + modules.path.lora_filenames, value=modules.path.default_lora_name if i == 0 else 'None')
-                            lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=modules.path.default_lora_weight)
+                            lora_model = gr.Dropdown(label=f'SDXL LoRA {i+1}', choices=['None'] + path.lora_filenames, value=path.default_lora_name if i == 0 else 'None')
+                            lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=path.default_lora_weight)
                             lora_ctrls += [lora_model, lora_weight]
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
@@ -82,11 +83,11 @@ with shared.gradio_root:
                     gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
 
                 def model_refresh_clicked():
-                    modules.path.update_all_model_names()
+                    path.update_all_model_names()
                     results = []
-                    results += [gr.update(choices=modules.path.model_filenames), gr.update(choices=['None'] + modules.path.model_filenames)]
+                    results += [gr.update(choices=path.model_filenames), gr.update(choices=['None'] + path.model_filenames)]
                     for i in range(5):
-                        results += [gr.update(choices=['None'] + modules.path.lora_filenames), gr.update()]
+                        results += [gr.update(choices=['None'] + path.lora_filenames), gr.update()]
                     return results
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls)
