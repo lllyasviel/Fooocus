@@ -1,3 +1,7 @@
+### 1.0.34
+
+* Random seed restoring.
+
 ### 1.0.33
 
 * Hide items in log when images are removed.
