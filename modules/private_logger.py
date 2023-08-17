@@ -17,7 +17,8 @@ def log(img, dic):
             f.write(f"<p>All images do not contain any hidden data.</p>")
 
     with open(html_name, 'a+') as f:
-        f.write(f"<hr>\n")
+        div_name = only_name.replace('.', '_')
+        f.write(f'<div id="{div_name}"><hr>\n')
         f.write(f"<p>{only_name}</p>\n")
         i = 0
         for k, v in dic:
@@ -29,7 +30,7 @@ def log(img, dic):
                 else:
                     f.write(f"{k}: <b>{v}</b></p>\n")
             i += 1
-        f.write(f"<p><img src=\"{only_name}\" width=512></img></p>\n")
+        f.write(f"<p><img src=\"{only_name}\" width=512 onerror=\"document.getElementById('{div_name}').style.display = 'none';\"></img></p></div>\n")
 
     print(f'Image generated with private log at: {html_name}')
 
