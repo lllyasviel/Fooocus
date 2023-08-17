@@ -28,8 +28,8 @@ def worker():
         print(e)
 
     def handler(task):
-        prompt, negative_prompt, style_selction, performance_selction, \
-        aspect_ratios_selction, image_number, image_seed, sharpness, base_model_name, refiner_model_name, \
+        prompt, negative_prompt, style_selection, performance_selection, \
+        aspect_ratios_selection, image_number, image_seed, sharpness, base_model_name, refiner_model_name, \
         l1, w1, l2, w2, l3, w3, l4, w4, l5, w5 = task
 
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
@@ -41,16 +41,16 @@ def worker():
         pipeline.refresh_loras(loras)
         pipeline.clean_prompt_cond_caches()
 
-        p_txt, n_txt = apply_style(style_selction, prompt, negative_prompt)
+        p_txt, n_txt = apply_style(style_selection, prompt, negative_prompt)
 
-        if performance_selction == 'Speed':
+        if performance_selection == 'Speed':
             steps = 30
             switch = 20
         else:
             steps = 60
             switch = 40
 
-        width, height = aspect_ratios[aspect_ratios_selction]
+        width, height = aspect_ratios[aspect_ratios_selection]
 
         results = []
         seed = image_seed
@@ -73,8 +73,8 @@ def worker():
                 d = [
                     ('Prompt', prompt),
                     ('Negative Prompt', negative_prompt),
-                    ('Style', style_selction),
-                    ('Performance', performance_selction),
+                    ('Style', style_selection),
+                    ('Performance', performance_selection),
                     ('Resolution', str((width, height))),
                     ('Sharpness', sharpness),
                     ('Base Model', base_model_name),
