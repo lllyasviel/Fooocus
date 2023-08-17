@@ -1,5 +1,5 @@
 import gradio as gr
-import sys
+import random
 import time
 import shared
 import argparse
@@ -59,8 +59,21 @@ with shared.gradio_root:
                 aspect_ratios_selction = gr.Radio(label='Aspect Ratios (width × height)', choices=list(aspect_ratios.keys()),
                                                   value='1152×896')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=2)
-                image_seed = gr.Number(label='Random Seed', value=-1, precision=0)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.")
+                seed_random = gr.Checkbox(label='Random', value=True)
+                image_seed = gr.Number(label='Seed', value=0, precision=0, visible=False)
+
+                def random_checked(r):
+                    return gr.update(visible=not r)
+
+                def refresh_seed(r, s):
+                    if r:
+                        return random.randint(1, 1024*1024*1024)
+                    else:
+                        return s
+
+                seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed])
+
             with gr.Tab(label='Style'):
                 style_selction = gr.Radio(show_label=False, container=True,
                                           choices=style_keys, value='cinematic-default')
@@ -97,7 +110,8 @@ with shared.gradio_root:
             performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
-        run_button.click(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])
+        run_button.click(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\
+            .then(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])
 
 
 parser = argparse.ArgumentParser()
