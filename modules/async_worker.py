@@ -89,7 +89,7 @@ def worker():
             seed += 1
             results += imgs
 
-        outputs.append(['results', results])
+        outputs.append(['results', (results, seed - 1)])
         return
 
     while True:

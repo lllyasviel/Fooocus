@@ -19,6 +19,7 @@ def generate_clicked(*args):
 
     worker.buffer.append(list(args))
     finished = False
+    local_last_seed = -1
 
     while not finished:
         time.sleep(0.01)
@@ -31,13 +32,22 @@ def generate_clicked(*args):
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
                     gr.update(visible=False)
             if flag == 'results':
+                images, seed = product
+                local_last_seed = seed
                 yield gr.update(interactive=True), \
                     gr.update(visible=False), \
                     gr.update(visible=False), \
-                    gr.update(visible=True, value=product)
+                    gr.update(visible=True, value=images)
                 finished = True
+
+    update_last_seed(local_last_seed)
     return
 
+def update_last_seed(seed):
+    shared.last_seed = seed
+
+def recycle_seed():
+    return shared.last_seed
 
 shared.gradio_root = gr.Blocks(title='Fooocus ' + fooocus_version.version, css=modules.html.css).queue()
 with shared.gradio_root:
@@ -60,6 +70,8 @@ with shared.gradio_root:
                                                   value='1152×896')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=2)
                 image_seed = gr.Number(label='Random Seed', value=-1, precision=0)
+                btn_recycle_seed = gr.Button(label="Recycle Last Seed", value="Recycle Seed")
+                btn_recycle_seed.click(recycle_seed, outputs=[image_seed])
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.")
             with gr.Tab(label='Style'):
                 style_selction = gr.Radio(show_label=False, container=True,
