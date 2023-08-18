@@ -2,6 +2,9 @@ __pycache__
 *.ckpt
 *.safetensors
 *.pth
+lena.png
+lena_result.png
+lena_test.py
 !taesdxl_decoder.pth
 /repositories
 /venv
