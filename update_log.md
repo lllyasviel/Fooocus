@@ -1,3 +1,7 @@
+### 1.0.36
+
+* Change gaussian kernel to anisotropic kernel.
+
 ### 1.0.34
 
 * Random seed restoring.

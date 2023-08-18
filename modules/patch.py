@@ -2,10 +2,11 @@ import torch
 import comfy.model_base
 import comfy.ldm.modules.diffusionmodules.openaimodel
 import comfy.samplers
+import modules.anisotropic as anisotropic
 
 from comfy.samplers import model_management, lcm, math
 from comfy.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, forward_timestep_embed
-from modules.filters import gaussian_filter_2d
+
 
 sharpness = 2.0
 
@@ -349,7 +350,7 @@ def unet_forward_patched(self, x, timesteps=None, context=None, y=None, control=
 
     alpha = 1.0 - (timesteps / 999.0)[:, None, None, None].clone()
     alpha *= 0.001 * sharpness
-    degraded_x0 = gaussian_filter_2d(x0) * alpha + x0 * (1.0 - alpha)
+    degraded_x0 = anisotropic.bilateral_blur(x0) * alpha + x0 * (1.0 - alpha)
 
     x0 = x0 * uc_mask + degraded_x0 * (1.0 - uc_mask)
 
