@@ -12,11 +12,11 @@ def log(img, dic):
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
 
     if not os.path.exists(html_name):
-        with open(html_name, 'a+') as f:
+        with open(html_name, 'a+', encoding='utf-8') as f:
             f.write(f"<p>Fooocus Log {date_string} (private)</p>\n")
             f.write(f"<p>All images do not contain any hidden data.</p>")
 
-    with open(html_name, 'a+') as f:
+    with open(html_name, 'a+', encoding='utf-8') as f:
         div_name = only_name.replace('.', '_')
         f.write(f'<div id="{div_name}"><hr>\n')
         f.write(f"<p>{only_name}</p>\n")
