@@ -7,7 +7,7 @@ def load_file_from_url(
         *,
         model_dir: str,
         progress: bool = True,
-        file_name: str | None = None,
+        file_name: str = None,
 ) -> str:
     """Download a file from `url` into `model_dir`, using the file present if possible.
 
