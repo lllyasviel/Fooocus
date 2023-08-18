@@ -1,4 +1,4 @@
-### 1.0.34
+### 1.0.36
 
 * Change gaussian kernel to anisotropic kernel.
 
