@@ -1,6 +1,6 @@
 # Fooocus
 
-<img src="https://github.com/lllyasviel/Fooocus/assets/19834515/6a987a98-5c26-4e0e-a6ec-9ff80e9c87d3" width=100%>
+<img src="https://github.com/lllyasviel/Fooocus/assets/19834515/89ae5a86-7a3e-42f2-b88d-2397022e4ebe" width=100%>
 
 Fooocus is an image generating software.
 
