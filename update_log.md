@@ -1,3 +1,7 @@
+### 1.0.38
+
+* Update dependency, update to sampler.
+
 ### 1.0.37
 
 * Cinematic-default v2.
