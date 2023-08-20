@@ -152,8 +152,7 @@ class KSamplerWithRefiner:
                                           noise.shape[3], noise.shape[2], self.device, "negative")
 
         def refiner_switch():
-            comfy.model_management.load_models_gpu([self.refiner_model_patcher], comfy.model_management.batch_area_memory(
-                noise.shape[0] * noise.shape[2] * noise.shape[3]))
+            comfy.model_management.load_model_gpu(self.refiner_model_patcher)
             self.model_denoise.inner_model = self.refiner_model_denoise.inner_model
             for i in range(len(positive)):
                 positive[i] = refiner_positive[i]
