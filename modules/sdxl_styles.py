@@ -8,8 +8,8 @@ styles = [
     },
     {
         "name": "cinematic-default",
-        "prompt": "cinematic still {prompt} . emotional, harmonious, vignette, highly detailed, high budget, moody, epic, gorgeous, film grain, grainy",
-        "negative_prompt": "blur, bokeh, anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured"
+        "prompt": "cinematic still {prompt} . emotional, harmonious, vignette, highly detailed, high budget, bokeh, cinemascope, moody, epic, gorgeous, film grain, grainy",
+        "negative_prompt": "anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured"
     },
     {
         "name": "sai-3d-model",

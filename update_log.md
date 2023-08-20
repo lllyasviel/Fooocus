@@ -1,11 +1,3 @@
-### 1.0.38
-
-* Update dependency, update to sampler.
-
-### 1.0.37
-
-* Cinematic-default v2.
-
 ### 1.0.36
 
 * Change gaussian kernel to anisotropic kernel.
