@@ -1,3 +1,8 @@
+### 1.0.39
+
+* Reverted unstable changes between 1.0.37 and 1.0.38 .
+* Increased refiner steps to half of sampling steps.
+
 ### 1.0.36
 
 * Change gaussian kernel to anisotropic kernel.

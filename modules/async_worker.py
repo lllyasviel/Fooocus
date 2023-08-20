@@ -45,10 +45,10 @@ def worker():
 
         if performance_selction == 'Speed':
             steps = 30
-            switch = 20
+            switch = 15
         else:
             steps = 60
-            switch = 40
+            switch = 30
 
         width, height = aspect_ratios[aspect_ratios_selction]
 
