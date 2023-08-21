@@ -1,3 +1,7 @@
+### 1.0.40
+
+* Behaviors reverted to 1.0.36 again (refiner steps). The 1.0.36 is too perfect and too typical; beating 1.0.36 is just impossible.
+
 ### 1.0.39
 
 * Reverted unstable changes between 1.0.37 and 1.0.38 .
