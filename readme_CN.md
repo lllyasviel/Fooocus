@@ -1,5 +1,7 @@
 # Fooocus
 
+## <div align="center"><b><a href="readme.md">English</a> | <a href="readme_CN.md">简体中文</a></b></div>
+
 <img src="https://github.com/lllyasviel/Fooocus/assets/19834515/f79c5981-cf80-4ee3-b06b-3fef3f8bfbc7" width=100%>
 
 Fooocus是一个AI图像生成软件。
