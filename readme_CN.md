@@ -45,7 +45,7 @@ Fooocus安装简单。从下载到生成您的第一张图片只需鼠标操作�
 
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/938737a5-b105-4f19-b051-81356cb7c495)
 
-我们发现最低的硬件环境仅需**4GB Nvidia GPU显存 (4GB VRAM)**和**8GB系统内存 (8GB RAM)**。这得益于微软的虚拟内存技术，大多数情况下，Windows会默认启用，无需调整。但某些用户会禁用它，如果你不确定是否已启用，你可以参照下方的操作步骤启用它：
+我们发现最低的硬件环境仅需**4GB Nvidia GPU显存 (4GB VRAM)**和**8GB系统内存 (8GB RAM)**。这得益于微软的虚拟内存技术，大多数情况下，Windows会默认启用，无需调整。但某些用户会禁用它，如果你不确定是否已启用，或者 **当你看到控制台诸如"RuntimeError: CPUAllocator"这样的提示** ，你可以参照下方的操作步骤启用它：
 
 <details>
 <summary>点击这里展开图片详解启用虚拟内存。 </summary>
