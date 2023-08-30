@@ -72,15 +72,20 @@ def download_models():
     return
 
 
-def cuda_malloc():
+def clear_comfy_args():
     argv = sys.argv
     sys.argv = [sys.argv[0]]
-    import cuda_malloc
+    import comfy.cli_args
     sys.argv = argv
+
+
+def cuda_malloc():
+    import cuda_malloc
 
 
 prepare_environment()
 
+clear_comfy_args()
 # cuda_malloc()
 
 download_models()
