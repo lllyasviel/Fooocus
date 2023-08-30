@@ -75,8 +75,16 @@ with shared.gradio_root:
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed])
 
             with gr.Tab(label='Style'):
-                style_selction = gr.Radio(show_label=False, container=True,
-                                          choices=style_keys, value='cinematic-default')
+                style_filter = gr.Textbox(show_label=False, placeholder="Type to filter styles.")
+                style_selection = gr.Radio(show_label=False, container=True,
+                                           choices=style_keys, value='cinematic-default')
+
+                def update_style_choices(filter_text):
+                    filtered_styles = [style for style in style_keys if filter_text.lower() in style.lower()]
+                    return gr.update(choices=filtered_styles)
+
+                style_filter.change(update_style_choices, inputs=style_filter, outputs=style_selection)
+
             with gr.Tab(label='Advanced'):
                 with gr.Row():
                     base_model = gr.Dropdown(label='SDXL Base Model', choices=modules.path.model_filenames, value=modules.path.default_base_model_name, show_label=True)
@@ -106,7 +114,7 @@ with shared.gradio_root:
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col)
         ctrls = [
-            prompt, negative_prompt, style_selction,
+            prompt, negative_prompt, style_selection,
             performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
