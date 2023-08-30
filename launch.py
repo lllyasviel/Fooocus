@@ -81,7 +81,7 @@ def cuda_malloc():
 
 prepare_environment()
 
-cuda_malloc()
+# cuda_malloc()
 
 download_models()
 
