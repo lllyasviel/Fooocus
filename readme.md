@@ -1,5 +1,8 @@
 # Fooocus
 
+[![en](https://img.shields.io/badge/lang-english-red.svg)](/readme.md)
+[![zh_cn](https://img.shields.io/badge/lang-%E4%B8%AD%E6%96%87-yellow.svg)](/readme_zh.md)
+
 <img src="https://github.com/lllyasviel/Fooocus/assets/19834515/f79c5981-cf80-4ee3-b06b-3fef3f8bfbc7" width=100%>
 
 Fooocus is an image generating software.
