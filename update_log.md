@@ -2,7 +2,7 @@
 
 * Reworked SAG, removed unnecessary patch
 * Reworked anisotropic filters for faster compute.
-* Replaced with guided anisotropic filter for less distribution.
+* Replaced with guided anisotropic filter for less distortion.
 
 ### 1.0.41
 
