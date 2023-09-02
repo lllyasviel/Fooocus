@@ -16,19 +16,19 @@ cfg_s = 1.0
 
 def cfg_patched(args):
     global cfg_x0, cfg_s
-    cond = args['cond']
+    positive_eps = args['cond'].clone()
+    positive_x0 = args['cond'] * cfg_s + cfg_x0
+    uncond = args['uncond'] * cfg_s + cfg_x0
     cond_scale = args['cond_scale']
     t = args['timestep']
-
-    negative_eps = args['uncond'].clone()
-    negative_x0 = args['uncond'] * cfg_s + cfg_x0
-
-    negative_eps_degraded = anisotropic.bilateral_blur(negative_eps)
 
     alpha = 1.0 - (t / 999.0)[:, None, None, None].clone()
     alpha *= 0.001 * sharpness
 
-    uncond = negative_eps_degraded * alpha + negative_eps * (1.0 - alpha)
+    eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
+    eps_degraded_weighted = eps_degraded * alpha + positive_eps * (1.0 - alpha)
+
+    cond = eps_degraded_weighted * cfg_s + cfg_x0
 
     return uncond + (cond - uncond) * cond_scale
 
@@ -38,7 +38,7 @@ def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
     c_out, c_in = [utils.append_dims(x, input.ndim) for x in self.get_scalings(sigma)]
     cfg_x0 = input
     cfg_s = c_out
-    return self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs) * cfg_s + cfg_x0
+    return self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
 
 
 def sdxl_encode_adm_patched(self, **kwargs):
