@@ -130,7 +130,7 @@ def adaptive_anisotropic_filter(x, g=None):
     if g is None:
         g = x
     s, m = torch.std_mean(g, dim=(1, 2, 3), keepdim=True)
-    s += 1e-5
+    s = s + 1e-5
     guidance = (g - m) / s
     y = _bilateral_blur(x, guidance,
                         kernel_size=(17, 17),
