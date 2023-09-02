@@ -117,8 +117,8 @@ def _bilateral_blur(
 
 def bilateral_blur(
     input: Tensor,
-    kernel_size: tuple[int, int] | int = (17, 17),
-    sigma_color: float | Tensor = 2.236,
+    kernel_size: tuple[int, int] | int = (13, 13),
+    sigma_color: float | Tensor = 3.0,
     sigma_space: tuple[float, float] | Tensor = 3.0,
     border_type: str = 'reflect',
     color_distance_type: str = 'l1',
