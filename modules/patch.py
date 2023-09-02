@@ -17,13 +17,20 @@ cfg_s = 1.0
 def cfg_patched(args):
     global cfg_x0, cfg_s
     cond = args['cond'] * cfg_s + cfg_x0
-    uncond = args['uncond'] * cfg_s + cfg_x0
     cond_scale = args['cond_scale']
     t = args['timestep']
 
+    negative_eps = args['uncond'].clone()
+    negative_x0 = args['uncond'] * cfg_s + cfg_x0
+
+    negative_eps_degraded = anisotropic.adaptive_anisotropic_filter(x=negative_eps, g=negative_x0)
+
     alpha = 1.0 - (t / 999.0)[:, None, None, None].clone()
     alpha *= 0.001 * sharpness
-    uncond = anisotropic.adaptive_anisotropic_filter(uncond) * alpha + uncond * (1.0 - alpha)
+
+    negative_eps_degraded_weighted = negative_eps_degraded * alpha + negative_eps * (1.0 - alpha)
+
+    uncond = negative_eps_degraded_weighted * cfg_s + cfg_x0
 
     return uncond + (cond - uncond) * cond_scale
 
