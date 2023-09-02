@@ -126,12 +126,19 @@ def bilateral_blur(
     return _bilateral_blur(input, None, kernel_size, sigma_color, sigma_space, border_type, color_distance_type)
 
 
-def adaptive_anisotropic_filter(x):
-    s, m = torch.std_mean(x, dim=(1, 2, 3), keepdim=True)
+def adaptive_anisotropic_filter(x, g=None):
+    if g is None:
+        g = x
+    s, m = torch.std_mean(g, dim=(1, 2, 3), keepdim=True)
     s += 1e-5
-    data = (x - m) / s
-    y = bilateral_blur(data)
-    return y * s + m
+    guidance = (g - m) / s
+    y = _bilateral_blur(x, guidance,
+                        kernel_size=(17, 17),
+                        sigma_color=2.236,
+                        sigma_space=3.0,
+                        border_type='reflect',
+                        color_distance_type='l1')
+    return y
 
 
 def joint_bilateral_blur(
