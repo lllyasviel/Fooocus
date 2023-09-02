@@ -117,13 +117,21 @@ def _bilateral_blur(
 
 def bilateral_blur(
     input: Tensor,
-    kernel_size: tuple[int, int] | int = (13, 13),
-    sigma_color: float | Tensor = 3.0,
+    kernel_size: tuple[int, int] | int = (17, 17),
+    sigma_color: float | Tensor = 2.236,
     sigma_space: tuple[float, float] | Tensor = 3.0,
     border_type: str = 'reflect',
     color_distance_type: str = 'l1',
 ) -> Tensor:
     return _bilateral_blur(input, None, kernel_size, sigma_color, sigma_space, border_type, color_distance_type)
+
+
+def adaptive_anisotropic_filter(x):
+    s, m = torch.std_mean(x, dim=(1, 2, 3), keepdim=True)
+    s += 1e-5
+    data = (x - m) / s
+    y = bilateral_blur(data)
+    return y * s + m
 
 
 def joint_bilateral_blur(

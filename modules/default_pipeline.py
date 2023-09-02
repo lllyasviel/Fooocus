@@ -4,6 +4,7 @@ import torch
 import modules.path
 
 from comfy.model_base import SDXL, SDXLRefiner
+from modules.patch import cfg_patched
 
 
 xl_base: core.StableDiffusionModel = None
@@ -122,6 +123,15 @@ def clean_prompt_cond_caches():
 def process(positive_prompt, negative_prompt, steps, switch, width, height, image_seed, callback):
     global positive_conditions_cache, negative_conditions_cache, \
         positive_conditions_refiner_cache, negative_conditions_refiner_cache
+
+    if xl_base is not None:
+        xl_base.unet.model_options['sampler_cfg_function'] = cfg_patched
+
+    if xl_base_patched is not None:
+        xl_base_patched.unet.model_options['sampler_cfg_function'] = cfg_patched
+
+    if xl_refiner is not None:
+        xl_refiner.unet.model_options['sampler_cfg_function'] = cfg_patched
 
     positive_conditions = core.encode_prompt_condition(clip=xl_base_patched.clip, prompt=positive_prompt) if positive_conditions_cache is None else positive_conditions_cache
     negative_conditions = core.encode_prompt_condition(clip=xl_base_patched.clip, prompt=negative_prompt) if negative_conditions_cache is None else negative_conditions_cache
