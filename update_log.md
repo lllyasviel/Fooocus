@@ -1,3 +1,11 @@
+### 1.0.45
+
+* Reworked SAG, removed unnecessary patch
+* Reworked anisotropic filters for faster compute.
+* Replaced with guided anisotropic filter for less distortion.
+
+### 1.0.41
+
 (The update of Fooocus will be paused for a period of time for AUTOMATIC1111 sd-webui 1.6.X, and some features will also be implemented as webui extensions)
 
 ### 1.0.40
