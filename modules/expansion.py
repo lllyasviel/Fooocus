@@ -19,6 +19,6 @@ class FooocusExpansion:
             prompt = str(task['prompt']).rstrip('\n')
             seed = int(task['seed'])
             set_seed(seed)
-            response = self.pipe(prompt, max_length=len(prompt) + 128)[0]['generated_text'].rstrip('\n')
+            response = self.pipe(prompt, max_length=len(prompt) + 256)[0]['generated_text'].rstrip('\n')
             task['expansion'] = response
         return tasks
