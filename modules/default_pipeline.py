@@ -5,6 +5,7 @@ import modules.path
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.patch import cfg_patched
+from modules.expansion import FooocusExpansion
 
 
 xl_base: core.StableDiffusionModel = None
@@ -107,6 +108,9 @@ positive_conditions_cache = None
 negative_conditions_cache = None
 positive_conditions_refiner_cache = None
 negative_conditions_refiner_cache = None
+
+
+expansion_model = FooocusExpansion()
 
 
 def clean_prompt_cond_caches():
