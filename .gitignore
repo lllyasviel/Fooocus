@@ -2,6 +2,7 @@ __pycache__
 *.ckpt
 *.safetensors
 *.pth
+*.bin
 lena.png
 lena_result.png
 lena_test.py
