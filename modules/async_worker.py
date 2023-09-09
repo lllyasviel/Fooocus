@@ -29,7 +29,8 @@ def worker():
 
     def handler(task):
         prompt, negative_prompt, style_selction, performance_selction, \
-        aspect_ratios_selction, image_number, image_seed, sharpness, base_model_name, refiner_model_name, \
+        aspect_ratios_selction, image_number, image_seed, sharpness, raw_mode, \
+        base_model_name, refiner_model_name, \
         l1, w1, l2, w2, l3, w3, l4, w4, l5, w5 = task
 
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
