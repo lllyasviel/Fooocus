@@ -15,7 +15,7 @@ def worker():
     import modules.path
     import modules.patch
 
-    from modules.sdxl_styles import apply_style, aspect_ratios
+    from modules.sdxl_styles import apply_style_negative, apply_style_positive, aspect_ratios
     from modules.private_logger import log
 
     try:
@@ -37,12 +37,61 @@ def worker():
 
         modules.patch.sharpness = sharpness
 
+        outputs.append(['preview', (5, 'Initializing ...', None)])
+
+        seed = image_seed
+        max_seed = int(1024 * 1024 * 1024)
+        if not isinstance(seed, int):
+            seed = random.randint(1, max_seed)
+        if seed < 0:
+            seed = - seed
+        seed = seed % max_seed
+
+        outputs.append(['preview', (5, 'Load models ...', None)])
+
         pipeline.refresh_base_model(base_model_name)
         pipeline.refresh_refiner_model(refiner_model_name)
         pipeline.refresh_loras(loras)
-        pipeline.clean_prompt_cond_caches()
 
-        p_txt, n_txt = apply_style(style_selction, prompt, negative_prompt)
+        outputs.append(['preview', (5, 'Encoding negative text ...', None)])
+        n_txt = apply_style_negative(style_selction, negative_prompt)
+        n_cond = pipeline.process_prompt(n_txt)
+
+        tasks = []
+        if raw_mode:
+            outputs.append(['preview', (5, 'Encoding positive text ...', None)])
+            p_txt = apply_style_positive(style_selction, prompt)
+            p_cond = pipeline.process_prompt(p_txt)
+            for i in range(image_number):
+                tasks.append(dict(
+                    prompt=prompt,
+                    negative_prompt=negative_prompt,
+                    seed=seed + i,
+                    n_cond=n_cond,
+                    p_cond=p_cond,
+                    real_positive_prompt=p_txt,
+                    real_negative_prompt=n_txt
+                ))
+        else:
+            for i in range(image_number):
+                outputs.append(['preview', (5, f'Preparing positive text #{i + 1} ...', None)])
+                current_seed = seed + i
+
+                p_txt = pipeline.expand_txt(prompt, current_seed)
+                print(f'Expanded positive prompt: {p_txt}')
+
+                p_txt = apply_style_positive(style_selction, p_txt)
+                tasks.append(dict(
+                    prompt=prompt,
+                    negative_prompt=negative_prompt,
+                    seed=current_seed,
+                    n_cond=n_cond,
+                    real_positive_prompt=p_txt,
+                    real_negative_prompt=n_txt
+                ))
+            for i, t in enumerate(tasks):
+                outputs.append(['preview', (5, f'Encoding positive text #{i + 1} ...', None)])
+                t['p_cond'] = pipeline.process_prompt(t['real_positive_prompt'])
 
         if performance_selction == 'Speed':
             steps = 30
@@ -54,38 +103,41 @@ def worker():
         width, height = aspect_ratios[aspect_ratios_selction]
 
         results = []
-        seed = image_seed
-        max_seed = int(1024*1024*1024)
-
-        if not isinstance(seed, int):
-            seed = random.randint(1, max_seed)
-        if seed < 0:
-            seed = - seed
-        seed = seed % max_seed
-
         all_steps = steps * image_number
 
         def callback(step, x0, x, total_steps, y):
-            done_steps = i * steps + step
+            done_steps = current_task_id * steps + step
             outputs.append(['preview', (
                 int(100.0 * float(done_steps) / float(all_steps)),
                 f'Step {step}/{total_steps} in the {i}-th Sampling',
                 y)])
 
-        for i in range(image_number):
-            imgs = pipeline.process(p_txt, n_txt, steps, switch, width, height, seed, callback=callback)
+        outputs.append(['preview', (5, 'Starting tasks ...', None)])
+        for current_task_id, task in enumerate(tasks):
+            imgs = pipeline.process_diffusion(
+                positive_cond=task['p_cond'],
+                negative_cond=task['n_cond'],
+                steps=steps,
+                switch=switch,
+                width=width,
+                height=height,
+                image_seed=task['seed'],
+                callback=callback)
 
             for x in imgs:
                 d = [
-                    ('Prompt', prompt),
-                    ('Negative Prompt', negative_prompt),
+                    ('Prompt', task['prompt']),
+                    ('Negative Prompt', task['negative_prompt']),
+                    ('Real Positive Prompt', task['real_positive_prompt']),
+                    ('Real Negative Prompt', task['real_negative_prompt']),
+                    ('Raw Mode', str(raw_mode)),
                     ('Style', style_selction),
                     ('Performance', performance_selction),
                     ('Resolution', str((width, height))),
                     ('Sharpness', sharpness),
                     ('Base Model', base_model_name),
                     ('Refiner Model', refiner_model_name),
-                    ('Seed', seed)
+                    ('Seed', task['seed'])
                 ]
                 for n, w in loras:
                     if n != 'None':

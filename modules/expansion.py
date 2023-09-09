@@ -14,11 +14,10 @@ class FooocusExpansion:
                              torch_dtype=torch.float32)
         print('Fooocus Expansion engine loaded.')
 
-    def __call__(self, tasks):
-        for task in tasks:
-            prompt = str(task['prompt']).rstrip('\n')
-            seed = int(task['seed'])
-            set_seed(seed)
-            response = self.pipe(prompt, max_length=len(prompt) + 256)[0]['generated_text'].rstrip('\n')
-            task['expansion'] = response
-        return tasks
+    def __call__(self, prompt, seed):
+        prompt = str(prompt).rstrip('\n')
+        seed = int(seed)
+        set_seed(seed)
+        response = self.pipe(prompt, max_length=len(prompt) + 256)
+        result = response[0]['generated_text'].rstrip('\n')
+        return result
