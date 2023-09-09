@@ -5,6 +5,9 @@ lorafile_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../mode
 vae_approx_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/vae_approx/'))
 temp_outputs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../outputs/'))
 
+fooocus_expansion_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                      '../models/prompt_expansion/fooocus_expansion'))
+
 os.makedirs(temp_outputs_path, exist_ok=True)
 
 default_base_model_name = 'sd_xl_base_1.0_0.9vae.safetensors'

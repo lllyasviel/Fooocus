@@ -6,7 +6,7 @@ import fooocus_version
 from modules.launch_util import is_installed, run, python, \
     run_pip, repo_dir, git_clone, requirements_met, script_path, dir_repos
 from modules.model_loader import load_file_from_url
-from modules.path import modelfile_path, lorafile_path, vae_approx_path
+from modules.path import modelfile_path, lorafile_path, vae_approx_path, fooocus_expansion_path
 
 REINSTALL_ALL = False
 
@@ -76,6 +76,13 @@ def download_models():
         load_file_from_url(url=url, model_dir=lorafile_path, file_name=file_name)
     for file_name, url in vae_approx_filenames:
         load_file_from_url(url=url, model_dir=vae_approx_path, file_name=file_name)
+
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_expansion.bin',
+        model_dir=fooocus_expansion_path,
+        file_name='pytorch_model.bin'
+    )
+
     return
 
 
