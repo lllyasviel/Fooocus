@@ -1,5 +1,9 @@
 ### 1.0.55
 
+* Begin to use magic split.
+
+### 1.0.55
+
 * Minor changes of Prompt Expansion.
 
 ### 1.0.52

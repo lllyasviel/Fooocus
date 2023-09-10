@@ -3,6 +3,15 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, set_seed
 from modules.path import fooocus_expansion_path
 
 
+magic_split = [
+    ', extremely',
+    ', by',
+    ', trending',
+    ', best',
+    '. ',
+]
+
+
 def safe_str(x):
     x = str(x)
     for _ in range(16):
@@ -22,9 +31,11 @@ class FooocusExpansion:
         print('Fooocus Expansion engine loaded.')
 
     def __call__(self, prompt, seed):
-        prompt = safe_str(prompt) + '. '  # Reduce semantic corruption.
         seed = int(seed)
         set_seed(seed)
+        
+        prompt = safe_str(prompt) + magic_split[seed % len(magic_split)]
+
         response = self.pipe(prompt, max_length=len(prompt) + 256)
         result = response[0]['generated_text']
         result = safe_str(result)
