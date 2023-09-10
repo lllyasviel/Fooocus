@@ -144,7 +144,6 @@ def worker():
                         d.append((f'LoRA [{n}] weight', w))
                 log(x, d)
 
-            seed += 1
             results += imgs
 
         outputs.append(['results', results])
