@@ -60,7 +60,7 @@ Please open an issue if you use similar devices but still cannot achieve accepta
 
 ### Colab
 
-(Last tested - 2023 Aug 30)
+(Last tested - 2023 Sep 10)
 
 | Colab | Info
 | --- | --- |
