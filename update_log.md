@@ -1,4 +1,4 @@
-### 1.0.55
+### 1.0.56
 
 * Begin to use magic split.
 

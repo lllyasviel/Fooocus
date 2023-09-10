@@ -33,7 +33,7 @@ class FooocusExpansion:
     def __call__(self, prompt, seed):
         seed = int(seed)
         set_seed(seed)
-        
+
         prompt = safe_str(prompt) + magic_split[seed % len(magic_split)]
 
         response = self.pipe(prompt, max_length=len(prompt) + 256)
