@@ -6,10 +6,8 @@ from modules.path import fooocus_expansion_path
 fooocus_magic_split = [
     ', extremely',
     ', trending',
-    ', best quality, ',
     ', with',
     ', perfect',
-    ', harmonious',
     ', intricate',
     '. The',
 ]
