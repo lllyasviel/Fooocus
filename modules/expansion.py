@@ -5,10 +5,12 @@ from modules.path import fooocus_expansion_path
 
 magic_split = [
     ', extremely',
-    ', by',
     ', trending',
     ', best',
+    ', with',
+    ', detailed',
     '. ',
+    '. The',
 ]
 
 
