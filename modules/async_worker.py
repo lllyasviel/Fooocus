@@ -59,7 +59,7 @@ def worker():
 
         tasks = []
         if raw_mode:
-            outputs.append(['preview', (5, 'Encoding positive text ...', None)])
+            outputs.append(['preview', (10, 'Encoding positive text ...', None)])
             p_txt = apply_style_positive(style_selction, prompt)
             p_cond = pipeline.process_prompt(p_txt)
             for i in range(image_number):
@@ -74,7 +74,7 @@ def worker():
                 ))
         else:
             for i in range(image_number):
-                outputs.append(['preview', (5, f'Preparing positive text #{i + 1} ...', None)])
+                outputs.append(['preview', (10, f'Preparing positive text #{i + 1} ...', None)])
                 current_seed = seed + i
 
                 p_txt = pipeline.expand_txt(prompt, current_seed)
@@ -90,7 +90,7 @@ def worker():
                     real_negative_prompt=n_txt
                 ))
             for i, t in enumerate(tasks):
-                outputs.append(['preview', (5, f'Encoding positive text #{i + 1} ...', None)])
+                outputs.append(['preview', (15, f'Encoding positive text #{i + 1} ...', None)])
                 t['p_cond'] = pipeline.process_prompt(t['real_positive_prompt'])
 
         if performance_selction == 'Speed':
@@ -112,7 +112,7 @@ def worker():
                 f'Step {step}/{total_steps} in the {i}-th Sampling',
                 y)])
 
-        outputs.append(['preview', (5, 'Starting tasks ...', None)])
+        outputs.append(['preview', (15, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
             imgs = pipeline.process_diffusion(
                 positive_cond=task['p_cond'],
