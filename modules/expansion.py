@@ -3,6 +3,10 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, set_seed
 from modules.path import fooocus_expansion_path
 
 
+def safe_str(x):
+    return str(x).rstrip(",. \r\n")
+
+
 class FooocusExpansion:
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
@@ -15,9 +19,10 @@ class FooocusExpansion:
         print('Fooocus Expansion engine loaded.')
 
     def __call__(self, prompt, seed):
-        prompt = str(prompt).rstrip('\n')
+        prompt = safe_str(prompt) + '. '  # reduce semantic corruption.
         seed = int(seed)
         set_seed(seed)
         response = self.pipe(prompt, max_length=len(prompt) + 256)
-        result = response[0]['generated_text'].rstrip('\n')
+        result = response[0]['generated_text']
+        result = safe_str(result)
         return result
