@@ -1,3 +1,7 @@
+### 1.0.60
+
+* Tune the balance between style and Prompt Expansion.
+
 ### 1.0.56
 
 * Begin to use magic split.

@@ -59,7 +59,8 @@ def worker():
             n_txt = apply_style_negative(style_selction, negative_prompt)
             n_cond = pipeline.process_prompt(n_txt)
             outputs.append(['preview', (9, 'Encoding positive text ...', None)])
-            p_txt = apply_style_positive(style_selction, prompt)
+            p_txt_a, p_txt_b = apply_style_positive(style_selction, prompt)
+            p_txt = p_txt_a + p_txt_b
             p_cond = pipeline.process_prompt(p_txt)
 
             for i in range(image_number):
@@ -76,9 +77,13 @@ def worker():
             for i in range(image_number):
                 outputs.append(['preview', (5, f'Preparing positive text #{i + 1} ...', None)])
                 current_seed = seed + i
-                p_txt = pipeline.expand_txt(prompt, current_seed)
-                print(f'Expanded positive prompt: \n\n{p_txt}\n\n')
-                p_txt = apply_style_positive(style_selction, p_txt)
+
+                p_txt_a, p_txt_b = apply_style_positive(style_selction, prompt)
+                p_txt_e = pipeline.expand_txt(p_txt_a, current_seed)
+                print(f'Expanded prompt: \n\n{p_txt_e}\n\n')
+
+                p_txt = p_txt_e + p_txt_b
+
                 tasks.append(dict(
                     prompt=prompt,
                     negative_prompt=negative_prompt,
