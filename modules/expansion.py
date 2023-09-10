@@ -3,7 +3,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, set_seed
 from modules.path import fooocus_expansion_path
 
 
-magic_split = [
+fooocus_magic_split = [
     ', extremely',
     ', trending',
     ', best',
@@ -36,7 +36,7 @@ class FooocusExpansion:
         seed = int(seed)
         set_seed(seed)
 
-        prompt = safe_str(prompt) + magic_split[seed % len(magic_split)]
+        prompt = safe_str(prompt) + fooocus_magic_split[seed % len(fooocus_magic_split)]
 
         response = self.pipe(prompt, max_length=len(prompt) + 256)
         result = response[0]['generated_text']
