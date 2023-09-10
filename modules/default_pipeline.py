@@ -5,6 +5,7 @@ import modules.path
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.patch import cfg_patched
+from modules.expansion import FooocusExpansion
 
 
 xl_base: core.StableDiffusionModel = None
@@ -43,7 +44,6 @@ def refresh_base_model(name):
     xl_base_patched = xl_base
     xl_base_patched_hash = ''
     print(f'Base model loaded: {xl_base_hash}')
-
     return
 
 
@@ -103,27 +103,24 @@ refresh_base_model(modules.path.default_base_model_name)
 refresh_refiner_model(modules.path.default_refiner_model_name)
 refresh_loras([(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5)])
 
-positive_conditions_cache = None
-negative_conditions_cache = None
-positive_conditions_refiner_cache = None
-negative_conditions_refiner_cache = None
+expansion_model = FooocusExpansion()
 
 
-def clean_prompt_cond_caches():
-    global positive_conditions_cache, negative_conditions_cache, \
-        positive_conditions_refiner_cache, negative_conditions_refiner_cache
-    positive_conditions_cache = None
-    negative_conditions_cache = None
-    positive_conditions_refiner_cache = None
-    negative_conditions_refiner_cache = None
-    return
+def expand_txt(*args, **kwargs):
+    return expansion_model(*args, **kwargs)
+
+
+def process_prompt(text):
+    base_cond = core.encode_prompt_condition(clip=xl_base_patched.clip, prompt=text)
+    if xl_refiner is not None:
+        refiner_cond = core.encode_prompt_condition(clip=xl_refiner.clip, prompt=text)
+    else:
+        refiner_cond = None
+    return base_cond, refiner_cond
 
 
 @torch.no_grad()
-def process(positive_prompt, negative_prompt, steps, switch, width, height, image_seed, callback):
-    global positive_conditions_cache, negative_conditions_cache, \
-        positive_conditions_refiner_cache, negative_conditions_refiner_cache
-
+def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback):
     if xl_base is not None:
         xl_base.unet.model_options['sampler_cfg_function'] = cfg_patched
 
@@ -133,40 +130,27 @@ def process(positive_prompt, negative_prompt, steps, switch, width, height, imag
     if xl_refiner is not None:
         xl_refiner.unet.model_options['sampler_cfg_function'] = cfg_patched
 
-    positive_conditions = core.encode_prompt_condition(clip=xl_base_patched.clip, prompt=positive_prompt) if positive_conditions_cache is None else positive_conditions_cache
-    negative_conditions = core.encode_prompt_condition(clip=xl_base_patched.clip, prompt=negative_prompt) if negative_conditions_cache is None else negative_conditions_cache
-
-    positive_conditions_cache = positive_conditions
-    negative_conditions_cache = negative_conditions
-
     empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
 
     if xl_refiner is not None:
-        positive_conditions_refiner = core.encode_prompt_condition(clip=xl_refiner.clip, prompt=positive_prompt) if positive_conditions_refiner_cache is None else positive_conditions_refiner_cache
-        negative_conditions_refiner = core.encode_prompt_condition(clip=xl_refiner.clip, prompt=negative_prompt) if negative_conditions_refiner_cache is None else negative_conditions_refiner_cache
-
-        positive_conditions_refiner_cache = positive_conditions_refiner
-        negative_conditions_refiner_cache = negative_conditions_refiner
-
         sampled_latent = core.ksampler_with_refiner(
             model=xl_base_patched.unet,
-            positive=positive_conditions,
-            negative=negative_conditions,
+            positive=positive_cond[0],
+            negative=negative_cond[0],
             refiner=xl_refiner.unet,
-            refiner_positive=positive_conditions_refiner,
-            refiner_negative=negative_conditions_refiner,
+            refiner_positive=positive_cond[1],
+            refiner_negative=negative_cond[1],
             refiner_switch_step=switch,
             latent=empty_latent,
             steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
             callback_function=callback
         )
-
     else:
         sampled_latent = core.ksampler(
             model=xl_base_patched.unet,
-            positive=positive_conditions,
-            negative=negative_conditions,
+            positive=positive_cond[0],
+            negative=negative_cond[0],
             latent=empty_latent,
             steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
@@ -174,7 +158,5 @@ def process(positive_prompt, negative_prompt, steps, switch, width, height, imag
         )
 
     decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent)
-
     images = core.image_to_numpy(decoded_latent)
-
     return images

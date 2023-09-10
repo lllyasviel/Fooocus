@@ -22,7 +22,7 @@ def log(img, dic):
         f.write(f"<p>{only_name}</p>\n")
         i = 0
         for k, v in dic:
-            if i < 2:
+            if i < 4:
                 f.write(f"<p>{k}: <b>{v}</b> </p>\n")
             else:
                 if i % 2 == 0:

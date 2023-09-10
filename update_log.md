@@ -1,3 +1,7 @@
+### 1.0.50
+
+* Prompt expansion and a "Raw mode" to turn it off (similar to Midjourney's "raw").
+
 ### 1.0.45
 
 * Reworked SAG, removed unnecessary patch
