@@ -1,3 +1,7 @@
+### 1.0.53
+
+* Minor changes of Prompt Expansion.
+
 ### 1.0.52
 
 * Reduce the semantic corruption of Prompt Expansion.
