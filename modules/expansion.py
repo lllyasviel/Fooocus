@@ -21,7 +21,7 @@ class FooocusExpansion:
         print('Fooocus Expansion engine loaded.')
 
     def __call__(self, prompt, seed):
-        prompt = safe_str(prompt) + ', '  # Reduce semantic corruption.
+        prompt = safe_str(prompt) + '. '  # Reduce semantic corruption.
         seed = int(seed)
         set_seed(seed)
         response = self.pipe(prompt, max_length=len(prompt) + 256)
