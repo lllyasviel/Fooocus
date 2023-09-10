@@ -11,6 +11,7 @@ fooocus_magic_split = [
     ', perfect',
     ', harmonious',
     ', consistent',
+    ', intricate',
     '. The',
 ]
 
