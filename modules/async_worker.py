@@ -37,7 +37,7 @@ def worker():
 
         modules.patch.sharpness = sharpness
 
-        outputs.append(['preview', (5, 'Initializing ...', None)])
+        outputs.append(['preview', (1, 'Initializing ...', None)])
 
         seed = image_seed
         max_seed = int(1024 * 1024 * 1024)
@@ -47,7 +47,7 @@ def worker():
             seed = - seed
         seed = seed % max_seed
 
-        outputs.append(['preview', (5, 'Load models ...', None)])
+        outputs.append(['preview', (3, 'Load models ...', None)])
 
         pipeline.refresh_base_model(base_model_name)
         pipeline.refresh_refiner_model(refiner_model_name)
@@ -59,7 +59,7 @@ def worker():
 
         tasks = []
         if raw_mode:
-            outputs.append(['preview', (10, 'Encoding positive text ...', None)])
+            outputs.append(['preview', (9, 'Encoding positive text ...', None)])
             p_txt = apply_style_positive(style_selction, prompt)
             p_cond = pipeline.process_prompt(p_txt)
             for i in range(image_number):
@@ -74,7 +74,7 @@ def worker():
                 ))
         else:
             for i in range(image_number):
-                outputs.append(['preview', (10, f'Preparing positive text #{i + 1} ...', None)])
+                outputs.append(['preview', (9, f'Preparing positive text #{i + 1} ...', None)])
                 current_seed = seed + i
 
                 p_txt = pipeline.expand_txt(prompt, current_seed)
@@ -90,7 +90,7 @@ def worker():
                     real_negative_prompt=n_txt
                 ))
             for i, t in enumerate(tasks):
-                outputs.append(['preview', (15, f'Encoding positive text #{i + 1} ...', None)])
+                outputs.append(['preview', (12, f'Encoding positive text #{i + 1} ...', None)])
                 t['p_cond'] = pipeline.process_prompt(t['real_positive_prompt'])
 
         if performance_selction == 'Speed':
@@ -108,11 +108,11 @@ def worker():
         def callback(step, x0, x, total_steps, y):
             done_steps = current_task_id * steps + step
             outputs.append(['preview', (
-                int(100.0 * float(done_steps) / float(all_steps)),
+                int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
                 f'Step {step}/{total_steps} in the {i}-th Sampling',
                 y)])
 
-        outputs.append(['preview', (15, 'Starting tasks ...', None)])
+        outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
             imgs = pipeline.process_diffusion(
                 positive_cond=task['p_cond'],
