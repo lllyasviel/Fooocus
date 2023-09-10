@@ -8,8 +8,9 @@ fooocus_magic_split = [
     ', trending',
     ', best',
     ', with',
-    ', detailed',
-    '. ',
+    ', perfect',
+    ', harmonious',
+    ', consistent',
     '. The',
 ]
 
