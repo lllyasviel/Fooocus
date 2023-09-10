@@ -1,3 +1,7 @@
+### 1.0.51
+
+* Speed up Prompt Expansion a bit.
+
 ### 1.0.50
 
 * Prompt expansion and a "Raw mode" to turn it off (similar to Midjourney's "raw").

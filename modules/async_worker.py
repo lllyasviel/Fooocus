@@ -53,15 +53,15 @@ def worker():
         pipeline.refresh_refiner_model(refiner_model_name)
         pipeline.refresh_loras(loras)
 
-        outputs.append(['preview', (5, 'Encoding negative text ...', None)])
-        n_txt = apply_style_negative(style_selction, negative_prompt)
-        n_cond = pipeline.process_prompt(n_txt)
-
         tasks = []
         if raw_mode:
+            outputs.append(['preview', (5, 'Encoding negative text ...', None)])
+            n_txt = apply_style_negative(style_selction, negative_prompt)
+            n_cond = pipeline.process_prompt(n_txt)
             outputs.append(['preview', (9, 'Encoding positive text ...', None)])
             p_txt = apply_style_positive(style_selction, prompt)
             p_cond = pipeline.process_prompt(p_txt)
+
             for i in range(image_number):
                 tasks.append(dict(
                     prompt=prompt,
@@ -74,24 +74,27 @@ def worker():
                 ))
         else:
             for i in range(image_number):
-                outputs.append(['preview', (9, f'Preparing positive text #{i + 1} ...', None)])
+                outputs.append(['preview', (5, f'Preparing positive text #{i + 1} ...', None)])
                 current_seed = seed + i
-
                 p_txt = pipeline.expand_txt(prompt, current_seed)
-                print(f'Expanded positive prompt: {p_txt}')
-
+                print(f'Expanded positive prompt: \n\n{p_txt}\n\n')
                 p_txt = apply_style_positive(style_selction, p_txt)
                 tasks.append(dict(
                     prompt=prompt,
                     negative_prompt=negative_prompt,
                     seed=current_seed,
-                    n_cond=n_cond,
                     real_positive_prompt=p_txt,
-                    real_negative_prompt=n_txt
                 ))
+
+            outputs.append(['preview', (9, 'Encoding negative text ...', None)])
+            n_txt = apply_style_negative(style_selction, negative_prompt)
+            n_cond = pipeline.process_prompt(n_txt)
+
             for i, t in enumerate(tasks):
                 outputs.append(['preview', (12, f'Encoding positive text #{i + 1} ...', None)])
                 t['p_cond'] = pipeline.process_prompt(t['real_positive_prompt'])
+                t['real_negative_prompt'] = n_txt
+                t['n_cond'] = n_cond
 
         if performance_selction == 'Speed':
             steps = 30
