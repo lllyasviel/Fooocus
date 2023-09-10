@@ -4,9 +4,10 @@ from modules.path import fooocus_expansion_path
 
 
 def safe_str(x):
+    x = str(x)
     for _ in range(16):
         x = x.replace('  ', ' ')
-    return str(x).rstrip(",. \r\n")
+    return x.rstrip(",. \r\n")
 
 
 class FooocusExpansion:
