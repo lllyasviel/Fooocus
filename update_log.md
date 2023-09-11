@@ -1,3 +1,7 @@
+### 1.0.64
+
+* Fixed a small OOM problem.
+
 ### 1.0.62
 
 * Change prompt expansion to suffix mode for better balance of semantic and style (and debugging).

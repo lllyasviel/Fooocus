@@ -9,6 +9,7 @@ fooocus_magic_split = [
     ', intricate',
     '. The',
 ]
+dangrous_patterns = '[]【】()（）|:：'
 
 
 def safe_str(x):
@@ -16,6 +17,12 @@ def safe_str(x):
     for _ in range(16):
         x = x.replace('  ', ' ')
     return x.rstrip(",. \r\n")
+
+
+def remove_pattern(x, pattern):
+    for p in pattern:
+        x = x.replace(p, '')
+    return x
 
 
 class FooocusExpansion:
@@ -37,4 +44,5 @@ class FooocusExpansion:
         response = self.pipe(prompt, max_length=len(prompt) + 256)
         result = response[0]['generated_text'][len(origin):]
         result = safe_str(result)
+        result = remove_pattern(result, dangrous_patterns)
         return result
