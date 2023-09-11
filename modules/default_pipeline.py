@@ -116,7 +116,7 @@ def clip_encode_single(clip, text):
     return result
 
 
-def clip_encode(sd, texts):
+def clip_encode(sd, texts, pool_top_k=1):
     if sd is None:
         return None
     if sd.clip is None:
@@ -128,14 +128,15 @@ def clip_encode(sd, texts):
 
     clip = sd.clip
     cond_list = []
-    pooled_list = []
+    pooled_acc = 0
 
-    for text in texts:
+    for i, text in enumerate(texts):
         cond, pooled = clip_encode_single(clip, text)
         cond_list.append(cond)
-        pooled_list.append(pooled)
+        if i < pool_top_k:
+            pooled_acc += pooled
 
-    return [[torch.cat(cond_list, dim=1), {"pooled_output": pooled_list[0]}]]
+    return [[torch.cat(cond_list, dim=1), {"pooled_output": pooled_acc}]]
 
 
 def clear_sd_cond_cache(sd):
@@ -153,7 +154,6 @@ def clear_all_caches():
 
 
 def process_prompt(text):
-    clear_all_caches()
     base_cond = clip_encode(sd=xl_base_patched, texts=[text])
     refiner_cond = clip_encode(sd=xl_refiner, texts=[text])
     return base_cond, refiner_cond

@@ -57,6 +57,7 @@ def worker():
         pipeline.refresh_base_model(base_model_name)
         pipeline.refresh_refiner_model(refiner_model_name)
         pipeline.refresh_loras(loras)
+        pipeline.clear_all_caches()
 
         tasks = []
         if raw_mode:
@@ -117,6 +118,7 @@ def worker():
             steps = 60
             switch = 40
 
+        pipeline.clear_all_caches()
         width, height = aspect_ratios[aspect_ratios_selction]
 
         results = []
