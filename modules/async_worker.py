@@ -82,7 +82,7 @@ def worker():
                 outputs.append(['preview', (5, f'Preparing positive text #{i + 1} ...', None)])
                 current_seed = seed + i
 
-                expansion_weight = 0.35
+                expansion_weight = 0.1
 
                 suffix = pipeline.expansion(prompt, current_seed)
                 suffix = f'({suffix}:{expansion_weight})'
