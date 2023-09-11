@@ -103,11 +103,7 @@ refresh_base_model(modules.path.default_base_model_name)
 refresh_refiner_model(modules.path.default_refiner_model_name)
 refresh_loras([(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5)])
 
-expansion_model = FooocusExpansion()
-
-
-def expand_txt(*args, **kwargs):
-    return expansion_model(*args, **kwargs)
+expansion = FooocusExpansion()
 
 
 def process_prompt(text):

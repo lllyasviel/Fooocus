@@ -33,10 +33,9 @@ class FooocusExpansion:
     def __call__(self, prompt, seed):
         seed = int(seed)
         set_seed(seed)
-
-        prompt = safe_str(prompt) + fooocus_magic_split[seed % len(fooocus_magic_split)]
-
+        origin = safe_str(prompt)
+        prompt = origin + fooocus_magic_split[seed % len(fooocus_magic_split)]
         response = self.pipe(prompt, max_length=len(prompt) + 256)
-        result = response[0]['generated_text']
+        result = response[0]['generated_text'][len(origin):]
         result = safe_str(result)
         return result

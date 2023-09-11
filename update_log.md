@@ -1,3 +1,7 @@
+### 1.0.62
+
+* Change prompt expansion to suffix mode for better balance of semantic and style (and debugging).
+
 ### 1.0.60
 
 * Tune the balance between style and Prompt Expansion.

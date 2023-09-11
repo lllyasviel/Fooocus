@@ -17,6 +17,7 @@ def worker():
 
     from modules.sdxl_styles import apply_style_negative, apply_style_positive, aspect_ratios
     from modules.private_logger import log
+    from modules.expansion import safe_str
 
     try:
         async_gradio_app = shared.gradio_root
@@ -39,6 +40,9 @@ def worker():
 
         outputs.append(['preview', (1, 'Initializing ...', None)])
 
+        prompt = safe_str(prompt)
+        negative_prompt = safe_str(negative_prompt)
+
         seed = image_seed
         max_seed = int(1024 * 1024 * 1024)
         if not isinstance(seed, int):
@@ -59,8 +63,7 @@ def worker():
             n_txt = apply_style_negative(style_selction, negative_prompt)
             n_cond = pipeline.process_prompt(n_txt)
             outputs.append(['preview', (9, 'Encoding positive text ...', None)])
-            p_txt_a, p_txt_b = apply_style_positive(style_selction, prompt)
-            p_txt = p_txt_a + p_txt_b
+            p_txt = apply_style_positive(style_selction, prompt)
             p_cond = pipeline.process_prompt(p_txt)
 
             for i in range(image_number):
@@ -78,11 +81,11 @@ def worker():
                 outputs.append(['preview', (5, f'Preparing positive text #{i + 1} ...', None)])
                 current_seed = seed + i
 
-                p_txt_a, p_txt_b = apply_style_positive(style_selction, prompt)
-                p_txt_e = pipeline.expand_txt(p_txt_a, current_seed)
-                print(f'Expanded prompt: \n\n{p_txt_e}\n\n')
+                suffix = pipeline.expansion(prompt, current_seed)
+                print(f'[Prompt Expansion] New suffix: {suffix}')
 
-                p_txt = p_txt_e + p_txt_b
+                p_txt = apply_style_positive(style_selction, prompt)
+                p_txt = safe_str(p_txt) + suffix
 
                 tasks.append(dict(
                     prompt=prompt,
