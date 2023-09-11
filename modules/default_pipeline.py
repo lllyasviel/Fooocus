@@ -106,12 +106,18 @@ refresh_loras([(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.
 expansion = FooocusExpansion()
 
 
+def clip_encode(sd, text):
+    if sd is None:
+        return None
+
+    tokens = sd.clip.tokenize(text)
+    cond, pooled = sd.clip.encode_from_tokens(tokens, return_pooled=True)
+    return [[cond, {"pooled_output": pooled}]]
+
+
 def process_prompt(text):
-    base_cond = core.encode_prompt_condition(clip=xl_base_patched.clip, prompt=text)
-    if xl_refiner is not None:
-        refiner_cond = core.encode_prompt_condition(clip=xl_refiner.clip, prompt=text)
-    else:
-        refiner_cond = None
+    base_cond = clip_encode(sd=xl_base_patched, text=text)
+    refiner_cond = clip_encode(sd=xl_refiner, text=text)
     return base_cond, refiner_cond
 
 
