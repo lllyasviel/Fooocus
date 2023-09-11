@@ -1,3 +1,7 @@
+### 1.0.67
+
+* Use dynamic weighting and lower weights for prompt expansion.
+
 ### 1.0.64
 
 * Fixed a small OOM problem.

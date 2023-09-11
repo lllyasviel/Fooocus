@@ -1,3 +1,6 @@
+from modules.util import join_prompts
+
+
 # https://github.com/twri/sdxl_prompt_styler/blob/main/sdxl_styles.json
 
 styles = [
@@ -966,9 +969,4 @@ def apply_style_positive(style, txt):
 
 def apply_style_negative(style, txt):
     p, n = styles.get(style, default_style)
-    if n == '':
-        return txt
-    elif txt == '':
-        return n
-    else:
-        return n + ', ' + txt
+    return join_prompts(n, txt)
