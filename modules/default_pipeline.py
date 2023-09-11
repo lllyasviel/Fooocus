@@ -106,18 +106,56 @@ refresh_loras([(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.
 expansion = FooocusExpansion()
 
 
-def clip_encode(sd, text):
+def clip_encode_single(clip, text):
+    cached = clip.fcs_cond_cache.get(text, None)
+    if cached is not None:
+        return cached
+    tokens = clip.tokenize(text)
+    result = clip.encode_from_tokens(tokens, return_pooled=True)
+    clip.fcs_cond_cache[text] = result
+    return result
+
+
+def clip_encode(sd, texts):
     if sd is None:
         return None
+    if sd.clip is None:
+        return None
+    if not isinstance(texts, list):
+        return None
+    if len(texts) == 0:
+        return None
 
-    tokens = sd.clip.tokenize(text)
-    cond, pooled = sd.clip.encode_from_tokens(tokens, return_pooled=True)
-    return [[cond, {"pooled_output": pooled}]]
+    clip = sd.clip
+    cond_list = []
+    pooled_list = []
+
+    for text in texts:
+        cond, pooled = clip_encode_single(clip, text)
+        cond_list.append(cond)
+        pooled_list.append(pooled)
+
+    return [[torch.cat(cond_list, dim=1), {"pooled_output": pooled_list[0]}]]
+
+
+def clear_sd_cond_cache(sd):
+    if sd is None:
+        return None
+    if sd.clip is None:
+        return None
+    sd.clip.fcs_cond_cache = {}
+    return
+
+
+def clear_all_caches():
+    clear_sd_cond_cache(xl_base_patched)
+    clear_sd_cond_cache(xl_refiner)
 
 
 def process_prompt(text):
-    base_cond = clip_encode(sd=xl_base_patched, text=text)
-    refiner_cond = clip_encode(sd=xl_refiner, text=text)
+    clear_all_caches()
+    base_cond = clip_encode(sd=xl_base_patched, texts=[text])
+    refiner_cond = clip_encode(sd=xl_refiner, texts=[text])
     return base_cond, refiner_cond
 
 
