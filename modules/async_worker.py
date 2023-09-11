@@ -81,10 +81,11 @@ def worker():
                 outputs.append(['preview', (5, f'Preparing positive text #{i + 1} ...', None)])
                 current_seed = seed + i
 
-                suffix = pipeline.expansion(prompt, current_seed)
+                p_txt = apply_style_positive(style_selction, prompt)
+
+                suffix = pipeline.expansion(p_txt, current_seed)
                 print(f'[Prompt Expansion] New suffix: {suffix}')
 
-                p_txt = apply_style_positive(style_selction, prompt)
                 p_txt = safe_str(p_txt) + suffix
 
                 tasks.append(dict(
