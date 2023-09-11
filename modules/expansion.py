@@ -7,7 +7,7 @@ fooocus_magic_split = [
     ', extremely',
     ', trending',
     ', intricate',
-    '. The',
+    # '. The',
 ]
 dangrous_patterns = '[]【】()（）|:：'
 
