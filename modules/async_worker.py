@@ -43,8 +43,12 @@ def worker():
 
         raw_style_selections = copy.deepcopy(style_selections)
 
-        use_expansion = fooocus_expansion in style_selections
-        style_selections.remove(fooocus_expansion)
+        if fooocus_expansion in style_selections:
+            use_expansion = True
+            style_selections.remove(fooocus_expansion)
+        else:
+            use_expansion = False
+        
         use_style = len(style_selections) > 0
 
         modules.patch.sharpness = sharpness
