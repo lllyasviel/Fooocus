@@ -2,7 +2,7 @@
 
 <img src="https://github.com/lllyasviel/Fooocus/assets/19834515/f79c5981-cf80-4ee3-b06b-3fef3f8bfbc7" width=100%>
 
-Fooocus is an image generating software.
+Fooocus is an image generating software (based on [Gradio](https://www.gradio.app/)).
 
 Fooocus is a rethinking of Stable Diffusion and Midjourney’s designs:
 
