@@ -1,16 +1,14 @@
 from modules.util import join_prompts
 
 
+fooocus_expansion = "Fooocus V2"
+default_styles = ['Default (Cinematic)']
+
 # https://github.com/twri/sdxl_prompt_styler/blob/main/sdxl_styles.json
 
 styles = [
     {
-        "name": "None",
-        "prompt": "{prompt}",
-        "negative_prompt": ""
-    },
-    {
-        "name": "cinematic-default",
+        "name": "Default (Cinematic)",
         "prompt": "cinematic still {prompt} . emotional, harmonious, vignette, highly detailed, high budget, bokeh, cinemascope, moody, epic, gorgeous, film grain, grainy",
         "negative_prompt": "anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured"
     },
@@ -926,8 +924,20 @@ styles = [
     }
 ]
 
-styles = {k['name']: (k['prompt'], k['negative_prompt']) for k in styles}
-default_style = styles['None']
+
+def normalize_key(k):
+    k = k.replace('-', ' ')
+    words = k.split(' ')
+    words = [w[:1].upper() + w[1:].lower() for w in words]
+    k = ' '.join(words)
+    k = k.replace('3d', '3D')
+    k = k.replace('Sai', 'SAI')
+    k = k.replace('(cinematic)', '(Cinematic)')
+    return k
+
+
+default_styles = [normalize_key(x) for x in default_styles]
+styles = {normalize_key(k['name']): (k['prompt'], k['negative_prompt']) for k in styles}
 style_keys = list(styles.keys())
 
 SD_XL_BASE_RATIOS = {
@@ -962,11 +972,6 @@ SD_XL_BASE_RATIOS = {
 aspect_ratios = {str(v[0]) + '×' + str(v[1]): v for k, v in SD_XL_BASE_RATIOS.items()}
 
 
-def apply_style_positive(style, txt):
-    p, n = styles.get(style, default_style)
-    return p.replace('{prompt}', txt)
-
-
-def apply_style_negative(style, txt):
-    p, n = styles.get(style, default_style)
-    return join_prompts(n, txt)
+def apply_style(style, positive):
+    p, n = styles[style]
+    return p.replace('{prompt}', positive), n

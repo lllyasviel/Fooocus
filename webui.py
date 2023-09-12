@@ -8,7 +8,7 @@ import fooocus_version
 import modules.html
 import modules.async_worker as worker
 
-from modules.sdxl_styles import style_keys, aspect_ratios
+from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles
 
 
 def generate_clicked(*args):
@@ -76,11 +76,10 @@ with shared.gradio_root:
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed])
 
             with gr.Tab(label='Style'):
-                raw_mode_check = gr.Checkbox(label='Raw Mode', value=False,
-                                             info='Similar to Midjourney\'s \"raw\" mode.')
-                style_selction = gr.Radio(show_label=True, container=True,
-                                          choices=style_keys, value='cinematic-default', label='Image Style',
-                                          info='Similar to Midjourney\'s \"--style\".')
+                style_selections = gr.CheckboxGroup(show_label=False, container=False,
+                                                    choices=[fooocus_expansion] + style_keys,
+                                                    value=[fooocus_expansion] + default_styles,
+                                                    label='Image Style')
             with gr.Tab(label='Advanced'):
                 with gr.Row():
                     base_model = gr.Dropdown(label='SDXL Base Model', choices=modules.path.model_filenames, value=modules.path.default_base_model_name, show_label=True)
@@ -110,8 +109,8 @@ with shared.gradio_root:
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col)
         ctrls = [
-            prompt, negative_prompt, style_selction,
-            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, raw_mode_check
+            prompt, negative_prompt, style_selections,
+            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
         run_button.click(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\

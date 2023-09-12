@@ -5,7 +5,7 @@ from PIL import Image
 from modules.util import generate_temp_filename
 
 
-def log(img, dic):
+def log(img, dic, single_line_number=3):
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.path.temp_outputs_path, extension='png')
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
     Image.fromarray(img).save(local_temp_filename)
@@ -22,10 +22,10 @@ def log(img, dic):
         f.write(f"<p>{only_name}</p>\n")
         i = 0
         for k, v in dic:
-            if i < 4:
+            if i < single_line_number:
                 f.write(f"<p>{k}: <b>{v}</b> </p>\n")
             else:
-                if i % 2 == 0:
+                if (i - single_line_number) % 2 == 0:
                     f.write(f"<p>{k}: <b>{v}</b>, ")
                 else:
                     f.write(f"{k}: <b>{v}</b></p>\n")

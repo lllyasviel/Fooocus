@@ -106,13 +106,17 @@ refresh_loras([(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.
 expansion = FooocusExpansion()
 
 
-def clip_encode_single(clip, text):
+def clip_encode_single(clip, text, verbose=False):
     cached = clip.fcs_cond_cache.get(text, None)
     if cached is not None:
+        if verbose:
+            print(f'[CLIP Cached] {text}')
         return cached
     tokens = clip.tokenize(text)
     result = clip.encode_from_tokens(tokens, return_pooled=True)
     clip.fcs_cond_cache[text] = result
+    if verbose:
+        print(f'[CLIP Encoded] {text}')
     return result
 
 
@@ -151,12 +155,6 @@ def clear_sd_cond_cache(sd):
 def clear_all_caches():
     clear_sd_cond_cache(xl_base_patched)
     clear_sd_cond_cache(xl_refiner)
-
-
-def process_prompt(text):
-    base_cond = clip_encode(sd=xl_base_patched, texts=[text])
-    refiner_cond = clip_encode(sd=xl_refiner, texts=[text])
-    return base_cond, refiner_cond
 
 
 @torch.no_grad()
