@@ -48,15 +48,21 @@ def worker():
             style_selections.remove(fooocus_expansion)
         else:
             use_expansion = False
-        
+
         use_style = len(style_selections) > 0
 
         modules.patch.sharpness = sharpness
 
         progressbar(1, 'Initializing ...')
 
-        prompt = safe_str(prompt)
-        negative_prompt = safe_str(negative_prompt)
+        prompts = remove_empty_str([safe_str(p) for p in prompt.split('\n')], default='')
+        negative_prompts = remove_empty_str([safe_str(p) for p in negative_prompt.split('\n')], default='')
+
+        prompt = prompts[0]
+        negative_prompt = negative_prompts[0]
+
+        extra_positive_prompts = prompts[1:] if len(prompts) > 1 else []
+        extra_negative_prompts = negative_prompts[1:] if len(negative_prompts) > 1 else []
 
         seed = image_seed
         max_seed = int(1024 * 1024 * 1024)
@@ -87,6 +93,9 @@ def worker():
             positive_basic_workloads.append(prompt)
 
         negative_basic_workloads.append(negative_prompt)  # Always use independent workload for negative.
+
+        positive_basic_workloads = positive_basic_workloads + extra_positive_prompts
+        negative_basic_workloads = negative_basic_workloads + extra_negative_prompts
 
         positive_basic_workloads = remove_empty_str(positive_basic_workloads, default=prompt)
         negative_basic_workloads = remove_empty_str(negative_basic_workloads, default=negative_prompt)
