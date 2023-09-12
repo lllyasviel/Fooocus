@@ -932,7 +932,7 @@ def normalize_key(k):
     k = ' '.join(words)
     k = k.replace('3d', '3D')
     k = k.replace('Sai', 'SAI')
-    k = k.replace('(slightly', '(Slightly')
+    k = k.replace('(s', '(S')
     return k
 
 
