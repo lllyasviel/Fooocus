@@ -180,7 +180,7 @@ def worker():
                 d = [
                     ('Prompt', raw_prompt),
                     ('Negative Prompt', raw_negative_prompt),
-                    ('Expansion', task['expansion']),
+                    ('Fooocus V2 Expansion', task['expansion']),
                     ('Styles', str(raw_style_selections)),
                     ('Performance', performance_selction),
                     ('Resolution', str((width, height))),
