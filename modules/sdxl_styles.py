@@ -2,13 +2,13 @@ from modules.util import join_prompts
 
 
 fooocus_expansion = "Fooocus V2"
-default_styles = ['Default (Cinematic)']
+default_styles = ["Default (Slightly Cinematic)"]
 
 # https://github.com/twri/sdxl_prompt_styler/blob/main/sdxl_styles.json
 
 styles = [
     {
-        "name": "Default (Cinematic)",
+        "name": "Default (Slightly Cinematic)",
         "prompt": "cinematic still {prompt} . emotional, harmonious, vignette, highly detailed, high budget, bokeh, cinemascope, moody, epic, gorgeous, film grain, grainy",
         "negative_prompt": "anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured"
     },
@@ -932,7 +932,7 @@ def normalize_key(k):
     k = ' '.join(words)
     k = k.replace('3d', '3D')
     k = k.replace('Sai', 'SAI')
-    k = k.replace('(cinematic)', '(Cinematic)')
+    k = k.replace('(slightly', '(Slightly')
     return k
 
 
