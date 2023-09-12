@@ -1,3 +1,13 @@
+### 2.0.0
+
+* V2 released.
+* completely rewrite text processing pipeline (higher image quality and prompt understanding).
+* support multi-style.
+* In 100 tests (prompts written by ChatGPT), V2 default results outperform V1 default results in 87 cases, evaluated by two human.
+* In 100 tests (prompts written by ChatGPT), V2 prompt understanding outperform V1 prompt understanding in 81 cases, evaluated by two human, in both default setting and multi/single style mode.
+* Because the above number is above 80%, we view this as a major update and directly jump to 2.0.0.
+* Some other things are renamed.
+
 ### 1.0.67
 
 * Use dynamic weighting and lower weights for prompt expansion.
