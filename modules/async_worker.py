@@ -55,6 +55,9 @@ def worker():
 
         progressbar(1, 'Initializing ...')
 
+        raw_prompt = prompt
+        raw_negative_prompt = negative_prompt
+
         prompts = remove_empty_str([safe_str(p) for p in prompt.split('\n')], default='')
         negative_prompts = remove_empty_str([safe_str(p) for p in negative_prompt.split('\n')], default='')
 
@@ -175,8 +178,8 @@ def worker():
 
             for x in imgs:
                 d = [
-                    ('Prompt', prompt),
-                    ('Negative Prompt', negative_prompt),
+                    ('Prompt', raw_prompt),
+                    ('Negative Prompt', raw_negative_prompt),
                     ('Expansion', task['expansion']),
                     ('Styles', str(raw_style_selections)),
                     ('Performance', performance_selction),
