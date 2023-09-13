@@ -1,5 +1,6 @@
 import threading
 
+import torch
 
 buffer = []
 outputs = []
@@ -33,6 +34,7 @@ def worker():
     def progressbar(number, text):
         outputs.append(['preview', (number, text, None)])
 
+    @torch.no_grad()
     def handler(task):
         prompt, negative_prompt, style_selections, performance_selction, \
         aspect_ratios_selction, image_number, image_seed, sharpness, \
