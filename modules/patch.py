@@ -70,7 +70,8 @@ def sdxl_encode_adm_patched(self, **kwargs):
 
 
 def text_encoder_device_patched():
-    return torch.device("cpu")
+    # Fooocus's style system uses text encoder much more times than comfy so this makes things much faster.
+    return comfy.model_management.get_torch_device()
 
 
 def patch_all():
