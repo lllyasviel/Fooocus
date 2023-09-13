@@ -1,6 +1,9 @@
 import torch
+import comfy.model_management as model_management
+
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, set_seed
 from modules.path import fooocus_expansion_path
+from comfy.sd import ModelPatcher
 
 
 fooocus_magic_split = [
@@ -25,16 +28,31 @@ def remove_pattern(x, pattern):
 
 class FooocusExpansion:
     def __init__(self):
+        fp16 = model_management.should_use_fp16()
+
         self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
         self.model = AutoModelForCausalLM.from_pretrained(fooocus_expansion_path)
+
+        load_device = model_management.text_encoder_device()
+        offload_device = model_management.text_encoder_offload_device()
+
+        if fp16:
+            self.model.half()
+
+        self.patcher = ModelPatcher(self.model, load_device=load_device, offload_device=offload_device)
+
         self.pipe = pipeline('text-generation',
                              model=self.model,
                              tokenizer=self.tokenizer,
                              device='cpu',
-                             torch_dtype=torch.float32)
-        print('Fooocus Expansion engine loaded.')
+                             torch_dtype=torch.float16 if fp16 else torch.float32)
+
+        print(f'Fooocus Expansion engine loaded, FP16 = {fp16}.')
 
     def __call__(self, prompt, seed):
+        model_management.load_model_gpu(self.patcher)
+        self.pipe.device = self.patcher.load_device
+        
         seed = int(seed)
         set_seed(seed)
         origin = safe_str(prompt)
