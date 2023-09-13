@@ -2,7 +2,6 @@ import modules.core as core
 import os
 import torch
 import modules.path
-import comfy.model_management as model_management
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.patch import cfg_patched
