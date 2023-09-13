@@ -78,13 +78,6 @@ def refresh_refiner_model(name):
 
     xl_refiner.vae.first_stage_model.to('meta')
     xl_refiner.vae = None
-
-    # Improve Colab Performance
-    # Now Colab only consume 12GB VRAM and 10GB RAM with refiner loaded, outperforming latest ComfyUI.
-    # But Official comfy will not maintain Colab again ...
-    if model_management.total_vram < 20 * 1024:
-        xl_refiner.unet.offload_device = torch.device("cpu")
-        xl_refiner.unet.model.cpu()
     return
 
 
