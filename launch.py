@@ -89,7 +89,8 @@ def download_models():
 def clear_comfy_args():
     argv = sys.argv
     sys.argv = [sys.argv[0]]
-    import comfy.cli_args
+    from comfy.cli_args import args as comfy_args
+    comfy_args.disable_cuda_malloc = True
     sys.argv = argv
 
 
