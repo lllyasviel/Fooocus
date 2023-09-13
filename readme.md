@@ -45,6 +45,8 @@ Below is a test on a relatively low-end laptop with **16GB System RAM** and **6G
 
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/938737a5-b105-4f19-b051-81356cb7c495)
 
+Besides, Nvidia driver 532 is sometimes **10x slower** than Nvidia driver 531. If your generation time is very long, consider download [Nvidia Driver 531](https://www.nvidia.com/download/driverResults.aspx/199991/en-us/).
+
 Note that the minimal requirement is **4GB Nvidia GPU memory (4GB VRAM)** and **8GB system memory (8GB RAM)**. This requires using Microsoft’s Virtual Swap technique, which is automatically enabled by your Windows installation in most cases, so you often do not need to do anything about it. However, if you are not sure, or if you manually turned it off (would anyone really do that?), or **if you see any "RuntimeError: CPUAllocator"**, you can enable it here:
 
 <details>
