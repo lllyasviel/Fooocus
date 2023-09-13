@@ -28,8 +28,13 @@ def remove_pattern(x, pattern):
 
 class FooocusExpansion:
     def __init__(self):
+        use_fp16 = model_management.should_use_fp16()
+
         self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
         self.model = AutoModelForCausalLM.from_pretrained(fooocus_expansion_path)
+
+        if use_fp16:
+            self.model.half()
 
         load_device = model_management.text_encoder_device()
         offload_device = model_management.text_encoder_offload_device()
@@ -39,7 +44,7 @@ class FooocusExpansion:
                              model=self.model,
                              tokenizer=self.tokenizer,
                              device='cpu',
-                             torch_dtype=torch.float32)
+                             torch_dtype=torch.float16 if use_fp16 else torch.float32)
 
         print(f'Fooocus Expansion engine loaded.')
 

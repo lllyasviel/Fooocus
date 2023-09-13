@@ -32,6 +32,7 @@ def worker():
         print(e)
 
     def progressbar(number, text):
+        print(f'[Fooocus] {text}')
         outputs.append(['preview', (number, text, None)])
 
     @torch.no_grad()
