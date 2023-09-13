@@ -74,6 +74,6 @@ def text_encoder_device_patched():
 
 
 def patch_all():
-    # comfy.model_management.text_encoder_device = text_encoder_device_patched
+    comfy.model_management.text_encoder_device = text_encoder_device_patched
     comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     comfy.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
