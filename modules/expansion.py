@@ -52,7 +52,7 @@ class FooocusExpansion:
     def __call__(self, prompt, seed):
         model_management.load_model_gpu(self.patcher)
         self.pipe.device = self.patcher.load_device
-        
+
         seed = int(seed)
         set_seed(seed)
         origin = safe_str(prompt)
