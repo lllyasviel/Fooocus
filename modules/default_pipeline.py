@@ -2,6 +2,7 @@ import modules.core as core
 import os
 import torch
 import modules.path
+import comfy.model_management as model_management
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.patch import cfg_patched
@@ -81,8 +82,9 @@ def refresh_refiner_model(name):
     # Improve Colab Performance
     # Now Colab only consume 12GB VRAM and 10GB RAM with refiner loaded, outperforming latest ComfyUI.
     # But Official comfy will not maintain Colab again ...
-    xl_refiner.unet.offload_device = torch.device("cpu")
-    xl_refiner.unet.model.cpu()
+    if model_management.total_vram < 20 * 1024:
+        xl_refiner.unet.offload_device = torch.device("cpu")
+        xl_refiner.unet.model.cpu()
     return
 
 
