@@ -8,14 +8,13 @@ import comfy.model_management
 import comfy.utils
 
 from comfy.sd import load_checkpoint_guess_config
-from nodes import VAEDecode, EmptyLatentImage, CLIPTextEncode
+from nodes import VAEDecode, EmptyLatentImage
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from modules.samplers_advanced import KSampler, KSamplerWithRefiner
 from modules.patch import patch_all
 
 
 patch_all()
-opCLIPTextEncode = CLIPTextEncode()
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
 
@@ -50,11 +49,6 @@ def load_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
     lora = comfy.utils.load_torch_file(lora_filename, safe_load=True)
     unet, clip = comfy.sd.load_lora_for_models(model.unet, model.clip, lora, strength_model, strength_clip)
     return StableDiffusionModel(unet=unet, clip=clip, vae=model.vae, clip_vision=model.clip_vision)
-
-
-@torch.no_grad()
-def encode_prompt_condition(clip, prompt):
-    return opCLIPTextEncode.encode(clip=clip, text=prompt)[0]
 
 
 @torch.no_grad()

@@ -3,6 +3,7 @@ import comfy.model_base
 import comfy.ldm.modules.diffusionmodules.openaimodel
 import comfy.samplers
 import comfy.k_diffusion.external
+import comfy.model_management
 import modules.anisotropic as anisotropic
 
 from comfy.k_diffusion import utils
@@ -68,6 +69,11 @@ def sdxl_encode_adm_patched(self, **kwargs):
     return torch.cat((clip_pooled.to(flat.device), flat), dim=1)
 
 
+def text_encoder_device_patched():
+    return torch.device("cpu")
+
+
 def patch_all():
+    # comfy.model_management.text_encoder_device = text_encoder_device_patched
     comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     comfy.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
