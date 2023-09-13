@@ -35,10 +35,6 @@ class FooocusExpansion:
 
         load_device = model_management.text_encoder_device()
         offload_device = model_management.text_encoder_offload_device()
-
-        if fp16:
-            self.model.half()
-
         self.patcher = ModelPatcher(self.model, load_device=load_device, offload_device=offload_device)
 
         self.pipe = pipeline('text-generation',
