@@ -106,6 +106,7 @@ refresh_loras([(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.
 expansion = FooocusExpansion()
 
 
+@torch.no_grad()
 def clip_encode_single(clip, text, verbose=False):
     cached = clip.fcs_cond_cache.get(text, None)
     if cached is not None:
@@ -120,6 +121,7 @@ def clip_encode_single(clip, text, verbose=False):
     return result
 
 
+@torch.no_grad()
 def clip_encode(sd, texts, pool_top_k=1):
     if sd is None:
         return None
@@ -143,6 +145,7 @@ def clip_encode(sd, texts, pool_top_k=1):
     return [[torch.cat(cond_list, dim=1), {"pooled_output": pooled_acc}]]
 
 
+@torch.no_grad()
 def clear_sd_cond_cache(sd):
     if sd is None:
         return None
@@ -152,6 +155,7 @@ def clear_sd_cond_cache(sd):
     return
 
 
+@torch.no_grad()
 def clear_all_caches():
     clear_sd_cond_cache(xl_base_patched)
     clear_sd_cond_cache(xl_refiner)
