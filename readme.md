@@ -70,9 +70,9 @@ Please open an issue if you use similar devices but still cannot achieve accepta
 
 Thanks to [camenduru](https://github.com/camenduru)!
 
-### Linux
+### Linux (Using Anaconda)
 
-The command lines are
+If you want to use Anaconda, you can
 
     git clone https://github.com/lllyasviel/Fooocus.git
     cd Fooocus
@@ -82,11 +82,49 @@ The command lines are
 
 Then download the models: download [sd_xl_base_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_base_1.0_0.9vae.safetensors", and download [sd_xl_refiner_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_refiner_1.0_0.9vae.safetensors". **Or let Fooocus automatically download the models** using the launcher:
 
-    python launch.py
+    conda activate fooocus
+    python entry_with_update.py
 
 Or if you want to open a remote port, use
 
-    python launch.py --listen
+    conda activate fooocus
+    python entry_with_update.py --listen
+
+### Linux (Using Python Venv)
+
+Your Linux needs to have **Python 3.10** installed, and lets say your Python can be called with command **python3** (and Pip with **pip3**), you can
+
+    git clone https://github.com/lllyasviel/Fooocus.git
+    cd Fooocus
+    python3 -m venv fooocus_env
+    source fooocus_env/bin/activate
+    pip install -r requirements_versions.txt
+
+See the above sections for model downloads. You can launch the software with:
+
+    source fooocus_env/bin/activate
+    python entry_with_update.py
+
+Or if you want to open a remote port, use
+
+    source fooocus_env/bin/activate
+    python entry_with_update.py --listen
+
+### Linux (Using native Python)
+
+If you know what you are doing, and your Linux already has **Python 3.10** installed, and your Python can be called with command **python3** (and Pip with **pip3**), you can
+
+    git clone https://github.com/lllyasviel/Fooocus.git
+    cd Fooocus
+    pip3 install -r requirements_versions.txt
+
+See the above sections for model downloads. You can launch the software with:
+
+    python3 entry_with_update.py
+
+Or if you want to open a remote port, use
+
+    python3 entry_with_update.py --listen
 
 ### Mac/Windows(AMD GPUs)
 
