@@ -20,36 +20,42 @@ xl_base_patched_hash = ''
 
 def refresh_base_model(name):
     global xl_base, xl_base_hash, xl_base_patched, xl_base_patched_hash
-    if xl_base_hash == str(name):
-        return
 
     filename = os.path.join(modules.path.modelfile_path, name)
+    model_hash = str(hash(filename))
+
+    if xl_base_hash == model_hash:
+        return
 
     if xl_base is not None:
         xl_base.to_meta()
         xl_base = None
 
-    xl_base = core.load_model(filename)
+    xl_base = core.load_model(filename, model_hash=model_hash)
     if not isinstance(xl_base.unet.model, SDXL):
         print('Model not supported. Fooocus only support SDXL model as the base model.')
         xl_base = None
         xl_base_hash = ''
         refresh_base_model(modules.path.default_base_model_name)
-        xl_base_hash = name
+        xl_base_hash = model_hash
         xl_base_patched = xl_base
         xl_base_patched_hash = ''
         return
 
-    xl_base_hash = name
+    xl_base_hash = model_hash
     xl_base_patched = xl_base
     xl_base_patched_hash = ''
-    print(f'Base model loaded: {xl_base_hash}')
+    print(f'Base model loaded: {name} - {xl_base_hash}')
     return
 
 
 def refresh_refiner_model(name):
     global xl_refiner, xl_refiner_hash
-    if xl_refiner_hash == str(name):
+
+    filename = os.path.join(modules.path.modelfile_path, name)
+    model_hash = str(hash(filename))
+
+    if xl_refiner_hash == model_hash:
         return
 
     if name == 'None':
@@ -58,13 +64,11 @@ def refresh_refiner_model(name):
         print(f'Refiner unloaded.')
         return
 
-    filename = os.path.join(modules.path.modelfile_path, name)
-
     if xl_refiner is not None:
         xl_refiner.to_meta()
         xl_refiner = None
 
-    xl_refiner = core.load_model(filename)
+    xl_refiner = core.load_model(filename, model_hash=model_hash)
     if not isinstance(xl_refiner.unet.model, SDXLRefiner):
         print('Model not supported. Fooocus only support SDXL refiner as the refiner.')
         xl_refiner = None
@@ -72,8 +76,8 @@ def refresh_refiner_model(name):
         print(f'Refiner unloaded.')
         return
 
-    xl_refiner_hash = name
-    print(f'Refiner model loaded: {xl_refiner_hash}')
+    xl_refiner_hash = model_hash
+    print(f'Refiner model loaded: {name} - {xl_refiner_hash}')
 
     xl_refiner.vae.first_stage_model.to('meta')
     xl_refiner.vae = None

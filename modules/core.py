@@ -7,7 +7,7 @@ import numpy as np
 import comfy.model_management
 import comfy.utils
 
-from comfy.sd import load_checkpoint_guess_config
+from comfy.sd import load_checkpoint_guess_config, ModelPatcher
 from nodes import VAEDecode, EmptyLatentImage
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from modules.samplers_advanced import KSampler, KSamplerWithRefiner
@@ -20,7 +20,11 @@ opVAEDecode = VAEDecode()
 
 
 class StableDiffusionModel:
-    def __init__(self, unet, vae, clip, clip_vision):
+    def __init__(self, unet, vae, clip, clip_vision, model_hash=None):
+        if model_hash is not None:
+            for m in [unet, vae, clip, clip_vision]:
+                if isinstance(m, ModelPatcher):
+                    m.model.model_hash = model_hash
         self.unet = unet
         self.vae = vae
         self.clip = clip
@@ -36,9 +40,9 @@ class StableDiffusionModel:
 
 
 @torch.no_grad()
-def load_model(ckpt_filename):
+def load_model(ckpt_filename, model_hash):
     unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename)
-    return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision)
+    return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision, model_hash=model_hash)
 
 
 @torch.no_grad()
