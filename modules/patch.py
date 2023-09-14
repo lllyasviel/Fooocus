@@ -5,6 +5,7 @@ import comfy.samplers
 import comfy.k_diffusion.external
 import comfy.model_management
 import modules.anisotropic as anisotropic
+import comfy.ldm.modules.attention
 
 from comfy.k_diffusion import utils
 
@@ -75,6 +76,8 @@ def text_encoder_device_patched():
 
 
 def patch_all():
+    comfy.ldm.modules.attention.print = lambda x: None
+
     comfy.model_management.text_encoder_device = text_encoder_device_patched
     print(f'Fooocus Text Processing Pipelines are retargeted to {str(comfy.model_management.text_encoder_device())}')
 
