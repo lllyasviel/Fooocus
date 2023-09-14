@@ -92,7 +92,7 @@ Or if you want to open a remote port, use
 
 ### Linux (Using Python Venv)
 
-Your Linux needs to have **Python 3.10** installed, and lets say your Python can be called with command **python3** (and Pip with **pip3**), you can
+Your Linux needs to have **Python 3.10** installed, and lets say your Python can be called with command **python3** with your venv system working, you can
 
     git clone https://github.com/lllyasviel/Fooocus.git
     cd Fooocus
