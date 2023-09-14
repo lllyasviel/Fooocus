@@ -10,6 +10,27 @@ import modules.async_worker as worker
 
 from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles
 
+USE_WANDB_INTEGRATION = False
+try:
+    import os
+    import wandb
+    
+    USE_WANDB_INTEGRATION = os.environ.get("WANDB_PROJECT") is not None and os.environ.get("WANDB_ENTITY") is not None
+except:
+    USE_WANDB_INTEGRATION = False
+
+
+def fetch_wandb_history():
+    project = os.environ["WANDB_PROJECT"]
+    entity = os.environ["WANDB_ENTITY"]
+    try:
+        api = wandb.Api()
+        runs = api.runs(f"{entity}/{project}")
+        runs = [run for run in runs if run.state == "finished" and run.job_type == "text-to-image"]
+        return project, entity, runs
+    except:
+        return project, entity, None
+
 
 def generate_clicked(*args):
     yield gr.update(interactive=False), \
@@ -106,6 +127,58 @@ with shared.gradio_root:
                     return results
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls)
+            
+            if USE_WANDB_INTEGRATION:
+                with gr.Tab(label="History") as history_tab:
+                    project, entity, runs = fetch_wandb_history()
+                    run_name_to_id = {run.name: run.id for run in runs} if runs is not None else {}
+                    project_url = f"https://wandb.ai/{entity}/{project}"
+                    gr.Markdown(f"## Project: [{entity}/{project}]({project_url})")
+                    wandb_run_dropdown = gr.Dropdown(
+                        choices=[run.name for run in runs] if runs is not None else [],
+                        label="Past Experiments"
+                    )
+                    wandb_refresh_button = gr.Button(label='Refresh History', value='\U0001f504 Refresh History')
+                    
+                    history_details = gr.Markdown()
+                    
+                    def update_history_details(run_name):
+                        project, entity, runs = fetch_wandb_history()
+                        run_name_to_id = {run.name: run.id for run in runs} if runs is not None else {}
+                        selected_run = run_name_to_id[run_name]
+                        for run in runs:
+                            if run.id == selected_run:
+                                selected_run = run
+                                break
+                        content = f"### Experiment: [{run_name}](https://wandb.ai/{entity}/{project}/runs/{run_name_to_id[run_name]}) ({str(selected_run.created_at)})"
+                        content += "\n|Configuration|Value|"
+                        content += "\n|---|---|"
+                        content += f"\n|Prompt|{selected_run.config['Prompt']}|"
+                        content += f"\n|Negative Prompt|{selected_run.config['Negative Prompt']}|"
+                        content += f"\n|Performance|{selected_run.config['Performance']}|"
+                        content += f"\n|Resolution|{selected_run.config['Resolution']['width']}x{selected_run.config['Resolution']['height']}|"
+                        content += f"\n|Image Seed|{selected_run.config['Image Seed']}|"
+                        content += f"\n|Styles|{selected_run.config['Style']}|"
+                        content += f"\n|Sharpness|{selected_run.config['Sharpness']}|"
+                        content += f"\n|Number of Images|{selected_run.config['Number of Images']}|"
+                        content += f"\n|Number of Steps|{selected_run.config['Number of Steps']}|"
+                        content += f"\n|Base Model|{selected_run.config['Base Model']}|"
+                        content += f"\n|Refiner Model|{selected_run.config['Refiner Model']}|"
+                        for k, v in selected_run.config['LoRA Weights'].items():
+                            content += f"\n|{k}|{v}|"
+                        return content
+                    
+                    
+                    def update_wandb_dropdown():
+                        _, _, runs = fetch_wandb_history()
+                        return gr.Dropdown.update(
+                            choices=[run.name for run in runs] if runs is not None else [],
+                            label="Past Experiments"
+                        )
+                        
+                    
+                    wandb_run_dropdown.change(fn=update_history_details, inputs=wandb_run_dropdown, outputs=history_details)
+                    wandb_refresh_button.click(fn=update_wandb_dropdown, outputs=wandb_run_dropdown)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col)
         ctrls = [

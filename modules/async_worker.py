@@ -21,6 +21,14 @@ def worker():
     from modules.private_logger import log
     from modules.expansion import safe_str
     from modules.util import join_prompts, remove_empty_str
+    
+    USE_WANDB_INTEGRATION = False
+    try:
+        import wandb
+        from modules.private_logger import log_to_wandb
+        USE_WANDB_INTEGRATION = True
+    except:
+        USE_WANDB_INTEGRATION = False
 
     try:
         async_gradio_app = shared.gradio_root
@@ -159,6 +167,27 @@ def worker():
 
         results = []
         all_steps = steps * image_number
+        
+        if USE_WANDB_INTEGRATION:
+            config_dict = {
+                "Prompt": prompt,
+                "Negative Prompt": negative_prompt,
+                "Style": style_selections,
+                "Performance": performance_selction,
+                "Resolution": {"width": width, "height": height},
+                "Number of Images": image_number,
+                "Number of Steps": steps,
+                "Image Seed": image_seed,
+                "Seed": seed,
+                "Sharpness": sharpness,
+                "Base Model": base_model_name,
+                "Refiner Model": refiner_model_name,
+                "LoRA Weights": {},
+            }
+            for n, w in loras:
+                if n != 'None':
+                    config_dict["LoRA Weights"][f"LoRA [{n}] Weight"] = w
+            wandb.init(job_type="text-to-image", config=config_dict)
 
         def callback(step, x0, x, total_steps, y):
             done_steps = current_task_id * steps + step
@@ -166,6 +195,10 @@ def worker():
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
                 f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
                 y)])
+        
+        wandb_table = None
+        if USE_WANDB_INTEGRATION:
+            wandb_table = wandb.Table(columns=["Prompt", "Negative Prompt", "Image"])
 
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
@@ -196,10 +229,18 @@ def worker():
                     if n != 'None':
                         d.append((f'LoRA [{n}] weight', w))
                 log(x, d, single_line_number=3)
+                
+                if USE_WANDB_INTEGRATION:
+                    wandb_table = log_to_wandb(x, d, wandb_table)
 
             results += imgs
 
         outputs.append(['results', results])
+        
+        if USE_WANDB_INTEGRATION:
+            wandb.log({"Generation-Table": wandb_table})
+            wandb.finish()
+        
         return
 
     while True:
