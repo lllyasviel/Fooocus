@@ -3,9 +3,23 @@ import shutil
 import safetensors.torch as sf
 import torch
 
+from comfy import model_management
+
+
 virtual_memory_path = './virtual_memory/'
 shutil.rmtree(virtual_memory_path, ignore_errors=True)
 os.makedirs(virtual_memory_path, exist_ok=True)
+
+if 'cpu' in model_management.unet_offload_device().type.lower():
+    logic_memory = model_management.total_ram
+    global_virtual_memory_activated = logic_memory < 30000
+    print(f'[Virtual Memory System] Logic target is CPU, memory = {logic_memory}')
+else:
+    logic_memory = model_management.total_vram
+    global_virtual_memory_activated = logic_memory < 22000
+    print(f'[Virtual Memory System] Logic target is GPU, memory = {logic_memory}')
+
+print(f'[Virtual Memory System] Activated = {global_virtual_memory_activated}')
 
 
 def recursive_set(obj, key, value):
@@ -66,4 +80,13 @@ def load_from_virtual_memory(model):
 
 
 def try_move_to_virtual_memory(model):
+    if not global_virtual_memory_activated:
+        return
+
+    import default_pipeline
+
+    if default_pipeline.xl_refiner is None:
+        # If users do not use refiner, no need to use this.
+        return
+
     move_to_virtual_memory(model)
