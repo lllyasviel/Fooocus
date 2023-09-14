@@ -2,6 +2,7 @@ import modules.core as core
 import os
 import torch
 import modules.path
+import modules.virtual_memory as virtual_memory
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.patch import cfg_patched
@@ -103,23 +104,6 @@ def refresh_loras(loras):
     return
 
 
-def refresh_everything(refiner_model_name, base_model_name, loras):
-    refresh_refiner_model(refiner_model_name)
-    refresh_base_model(base_model_name)
-    refresh_loras(loras)
-    clear_all_caches()
-    return
-
-
-refresh_everything(
-    refiner_model_name=modules.path.default_refiner_model_name,
-    base_model_name=modules.path.default_base_model_name,
-    loras=[(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5)]
-)
-
-expansion = FooocusExpansion()
-
-
 @torch.no_grad()
 def clip_encode_single(clip, text, verbose=False):
     cached = clip.fcs_cond_cache.get(text, None)
@@ -175,6 +159,26 @@ def clear_all_caches():
     clear_sd_cond_cache(xl_refiner)
 
 
+def refresh_everything(refiner_model_name, base_model_name, loras):
+    refresh_refiner_model(refiner_model_name)
+    if xl_refiner is not None:
+        virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
+    refresh_base_model(base_model_name)
+    virtual_memory.load_from_virtual_memory(xl_base.unet.model)
+    refresh_loras(loras)
+    clear_all_caches()
+    return
+
+
+refresh_everything(
+    refiner_model_name=modules.path.default_refiner_model_name,
+    base_model_name=modules.path.default_base_model_name,
+    loras=[(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5)]
+)
+
+expansion = FooocusExpansion()
+
+
 @torch.no_grad()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback):
     if xl_base is not None:
@@ -185,6 +189,10 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     if xl_refiner is not None:
         xl_refiner.unet.model_options['sampler_cfg_function'] = cfg_patched
+
+    if xl_refiner is not None:
+        virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
+    virtual_memory.load_from_virtual_memory(xl_base.unet.model)
 
     empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
 
