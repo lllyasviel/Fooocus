@@ -110,7 +110,7 @@ Or if you want to open a remote port, use
     source fooocus_env/bin/activate
     python entry_with_update.py --listen
 
-### Linux (Using native Python)
+### Linux (Using native system Python)
 
 If you know what you are doing, and your Linux already has **Python 3.10** installed, and your Python can be called with command **python3** (and Pip with **pip3**), you can
 
