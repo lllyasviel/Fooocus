@@ -83,9 +83,9 @@ def try_move_to_virtual_memory(model):
     if not global_virtual_memory_activated:
         return
 
-    import modules.default_pipeline
+    import modules.default_pipeline as pipeline
 
-    if modules.default_pipeline.xl_refiner is None:
+    if pipeline.xl_refiner is None:
         # If users do not use refiner, no need to use this.
         return
 
