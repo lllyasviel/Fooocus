@@ -72,7 +72,7 @@ Thanks to [camenduru](https://github.com/camenduru)!
 
 ### Linux (Using Anaconda)
 
-If you want to use Anaconda, you can
+If you want to use Anaconda/Miniconda, you can
 
     git clone https://github.com/lllyasviel/Fooocus.git
     cd Fooocus
