@@ -27,12 +27,10 @@ def remove_pattern(x, pattern):
 
 class FooocusExpansion:
     def __init__(self):
-        self.use_fp16 = model_management.should_use_fp16()
-
         self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
         self.model = AutoModelForCausalLM.from_pretrained(fooocus_expansion_path)
 
-        if self.use_fp16:
+        if model_management.should_use_fp16():
             self.model.half()
 
         load_device = model_management.text_encoder_device()
