@@ -13,13 +13,19 @@ os.makedirs(virtual_memory_path, exist_ok=True)
 if 'cpu' in model_management.unet_offload_device().type.lower():
     logic_memory = model_management.total_ram
     global_virtual_memory_activated = logic_memory < 30000
+    safetensor_device = torch.device("cpu")
     print(f'[Virtual Memory System] Logic target is CPU, memory = {logic_memory}')
 else:
     logic_memory = model_management.total_vram
     global_virtual_memory_activated = logic_memory < 22000
+    safetensor_device = model_management.get_torch_device()
     print(f'[Virtual Memory System] Logic target is GPU, memory = {logic_memory}')
 
+if model_management.total_vram > 22000:
+    safetensor_device = model_management.get_torch_device()
+
 print(f'[Virtual Memory System] Activated = {global_virtual_memory_activated}')
+print(f'[Virtual Memory System] SafeTensor Device = {str(safetensor_device)}')
 
 
 def recursive_set(obj, key, value):
@@ -68,8 +74,7 @@ def load_from_virtual_memory(model):
         return
     virtual_memory_device_dict = getattr(model, 'virtual_memory_device_dict', None)
     assert isinstance(virtual_memory_device_dict, dict)
-    first_device = list(virtual_memory_device_dict.values())[0].type
-    sd = sf.load_file(filename=virtual_memory_filename, device=first_device)
+    sd = sf.load_file(filename=virtual_memory_filename, device=safetensor_device)
     for k in sd.keys():
         sd[k] = sd[k].to(virtual_memory_device_dict[k])
     force_load_state_dict(model, sd)
