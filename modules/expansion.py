@@ -54,7 +54,7 @@ class FooocusExpansion:
         # https://huggingface.co/docs/transformers/generation_strategies
         features = self.model.generate(**tokenized_kwargs,
                                        penalty_alpha=0.6,
-                                       top_k=4,
+                                       top_k=8,
                                        max_new_tokens=256,
                                        do_sample=True)
 
