@@ -88,6 +88,28 @@ Or if you want to open a remote port, use
 
     python launch.py --listen
 
+### [Weights & Biases](https://wandb.ai/site) Integration for Fooocus
+
+The Weights & Biases integration with Fooocus automatically adds a History tab to the UI that keeps track of all your generations in a project by syncing it with Weights & Biases. Effortlessly, you can keep track of all of your past generations and your configs, without having to leave the Fooocus UI itself. You can also open up the W&B project and explore individual runs from the UI as well!
+
+Generated images logged into a [W&B Table](https://docs.wandb.ai/guides/tables) with the prompts and negative prompts. Users can also explore the respective Fooocus configs to generate the artwork by using the weave expression `row.run.config["config-name"]` to query them right in the table itself. Generated images are also automatically logged into a W&B media panel that enables us to share with our friends and colleagues in the form of a shareable art gallery.
+
+In order to use the Weights & Biases integration for Fooocus, you need to perform the following command line operations after having installed Fooocus:
+
+```shell
+# Login to your W&B account or create one
+wandb login
+
+# Set your project and entity name
+export WANDB_PROJECT="my-awesome-project"
+export WANDB_ENTITY="my-team-or-username"
+
+# Launch Fooocus
+python launch.py --listen
+```
+
+**Note:** The Weights & Biases integration does not disrupt any of the default functionalities of Fooocus and is only enabled if you have logged into your W&B account and set up your W&B project name and entity name before launcing Fooocus.
+
 ### Mac/Windows(AMD GPUs)
 
 Coming soon ...
