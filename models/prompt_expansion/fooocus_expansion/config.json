@@ -8,6 +8,7 @@
   "bos_token_id": 50256,
   "embd_pdrop": 0.1,
   "eos_token_id": 50256,
+  "pad_token_id": 50256,
   "initializer_range": 0.02,
   "layer_norm_epsilon": 1e-05,
   "model_type": "gpt2",
