@@ -80,10 +80,10 @@ def worker():
 
         progressbar(3, 'Loading models ...')
 
-        pipeline.refresh_base_model(base_model_name)
-        pipeline.refresh_refiner_model(refiner_model_name)
-        pipeline.refresh_loras(loras)
-        pipeline.clear_all_caches()
+        pipeline.refresh_everything(
+            refiner_model_name=refiner_model_name,
+            base_model_name=base_model_name,
+            loras=loras)
 
         progressbar(3, 'Processing prompts ...')
 

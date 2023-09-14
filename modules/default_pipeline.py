@@ -103,9 +103,19 @@ def refresh_loras(loras):
     return
 
 
-refresh_base_model(modules.path.default_base_model_name)
-refresh_refiner_model(modules.path.default_refiner_model_name)
-refresh_loras([(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5)])
+def refresh_everything(refiner_model_name, base_model_name, loras):
+    refresh_refiner_model(refiner_model_name)
+    refresh_base_model(base_model_name)
+    refresh_loras(loras)
+    clear_all_caches()
+    return
+
+
+refresh_everything(
+    refiner_model_name=modules.path.default_refiner_model_name,
+    base_model_name=modules.path.default_base_model_name,
+    loras=[(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5)]
+)
 
 expansion = FooocusExpansion()
 
