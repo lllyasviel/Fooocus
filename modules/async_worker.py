@@ -128,8 +128,6 @@ def worker():
                 t['positive'] = copy.deepcopy(t['positive']) + [join_prompts(prompt, expansion)]  # Deep copy.
 
         virtual_memory.load_from_virtual_memory(pipeline.xl_base.clip.cond_stage_model)
-        if pipeline.xl_refiner is not None:
-            virtual_memory.load_from_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
 
         for i, t in enumerate(tasks):
             progressbar(7, f'Encoding base positive #{i + 1} ...')
@@ -141,7 +139,11 @@ def worker():
             t['uc'][0] = pipeline.clip_encode(sd=pipeline.xl_base_patched, texts=t['negative'],
                                               pool_top_k=negative_top_k)
 
+        virtual_memory.try_move_to_virtual_memory(pipeline.xl_base.clip.cond_stage_model)
+
         if pipeline.xl_refiner is not None:
+            virtual_memory.load_from_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
+
             for i, t in enumerate(tasks):
                 progressbar(11, f'Encoding refiner positive #{i + 1} ...')
                 t['c'][1] = pipeline.clip_encode(sd=pipeline.xl_refiner, texts=t['positive'],
@@ -152,8 +154,6 @@ def worker():
                 t['uc'][1] = pipeline.clip_encode(sd=pipeline.xl_refiner, texts=t['negative'],
                                                   pool_top_k=negative_top_k)
 
-        virtual_memory.try_move_to_virtual_memory(pipeline.xl_base.clip.cond_stage_model)
-        if pipeline.xl_refiner is not None:
             virtual_memory.try_move_to_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
 
         if performance_selction == 'Speed':

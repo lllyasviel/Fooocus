@@ -163,8 +163,11 @@ def refresh_everything(refiner_model_name, base_model_name, loras):
     refresh_refiner_model(refiner_model_name)
     if xl_refiner is not None:
         virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
+        virtual_memory.try_move_to_virtual_memory(xl_refiner.clip.cond_stage_model)
     refresh_base_model(base_model_name)
-    virtual_memory.load_from_virtual_memory(xl_base.unet.model)
+    if xl_base is not None:
+        virtual_memory.try_move_to_virtual_memory(xl_base.unet.model)
+        virtual_memory.try_move_to_virtual_memory(xl_base.clip.cond_stage_model)
     refresh_loras(loras)
     clear_all_caches()
     return
@@ -190,8 +193,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
     if xl_refiner is not None:
         xl_refiner.unet.model_options['sampler_cfg_function'] = cfg_patched
 
-    if xl_refiner is not None:
-        virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
     virtual_memory.load_from_virtual_memory(xl_base.unet.model)
 
     empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
@@ -223,4 +224,9 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent)
     images = core.image_to_numpy(decoded_latent)
+
+    virtual_memory.try_move_to_virtual_memory(xl_base.unet.model)
+    if xl_refiner is not None:
+        virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
+
     return images
