@@ -5,7 +5,7 @@ from safetensors import safe_open
 from comfy import model_management
 
 
-ALWAYS_USE_VM = True
+ALWAYS_USE_VM = False
 
 if ALWAYS_USE_VM:
     print(f'[Virtual Memory System] Forced = {ALWAYS_USE_VM}')
