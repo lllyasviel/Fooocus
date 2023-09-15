@@ -46,7 +46,7 @@ def refresh_base_model(name):
     xl_base_hash = model_hash
     xl_base_patched = xl_base
     xl_base_patched_hash = ''
-    print(f'Base model loaded: {name} - {xl_base_hash}')
+    print(f'Base model loaded: {filename} - {model_hash}')
     return
 
 
@@ -78,7 +78,7 @@ def refresh_refiner_model(name):
         return
 
     xl_refiner_hash = model_hash
-    print(f'Refiner model loaded: {name} - {xl_refiner_hash}')
+    print(f'Refiner model loaded: {filename} - {model_hash}')
 
     xl_refiner.vae.first_stage_model.to('meta')
     xl_refiner.vae = None
