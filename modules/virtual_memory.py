@@ -7,7 +7,7 @@ from comfy import model_management
 from comfy.diffusers_convert import textenc_conversion_lst
 
 
-ALWAYS_USE_VM = True
+ALWAYS_USE_VM = None
 
 if isinstance(ALWAYS_USE_VM, bool):
     print(f'[Virtual Memory System] Forced = {ALWAYS_USE_VM}')
