@@ -70,7 +70,8 @@ def move_to_virtual_memory(model, comfy_unload=True):
     model.virtual_memory_device_dict = virtual_memory_device_dict
     model.virtual_memory_filename = virtual_memory_filename
     model.to('meta')
-    print(f'[Virtual Memory System] Tensors released from memory: {virtual_memory_filename}')
+    first_device = list(virtual_memory_device_dict.values())[0].type
+    print(f'[Virtual Memory System] Model released from {first_device}: {virtual_memory_filename}')
     model_management.soft_empty_cache()
     return
 
@@ -90,7 +91,7 @@ def load_from_virtual_memory(model):
     for k in sd.keys():
         sd[k] = sd[k].to(virtual_memory_device_dict[k])
     force_load_state_dict(model, sd)
-    print(f'[Virtual Memory System] Model loaded: {virtual_memory_filename} to {first_device}.')
+    print(f'[Virtual Memory System] Model loaded to {first_device}: {virtual_memory_filename}')
     del model.virtual_memory_device_dict
     del model.virtual_memory_filename
     return
