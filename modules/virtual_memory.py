@@ -59,8 +59,8 @@ def only_load_safetensors_keys(filename):
     try:
         with safe_open(filename, framework="pt", device='cpu') as f:
             result = list(f.keys())
-            assert len(result) > 0
-            return result
+        assert len(result) > 0
+        return result
     except:
         return None
 
