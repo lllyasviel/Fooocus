@@ -6,18 +6,18 @@ from comfy import model_management
 from comfy.diffusers_convert import textenc_conversion_lst
 
 
-ALWAYS_USE_VM = True
+ALWAYS_USE_VM = None
 
-if ALWAYS_USE_VM:
+if ALWAYS_USE_VM is not None:
     print(f'[Virtual Memory System] Forced = {ALWAYS_USE_VM}')
 
 if 'cpu' in model_management.unet_offload_device().type.lower():
     logic_memory = model_management.total_ram
-    global_virtual_memory_activated = ALWAYS_USE_VM or logic_memory < 30000
+    global_virtual_memory_activated = ALWAYS_USE_VM if ALWAYS_USE_VM is not None else logic_memory < 30000
     print(f'[Virtual Memory System] Logic target is CPU, memory = {logic_memory}')
 else:
     logic_memory = model_management.total_vram
-    global_virtual_memory_activated = ALWAYS_USE_VM or logic_memory < 22000
+    global_virtual_memory_activated = ALWAYS_USE_VM if ALWAYS_USE_VM is not None else logic_memory < 22000
     print(f'[Virtual Memory System] Logic target is GPU, memory = {logic_memory}')
 
 
