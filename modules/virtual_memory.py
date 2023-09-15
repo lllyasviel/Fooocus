@@ -10,7 +10,7 @@ virtual_memory_path = './virtual_memory/'
 shutil.rmtree(virtual_memory_path, ignore_errors=True)
 os.makedirs(virtual_memory_path, exist_ok=True)
 
-use_safetensors = False
+use_safetensors = True
 
 if 'cpu' in model_management.unet_offload_device().type.lower():
     logic_memory = model_management.total_ram
