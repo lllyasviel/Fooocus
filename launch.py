@@ -1,4 +1,7 @@
 import os
+os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
+
+
 import sys
 import platform
 import fooocus_version
