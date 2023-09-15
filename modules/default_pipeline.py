@@ -164,6 +164,7 @@ def refresh_everything(refiner_model_name, base_model_name, loras):
     refresh_refiner_model(refiner_model_name)
     if xl_refiner is not None:
         virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
+        virtual_memory.try_move_to_virtual_memory(xl_refiner.clip.cond_stage_model)
 
     refresh_base_model(base_model_name)
     virtual_memory.load_from_virtual_memory(xl_base.unet.model)

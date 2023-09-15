@@ -16,6 +16,7 @@ def worker():
     import modules.default_pipeline as pipeline
     import modules.path
     import modules.patch
+    import modules.virtual_memory as virtual_memory
 
     from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
     from modules.private_logger import log
@@ -137,6 +138,8 @@ def worker():
                                               pool_top_k=negative_top_k)
 
         if pipeline.xl_refiner is not None:
+            virtual_memory.load_from_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
+
             for i, t in enumerate(tasks):
                 progressbar(11, f'Encoding refiner positive #{i + 1} ...')
                 t['c'][1] = pipeline.clip_encode(sd=pipeline.xl_refiner, texts=t['positive'],
@@ -146,6 +149,8 @@ def worker():
                 progressbar(13, f'Encoding refiner negative #{i + 1} ...')
                 t['uc'][1] = pipeline.clip_encode(sd=pipeline.xl_refiner, texts=t['negative'],
                                                   pool_top_k=negative_top_k)
+
+            virtual_memory.try_move_to_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
 
         if performance_selction == 'Speed':
             steps = 30

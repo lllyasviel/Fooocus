@@ -2,15 +2,15 @@ import os
 import random
 import einops
 import torch
-import hashlib
 import numpy as np
 
 import comfy.model_management
 import comfy.utils
 
-from comfy.sd import load_checkpoint_guess_config, ModelPatcher
+from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
+from comfy.model_base import SDXLRefiner
 from modules.samplers_advanced import KSampler, KSamplerWithRefiner
 from modules.patch import patch_all
 
@@ -23,10 +23,11 @@ opVAEDecode = VAEDecode()
 class StableDiffusionModel:
     def __init__(self, unet, vae, clip, clip_vision, model_filename=None):
         if isinstance(model_filename, str):
+            is_refiner = isinstance(unet.model, SDXLRefiner)
             if unet is not None:
                 unet.model.model_file = dict(filename=model_filename, prefix='model')
             if clip is not None:
-                clip.cond_stage_model.model_file = dict(filename=model_filename, prefix='cond_stage_model')
+                clip.cond_stage_model.model_file = dict(filename=model_filename, prefix='refiner_clip' if is_refiner else 'base_clip')
             if vae is not None:
                 vae.first_stage_model.model_file = dict(filename=model_filename, prefix='first_stage_model')
         self.unet = unet

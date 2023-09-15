@@ -3,9 +3,10 @@ import gc
 
 from safetensors import safe_open
 from comfy import model_management
+from comfy.diffusers_convert import textenc_conversion_lst
 
 
-ALWAYS_USE_VM = False
+ALWAYS_USE_VM = True
 
 if ALWAYS_USE_VM:
     print(f'[Virtual Memory System] Forced = {ALWAYS_USE_VM}')
@@ -95,18 +96,40 @@ def move_to_virtual_memory(model, comfy_unload=True):
 
     for k, v in sd.items():
         current_key = k
-        current_key_in_safetensors = prefix + '.' + k
+        current_flag = None
+        if prefix == 'refiner_clip':
+            current_key_in_safetensors = k
+
+            for a, b in textenc_conversion_lst:
+                current_key_in_safetensors = current_key_in_safetensors.replace(b, a)
+
+            current_key_in_safetensors = current_key_in_safetensors.replace('clip_g.transformer.text_model.encoder.layers.', 'conditioner.embedders.0.model.transformer.resblocks.')
+            current_key_in_safetensors = current_key_in_safetensors.replace('clip_g.text_projection', 'conditioner.embedders.0.model.text_projection')
+            current_key_in_safetensors = current_key_in_safetensors.replace('clip_g.logit_scale', 'conditioner.embedders.0.model.logit_scale')
+            current_key_in_safetensors = current_key_in_safetensors.replace('clip_g.', 'conditioner.embedders.0.model.')
+
+            for e in ["weight", "bias"]:
+                for i, k in enumerate(['q', 'k', 'v']):
+                    e_flag = f'.{k}_proj.{e}'
+                    if current_key_in_safetensors.endswith(e_flag):
+                        current_key_in_safetensors = current_key_in_safetensors[:-len(e_flag)] + f'.in_proj_{e}'
+                        current_flag = (1280 * i, 1280 * (i + 1))
+        else:
+            current_key_in_safetensors = prefix + '.' + k
         current_device = torch.device(index=v.device.index, type=v.device.type)
         if current_key_in_safetensors in safetensors_keys:
-            virtual_memory_dict[current_key] = (current_key_in_safetensors, current_device)
+            virtual_memory_dict[current_key] = (current_key_in_safetensors, current_device, current_flag)
             recursive_del(model, current_key)
+        else:
+            # print(f'[Virtual Memory System] Missed key: {current_key}')
+            pass
 
     del sd
     gc.collect()
     model_management.soft_empty_cache()
 
     model.virtual_memory_dict = virtual_memory_dict
-    print(f'[Virtual Memory System] Model released from {original_device}: {filename}')
+    print(f'[Virtual Memory System] Model {prefix} released from {original_device}: {filename}')
     return
 
 
@@ -121,15 +144,19 @@ def load_from_virtual_memory(model):
     assert isinstance(model_file, dict)
 
     filename = model_file['filename']
+    prefix = model_file['prefix']
     original_device = model_file['original_device']
 
     with safe_open(filename, framework="pt", device=original_device) as f:
-        for current_key, (current_key_in_safetensors, current_device) in virtual_memory_dict.items():
+        for current_key, (current_key_in_safetensors, current_device, current_flag) in virtual_memory_dict.items():
             tensor = f.get_tensor(current_key_in_safetensors).to(current_device)
+            if isinstance(current_flag, tuple) and len(current_flag) == 2:
+                a, b = current_flag
+                tensor = tensor[a:b]
             parameter = torch.nn.Parameter(tensor, requires_grad=False)
             recursive_set(model, current_key, parameter)
 
-    print(f'[Virtual Memory System] Model loaded to {original_device}: {filename}')
+    print(f'[Virtual Memory System] Model {prefix} loaded to {original_device}: {filename}')
     del model.virtual_memory_dict
     return
 
