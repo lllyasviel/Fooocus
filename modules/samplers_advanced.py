@@ -153,7 +153,6 @@ class KSamplerWithRefiner:
                                           noise.shape[3], noise.shape[2], self.device, "negative")
 
         def refiner_switch():
-            comfy.model_management.unload_model()
             modules.virtual_memory.try_move_to_virtual_memory(self.model_denoise.inner_model)
             modules.virtual_memory.load_from_virtual_memory(self.refiner_model_denoise.inner_model)
             comfy.model_management.load_model_gpu(self.refiner_model_patcher)

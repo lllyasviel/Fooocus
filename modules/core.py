@@ -21,10 +21,13 @@ opVAEDecode = VAEDecode()
 
 class StableDiffusionModel:
     def __init__(self, unet, vae, clip, clip_vision, model_hash=None):
-        if model_hash is not None:
-            for m in [unet, vae, clip, clip_vision]:
-                if isinstance(m, ModelPatcher):
-                    m.model.model_hash = model_hash
+        if isinstance(model_hash, str):
+            if unet is not None:
+                unet.model.model_hash = model_hash + '_unet'
+            if clip is not None:
+                clip.cond_stage_model.model_hash = model_hash + '_clip'
+            if vae is not None:
+                vae.first_stage_model.model_hash = model_hash + '_vae'
         self.unet = unet
         self.vae = vae
         self.clip = clip
