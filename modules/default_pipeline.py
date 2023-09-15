@@ -23,7 +23,7 @@ def refresh_base_model(name):
     global xl_base, xl_base_hash, xl_base_patched, xl_base_patched_hash
 
     filename = os.path.join(modules.path.modelfile_path, name)
-    model_hash = str(hash(filename))
+    model_hash = core.sha256_hash_string(name)
 
     if xl_base_hash == model_hash:
         return
@@ -54,7 +54,7 @@ def refresh_refiner_model(name):
     global xl_refiner, xl_refiner_hash
 
     filename = os.path.join(modules.path.modelfile_path, name)
-    model_hash = str(hash(filename))
+    model_hash = core.sha256_hash_string(name)
 
     if xl_refiner_hash == model_hash:
         return

@@ -2,6 +2,7 @@ import os
 import random
 import einops
 import torch
+import hashlib
 import numpy as np
 
 import comfy.model_management
@@ -17,6 +18,12 @@ from modules.patch import patch_all
 patch_all()
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
+sha256_hash = hashlib.sha256()
+
+
+def sha256_hash_string(input_string):
+    sha256_hash.update(input_string.encode('utf-8'))
+    return sha256_hash.hexdigest()
 
 
 class StableDiffusionModel:
