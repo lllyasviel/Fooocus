@@ -2,6 +2,7 @@ import modules.core as core
 import os
 import torch
 import modules.path
+import modules.virtual_memory as virtual_memory
 import comfy.model_management as model_management
 
 from comfy.model_base import SDXL, SDXLRefiner
@@ -21,10 +22,12 @@ xl_base_patched_hash = ''
 
 def refresh_base_model(name):
     global xl_base, xl_base_hash, xl_base_patched, xl_base_patched_hash
-    if xl_base_hash == str(name):
-        return
 
-    filename = os.path.join(modules.path.modelfile_path, name)
+    filename = os.path.abspath(os.path.realpath(os.path.join(modules.path.modelfile_path, name)))
+    model_hash = filename
+
+    if xl_base_hash == model_hash:
+        return
 
     if xl_base is not None:
         xl_base.to_meta()
@@ -36,21 +39,25 @@ def refresh_base_model(name):
         xl_base = None
         xl_base_hash = ''
         refresh_base_model(modules.path.default_base_model_name)
-        xl_base_hash = name
+        xl_base_hash = model_hash
         xl_base_patched = xl_base
         xl_base_patched_hash = ''
         return
 
-    xl_base_hash = name
+    xl_base_hash = model_hash
     xl_base_patched = xl_base
     xl_base_patched_hash = ''
-    print(f'Base model loaded: {xl_base_hash}')
+    print(f'Base model loaded: {model_hash}')
     return
 
 
 def refresh_refiner_model(name):
     global xl_refiner, xl_refiner_hash
-    if xl_refiner_hash == str(name):
+
+    filename = os.path.abspath(os.path.realpath(os.path.join(modules.path.modelfile_path, name)))
+    model_hash = filename
+
+    if xl_refiner_hash == model_hash:
         return
 
     if name == 'None':
@@ -58,8 +65,6 @@ def refresh_refiner_model(name):
         xl_refiner_hash = ''
         print(f'Refiner unloaded.')
         return
-
-    filename = os.path.join(modules.path.modelfile_path, name)
 
     if xl_refiner is not None:
         xl_refiner.to_meta()
@@ -73,8 +78,8 @@ def refresh_refiner_model(name):
         print(f'Refiner unloaded.')
         return
 
-    xl_refiner_hash = name
-    print(f'Refiner model loaded: {xl_refiner_hash}')
+    xl_refiner_hash = model_hash
+    print(f'Refiner model loaded: {model_hash}')
 
     xl_refiner.vae.first_stage_model.to('meta')
     xl_refiner.vae = None
@@ -98,13 +103,6 @@ def refresh_loras(loras):
     print(f'LoRAs loaded: {xl_base_patched_hash}')
 
     return
-
-
-refresh_base_model(modules.path.default_base_model_name)
-refresh_refiner_model(modules.path.default_refiner_model_name)
-refresh_loras([(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5)])
-
-expansion = FooocusExpansion()
 
 
 @torch.no_grad()
@@ -132,8 +130,6 @@ def clip_encode(sd, texts, pool_top_k=1):
         return None
     if len(texts) == 0:
         return None
-
-    model_management.soft_empty_cache()
 
     clip = sd.clip
     cond_list = []
@@ -164,6 +160,29 @@ def clear_all_caches():
     clear_sd_cond_cache(xl_refiner)
 
 
+def refresh_everything(refiner_model_name, base_model_name, loras):
+    refresh_refiner_model(refiner_model_name)
+    if xl_refiner is not None:
+        virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
+        virtual_memory.try_move_to_virtual_memory(xl_refiner.clip.cond_stage_model)
+
+    refresh_base_model(base_model_name)
+    virtual_memory.load_from_virtual_memory(xl_base.unet.model)
+
+    refresh_loras(loras)
+    clear_all_caches()
+    return
+
+
+refresh_everything(
+    refiner_model_name=modules.path.default_refiner_model_name,
+    base_model_name=modules.path.default_base_model_name,
+    loras=[(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5)]
+)
+
+expansion = FooocusExpansion()
+
+
 @torch.no_grad()
 def patch_all_models():
     assert xl_base is not None
@@ -181,7 +200,10 @@ def patch_all_models():
 @torch.no_grad()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback):
     patch_all_models()
-    model_management.soft_empty_cache()
+
+    if xl_refiner is not None:
+        virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
+    virtual_memory.load_from_virtual_memory(xl_base.unet.model)
 
     empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
 
