@@ -20,7 +20,7 @@ else:
     print(f'[Virtual Memory System] Logic target is GPU, memory = {logic_memory}')
 
 print(f'[Virtual Memory System] Activated = {global_virtual_memory_activated}')
-global_virtual_memory_activated = True
+
 
 @torch.no_grad()
 def recursive_set(obj, key, value):
