@@ -2,6 +2,7 @@ import modules.core as core
 import os
 import torch
 import modules.path
+import comfy.model_management as model_management
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.patch import cfg_patched
@@ -132,6 +133,8 @@ def clip_encode(sd, texts, pool_top_k=1):
     if len(texts) == 0:
         return None
 
+    model_management.soft_empty_cache()
+
     clip = sd.clip
     cond_list = []
     pooled_acc = 0
@@ -162,15 +165,23 @@ def clear_all_caches():
 
 
 @torch.no_grad()
-def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback):
-    if xl_base is not None:
-        xl_base.unet.model_options['sampler_cfg_function'] = cfg_patched
+def patch_all_models():
+    assert xl_base is not None
+    assert xl_base_patched is not None
 
-    if xl_base_patched is not None:
-        xl_base_patched.unet.model_options['sampler_cfg_function'] = cfg_patched
+    xl_base.unet.model_options['sampler_cfg_function'] = cfg_patched
+    xl_base_patched.unet.model_options['sampler_cfg_function'] = cfg_patched
 
     if xl_refiner is not None:
         xl_refiner.unet.model_options['sampler_cfg_function'] = cfg_patched
+
+    return
+
+
+@torch.no_grad()
+def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback):
+    patch_all_models()
+    model_management.soft_empty_cache()
 
     empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
 
