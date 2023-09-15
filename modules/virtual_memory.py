@@ -7,7 +7,7 @@ from comfy import model_management
 
 
 virtual_memory_path = './virtual_memory/'
-# shutil.rmtree(virtual_memory_path, ignore_errors=True)
+shutil.rmtree(virtual_memory_path, ignore_errors=True)
 os.makedirs(virtual_memory_path, exist_ok=True)
 
 if 'cpu' in model_management.unet_offload_device().type.lower():
