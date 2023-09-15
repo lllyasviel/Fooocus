@@ -1,6 +1,5 @@
 import os
 import shutil
-import safetensors.torch as sf
 import torch
 
 from comfy import model_management
@@ -9,8 +8,6 @@ from comfy import model_management
 virtual_memory_path = './virtual_memory/'
 shutil.rmtree(virtual_memory_path, ignore_errors=True)
 os.makedirs(virtual_memory_path, exist_ok=True)
-
-use_safetensors = True
 
 if 'cpu' in model_management.unet_offload_device().type.lower():
     logic_memory = model_management.total_ram
@@ -63,10 +60,7 @@ def move_to_virtual_memory(model, comfy_unload=True):
         print(f'[Virtual Memory System] Creating virtual memory environments ... ')
         print(f'If the Gradio demo during this process, please refresh the Gradio demo ...')
         print(f'This may take at most 20 seconds in the first time ...')
-        if use_safetensors:
-            sf.save_file(sd, virtual_memory_filename)
-        else:
-            torch.save(sd, virtual_memory_filename)
+        torch.save(sd, virtual_memory_filename)
         print(f'[Virtual Memory System] Tensors written to virtual memory: {virtual_memory_filename}')
     model.virtual_memory_device_dict = virtual_memory_device_dict
     model.virtual_memory_filename = virtual_memory_filename
@@ -87,10 +81,7 @@ def load_from_virtual_memory(model):
     virtual_memory_device_dict = getattr(model, 'virtual_memory_device_dict', None)
     assert isinstance(virtual_memory_device_dict, dict)
     first_device = list(virtual_memory_device_dict.values())[0].type
-    if use_safetensors:
-        sd = sf.load_file(filename=virtual_memory_filename, device=first_device)
-    else:
-        sd = torch.load(virtual_memory_filename, map_location=first_device)
+    sd = torch.load(virtual_memory_filename, map_location=first_device)
     for k in sd.keys():
         sd[k] = sd[k].to(virtual_memory_device_dict[k])
     force_load_state_dict(model, sd)
