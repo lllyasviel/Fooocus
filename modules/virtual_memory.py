@@ -61,7 +61,7 @@ def move_to_virtual_memory(model, comfy_unload=True):
     virtual_memory_filename = os.path.join(virtual_memory_path, model_hash)
     if not os.path.exists(virtual_memory_filename):
         print(f'[Virtual Memory System] Creating virtual memory environments ... This may take at most 20 seconds in the first time ...')
-        print(f'If the website application crashes during this process, please refresh the webpage ...')
+        print(f'If the website crashes during this process, please refresh the webpage ...')
         if use_safetensors:
             sf.save_file(sd, virtual_memory_filename)
         else:
