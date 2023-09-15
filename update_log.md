@@ -1,7 +1,6 @@
 ### 2.0.13
 
 * Virtual memory system implemented. Now Colab can run both base model and refiner model with 8GB RAM + 5GB VRAM, and it never crashes.
-* But the first time it loads on cloab, users need to wait for another 40 seconds for creating the virtual memory system.
 
 ### 2.0.0
 

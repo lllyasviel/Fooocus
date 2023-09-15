@@ -20,7 +20,6 @@ else:
     print(f'[Virtual Memory System] Logic target is GPU, memory = {logic_memory}')
 
 
-# global_virtual_memory_activated = True
 print(f'[Virtual Memory System] Activated = {global_virtual_memory_activated}')
 
 
