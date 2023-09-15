@@ -38,7 +38,8 @@ def recursive_set(obj, key, value):
 @torch.no_grad()
 def force_load_state_dict(model, state_dict):
     for k in list(state_dict.keys()):
-        recursive_set(model, k, torch.nn.Parameter(state_dict[k]))
+        p = torch.nn.Parameter(state_dict[k], requires_grad=False)
+        recursive_set(model, k, p)
         del state_dict[k]
     return
 
