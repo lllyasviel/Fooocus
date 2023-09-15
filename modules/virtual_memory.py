@@ -62,6 +62,7 @@ def move_to_virtual_memory(model, comfy_unload=True):
     model.virtual_memory_filename = virtual_memory_filename
     model.to('meta')
     print(f'[Virtual Memory System] Tensors released from memory: {virtual_memory_filename}')
+    model_management.soft_empty_cache()
     return
 
 
