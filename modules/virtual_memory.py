@@ -85,7 +85,11 @@ def move_to_virtual_memory(model, comfy_unload=True):
     filename = model_file['filename']
     prefix = model_file['prefix']
 
-    safetensors_keys = only_load_safetensors_keys(filename)
+    if hasattr(model, 'virtual_memory_safetensors_keys'):
+        safetensors_keys = model.virtual_memory_safetensors_keys
+    else:
+        safetensors_keys = only_load_safetensors_keys(filename)
+        model.virtual_memory_safetensors_keys = safetensors_keys
 
     if safetensors_keys is None:
         print(f'[Virtual Memory System] Error: The Virtual Memory System currently only support safetensors models!')
