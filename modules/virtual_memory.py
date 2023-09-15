@@ -5,17 +5,22 @@ import torch
 from comfy import model_management
 
 
+ALWAYS_USE_VM = True
+
 virtual_memory_path = './virtual_memory/'
 shutil.rmtree(virtual_memory_path, ignore_errors=True)
 os.makedirs(virtual_memory_path, exist_ok=True)
 
+if ALWAYS_USE_VM:
+    print(f'[Virtual Memory System] Forced = {ALWAYS_USE_VM}')
+
 if 'cpu' in model_management.unet_offload_device().type.lower():
     logic_memory = model_management.total_ram
-    global_virtual_memory_activated = logic_memory < 30000
+    global_virtual_memory_activated = ALWAYS_USE_VM or logic_memory < 30000
     print(f'[Virtual Memory System] Logic target is CPU, memory = {logic_memory}')
 else:
     logic_memory = model_management.total_vram
-    global_virtual_memory_activated = logic_memory < 22000
+    global_virtual_memory_activated = ALWAYS_USE_VM or logic_memory < 22000
     print(f'[Virtual Memory System] Logic target is GPU, memory = {logic_memory}')
 
 
