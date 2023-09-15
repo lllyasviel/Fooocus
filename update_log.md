@@ -1,4 +1,4 @@
-### 2.0.13
+### 2.0.16
 
 * Virtual memory system implemented. Now Colab can run both base model and refiner model with 7.8GB RAM + 5.3GB VRAM, and it never crashes.
 
