@@ -20,21 +20,15 @@ opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
 
 
-def sha256_hash_string(input_string):
-    sha256_hash = hashlib.sha256()
-    sha256_hash.update(input_string.encode('utf-8'))
-    return sha256_hash.hexdigest()[:32]
-
-
 class StableDiffusionModel:
-    def __init__(self, unet, vae, clip, clip_vision, model_hash=None):
-        if isinstance(model_hash, str):
+    def __init__(self, unet, vae, clip, clip_vision, model_filename=None):
+        if isinstance(model_filename, str):
             if unet is not None:
-                unet.model.model_hash = model_hash + '_unet'
+                unet.model.model_file = dict(filename=model_filename, prefix='model')
             if clip is not None:
-                clip.cond_stage_model.model_hash = model_hash + '_clip'
+                clip.cond_stage_model.model_file = dict(filename=model_filename, prefix='cond_stage_model')
             if vae is not None:
-                vae.first_stage_model.model_hash = model_hash + '_vae'
+                vae.first_stage_model.model_file = dict(filename=model_filename, prefix='first_stage_model')
         self.unet = unet
         self.vae = vae
         self.clip = clip
@@ -50,9 +44,9 @@ class StableDiffusionModel:
 
 
 @torch.no_grad()
-def load_model(ckpt_filename, model_hash):
+def load_model(ckpt_filename):
     unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename)
-    return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision, model_hash=model_hash)
+    return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision, model_filename=ckpt_filename)
 
 
 @torch.no_grad()

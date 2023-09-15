@@ -1,15 +1,11 @@
-import os
-import shutil
 import torch
+import gc
 
+from safetensors import safe_open
 from comfy import model_management
 
 
 ALWAYS_USE_VM = True
-
-virtual_memory_path = './virtual_memory/'
-shutil.rmtree(virtual_memory_path, ignore_errors=True)
-os.makedirs(virtual_memory_path, exist_ok=True)
 
 if ALWAYS_USE_VM:
     print(f'[Virtual Memory System] Forced = {ALWAYS_USE_VM}')
@@ -40,6 +36,17 @@ def recursive_set(obj, key, value):
 
 
 @torch.no_grad()
+def recursive_del(obj, key):
+    if obj is None:
+        return
+    if '.' in key:
+        k1, k2 = key.split('.', 1)
+        recursive_del(getattr(obj, k1, None), k2)
+    else:
+        delattr(obj, key)
+
+
+@torch.no_grad()
 def force_load_state_dict(model, state_dict):
     for k in list(state_dict.keys()):
         p = torch.nn.Parameter(state_dict[k], requires_grad=False)
@@ -49,51 +56,82 @@ def force_load_state_dict(model, state_dict):
 
 
 @torch.no_grad()
+def only_load_safetensors_keys(filename):
+    try:
+        with safe_open(filename, framework="pt", device='cpu') as f:
+            result = list(f.keys())
+            assert len(result) > 0
+            return result
+    except:
+        return None
+
+
+@torch.no_grad()
 def move_to_virtual_memory(model, comfy_unload=True):
     if comfy_unload:
         model_management.unload_model()
-    model_hash = getattr(model, 'model_hash', None)
-    assert isinstance(model_hash, str)
-    virtual_memory_filename = getattr(model, 'virtual_memory_filename', None)
-    if virtual_memory_filename is not None:
+
+    virtual_memory_dict = getattr(model, 'virtual_memory_dict', None)
+    if isinstance(virtual_memory_dict, dict):
         # Already in virtual memory.
         return
+
+    model_file = getattr(model, 'model_file', None)
+    assert isinstance(model_file, dict)
+
+    filename = model_file['filename']
+    prefix = model_file['prefix']
+
+    safetensors_keys = only_load_safetensors_keys(filename)
+
+    if safetensors_keys is None:
+        print(f'[Virtual Memory System] Error: The Virtual Memory System currently only support safetensors models!')
+        return
+
     sd = model.state_dict()
-    virtual_memory_device_dict = {k: torch.device(index=v.device.index, type=v.device.type) for k, v in sd.items()}
-    virtual_memory_filename = os.path.join(virtual_memory_path, model_hash)
-    if not os.path.exists(virtual_memory_filename):
-        print(f'[Virtual Memory System] Creating virtual memory environments ... ')
-        print(f'If the Gradio demo during this process, please refresh the Gradio demo ...')
-        print(f'This may take at most 20 seconds in the first time ...')
-        torch.save(sd, virtual_memory_filename)
-        print(f'[Virtual Memory System] Tensors written to virtual memory: {virtual_memory_filename}')
-    model.virtual_memory_device_dict = virtual_memory_device_dict
-    model.virtual_memory_filename = virtual_memory_filename
-    model.to('meta')
-    first_device = list(virtual_memory_device_dict.values())[0].type
-    print(f'[Virtual Memory System] Model released from {first_device}: {virtual_memory_filename}')
+    original_device = list(sd.values())[0].device.type
+    model_file['original_device'] = original_device
+
+    virtual_memory_dict = {}
+
+    for k, v in sd.items():
+        current_key = k
+        current_key_in_safetensors = prefix + '.' + k
+        current_device = torch.device(index=v.device.index, type=v.device.type)
+        if current_key_in_safetensors in safetensors_keys:
+            virtual_memory_dict[current_key] = (current_key_in_safetensors, current_device)
+            recursive_del(model, current_key)
+
+    del sd
+    gc.collect()
     model_management.soft_empty_cache()
+
+    model.virtual_memory_dict = virtual_memory_dict
+    print(f'[Virtual Memory System] Model released from {original_device}: {filename}')
     return
 
 
 @torch.no_grad()
 def load_from_virtual_memory(model):
-    model_hash = getattr(model, 'model_hash', None)
-    assert isinstance(model_hash, str)
-    virtual_memory_filename = getattr(model, 'virtual_memory_filename', None)
-    if virtual_memory_filename is None:
+    virtual_memory_dict = getattr(model, 'virtual_memory_dict', None)
+    if not isinstance(virtual_memory_dict, dict):
         # Not in virtual memory.
         return
-    virtual_memory_device_dict = getattr(model, 'virtual_memory_device_dict', None)
-    assert isinstance(virtual_memory_device_dict, dict)
-    first_device = list(virtual_memory_device_dict.values())[0].type
-    sd = torch.load(virtual_memory_filename, map_location=first_device)
-    for k in sd.keys():
-        sd[k] = sd[k].to(virtual_memory_device_dict[k])
-    force_load_state_dict(model, sd)
-    print(f'[Virtual Memory System] Model loaded to {first_device}: {virtual_memory_filename}')
-    del model.virtual_memory_device_dict
-    del model.virtual_memory_filename
+
+    model_file = getattr(model, 'model_file', None)
+    assert isinstance(model_file, dict)
+
+    filename = model_file['filename']
+    original_device = model_file['original_device']
+
+    with safe_open(filename, framework="pt", device=original_device) as f:
+        for current_key, (current_key_in_safetensors, current_device) in virtual_memory_dict.items():
+            tensor = f.get_tensor(current_key_in_safetensors).to(current_device)
+            parameter = torch.nn.Parameter(tensor, requires_grad=False)
+            recursive_set(model, current_key, parameter)
+
+    print(f'[Virtual Memory System] Model loaded to {original_device}: {filename}')
+    del model.virtual_memory_dict
     return
 
 

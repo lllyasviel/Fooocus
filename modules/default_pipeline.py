@@ -24,7 +24,7 @@ def refresh_base_model(name):
     global xl_base, xl_base_hash, xl_base_patched, xl_base_patched_hash
 
     filename = os.path.abspath(os.path.realpath(os.path.join(modules.path.modelfile_path, name)))
-    model_hash = core.sha256_hash_string(filename)
+    model_hash = filename
 
     if xl_base_hash == model_hash:
         return
@@ -33,7 +33,7 @@ def refresh_base_model(name):
         xl_base.to_meta()
         xl_base = None
 
-    xl_base = core.load_model(filename, model_hash=model_hash)
+    xl_base = core.load_model(filename)
     if not isinstance(xl_base.unet.model, SDXL):
         print('Model not supported. Fooocus only support SDXL model as the base model.')
         xl_base = None
@@ -47,7 +47,7 @@ def refresh_base_model(name):
     xl_base_hash = model_hash
     xl_base_patched = xl_base
     xl_base_patched_hash = ''
-    print(f'Base model loaded: {filename} - {model_hash}')
+    print(f'Base model loaded: {model_hash}')
     return
 
 
@@ -55,7 +55,7 @@ def refresh_refiner_model(name):
     global xl_refiner, xl_refiner_hash
 
     filename = os.path.abspath(os.path.realpath(os.path.join(modules.path.modelfile_path, name)))
-    model_hash = core.sha256_hash_string(filename)
+    model_hash = filename
 
     if xl_refiner_hash == model_hash:
         return
@@ -70,7 +70,7 @@ def refresh_refiner_model(name):
         xl_refiner.to_meta()
         xl_refiner = None
 
-    xl_refiner = core.load_model(filename, model_hash=model_hash)
+    xl_refiner = core.load_model(filename)
     if not isinstance(xl_refiner.unet.model, SDXLRefiner):
         print('Model not supported. Fooocus only support SDXL refiner as the refiner.')
         xl_refiner = None
@@ -79,7 +79,7 @@ def refresh_refiner_model(name):
         return
 
     xl_refiner_hash = model_hash
-    print(f'Refiner model loaded: {filename} - {model_hash}')
+    print(f'Refiner model loaded: {model_hash}')
 
     xl_refiner.vae.first_stage_model.to('meta')
     xl_refiner.vae = None
@@ -131,8 +131,6 @@ def clip_encode(sd, texts, pool_top_k=1):
     if len(texts) == 0:
         return None
 
-    model_management.soft_empty_cache()
-
     clip = sd.clip
     cond_list = []
     pooled_acc = 0
@@ -166,11 +164,10 @@ def refresh_everything(refiner_model_name, base_model_name, loras):
     refresh_refiner_model(refiner_model_name)
     if xl_refiner is not None:
         virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
-        virtual_memory.try_move_to_virtual_memory(xl_refiner.clip.cond_stage_model)
+
     refresh_base_model(base_model_name)
-    if xl_base is not None:
-        virtual_memory.try_move_to_virtual_memory(xl_base.unet.model)
-        virtual_memory.try_move_to_virtual_memory(xl_base.clip.cond_stage_model)
+    virtual_memory.load_from_virtual_memory(xl_base.unet.model)
+
     refresh_loras(loras)
     clear_all_caches()
     return
@@ -202,7 +199,9 @@ def patch_all_models():
 @torch.no_grad()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback):
     patch_all_models()
-    model_management.soft_empty_cache()
+
+    if xl_refiner is not None:
+        virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
     virtual_memory.load_from_virtual_memory(xl_base.unet.model)
 
     empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
@@ -234,9 +233,4 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent)
     images = core.image_to_numpy(decoded_latent)
-
-    virtual_memory.try_move_to_virtual_memory(xl_base.unet.model)
-    if xl_refiner is not None:
-        virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
-
     return images
