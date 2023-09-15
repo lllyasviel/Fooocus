@@ -85,7 +85,7 @@ def load_from_virtual_memory(model):
     for k in sd.keys():
         sd[k] = sd[k].to(virtual_memory_device_dict[k])
     force_load_state_dict(model, sd)
-    print(f'[Virtual Memory System] Model loaded: {virtual_memory_filename}')
+    print(f'[Virtual Memory System] Model loaded: {virtual_memory_filename} from {first_device}.')
     del model.virtual_memory_device_dict
     del model.virtual_memory_filename
     return
