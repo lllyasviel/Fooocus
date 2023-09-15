@@ -129,7 +129,7 @@ def move_to_virtual_memory(model, comfy_unload=True):
     model_management.soft_empty_cache()
 
     model.virtual_memory_dict = virtual_memory_dict
-    print(f'[Virtual Memory System] Model {prefix} released from {original_device}: {filename}')
+    print(f'[Virtual Memory System] {prefix} released from {original_device}: {filename}')
     return
 
 
@@ -156,7 +156,7 @@ def load_from_virtual_memory(model):
             parameter = torch.nn.Parameter(tensor, requires_grad=False)
             recursive_set(model, current_key, parameter)
 
-    print(f'[Virtual Memory System] Model {prefix} loaded to {original_device}: {filename}')
+    print(f'[Virtual Memory System] {prefix} loaded to {original_device}: {filename}')
     del model.virtual_memory_dict
     return
 
