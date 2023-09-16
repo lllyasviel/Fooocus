@@ -112,4 +112,4 @@ def patch_all():
 
     comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     comfy.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
-    comfy.model_base.SDXLRefiner.encode_adm = sdxl_refiner_encode_adm_patched
+    # comfy.model_base.SDXLRefiner.encode_adm = sdxl_refiner_encode_adm_patched
