@@ -122,7 +122,7 @@ def worker():
                     tiled = True
                     denoising_strength = 0.57732154
                     steps = int(steps * 0.67)
-                    switch = int(steps * 0.5)
+                    switch = int(steps * 0.6)
                     initial_pixels = core.numpy_to_pytorch(uov_input_image)
                     progressbar(0, 'VAE encoding ...')
                     initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels, tiled=True)
