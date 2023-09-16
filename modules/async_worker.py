@@ -96,8 +96,6 @@ def worker():
                         f = 1.5
                     elif '2x' in uov_method:
                         f = 2.0
-                    elif 'fast' in uov_method:
-                        f = 2.0
                     else:
                         f = 1.0
 

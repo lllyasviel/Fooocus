@@ -65,6 +65,7 @@ with shared.gradio_root:
                     with gr.Accordion(label='Upscale or Variation', open=True):
                         uov_method = gr.Radio(label='Method', choices=flags.uov_list, value=flags.disabled, show_label=False, container=False)
                         uov_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy')
+                    gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False)
 
             # def get_select_index(g, evt: gr.SelectData):
