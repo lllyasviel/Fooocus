@@ -47,7 +47,10 @@ def worker():
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, \
-            uov_method, uov_input_image = task
+            uov_method, uov_input_image, inpaint_checkbox, outpaint_selections, inpaint_input_image = task
+
+        inpaint_checkbox = inpaint_checkbox == flags.enabled
+        outpaint_selections = [o.lower() for o in outpaint_selections]
 
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
 
@@ -156,6 +159,10 @@ def worker():
                     width = W * 8
                     height = H * 8
                     print(f'Final resolution is {str((height, width))}.')
+            if inpaint_checkbox and isinstance(inpaint_input_image, dict):
+                inpaint_image = inpaint_input_image['image']
+                inpaint_mask = inpaint_input_image['mask']
+                a = 0
 
         progressbar(1, 'Initializing ...')
 
