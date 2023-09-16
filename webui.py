@@ -12,9 +12,6 @@ import modules.flags as flags
 from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles
 
 
-golden_division = 0.6180339887
-
-
 def generate_clicked(*args):
     yield gr.update(interactive=False), \
         gr.update(visible=True, value=modules.html.make_progress_html(1, 'Initializing ...')), \
@@ -59,7 +56,7 @@ with shared.gradio_root:
                 input_image_checkbox = gr.Checkbox(label='Use Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False, elem_classes='min_check')
             with gr.Row(visible=False) as image_input_panel:
-                with gr.Column(scale=golden_division):
+                with gr.Column(scale=0.5):
                     with gr.Accordion(label='Upscale or Variation', open=True):
                         uov_method = gr.Radio(label='Method', choices=flags.uov_list, value=flags.disabled, show_label=False, container=False)
                         uov_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy')

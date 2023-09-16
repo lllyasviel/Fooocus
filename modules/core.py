@@ -8,7 +8,7 @@ import comfy.model_management
 import comfy.utils
 
 from comfy.sd import load_checkpoint_guess_config
-from nodes import VAEDecode, EmptyLatentImage, VAEEncode
+from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from comfy.model_base import SDXLRefiner
 from modules.samplers_advanced import KSampler, KSamplerWithRefiner
@@ -19,6 +19,8 @@ patch_all()
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
 opVAEEncode = VAEEncode()
+opVAEDecodeTiled = VAEDecodeTiled()
+opVAEEncodeTiled = VAEEncodeTiled()
 
 
 class StableDiffusionModel:
@@ -67,13 +69,13 @@ def generate_empty_latent(width=1024, height=1024, batch_size=1):
 
 
 @torch.no_grad()
-def decode_vae(vae, latent_image):
-    return opVAEDecode.decode(samples=latent_image, vae=vae)[0]
+def decode_vae(vae, latent_image, tiled=False):
+    return (opVAEDecodeTiled if tiled else opVAEDecode).decode(samples=latent_image, vae=vae)[0]
 
 
 @torch.no_grad()
-def encode_vae(vae, pixels):
-    return opVAEEncode.encode(pixels=pixels, vae=vae)[0]
+def encode_vae(vae, pixels, tiled=False):
+    return (opVAEEncodeTiled if tiled else opVAEEncode).encode(pixels=pixels, vae=vae)[0]
 
 
 def get_previewer(device, latent_format):

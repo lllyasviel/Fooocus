@@ -62,6 +62,7 @@ def worker():
         modules.patch.sharpness = sharpness
         initial_latent = None
         denoising_strength = 1.0
+        tiled = False
 
         if performance_selction == 'Speed':
             steps = 30
@@ -87,6 +88,13 @@ def worker():
                     initial_pixels = core.numpy_to_pytorch(uov_input_image)
                     progressbar(0, 'VAE encoding ...')
                     initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels)
+                elif 'upscale' in uov_method:
+                    uov_input_image = resize_image(uov_input_image, width=width, height=height)
+                    tiled = True
+                    denoising_strength = 0.57732154
+                    initial_pixels = core.numpy_to_pytorch(uov_input_image)
+                    progressbar(0, 'VAE encoding ...')
+                    initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels, tiled=True)
 
         progressbar(1, 'Initializing ...')
 
@@ -205,7 +213,8 @@ def worker():
                 image_seed=task['task_seed'],
                 callback=callback,
                 latent=initial_latent,
-                denoise=denoising_strength
+                denoise=denoising_strength,
+                tiled=tiled
             )
 
             for x in imgs:
