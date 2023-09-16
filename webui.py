@@ -134,7 +134,7 @@ with shared.gradio_root:
         ctrls += [input_image_checkbox]
         ctrls += [uov_method, uov_input_image]
 
-        run_button.click(lambda: (gr.update(visible=True), gr.update(visible=False), []), outputs=[stop_button, run_button, gallery])\
+        run_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, run_button, gallery])\
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\
             .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, gallery])\
             .then(lambda: (gr.update(visible=True), gr.update(visible=False)), outputs=[run_button, stop_button])
