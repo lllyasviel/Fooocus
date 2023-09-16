@@ -61,6 +61,11 @@ with shared.gradio_root:
                         uov_method = gr.Radio(label='Method', choices=flags.uov_list, value=flags.disabled, show_label=False, container=False)
                         uov_input_image = gr.Image(label='Input', source='upload', type='numpy')
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel)
+
+            def get_select_index(g, evt: gr.SelectData):
+                return g[evt.index]['name']
+
+            gallery.select(get_select_index, gallery, uov_input_image)
         with gr.Column(scale=0.5, visible=False) as right_col:
             with gr.Tab(label='Setting'):
                 performance_selction = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
