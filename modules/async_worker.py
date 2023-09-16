@@ -18,6 +18,7 @@ def worker():
     import modules.path
     import modules.patch
     import modules.virtual_memory as virtual_memory
+    import comfy.model_management
 
     from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
     from modules.private_logger import log
@@ -239,39 +240,43 @@ def worker():
 
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
-            imgs = pipeline.process_diffusion(
-                positive_cond=task['c'],
-                negative_cond=task['uc'],
-                steps=steps,
-                switch=switch,
-                width=width,
-                height=height,
-                image_seed=task['task_seed'],
-                callback=callback,
-                latent=initial_latent,
-                denoise=denoising_strength,
-                tiled=tiled
-            )
+            try:
+                imgs = pipeline.process_diffusion(
+                    positive_cond=task['c'],
+                    negative_cond=task['uc'],
+                    steps=steps,
+                    switch=switch,
+                    width=width,
+                    height=height,
+                    image_seed=task['task_seed'],
+                    callback=callback,
+                    latent=initial_latent,
+                    denoise=denoising_strength,
+                    tiled=tiled
+                )
 
-            for x in imgs:
-                d = [
-                    ('Prompt', raw_prompt),
-                    ('Negative Prompt', raw_negative_prompt),
-                    ('Fooocus V2 Expansion', task['expansion']),
-                    ('Styles', str(raw_style_selections)),
-                    ('Performance', performance_selction),
-                    ('Resolution', str((width, height))),
-                    ('Sharpness', sharpness),
-                    ('Base Model', base_model_name),
-                    ('Refiner Model', refiner_model_name),
-                    ('Seed', task['task_seed'])
-                ]
-                for n, w in loras:
-                    if n != 'None':
-                        d.append((f'LoRA [{n}] weight', w))
-                log(x, d, single_line_number=3)
+                for x in imgs:
+                    d = [
+                        ('Prompt', raw_prompt),
+                        ('Negative Prompt', raw_negative_prompt),
+                        ('Fooocus V2 Expansion', task['expansion']),
+                        ('Styles', str(raw_style_selections)),
+                        ('Performance', performance_selction),
+                        ('Resolution', str((width, height))),
+                        ('Sharpness', sharpness),
+                        ('Base Model', base_model_name),
+                        ('Refiner Model', refiner_model_name),
+                        ('Seed', task['task_seed'])
+                    ]
+                    for n, w in loras:
+                        if n != 'None':
+                            d.append((f'LoRA [{n}] weight', w))
+                    log(x, d, single_line_number=3)
 
-            results += imgs
+                results += imgs
+            except comfy.model_management.InterruptProcessingException as e:
+                print('User stopped')
+                break
 
         outputs.append(['results', results])
         return

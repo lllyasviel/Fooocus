@@ -8,13 +8,13 @@ import fooocus_version
 import modules.html
 import modules.async_worker as worker
 import modules.flags as flags
+import comfy.model_management as model_management
 
 from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles
 
 
 def generate_clicked(*args):
-    yield gr.update(interactive=False), \
-        gr.update(visible=True, value=modules.html.make_progress_html(1, 'Initializing ...')), \
+    yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Initializing ...')), \
         gr.update(visible=True, value=None), \
         gr.update(visible=False)
 
@@ -27,13 +27,11 @@ def generate_clicked(*args):
             flag, product = worker.outputs.pop(0)
             if flag == 'preview':
                 percentage, title, image = product
-                yield gr.update(interactive=False), \
-                    gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
+                yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
                     gr.update(visible=False)
             if flag == 'results':
-                yield gr.update(interactive=True), \
-                    gr.update(visible=False), \
+                yield gr.update(visible=False), \
                     gr.update(visible=False), \
                     gr.update(visible=True, value=product)
                 finished = True
@@ -51,7 +49,13 @@ with shared.gradio_root:
                 with gr.Column(scale=0.85):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", container=False, autofocus=True, elem_classes='type_row', lines=1024)
                 with gr.Column(scale=0.15, min_width=0):
-                    run_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row')
+                    run_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', visible=True)
+                    stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row', visible=False)
+
+                    def stop_clicked():
+                        model_management.interrupt_current_processing()
+
+                    stop_button.click(stop_clicked, queue=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Use Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False, elem_classes='min_check')
@@ -60,7 +64,7 @@ with shared.gradio_root:
                     with gr.Accordion(label='Upscale or Variation', open=True):
                         uov_method = gr.Radio(label='Method', choices=flags.uov_list, value=flags.disabled, show_label=False, container=False)
                         uov_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy')
-            input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel)
+            input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False)
 
             # def get_select_index(g, evt: gr.SelectData):
             #     return g[evt.index]['name']
@@ -85,7 +89,7 @@ with shared.gradio_root:
                     else:
                         return s
 
-                seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed])
+                seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed], queue=False)
 
             with gr.Tab(label='Style'):
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
@@ -117,9 +121,9 @@ with shared.gradio_root:
                         results += [gr.update(choices=['None'] + modules.path.lora_filenames), gr.update()]
                     return results
 
-                model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls)
+                model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls, queue=False)
 
-        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col)
+        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col, queue=False)
         ctrls = [
             prompt, negative_prompt, style_selections,
             performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness
@@ -128,9 +132,10 @@ with shared.gradio_root:
         ctrls += [input_image_checkbox]
         ctrls += [uov_method, uov_input_image]
 
-        run_button.click(lambda: [], outputs=gallery)\
+        run_button.click(lambda: (gr.update(visible=True), gr.update(visible=False), []), outputs=[stop_button, run_button, gallery])\
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\
-            .then(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])
+            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, gallery])\
+            .then(lambda: (gr.update(visible=True), gr.update(visible=False)), outputs=[run_button, stop_button])
 
 
 parser = argparse.ArgumentParser()
