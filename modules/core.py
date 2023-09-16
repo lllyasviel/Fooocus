@@ -128,9 +128,9 @@ def get_previewer(device, latent_format):
         with torch.no_grad():
             VAE_approx_model.to(device=x0.device, dtype=x0.dtype)
             x_sample = VAE_approx_model(x0).detach() * 127.5 + 127.5
-            x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')
+            x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')[0]
             x_sample = x_sample.cpu().numpy().clip(0, 255).astype(np.uint8)
-            return x_sample[0]
+            return x_sample
 
     return preview_function
 
