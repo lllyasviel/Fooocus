@@ -13,6 +13,7 @@ def worker():
     import random
     import copy
     import modules.default_pipeline as pipeline
+    import modules.core as core
     import modules.flags as flags
     import modules.path
     import modules.patch
@@ -80,11 +81,12 @@ def worker():
                 if 'vary' in uov_method:
                     uov_input_image = resize_image(uov_input_image, width=width, height=height)
                     if 'subtle' in uov_method:
-                        denoising_strength = 0.45
+                        denoising_strength = 0.5
                     if 'strong' in uov_method:
-                        denoising_strength = 0.75
-                    outputs.append(['results', [uov_input_image]])
-                    return
+                        denoising_strength = 0.85
+                    initial_pixels = core.numpy_to_pytorch(uov_input_image)
+                    progressbar(0, 'VAE encoding ...')
+                    initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels)
 
         progressbar(1, 'Initializing ...')
 
@@ -201,7 +203,10 @@ def worker():
                 width=width,
                 height=height,
                 image_seed=task['task_seed'],
-                callback=callback)
+                callback=callback,
+                latent=initial_latent,
+                denoise=denoising_strength
+            )
 
             for x in imgs:
                 d = [

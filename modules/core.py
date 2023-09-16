@@ -8,7 +8,7 @@ import comfy.model_management
 import comfy.utils
 
 from comfy.sd import load_checkpoint_guess_config
-from nodes import VAEDecode, EmptyLatentImage
+from nodes import VAEDecode, EmptyLatentImage, VAEEncode
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from comfy.model_base import SDXLRefiner
 from modules.samplers_advanced import KSampler, KSamplerWithRefiner
@@ -18,6 +18,7 @@ from modules.patch import patch_all
 patch_all()
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
+opVAEEncode = VAEEncode()
 
 
 class StableDiffusionModel:
@@ -68,6 +69,11 @@ def generate_empty_latent(width=1024, height=1024, batch_size=1):
 @torch.no_grad()
 def decode_vae(vae, latent_image):
     return opVAEDecode.decode(samples=latent_image, vae=vae)[0]
+
+
+@torch.no_grad()
+def encode_vae(vae, pixels):
+    return opVAEEncode.encode(pixels=pixels, vae=vae)[0]
 
 
 def get_previewer(device, latent_format):
@@ -243,5 +249,14 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
 
 
 @torch.no_grad()
-def image_to_numpy(x):
+def pytorch_to_numpy(x):
     return [np.clip(255. * y.cpu().numpy(), 0, 255).astype(np.uint8) for y in x]
+
+
+@torch.no_grad()
+def numpy_to_pytorch(x):
+    y = x.astype(np.float32) / 255.0
+    y = y[None]
+    y = np.ascontiguousarray(y.copy())
+    y = torch.from_numpy(y).float()
+    return y

@@ -198,14 +198,17 @@ def patch_all_models():
 
 
 @torch.no_grad()
-def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback):
+def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, latent=None, denoise=1.0):
     patch_all_models()
 
     if xl_refiner is not None:
         virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
     virtual_memory.load_from_virtual_memory(xl_base.unet.model)
 
-    empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
+    if latent is None:
+        empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
+    else:
+        empty_latent = latent
 
     if xl_refiner is not None:
         sampled_latent = core.ksampler_with_refiner(
@@ -219,6 +222,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             latent=empty_latent,
             steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
+            denoise=denoise,
             callback_function=callback
         )
     else:
@@ -229,9 +233,10 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             latent=empty_latent,
             steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
+            denoise=denoise,
             callback_function=callback
         )
 
     decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent)
-    images = core.image_to_numpy(decoded_latent)
+    images = core.pytorch_to_numpy(decoded_latent)
     return images
