@@ -126,7 +126,11 @@ with shared.gradio_root:
             performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
-        run_button.click(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\
+        ctrls += [input_image_checkbox]
+        ctrls += [uov_method, uov_input_image]
+
+        run_button.click(lambda: [], outputs=gallery)\
+            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\
             .then(fn=generate_clicked, inputs=ctrls, outputs=[run_button, progress_html, progress_window, gallery])
 
 
