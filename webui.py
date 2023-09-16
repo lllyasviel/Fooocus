@@ -54,8 +54,9 @@ with shared.gradio_root:
 
                     def stop_clicked():
                         model_management.interrupt_current_processing()
+                        return gr.update(interactive=False)
 
-                    stop_button.click(stop_clicked, queue=False)
+                    stop_button.click(stop_clicked, outputs=stop_button, queue=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Use Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False, elem_classes='min_check')
