@@ -78,7 +78,7 @@ If you want to use Anaconda/Miniconda, you can
     cd Fooocus
     conda env create -f environment.yaml
     conda activate fooocus
-    pip install -r requirements_versions.txt
+    pip install pygit2==1.12.2
 
 Then download the models: download [sd_xl_base_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_base_1.0_0.9vae.safetensors", and download [sd_xl_refiner_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_refiner_1.0_0.9vae.safetensors". **Or let Fooocus automatically download the models** using the launcher:
 
@@ -98,7 +98,7 @@ Your Linux needs to have **Python 3.10** installed, and lets say your Python can
     cd Fooocus
     python3 -m venv fooocus_env
     source fooocus_env/bin/activate
-    pip install -r requirements_versions.txt
+    pip install pygit2==1.12.2
 
 See the above sections for model downloads. You can launch the software with:
 
@@ -116,7 +116,7 @@ If you know what you are doing, and your Linux already has **Python 3.10** insta
 
     git clone https://github.com/lllyasviel/Fooocus.git
     cd Fooocus
-    pip3 install -r requirements_versions.txt
+    pip3 install pygit2==1.12.2
 
 See the above sections for model downloads. You can launch the software with:
 
@@ -126,13 +126,13 @@ Or if you want to open a remote port, use
 
     python3 entry_with_update.py --listen
 
-### Mac/Windows(AMD GPUs)
-
-Coming soon ...
-
 ### Linux (AMD GPUs)
 
 Installation is the same as Linux part. It has been tested for 6700XT. Works for both Pytorch 1.13 and Pytorch 2. 
+
+### Mac/Windows(AMD GPUs)
+
+Coming soon ...
 
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>
