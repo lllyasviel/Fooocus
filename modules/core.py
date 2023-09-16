@@ -94,6 +94,7 @@ class VAEApprox(torch.nn.Module):
         self.conv6 = torch.nn.Conv2d(32, 16, (3, 3))
         self.conv7 = torch.nn.Conv2d(16, 8, (3, 3))
         self.conv8 = torch.nn.Conv2d(8, 3, (3, 3))
+        self.current_type = None
 
     def forward(self, x):
         extra = 11
@@ -122,12 +123,21 @@ def get_previewer(device, latent_format):
         del sd
         VAE_approx_model.eval()
 
+        if comfy.model_management.should_use_fp16():
+            VAE_approx_model.half()
+            VAE_approx_model.current_type = torch.float16
+        else:
+            VAE_approx_model.float()
+            VAE_approx_model.current_type = torch.float32
+
+        VAE_approx_model.to(comfy.model_management.get_torch_device())
+
     @torch.no_grad()
     @torch.inference_mode()
     def preview_function(x0, step, total_steps):
         with torch.no_grad():
-            VAE_approx_model.to(device=x0.device, dtype=x0.dtype)
-            x_sample = VAE_approx_model(x0).detach() * 127.5 + 127.5
+            x_sample = x0.to(VAE_approx_model.current_type)
+            x_sample = VAE_approx_model(x_sample) * 127.5 + 127.5
             x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')[0]
             x_sample = x_sample.cpu().numpy().clip(0, 255).astype(np.uint8)
             return x_sample
