@@ -84,7 +84,7 @@ def worker():
                 uov_input_image = HWC3(uov_input_image)
                 H, W, C = uov_input_image.shape
                 if 'vary' in uov_method:
-                    if abs(H * width - W * height) > 1.5 * max(H, W, width, height):
+                    if float(abs(H * width - W * height)) > 1.5 * float(max(H, W, width, height)):
                         uov_input_image = resize_image(uov_input_image, width=width, height=height)
                         print(f'Aspect ratio corrected - users are uploading their own images.')
                     if 'subtle' in uov_method:
