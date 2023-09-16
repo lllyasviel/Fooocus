@@ -8,6 +8,7 @@ from PIL import Image
 
 def image_is_generated_in_current_ui(image, ui_width, ui_height):
     H, W, C = image.shape
+    
     if H < ui_height:
         return False
 
