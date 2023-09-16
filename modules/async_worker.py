@@ -99,7 +99,7 @@ def worker():
                         f = 1.0
                     width = int(W * f)
                     height = int(H * f)
-                    print(f'Upscaling image from {str(H, W)} to {str(height, width)}.')
+                    print(f'Upscaling image from {str((H, W))} to {str((height, width))}.')
                     uov_input_image = resize_image(uov_input_image, width=width, height=height)
                     tiled = True
                     denoising_strength = 0.57732154
@@ -108,6 +108,10 @@ def worker():
                     initial_pixels = core.numpy_to_pytorch(uov_input_image)
                     progressbar(0, 'VAE encoding ...')
                     initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels, tiled=True)
+                    B, C, H, W = initial_latent['samples'].shape
+                    width = W * 8
+                    height = H * 8
+                    print(f'Final resolution is {str((height, width))}.')
 
         progressbar(1, 'Initializing ...')
 
