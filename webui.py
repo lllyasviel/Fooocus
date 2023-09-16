@@ -54,7 +54,7 @@ with shared.gradio_root:
                     run_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row')
             with gr.Row(elem_classes='advanced_check_row'):
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False, elem_classes='min_check')
-                input_image_checkbox = gr.Checkbox(label='Upload Image(s)', value=False, container=False, elem_classes='min_check')
+                input_image_checkbox = gr.Checkbox(label='Upload Image', value=False, container=False, elem_classes='min_check')
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Column(scale=0.5):
                     with gr.Accordion(label='Upscale or Variation', open=True):
