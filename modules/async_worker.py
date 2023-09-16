@@ -1,4 +1,6 @@
 import threading
+
+import numpy as np
 import torch
 
 buffer = []
@@ -162,7 +164,9 @@ def worker():
             if inpaint_checkbox and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
                 inpaint_mask = inpaint_input_image['mask']
-                a = 0
+                if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray):
+                    # to be continued ...
+                    raise NotImplemented()
 
         progressbar(1, 'Initializing ...')
 
