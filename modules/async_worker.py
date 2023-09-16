@@ -90,6 +90,15 @@ def worker():
                     progressbar(0, 'VAE encoding ...')
                     initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels)
                 elif 'upscale' in uov_method:
+                    H, W, C = uov_input_image.shape
+                    if '1.5x' in uov_method:
+                        f = 1.5
+                    elif '2x' in uov_method:
+                        f = 2.0
+                    else:
+                        f = 1.0
+                    width = int(W * f)
+                    height = int(H * f)
                     uov_input_image = resize_image(uov_input_image, width=width, height=height)
                     tiled = True
                     denoising_strength = 0.57732154
