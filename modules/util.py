@@ -6,6 +6,24 @@ import os
 from PIL import Image
 
 
+def image_is_generated_in_current_ui(image, ui_width, ui_height):
+    H, W, C = image.shape
+    if H < ui_height:
+        return False
+
+    if W < ui_width:
+        return False
+
+    k1 = float(H) / float(W)
+    k2 = float(ui_height) / float(ui_width)
+    d = abs(k1 - k2)
+
+    if d > 0.01:
+        return False
+
+    return True
+
+
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 
 
