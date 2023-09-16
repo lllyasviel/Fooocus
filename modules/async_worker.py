@@ -103,7 +103,7 @@ def worker():
                     H, W, C = uov_input_image.shape
                     width = int(W * f)
                     height = int(H * f)
-                    image_is_super_large = width * height > 2048 * 2048
+                    image_is_super_large = width * height > 2800 * 2800
                     progressbar(0, f'Upscaling image from {str((H, W))} to {str((height, width))}...')
 
                     uov_input_image = core.numpy_to_pytorch(uov_input_image)
