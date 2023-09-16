@@ -67,8 +67,8 @@ lora_filenames = [
 ]
 
 vae_approx_filenames = [
-    ('taesdxl_decoder.pth',
-     'https://huggingface.co/lllyasviel/misc/resolve/main/taesdxl_decoder.pth')
+    ('xlvaeapp.pth',
+     'https://huggingface.co/lllyasviel/misc/resolve/main/xlvaeapp.pth')
 ]
 
 

@@ -83,28 +83,56 @@ def encode_vae(vae, pixels, tiled=False):
     return (opVAEEncodeTiled if tiled else opVAEEncode).encode(pixels=pixels, vae=vae)[0]
 
 
+class VAEApprox(torch.nn.Module):
+    def __init__(self):
+        super(VAEApprox, self).__init__()
+        self.conv1 = torch.nn.Conv2d(4, 8, (7, 7))
+        self.conv2 = torch.nn.Conv2d(8, 16, (5, 5))
+        self.conv3 = torch.nn.Conv2d(16, 32, (3, 3))
+        self.conv4 = torch.nn.Conv2d(32, 64, (3, 3))
+        self.conv5 = torch.nn.Conv2d(64, 32, (3, 3))
+        self.conv6 = torch.nn.Conv2d(32, 16, (3, 3))
+        self.conv7 = torch.nn.Conv2d(16, 8, (3, 3))
+        self.conv8 = torch.nn.Conv2d(8, 3, (3, 3))
+
+    def forward(self, x):
+        extra = 11
+        x = torch.nn.functional.interpolate(x, (x.shape[2] * 2, x.shape[3] * 2))
+        x = torch.nn.functional.pad(x, (extra, extra, extra, extra))
+        for layer in [self.conv1, self.conv2, self.conv3, self.conv4, self.conv5, self.conv6, self.conv7, self.conv8, ]:
+            x = layer(x)
+            x = torch.nn.functional.leaky_relu(x, 0.1)
+        return x
+
+
+VAE_approx_model = None
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def get_previewer(device, latent_format):
-    from latent_preview import TAESD, TAESDPreviewerImpl
-    taesd_decoder_path = os.path.abspath(os.path.realpath(os.path.join("models", "vae_approx",
-                                                                       latent_format.taesd_decoder_name)))
+    global VAE_approx_model
 
-    if not os.path.exists(taesd_decoder_path):
-        print(f"Warning: TAESD previews enabled, but could not find {taesd_decoder_path}")
-        return None
+    if VAE_approx_model is None:
+        from modules.path import vae_approx_path
+        vae_approx_filename = os.path.join(vae_approx_path, 'xlvaeapp.pth')
+        sd = torch.load(vae_approx_filename, map_location='cpu')
+        VAE_approx_model = VAEApprox()
+        VAE_approx_model.load_state_dict(sd)
+        del sd
+        VAE_approx_model.eval()
 
-    taesd = TAESD(None, taesd_decoder_path).to(device)
-
+    @torch.no_grad()
+    @torch.inference_mode()
     def preview_function(x0, step, total_steps):
-        global cv2_is_top
         with torch.no_grad():
-            x_sample = taesd.decoder(torch.nn.functional.avg_pool2d(x0, kernel_size=(2, 2))).detach() * 255.0
+            VAE_approx_model.to(device=x0.device, dtype=x0.dtype)
+            x_sample = VAE_approx_model(x0).detach() * 127.5 + 127.5
             x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')
             x_sample = x_sample.cpu().numpy().clip(0, 255).astype(np.uint8)
             return x_sample[0]
 
-    taesd.preview = preview_function
-
-    return taesd
+    return preview_function
 
 
 @torch.no_grad()
@@ -138,8 +166,8 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 
     def callback(step, x0, x, total_steps):
         y = None
-        if previewer and step % 3 == 0:
-            y = previewer.preview(x0, step, total_steps)
+        if previewer is not None:
+            y = previewer(x0, step, total_steps)
         if callback_function is not None:
             callback_function(step, x0, x, total_steps, y)
         pbar.update_absolute(step + 1, total_steps, None)
@@ -211,8 +239,8 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
 
     def callback(step, x0, x, total_steps):
         y = None
-        if previewer and step % 3 == 0:
-            y = previewer.preview(x0, step, total_steps)
+        if previewer is not None:
+            y = previewer(x0, step, total_steps)
         if callback_function is not None:
             callback_function(step, x0, x, total_steps, y)
         pbar.update_absolute(step + 1, total_steps, None)
