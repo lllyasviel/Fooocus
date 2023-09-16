@@ -13,6 +13,7 @@ def worker():
     import random
     import copy
     import modules.default_pipeline as pipeline
+    import modules.flags as flags
     import modules.path
     import modules.patch
     import modules.virtual_memory as virtual_memory
@@ -20,7 +21,7 @@ def worker():
     from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
     from modules.private_logger import log
     from modules.expansion import safe_str
-    from modules.util import join_prompts, remove_empty_str
+    from modules.util import join_prompts, remove_empty_str, HWC3
 
     try:
         async_gradio_app = shared.gradio_root
@@ -48,6 +49,8 @@ def worker():
 
         raw_style_selections = copy.deepcopy(style_selections)
 
+        uov_method = uov_method.lower()
+
         if fooocus_expansion in style_selections:
             use_expansion = True
             style_selections.remove(fooocus_expansion)
@@ -55,11 +58,16 @@ def worker():
             use_expansion = False
 
         use_style = len(style_selections) > 0
-
         modules.patch.sharpness = sharpness
+        initial_latent = None
 
         if input_image_checkbox:
             progressbar(0, 'Image processing ...')
+            if uov_method != flags.disabled and uov_input_image is not None:
+                uov_input_image = HWC3(uov_input_image)
+                if 'upscale' in uov_method:
+                    outputs.append(['results', [uov_input_image]])
+                    return
 
         progressbar(1, 'Initializing ...')
 
