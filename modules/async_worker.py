@@ -1,7 +1,6 @@
 import threading
 import torch
 
-
 buffer = []
 outputs = []
 
@@ -14,14 +13,18 @@ def worker():
     import random
     import copy
     import modules.default_pipeline as pipeline
+    import modules.core as core
+    import modules.flags as flags
     import modules.path
     import modules.patch
     import modules.virtual_memory as virtual_memory
+    import comfy.model_management
 
     from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
     from modules.private_logger import log
     from modules.expansion import safe_str
-    from modules.util import join_prompts, remove_empty_str
+    from modules.util import join_prompts, remove_empty_str, HWC3, resize_image
+    from modules.upscaler import perform_upscale
 
     try:
         async_gradio_app = shared.gradio_root
@@ -37,15 +40,20 @@ def worker():
         outputs.append(['preview', (number, text, None)])
 
     @torch.no_grad()
+    @torch.inference_mode()
     def handler(task):
         prompt, negative_prompt, style_selections, performance_selction, \
-        aspect_ratios_selction, image_number, image_seed, sharpness, \
-        base_model_name, refiner_model_name, \
-        l1, w1, l2, w2, l3, w3, l4, w4, l5, w5 = task
+            aspect_ratios_selction, image_number, image_seed, sharpness, \
+            base_model_name, refiner_model_name, \
+            l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
+            input_image_checkbox, \
+            uov_method, uov_input_image = task
 
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
 
         raw_style_selections = copy.deepcopy(style_selections)
+
+        uov_method = uov_method.lower()
 
         if fooocus_expansion in style_selections:
             use_expansion = True
@@ -54,8 +62,80 @@ def worker():
             use_expansion = False
 
         use_style = len(style_selections) > 0
-
         modules.patch.sharpness = sharpness
+        initial_latent = None
+        denoising_strength = 1.0
+        tiled = False
+
+        if performance_selction == 'Speed':
+            steps = 30
+            switch = 20
+        else:
+            steps = 60
+            switch = 40
+
+        pipeline.clear_all_caches()  # save memory
+
+        width, height = aspect_ratios[aspect_ratios_selction]
+
+        if input_image_checkbox:
+            progressbar(0, 'Image processing ...')
+            if uov_method != flags.disabled and uov_input_image is not None:
+                uov_input_image = HWC3(uov_input_image)
+                H, W, C = uov_input_image.shape
+                if 'vary' in uov_method:
+                    if H * W + 8 < width * height or float(abs(H * width - W * height)) > 1.5 * float(max(H, W, width, height)):
+                        uov_input_image = resize_image(uov_input_image, width=width, height=height)
+                        print(f'Aspect ratio corrected - users are uploading their own images.')
+                    if 'subtle' in uov_method:
+                        denoising_strength = 0.5
+                    if 'strong' in uov_method:
+                        denoising_strength = 0.85
+                    initial_pixels = core.numpy_to_pytorch(uov_input_image)
+                    progressbar(0, 'VAE encoding ...')
+                    initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels)
+                    B, C, H, W = initial_latent['samples'].shape
+                    width = W * 8
+                    height = H * 8
+                    print(f'Final resolution is {str((height, width))}.')
+                elif 'upscale' in uov_method:
+                    if '1.5x' in uov_method:
+                        f = 1.5
+                    elif '2x' in uov_method:
+                        f = 2.0
+                    else:
+                        f = 1.0
+
+                    width = int(W * f)
+                    height = int(H * f)
+                    image_is_super_large = width * height > 2800 * 2800
+                    progressbar(0, f'Upscaling image from {str((H, W))} to {str((height, width))}...')
+
+                    uov_input_image = core.numpy_to_pytorch(uov_input_image)
+                    uov_input_image = perform_upscale(uov_input_image)
+                    uov_input_image = core.pytorch_to_numpy(uov_input_image)[0]
+                    uov_input_image = resize_image(uov_input_image, width=width, height=height)
+                    print(f'Image upscaled.')
+
+                    if 'fast' in uov_method or image_is_super_large:
+                        if 'fast' not in uov_method:
+                            print('Image is too large. Directly returned the SR image. '
+                                  'Usually directly return SR image at 4K resolution '
+                                  'yields better results than SDXL diffusion.')
+                        outputs.append(['results', [uov_input_image]])
+                        return
+
+                    tiled = True
+                    denoising_strength = 1.0 - 0.618
+                    steps = int(steps * 0.618)
+                    switch = int(steps * 0.67)
+                    initial_pixels = core.numpy_to_pytorch(uov_input_image)
+                    progressbar(0, 'VAE encoding ...')
+                    initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels, tiled=True)
+                    B, C, H, W = initial_latent['samples'].shape
+                    width = W * 8
+                    height = H * 8
+                    print(f'Final resolution is {str((height, width))}.')
 
         progressbar(1, 'Initializing ...')
 
@@ -152,16 +232,6 @@ def worker():
 
             virtual_memory.try_move_to_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
 
-        if performance_selction == 'Speed':
-            steps = 30
-            switch = 20
-        else:
-            steps = 60
-            switch = 40
-
-        pipeline.clear_all_caches()  # save memory
-        width, height = aspect_ratios[aspect_ratios_selction]
-
         results = []
         all_steps = steps * image_number
 
@@ -174,35 +244,43 @@ def worker():
 
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
-            imgs = pipeline.process_diffusion(
-                positive_cond=task['c'],
-                negative_cond=task['uc'],
-                steps=steps,
-                switch=switch,
-                width=width,
-                height=height,
-                image_seed=task['task_seed'],
-                callback=callback)
+            try:
+                imgs = pipeline.process_diffusion(
+                    positive_cond=task['c'],
+                    negative_cond=task['uc'],
+                    steps=steps,
+                    switch=switch,
+                    width=width,
+                    height=height,
+                    image_seed=task['task_seed'],
+                    callback=callback,
+                    latent=initial_latent,
+                    denoise=denoising_strength,
+                    tiled=tiled
+                )
 
-            for x in imgs:
-                d = [
-                    ('Prompt', raw_prompt),
-                    ('Negative Prompt', raw_negative_prompt),
-                    ('Fooocus V2 Expansion', task['expansion']),
-                    ('Styles', str(raw_style_selections)),
-                    ('Performance', performance_selction),
-                    ('Resolution', str((width, height))),
-                    ('Sharpness', sharpness),
-                    ('Base Model', base_model_name),
-                    ('Refiner Model', refiner_model_name),
-                    ('Seed', task['task_seed'])
-                ]
-                for n, w in loras:
-                    if n != 'None':
-                        d.append((f'LoRA [{n}] weight', w))
-                log(x, d, single_line_number=3)
+                for x in imgs:
+                    d = [
+                        ('Prompt', raw_prompt),
+                        ('Negative Prompt', raw_negative_prompt),
+                        ('Fooocus V2 Expansion', task['expansion']),
+                        ('Styles', str(raw_style_selections)),
+                        ('Performance', performance_selction),
+                        ('Resolution', str((width, height))),
+                        ('Sharpness', sharpness),
+                        ('Base Model', base_model_name),
+                        ('Refiner Model', refiner_model_name),
+                        ('Seed', task['task_seed'])
+                    ]
+                    for n, w in loras:
+                        if n != 'None':
+                            d.append((f'LoRA [{n}] weight', w))
+                    log(x, d, single_line_number=3)
 
-            results += imgs
+                results += imgs
+            except comfy.model_management.InterruptProcessingException as e:
+                print('User stopped')
+                break
 
         outputs.append(['results', results])
         return

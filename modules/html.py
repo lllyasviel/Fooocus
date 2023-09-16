@@ -83,6 +83,14 @@ progress::after {
   box-shadow: none !important;
 }
 
+.advanced_check_row{
+  width: 250px !important;
+}
+
+.min_check{
+  min-width: min(1px, 100%) !important;
+}
+
 '''
 progress_html = '''
 <div class="loader-container">

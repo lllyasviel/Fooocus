@@ -8,7 +8,7 @@ import comfy.model_management
 import comfy.utils
 
 from comfy.sd import load_checkpoint_guess_config
-from nodes import VAEDecode, EmptyLatentImage
+from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from comfy.model_base import SDXLRefiner
 from modules.samplers_advanced import KSampler, KSamplerWithRefiner
@@ -18,6 +18,9 @@ from modules.patch import patch_all
 patch_all()
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
+opVAEEncode = VAEEncode()
+opVAEDecodeTiled = VAEDecodeTiled()
+opVAEEncodeTiled = VAEEncodeTiled()
 
 
 class StableDiffusionModel:
@@ -45,12 +48,14 @@ class StableDiffusionModel:
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def load_model(ckpt_filename):
     unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename)
     return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision, model_filename=ckpt_filename)
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def load_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
     if strength_model == 0 and strength_clip == 0:
         return model
@@ -61,40 +66,87 @@ def load_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def generate_empty_latent(width=1024, height=1024, batch_size=1):
     return opEmptyLatentImage.generate(width=width, height=height, batch_size=batch_size)[0]
 
 
 @torch.no_grad()
-def decode_vae(vae, latent_image):
-    return opVAEDecode.decode(samples=latent_image, vae=vae)[0]
-
-
-def get_previewer(device, latent_format):
-    from latent_preview import TAESD, TAESDPreviewerImpl
-    taesd_decoder_path = os.path.abspath(os.path.realpath(os.path.join("models", "vae_approx",
-                                                                       latent_format.taesd_decoder_name)))
-
-    if not os.path.exists(taesd_decoder_path):
-        print(f"Warning: TAESD previews enabled, but could not find {taesd_decoder_path}")
-        return None
-
-    taesd = TAESD(None, taesd_decoder_path).to(device)
-
-    def preview_function(x0, step, total_steps):
-        global cv2_is_top
-        with torch.no_grad():
-            x_sample = taesd.decoder(torch.nn.functional.avg_pool2d(x0, kernel_size=(2, 2))).detach() * 255.0
-            x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')
-            x_sample = x_sample.cpu().numpy().clip(0, 255).astype(np.uint8)
-            return x_sample[0]
-
-    taesd.preview = preview_function
-
-    return taesd
+@torch.inference_mode()
+def decode_vae(vae, latent_image, tiled=False):
+    return (opVAEDecodeTiled if tiled else opVAEDecode).decode(samples=latent_image, vae=vae)[0]
 
 
 @torch.no_grad()
+@torch.inference_mode()
+def encode_vae(vae, pixels, tiled=False):
+    return (opVAEEncodeTiled if tiled else opVAEEncode).encode(pixels=pixels, vae=vae)[0]
+
+
+class VAEApprox(torch.nn.Module):
+    def __init__(self):
+        super(VAEApprox, self).__init__()
+        self.conv1 = torch.nn.Conv2d(4, 8, (7, 7))
+        self.conv2 = torch.nn.Conv2d(8, 16, (5, 5))
+        self.conv3 = torch.nn.Conv2d(16, 32, (3, 3))
+        self.conv4 = torch.nn.Conv2d(32, 64, (3, 3))
+        self.conv5 = torch.nn.Conv2d(64, 32, (3, 3))
+        self.conv6 = torch.nn.Conv2d(32, 16, (3, 3))
+        self.conv7 = torch.nn.Conv2d(16, 8, (3, 3))
+        self.conv8 = torch.nn.Conv2d(8, 3, (3, 3))
+        self.current_type = None
+
+    def forward(self, x):
+        extra = 11
+        x = torch.nn.functional.interpolate(x, (x.shape[2] * 2, x.shape[3] * 2))
+        x = torch.nn.functional.pad(x, (extra, extra, extra, extra))
+        for layer in [self.conv1, self.conv2, self.conv3, self.conv4, self.conv5, self.conv6, self.conv7, self.conv8]:
+            x = layer(x)
+            x = torch.nn.functional.leaky_relu(x, 0.1)
+        return x
+
+
+VAE_approx_model = None
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def get_previewer(device, latent_format):
+    global VAE_approx_model
+
+    if VAE_approx_model is None:
+        from modules.path import vae_approx_path
+        vae_approx_filename = os.path.join(vae_approx_path, 'xlvaeapp.pth')
+        sd = torch.load(vae_approx_filename, map_location='cpu')
+        VAE_approx_model = VAEApprox()
+        VAE_approx_model.load_state_dict(sd)
+        del sd
+        VAE_approx_model.eval()
+
+        if comfy.model_management.should_use_fp16():
+            VAE_approx_model.half()
+            VAE_approx_model.current_type = torch.float16
+        else:
+            VAE_approx_model.float()
+            VAE_approx_model.current_type = torch.float32
+
+        VAE_approx_model.to(comfy.model_management.get_torch_device())
+
+    @torch.no_grad()
+    @torch.inference_mode()
+    def preview_function(x0, step, total_steps):
+        with torch.no_grad():
+            x_sample = x0.to(VAE_approx_model.current_type)
+            x_sample = VAE_approx_model(x_sample) * 127.5 + 127.5
+            x_sample = einops.rearrange(x_sample, 'b c h w -> b h w c')[0]
+            x_sample = x_sample.cpu().numpy().clip(0, 255).astype(np.uint8)
+            return x_sample
+
+    return preview_function
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False, callback_function=None):
@@ -124,8 +176,8 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 
     def callback(step, x0, x, total_steps):
         y = None
-        if previewer and step % 3 == 0:
-            y = previewer.preview(x0, step, total_steps)
+        if previewer is not None:
+            y = previewer(x0, step, total_steps)
         if callback_function is not None:
             callback_function(step, x0, x, total_steps, y)
         pbar.update_absolute(step + 1, total_steps, None)
@@ -166,6 +218,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, refiner_negative, latent,
                           seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
                           scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
@@ -196,8 +249,8 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
 
     def callback(step, x0, x, total_steps):
         y = None
-        if previewer and step % 3 == 0:
-            y = previewer.preview(x0, step, total_steps)
+        if previewer is not None:
+            y = previewer(x0, step, total_steps)
         if callback_function is not None:
             callback_function(step, x0, x, total_steps, y)
         pbar.update_absolute(step + 1, total_steps, None)
@@ -243,5 +296,16 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
 
 
 @torch.no_grad()
-def image_to_numpy(x):
+@torch.inference_mode()
+def pytorch_to_numpy(x):
     return [np.clip(255. * y.cpu().numpy(), 0, 255).astype(np.uint8) for y in x]
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def numpy_to_pytorch(x):
+    y = x.astype(np.float32) / 255.0
+    y = y[None]
+    y = np.ascontiguousarray(y.copy())
+    y = torch.from_numpy(y).float()
+    return y

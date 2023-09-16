@@ -3,6 +3,7 @@ import os
 modelfile_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/checkpoints/'))
 lorafile_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/loras/'))
 vae_approx_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/vae_approx/'))
+upscale_models_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/upscale_models/'))
 temp_outputs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../outputs/'))
 
 fooocus_expansion_path = os.path.abspath(os.path.join(os.path.dirname(__file__),

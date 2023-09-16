@@ -3,7 +3,6 @@ import os
 import torch
 import modules.path
 import modules.virtual_memory as virtual_memory
-import comfy.model_management as model_management
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.patch import cfg_patched
@@ -20,6 +19,8 @@ xl_base_patched: core.StableDiffusionModel = None
 xl_base_patched_hash = ''
 
 
+@torch.no_grad()
+@torch.inference_mode()
 def refresh_base_model(name):
     global xl_base, xl_base_hash, xl_base_patched, xl_base_patched_hash
 
@@ -51,6 +52,8 @@ def refresh_base_model(name):
     return
 
 
+@torch.no_grad()
+@torch.inference_mode()
 def refresh_refiner_model(name):
     global xl_refiner, xl_refiner_hash
 
@@ -86,6 +89,8 @@ def refresh_refiner_model(name):
     return
 
 
+@torch.no_grad()
+@torch.inference_mode()
 def refresh_loras(loras):
     global xl_base, xl_base_patched, xl_base_patched_hash
     if xl_base_patched_hash == str(loras):
@@ -106,6 +111,7 @@ def refresh_loras(loras):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def clip_encode_single(clip, text, verbose=False):
     cached = clip.fcs_cond_cache.get(text, None)
     if cached is not None:
@@ -121,6 +127,7 @@ def clip_encode_single(clip, text, verbose=False):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def clip_encode(sd, texts, pool_top_k=1):
     if sd is None:
         return None
@@ -145,6 +152,7 @@ def clip_encode(sd, texts, pool_top_k=1):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def clear_sd_cond_cache(sd):
     if sd is None:
         return None
@@ -155,11 +163,14 @@ def clear_sd_cond_cache(sd):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def clear_all_caches():
     clear_sd_cond_cache(xl_base_patched)
     clear_sd_cond_cache(xl_refiner)
 
 
+@torch.no_grad()
+@torch.inference_mode()
 def refresh_everything(refiner_model_name, base_model_name, loras):
     refresh_refiner_model(refiner_model_name)
     if xl_refiner is not None:
@@ -184,6 +195,7 @@ expansion = FooocusExpansion()
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def patch_all_models():
     assert xl_base is not None
     assert xl_base_patched is not None
@@ -198,14 +210,18 @@ def patch_all_models():
 
 
 @torch.no_grad()
-def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback):
+@torch.inference_mode()
+def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, latent=None, denoise=1.0, tiled=False):
     patch_all_models()
 
     if xl_refiner is not None:
         virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
     virtual_memory.load_from_virtual_memory(xl_base.unet.model)
 
-    empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
+    if latent is None:
+        empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
+    else:
+        empty_latent = latent
 
     if xl_refiner is not None:
         sampled_latent = core.ksampler_with_refiner(
@@ -219,6 +235,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             latent=empty_latent,
             steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
+            denoise=denoise,
             callback_function=callback
         )
     else:
@@ -229,9 +246,10 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             latent=empty_latent,
             steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
+            denoise=denoise,
             callback_function=callback
         )
 
-    decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent)
-    images = core.image_to_numpy(decoded_latent)
+    decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent, tiled=tiled)
+    images = core.pytorch_to_numpy(decoded_latent)
     return images
