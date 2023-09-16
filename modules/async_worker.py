@@ -23,6 +23,7 @@ def worker():
     from modules.private_logger import log
     from modules.expansion import safe_str
     from modules.util import join_prompts, remove_empty_str, HWC3, resize_image
+    from modules.upscaler import perform_upscale
 
     try:
         async_gradio_app = shared.gradio_root
@@ -90,16 +91,33 @@ def worker():
                     progressbar(0, 'VAE encoding ...')
                     initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels)
                 elif 'upscale' in uov_method:
-                    H, W, C = uov_input_image.shape
                     if '1.5x' in uov_method:
                         f = 1.5
                     elif '2x' in uov_method:
                         f = 2.0
                     else:
                         f = 1.0
+
+                    H, W, C = uov_input_image.shape
                     width = int(W * f)
                     height = int(H * f)
-                    print(f'Upscaling image from {str((H, W))} to {str((height, width))}.')
+                    image_is_super_large = width * height > 2048 * 2048
+                    print(f'Upscaling image from {str((H, W))} ...')
+
+                    uov_input_image = core.numpy_to_pytorch(uov_input_image)
+                    uov_input_image = perform_upscale(uov_input_image)
+                    uov_input_image = core.pytorch_to_numpy(uov_input_image)[0]
+                    He, We, Ce = uov_input_image.shape
+                    print(f'Upscaled image shape = {str((He, We))}.')
+
+                    if 'fast' in uov_method or image_is_super_large:
+                        if 'fast' not in uov_method:
+                            print('Image is too large. Directly returned the SR image. '
+                                  'Usually directly return SR image at 4K resolution '
+                                  'yields better results than SDXL diffusion.')
+                        outputs.append(['results', [uov_input_image]])
+                        return
+
                     uov_input_image = resize_image(uov_input_image, width=width, height=height)
                     tiled = True
                     denoising_strength = 0.57732154
