@@ -58,6 +58,9 @@ def worker():
 
         modules.patch.sharpness = sharpness
 
+        if input_image_checkbox:
+            progressbar(0, 'Image processing ...')
+
         progressbar(1, 'Initializing ...')
 
         raw_prompt = prompt
