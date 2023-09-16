@@ -48,12 +48,14 @@ class StableDiffusionModel:
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def load_model(ckpt_filename):
     unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename)
     return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision, model_filename=ckpt_filename)
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def load_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
     if strength_model == 0 and strength_clip == 0:
         return model
@@ -64,16 +66,19 @@ def load_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def generate_empty_latent(width=1024, height=1024, batch_size=1):
     return opEmptyLatentImage.generate(width=width, height=height, batch_size=batch_size)[0]
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def decode_vae(vae, latent_image, tiled=False):
     return (opVAEDecodeTiled if tiled else opVAEDecode).decode(samples=latent_image, vae=vae)[0]
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def encode_vae(vae, pixels, tiled=False):
     return (opVAEEncodeTiled if tiled else opVAEEncode).encode(pixels=pixels, vae=vae)[0]
 
@@ -103,6 +108,7 @@ def get_previewer(device, latent_format):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False, callback_function=None):
@@ -174,6 +180,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, refiner_negative, latent,
                           seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
                           scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
@@ -251,11 +258,13 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def pytorch_to_numpy(x):
     return [np.clip(255. * y.cpu().numpy(), 0, 255).astype(np.uint8) for y in x]
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def numpy_to_pytorch(x):
     y = x.astype(np.float32) / 255.0
     y = y[None]

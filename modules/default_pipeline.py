@@ -3,7 +3,6 @@ import os
 import torch
 import modules.path
 import modules.virtual_memory as virtual_memory
-import comfy.model_management as model_management
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.patch import cfg_patched
@@ -20,6 +19,8 @@ xl_base_patched: core.StableDiffusionModel = None
 xl_base_patched_hash = ''
 
 
+@torch.no_grad()
+@torch.inference_mode()
 def refresh_base_model(name):
     global xl_base, xl_base_hash, xl_base_patched, xl_base_patched_hash
 
@@ -51,6 +52,8 @@ def refresh_base_model(name):
     return
 
 
+@torch.no_grad()
+@torch.inference_mode()
 def refresh_refiner_model(name):
     global xl_refiner, xl_refiner_hash
 
@@ -86,6 +89,8 @@ def refresh_refiner_model(name):
     return
 
 
+@torch.no_grad()
+@torch.inference_mode()
 def refresh_loras(loras):
     global xl_base, xl_base_patched, xl_base_patched_hash
     if xl_base_patched_hash == str(loras):
@@ -106,6 +111,7 @@ def refresh_loras(loras):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def clip_encode_single(clip, text, verbose=False):
     cached = clip.fcs_cond_cache.get(text, None)
     if cached is not None:
@@ -121,6 +127,7 @@ def clip_encode_single(clip, text, verbose=False):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def clip_encode(sd, texts, pool_top_k=1):
     if sd is None:
         return None
@@ -145,6 +152,7 @@ def clip_encode(sd, texts, pool_top_k=1):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def clear_sd_cond_cache(sd):
     if sd is None:
         return None
@@ -155,11 +163,14 @@ def clear_sd_cond_cache(sd):
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def clear_all_caches():
     clear_sd_cond_cache(xl_base_patched)
     clear_sd_cond_cache(xl_refiner)
 
 
+@torch.no_grad()
+@torch.inference_mode()
 def refresh_everything(refiner_model_name, base_model_name, loras):
     refresh_refiner_model(refiner_model_name)
     if xl_refiner is not None:
@@ -184,6 +195,7 @@ expansion = FooocusExpansion()
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def patch_all_models():
     assert xl_base is not None
     assert xl_base_patched is not None
@@ -198,6 +210,7 @@ def patch_all_models():
 
 
 @torch.no_grad()
+@torch.inference_mode()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, latent=None, denoise=1.0, tiled=False):
     patch_all_models()
 
