@@ -122,6 +122,10 @@ def worker():
                             print('Image is too large. Directly returned the SR image. '
                                   'Usually directly return SR image at 4K resolution '
                                   'yields better results than SDXL diffusion.')
+                        d = [
+                            ('Upscale (Fast)', '2x'),
+                        ]
+                        log(uov_input_image, d, single_line_number=1)
                         outputs.append(['results', [uov_input_image]])
                         return
 
