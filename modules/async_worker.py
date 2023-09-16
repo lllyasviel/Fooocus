@@ -82,8 +82,11 @@ def worker():
             progressbar(0, 'Image processing ...')
             if uov_method != flags.disabled and uov_input_image is not None:
                 uov_input_image = HWC3(uov_input_image)
+                H, W, C = uov_input_image.shape
                 if 'vary' in uov_method:
-                    uov_input_image = resize_image(uov_input_image, width=width, height=height)
+                    if abs(H * width - W * height) > 32:
+                        uov_input_image = resize_image(uov_input_image, width=width, height=height)
+                        print(f'Aspect ratio corrected - users are uploading their own images.')
                     if 'subtle' in uov_method:
                         denoising_strength = 0.5
                     if 'strong' in uov_method:
@@ -91,6 +94,10 @@ def worker():
                     initial_pixels = core.numpy_to_pytorch(uov_input_image)
                     progressbar(0, 'VAE encoding ...')
                     initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels)
+                    B, C, H, W = initial_latent['samples'].shape
+                    width = W * 8
+                    height = H * 8
+                    print(f'Final resolution is {str((height, width))}.')
                 elif 'upscale' in uov_method:
                     if '1.5x' in uov_method:
                         f = 1.5
@@ -99,7 +106,6 @@ def worker():
                     else:
                         f = 1.0
 
-                    H, W, C = uov_input_image.shape
                     width = int(W * f)
                     height = int(H * f)
                     image_is_super_large = width * height > 2800 * 2800
