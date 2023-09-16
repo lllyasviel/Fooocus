@@ -7,6 +7,7 @@ import modules.path
 import fooocus_version
 import modules.html
 import modules.async_worker as worker
+import modules.flags as flags
 
 from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles
 
@@ -53,7 +54,13 @@ with shared.gradio_root:
                     run_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row')
             with gr.Row(elem_classes='advanced_check_row'):
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False, elem_classes='min_check')
-                input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
+                input_image_checkbox = gr.Checkbox(label='Upload Image', value=False, container=False, elem_classes='min_check')
+            with gr.Row(visible=False) as image_input_panel:
+                with gr.Column(scale=0.5):
+                    with gr.Accordion(label='Upscale or Variation', open=True):
+                        uov_method = gr.Radio(label='Method', choices=flags.uov_list, value=flags.disabled, show_label=False, container=False)
+                        uov_input_image = gr.Image(label='Input', source='upload', type='numpy')
+            input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel)
         with gr.Column(scale=0.5, visible=False) as right_col:
             with gr.Tab(label='Setting'):
                 performance_selction = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
