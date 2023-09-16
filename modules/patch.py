@@ -6,6 +6,7 @@ import comfy.k_diffusion.external
 import comfy.model_management
 import modules.anisotropic as anisotropic
 import comfy.ldm.modules.attention
+import comfy.sd1_clip
 
 from comfy.k_diffusion import utils
 
@@ -104,6 +105,39 @@ def text_encoder_device_patched():
     return comfy.model_management.get_torch_device()
 
 
+def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
+    to_encode = list(self.empty_tokens)
+    for x in token_weight_pairs:
+        tokens = list(map(lambda a: a[0], x))
+        to_encode.append(tokens)
+
+    out, pooled = self.encode(to_encode)
+
+    z_empty = out[0:1]
+    if pooled.shape[0] > 1:
+        first_pooled = pooled[1:2]
+    else:
+        first_pooled = pooled[0:1]
+
+    output = []
+    for k in range(1, out.shape[0]):
+        z = out[k:k + 1]
+        original_mean = z.mean()
+
+        for i in range(len(z)):
+            for j in range(len(z[i])):
+                weight = token_weight_pairs[k - 1][j][1]
+                z[i][j] = (z[i][j] - z_empty[0][j]) * weight + z_empty[0][j]
+
+        new_mean = z.mean()
+        z = z * (original_mean / new_mean)
+        output.append(z)
+
+    if len(output) == 0:
+        return z_empty.cpu(), first_pooled.cpu()
+    return torch.cat(output, dim=-2).cpu(), first_pooled.cpu()
+
+
 def patch_all():
     comfy.ldm.modules.attention.print = lambda x: None
 
@@ -113,3 +147,6 @@ def patch_all():
     comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     comfy.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
     # comfy.model_base.SDXLRefiner.encode_adm = sdxl_refiner_encode_adm_patched
+
+    comfy.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
+    return
