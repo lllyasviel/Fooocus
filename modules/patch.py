@@ -82,12 +82,12 @@ def sdxl_refiner_encode_adm_patched(self, **kwargs):
     else:
         aesthetic_score = kwargs.get("aesthetic_score", 7.0)
 
-    if kwargs.get("prompt_type", "") == "negative":
-        width *= 0.8
-        height *= 0.8
-    elif kwargs.get("prompt_type", "") == "positive":
-        width *= 1.5
-        height *= 1.5
+    # if kwargs.get("prompt_type", "") == "negative":
+    #     width *= 0.8
+    #     height *= 0.8
+    # elif kwargs.get("prompt_type", "") == "positive":
+    #     width *= 1.5
+    #     height *= 1.5
 
     out = []
     out.append(self.embedder(torch.Tensor([height])))
@@ -112,4 +112,4 @@ def patch_all():
 
     comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     comfy.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
-    # comfy.model_base.SDXLRefiner.encode_adm = sdxl_refiner_encode_adm_patched
+    comfy.model_base.SDXLRefiner.encode_adm = sdxl_refiner_encode_adm_patched
