@@ -99,6 +99,7 @@ def worker():
                         f = 1.0
                     width = int(W * f)
                     height = int(H * f)
+                    print(f'Upscaling image from {str(H, W)} to {str(height, width)}.')
                     uov_input_image = resize_image(uov_input_image, width=width, height=height)
                     tiled = True
                     denoising_strength = 0.57732154
