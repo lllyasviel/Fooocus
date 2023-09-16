@@ -21,7 +21,7 @@ def worker():
     from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
     from modules.private_logger import log
     from modules.expansion import safe_str
-    from modules.util import join_prompts, remove_empty_str, HWC3
+    from modules.util import join_prompts, remove_empty_str, HWC3, resize_image
 
     try:
         async_gradio_app = shared.gradio_root
@@ -60,12 +60,29 @@ def worker():
         use_style = len(style_selections) > 0
         modules.patch.sharpness = sharpness
         initial_latent = None
+        denoising_strength = 1.0
+
+        if performance_selction == 'Speed':
+            steps = 30
+            switch = 20
+        else:
+            steps = 60
+            switch = 40
+
+        pipeline.clear_all_caches()  # save memory
+
+        width, height = aspect_ratios[aspect_ratios_selction]
 
         if input_image_checkbox:
             progressbar(0, 'Image processing ...')
             if uov_method != flags.disabled and uov_input_image is not None:
                 uov_input_image = HWC3(uov_input_image)
-                if 'upscale' in uov_method:
+                if 'vary' in uov_method:
+                    uov_input_image = resize_image(uov_input_image, width=width, height=height)
+                    if 'subtle' in uov_method:
+                        denoising_strength = 0.45
+                    if 'strong' in uov_method:
+                        denoising_strength = 0.75
                     outputs.append(['results', [uov_input_image]])
                     return
 
@@ -163,16 +180,6 @@ def worker():
                                                   pool_top_k=negative_top_k)
 
             virtual_memory.try_move_to_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
-
-        if performance_selction == 'Speed':
-            steps = 30
-            switch = 20
-        else:
-            steps = 60
-            switch = 40
-
-        pipeline.clear_all_caches()  # save memory
-        width, height = aspect_ratios[aspect_ratios_selction]
 
         results = []
         all_steps = steps * image_number
