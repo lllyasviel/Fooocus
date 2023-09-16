@@ -84,7 +84,7 @@ progress::after {
 }
 
 .advanced_check_row{
-  width: 220px !important;
+  width: 250px !important;
 }
 
 .min_check{
