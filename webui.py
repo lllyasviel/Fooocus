@@ -38,6 +38,23 @@ def generate_clicked(*args):
     return
 
 
+def disable_others(me, others):
+    others = [o for o in others if o != me]
+
+    def func(x):
+        if x != flags.disabled:
+            r = [flags.disabled] * len(others)
+        else:
+            r = [gr.update()] * len(others)
+        
+        if len(r) == 1:
+            r = r[0]
+
+        return r
+
+    return me.input(func, me, others, queue=False)
+
+
 shared.gradio_root = gr.Blocks(title='Fooocus ' + fooocus_version.version, css=modules.html.css).queue()
 with shared.gradio_root:
     with gr.Row():
@@ -66,7 +83,18 @@ with shared.gradio_root:
                         uov_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy')
                         uov_method = gr.Radio(label='Method', choices=flags.uov_list, value=flags.disabled, show_label=False, container=False)
                     gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
+                with gr.Column(scale=0.5):
+                    with gr.Accordion(label='Inpaint or Outpaint (beta)', open=False):
+                        inpaint_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy')
+                        inpaint_checkbox = gr.Radio(label='Method', choices=[flags.disabled, flags.enabled], value=flags.disabled, show_label=False, container=False)
+                        gr.HTML('Outpaint:')
+                        outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint', show_label=False, container=False)
+
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False)
+
+            ots = [uov_method, inpaint_checkbox]
+            for c in ots:
+                disable_others(c, ots)
 
             # def get_select_index(g, evt: gr.SelectData):
             #     return g[evt.index]['name']
