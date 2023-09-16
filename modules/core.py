@@ -99,7 +99,7 @@ class VAEApprox(torch.nn.Module):
         extra = 11
         x = torch.nn.functional.interpolate(x, (x.shape[2] * 2, x.shape[3] * 2))
         x = torch.nn.functional.pad(x, (extra, extra, extra, extra))
-        for layer in [self.conv1, self.conv2, self.conv3, self.conv4, self.conv5, self.conv6, self.conv7, self.conv8, ]:
+        for layer in [self.conv1, self.conv2, self.conv3, self.conv4, self.conv5, self.conv6, self.conv7, self.conv8]:
             x = layer(x)
             x = torch.nn.functional.leaky_relu(x, 0.1)
         return x
