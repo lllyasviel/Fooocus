@@ -95,6 +95,8 @@ def worker():
                         f = 1.5
                     elif '2x' in uov_method:
                         f = 2.0
+                    elif 'fast' in uov_method:
+                        f = 2.0
                     else:
                         f = 1.0
 
@@ -102,13 +104,13 @@ def worker():
                     width = int(W * f)
                     height = int(H * f)
                     image_is_super_large = width * height > 2048 * 2048
-                    print(f'Upscaling image from {str((H, W))} ...')
+                    progressbar(0, f'Upscaling image from {str((H, W))} to {str((height, width))}...')
 
                     uov_input_image = core.numpy_to_pytorch(uov_input_image)
                     uov_input_image = perform_upscale(uov_input_image)
                     uov_input_image = core.pytorch_to_numpy(uov_input_image)[0]
-                    He, We, Ce = uov_input_image.shape
-                    print(f'Upscaled image shape = {str((He, We))}.')
+                    uov_input_image = resize_image(uov_input_image, width=width, height=height)
+                    print(f'Image upscaled.')
 
                     if 'fast' in uov_method or image_is_super_large:
                         if 'fast' not in uov_method:
@@ -118,7 +120,6 @@ def worker():
                         outputs.append(['results', [uov_input_image]])
                         return
 
-                    uov_input_image = resize_image(uov_input_image, width=width, height=height)
                     tiled = True
                     denoising_strength = 0.57732154
                     steps = int(steps * 0.67)
