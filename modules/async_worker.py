@@ -300,12 +300,6 @@ def worker():
                 f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
                 y)])
 
-        if initial_latent is not None:
-            # disable negative_adm for safer i2i and upscale
-            modules.patch.negative_adm = False
-        else:
-            modules.patch.negative_adm = False
-
         print(f'[ADM] Negative ADM = {modules.patch.negative_adm}')
 
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
