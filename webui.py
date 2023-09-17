@@ -38,23 +38,6 @@ def generate_clicked(*args):
     return
 
 
-def disable_others(me, others):
-    others = [o for o in others if o != me]
-
-    def func(x):
-        if x != flags.disabled:
-            r = [flags.disabled] * len(others)
-        else:
-            r = [gr.update()] * len(others)
-
-        if len(r) == 1:
-            r = r[0]
-
-        return r
-
-    return me.input(func, me, others, queue=False)
-
-
 shared.gradio_root = gr.Blocks(title='Fooocus ' + fooocus_version.version, css=modules.html.css).queue()
 with shared.gradio_root:
     with gr.Row():
@@ -88,19 +71,16 @@ with shared.gradio_root:
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
                     with gr.TabItem(label='Inpaint or Outpaint (beta)') as inpaint_tab:
                         inpaint_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=600, brush_color="#FFFFFF")
-                        inpaint_checkbox = gr.Radio(label='Method', choices=[flags.disabled, flags.enabled], value=flags.disabled, show_label=False, container=False)
+                        inpaint_checkbox = gr.Radio(label='Method', choices=[flags.disabled, flags.enabled], value=flags.enabled, show_label=False, container=False)
                         gr.HTML('Outpaint Expansion:')
                         outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint', show_label=False, container=False)
                         gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
 
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False)
 
-            ots = [uov_method, inpaint_checkbox]
-            for c in ots:
-                disable_others(c, ots)
-
-            uov_tab.select(lambda: [flags.disabled, flags.disabled], outputs=ots, queue=False)
-            inpaint_tab.select(lambda: [flags.disabled, flags.enabled], outputs=ots, queue=False)
+            current_tab = gr.Textbox(value='uov', visible=False)
+            uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False)
+            inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False)
 
             # def get_select_index(g, evt: gr.SelectData):
             #     return g[evt.index]['name']
@@ -165,7 +145,7 @@ with shared.gradio_root:
             performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
-        ctrls += [input_image_checkbox]
+        ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
         ctrls += [inpaint_checkbox, outpaint_selections, inpaint_input_image]
 

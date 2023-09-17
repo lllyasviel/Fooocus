@@ -48,7 +48,7 @@ def worker():
             aspect_ratios_selction, image_number, image_seed, sharpness, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
-            input_image_checkbox, \
+            input_image_checkbox, current_tab, \
             uov_method, uov_input_image, inpaint_checkbox, outpaint_selections, inpaint_input_image = task
 
         inpaint_checkbox = inpaint_checkbox == flags.enabled
@@ -85,7 +85,7 @@ def worker():
 
         if input_image_checkbox:
             progressbar(0, 'Image processing ...')
-            if uov_method != flags.disabled and uov_input_image is not None:
+            if current_tab == 'uov' and uov_method != flags.disabled and uov_input_image is not None:
                 uov_input_image = HWC3(uov_input_image)
                 if 'vary' in uov_method:
                     if not image_is_generated_in_current_ui(uov_input_image, ui_width=width, ui_height=height):
@@ -161,7 +161,7 @@ def worker():
                     width = W * 8
                     height = H * 8
                     print(f'Final resolution is {str((height, width))}.')
-            if inpaint_checkbox and isinstance(inpaint_input_image, dict):
+            if current_tab == 'inpaint' and inpaint_checkbox and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
                 inpaint_mask = inpaint_input_image['mask']
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray):
