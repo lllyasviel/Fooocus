@@ -12,6 +12,7 @@ from comfy.k_diffusion import utils
 
 
 sharpness = 2.0
+negative_adm = True
 
 cfg_x0 = 0.0
 cfg_s = 1.0
@@ -45,6 +46,8 @@ def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
 
 
 def sdxl_encode_adm_patched(self, **kwargs):
+    global negative_adm
+
     clip_pooled = kwargs["pooled_output"]
     width = kwargs.get("width", 768)
     height = kwargs.get("height", 768)
@@ -53,12 +56,13 @@ def sdxl_encode_adm_patched(self, **kwargs):
     target_width = kwargs.get("target_width", width)
     target_height = kwargs.get("target_height", height)
 
-    if kwargs.get("prompt_type", "") == "negative":
-        width *= 0.8
-        height *= 0.8
-    elif kwargs.get("prompt_type", "") == "positive":
-        width *= 1.5
-        height *= 1.5
+    if negative_adm:
+        if kwargs.get("prompt_type", "") == "negative":
+            width *= 0.8
+            height *= 0.8
+        elif kwargs.get("prompt_type", "") == "positive":
+            width *= 1.5
+            height *= 1.5
 
     out = []
     out.append(self.embedder(torch.Tensor([height])))
@@ -68,35 +72,6 @@ def sdxl_encode_adm_patched(self, **kwargs):
     out.append(self.embedder(torch.Tensor([target_height])))
     out.append(self.embedder(torch.Tensor([target_width])))
     flat = torch.flatten(torch.cat(out))[None, ]
-    return torch.cat((clip_pooled.to(flat.device), flat), dim=1)
-
-
-def sdxl_refiner_encode_adm_patched(self, **kwargs):
-    clip_pooled = kwargs["pooled_output"]
-    width = kwargs.get("width", 768)
-    height = kwargs.get("height", 768)
-    crop_w = kwargs.get("crop_w", 0)
-    crop_h = kwargs.get("crop_h", 0)
-
-    if kwargs.get("prompt_type", "") == "negative":
-        aesthetic_score = kwargs.get("aesthetic_score", 2.5)
-    else:
-        aesthetic_score = kwargs.get("aesthetic_score", 7.0)
-
-    if kwargs.get("prompt_type", "") == "negative":
-        width *= 0.8
-        height *= 0.8
-    elif kwargs.get("prompt_type", "") == "positive":
-        width *= 1.5
-        height *= 1.5
-
-    out = []
-    out.append(self.embedder(torch.Tensor([height])))
-    out.append(self.embedder(torch.Tensor([width])))
-    out.append(self.embedder(torch.Tensor([crop_h])))
-    out.append(self.embedder(torch.Tensor([crop_w])))
-    out.append(self.embedder(torch.Tensor([aesthetic_score])))
-    flat = torch.flatten(torch.cat(out))[None,]
     return torch.cat((clip_pooled.to(flat.device), flat), dim=1)
 
 
@@ -146,7 +121,6 @@ def patch_all():
 
     comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     comfy.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
-    # comfy.model_base.SDXLRefiner.encode_adm = sdxl_refiner_encode_adm_patched
 
     comfy.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
     return

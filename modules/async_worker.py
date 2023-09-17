@@ -68,6 +68,7 @@ def worker():
 
         use_style = len(style_selections) > 0
         modules.patch.sharpness = sharpness
+        modules.patch.negative_adm = True
         initial_latent = None
         denoising_strength = 1.0
         tiled = False
@@ -298,6 +299,10 @@ def worker():
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
                 f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
                 y)])
+
+        if initial_latent is not None:
+            # disable negative_adm for safer i2i and upscale
+            modules.patch.negative_adm = False
 
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
