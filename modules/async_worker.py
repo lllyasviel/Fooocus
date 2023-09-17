@@ -303,6 +303,10 @@ def worker():
         if initial_latent is not None:
             # disable negative_adm for safer i2i and upscale
             modules.patch.negative_adm = False
+        else:
+            modules.patch.negative_adm = False
+
+        print(f'[ADM] Negative ADM = {modules.patch.negative_adm}')
 
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
