@@ -1,5 +1,5 @@
 from modules.util import join_prompts
-
+import json
 
 fooocus_expansion = "Fooocus V2"
 default_styles = ["Default (Slightly Cinematic)"]
@@ -924,6 +924,9 @@ styles = [
     }
 ]
 
+with open("custom_styles.json", "r") as custom_styles_file:
+    custom_styles = json.load(custom_styles_file)
+    styles.extend(custom_styles)
 
 def normalize_key(k):
     k = k.replace('-', ' ')
