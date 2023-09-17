@@ -67,7 +67,7 @@ with shared.gradio_root:
                             with gr.Column():
                                 uov_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy')
                             with gr.Column():
-                                uov_method = gr.Radio(label='Method', choices=flags.uov_list, value=flags.disabled)
+                                uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
                     with gr.TabItem(label='Inpaint or Outpaint (beta)') as inpaint_tab:
                         inpaint_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF")
