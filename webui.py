@@ -99,8 +99,8 @@ with shared.gradio_root:
             for c in ots:
                 disable_others(c, ots)
 
-            uov_tab.select(lambda: [flags.disabled, flags.disabled], outputs=ots)
-            inpaint_tab.select(lambda: [flags.disabled, flags.enabled], outputs=ots)
+            uov_tab.select(lambda: [flags.disabled, flags.disabled], outputs=ots, queue=False)
+            inpaint_tab.select(lambda: [flags.disabled, flags.enabled], outputs=ots, queue=False)
 
             # def get_select_index(g, evt: gr.SelectData):
             #     return g[evt.index]['name']
