@@ -1,7 +1,10 @@
+current_task = None
+
+
 class InpaintWorker:
     def __init__(self, image, mask):
-        self.image = image
-        self.mask = mask
+        self.raw_image = image
+        self.raw_mask = mask
         # Fooocus inpaint logic
         # 1. ensure that diffusion area cover all masks.
         # 2. ensure that diffusion area cover at lease 30% part of images.

@@ -21,13 +21,13 @@ def worker():
     import modules.patch
     import modules.virtual_memory as virtual_memory
     import comfy.model_management
+    import modules.inpaint_worker as inpaint_worker
 
     from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
     from modules.private_logger import log
     from modules.expansion import safe_str
     from modules.util import join_prompts, remove_empty_str, HWC3, resize_image, image_is_generated_in_current_ui
     from modules.upscaler import perform_upscale
-    from modules.inpaint_worker import InpaintWorker
 
     try:
         async_gradio_app = shared.gradio_root
@@ -71,7 +71,7 @@ def worker():
         initial_latent = None
         denoising_strength = 1.0
         tiled = False
-        inpaint_worker = None
+        inpaint_worker.current_task = None
 
         if performance_selction == 'Speed':
             steps = 30
@@ -192,7 +192,7 @@ def worker():
                         inpaint_image = np.ascontiguousarray(inpaint_image.copy())
                         inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
 
-                    inpaint_worker = InpaintWorker(image=inpaint_image, mask=inpaint_mask)
+                    inpaint_worker.current_task = inpaint_worker.InpaintWorker(image=inpaint_image, mask=inpaint_mask)
 
         progressbar(1, 'Initializing ...')
 
