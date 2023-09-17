@@ -925,8 +925,13 @@ styles = [
 ]
 
 with open("custom_styles.json", "r") as custom_styles_file:
-    custom_styles = json.load(custom_styles_file)
-    styles.extend(custom_styles)
+    try:
+        custom_styles = json.load(custom_styles_file)
+        styles.extend(custom_styles)
+    except Exception as e:
+        print('Failed to load custom_styles:', str(e))
+    finally:
+        custom_styles_file.close()
 
 def normalize_key(k):
     k = k.replace('-', ' ')
