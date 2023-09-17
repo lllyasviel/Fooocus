@@ -1,0 +1,1098 @@
+{
+  "last_node_id": 36,
+  "last_link_id": 128,
+  "nodes": [
+    {
+      "id": 5,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        241,
+        640
+      ],
+      "size": {
+        "0": 315,
+        "1": 98
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            126
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            120
+          ],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            23
+          ],
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "sd_xl_base_1.0_0.9vae.safetensors"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        235,
+        806
+      ],
+      "size": {
+        "0": 315,
+        "1": 98
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            105
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            33,
+            34
+          ],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "sd_xl_refiner_1.0_0.9vae.safetensors"
+      ]
+    },
+    {
+      "id": 34,
+      "type": "FooocusStyler",
+      "pos": [
+        -122,
+        -140
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "selected",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LIST",
+          "type": "LIST",
+          "links": [
+            116
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusStyler"
+      },
+      "widgets_values": [
+        "Default (Slightly Cinematic)"
+      ]
+    },
+    {
+      "id": 33,
+      "type": "FooocusStyler",
+      "pos": [
+        -118,
+        -9
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "selected",
+          "type": "LIST",
+          "link": 116
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LIST",
+          "type": "LIST",
+          "links": [
+            115
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusStyler"
+      },
+      "widgets_values": [
+        "Fooocus V2"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "FooocusStyleMerger",
+      "pos": [
+        265,
+        188
+      ],
+      "size": {
+        "0": 315,
+        "1": 190
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "EXPAND_MODEL",
+          "link": 1
+        },
+        {
+          "name": "selected",
+          "type": "LIST",
+          "link": 115
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LIST",
+          "type": "LIST",
+          "links": [
+            25,
+            37
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "LIST",
+          "type": "LIST",
+          "links": [
+            29,
+            38
+          ],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            28,
+            36
+          ],
+          "shape": 3,
+          "slot_index": 2
+        },
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            31,
+            35
+          ],
+          "shape": 3,
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusStyleMerger"
+      },
+      "widgets_values": [
+        19,
+        "fixed",
+        "girl",
+        "bad"
+      ]
+    },
+    {
+      "id": 1,
+      "type": "FooocusExpansionLoader",
+      "pos": [
+        -20,
+        -228
+      ],
+      "size": {
+        "0": 210,
+        "1": 26
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "EXPAND_MODEL",
+          "type": "EXPAND_MODEL",
+          "links": [
+            1
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusExpansionLoader"
+      }
+    },
+    {
+      "id": 18,
+      "type": "FooocusCLIPEncoder",
+      "pos": [
+        1303,
+        65
+      ],
+      "size": {
+        "0": 315,
+        "1": 78
+      },
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "texts",
+          "type": "LIST",
+          "link": 25
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 121
+        },
+        {
+          "name": "pool_top_k",
+          "type": "INT",
+          "link": 28,
+          "widget": {
+            "name": "pool_top_k",
+            "config": [
+              "INT",
+              {
+                "default": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            40
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusCLIPEncoder"
+      },
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "id": 19,
+      "type": "FooocusCLIPEncoder",
+      "pos": [
+        1310,
+        197
+      ],
+      "size": {
+        "0": 315,
+        "1": 78
+      },
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "texts",
+          "type": "LIST",
+          "link": 29
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 122
+        },
+        {
+          "name": "pool_top_k",
+          "type": "INT",
+          "link": 31,
+          "widget": {
+            "name": "pool_top_k",
+            "config": [
+              "INT",
+              {
+                "default": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            41
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusCLIPEncoder"
+      },
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "id": 20,
+      "type": "FooocusCLIPEncoder",
+      "pos": [
+        1309,
+        332
+      ],
+      "size": {
+        "0": 315,
+        "1": 78
+      },
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "texts",
+          "type": "LIST",
+          "link": 37
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 33
+        },
+        {
+          "name": "pool_top_k",
+          "type": "INT",
+          "link": 36,
+          "widget": {
+            "name": "pool_top_k",
+            "config": [
+              "INT",
+              {
+                "default": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            42
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusCLIPEncoder"
+      },
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "id": 21,
+      "type": "FooocusCLIPEncoder",
+      "pos": [
+        1309,
+        459
+      ],
+      "size": {
+        "0": 315,
+        "1": 78
+      },
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "texts",
+          "type": "LIST",
+          "link": 38
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 34
+        },
+        {
+          "name": "pool_top_k",
+          "type": "INT",
+          "link": 35,
+          "widget": {
+            "name": "pool_top_k",
+            "config": [
+              "INT",
+              {
+                "default": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            43
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusCLIPEncoder"
+      },
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "id": 31,
+      "type": "FooocusGlobalStateDoPatch",
+      "pos": [
+        980,
+        771
+      ],
+      "size": {
+        "0": 315,
+        "1": 126
+      },
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 127
+        },
+        {
+          "name": "refiner",
+          "type": "MODEL",
+          "link": 105
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            128
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            114
+          ],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusGlobalStateDoPatch"
+      },
+      "widgets_values": [
+        2,
+        945753581,
+        "increment"
+      ]
+    },
+    {
+      "id": 22,
+      "type": "FooocusKsamplerWithRefiner",
+      "pos": [
+        2115,
+        184
+      ],
+      "size": {
+        "0": 315,
+        "1": 442
+      },
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 128
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 40
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 41
+        },
+        {
+          "name": "refiner",
+          "type": "MODEL",
+          "link": 114
+        },
+        {
+          "name": "refiner_positive",
+          "type": "CONDITIONING",
+          "link": 42
+        },
+        {
+          "name": "refiner_negative",
+          "type": "CONDITIONING",
+          "link": 43
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "link": 45
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            54
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusKsamplerWithRefiner"
+      },
+      "widgets_values": [
+        19,
+        "fixed",
+        30,
+        20,
+        7,
+        "dpmpp_2m_sde_gpu",
+        "karras",
+        1,
+        "disable",
+        0,
+        30,
+        "enable"
+      ]
+    },
+    {
+      "id": 14,
+      "type": "EmptyLatentImage",
+      "pos": [
+        1693,
+        624
+      ],
+      "size": {
+        "0": 315,
+        "1": 106
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            45
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 15,
+      "type": "VAEDecode",
+      "pos": [
+        2510,
+        187
+      ],
+      "size": {
+        "0": 210,
+        "1": 46
+      },
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 54
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            24
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 36,
+      "type": "FooocusLoraLoader",
+      "pos": [
+        598,
+        483
+      ],
+      "size": {
+        "0": 210,
+        "1": 66
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 126
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 120
+        },
+        {
+          "name": "lora_names",
+          "type": "LIST",
+          "link": 117
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            127
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            121,
+            122
+          ],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusLoraLoader"
+      }
+    },
+    {
+      "id": 35,
+      "type": "FooocusLora",
+      "pos": [
+        -94,
+        470
+      ],
+      "size": {
+        "0": 315,
+        "1": 82
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "selected",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LIST",
+          "type": "LIST",
+          "links": [
+            117
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FooocusLora"
+      },
+      "widgets_values": [
+        "sd_xl_offset_example-lora_1.0.safetensors",
+        0.5
+      ]
+    },
+    {
+      "id": 16,
+      "type": "PreviewImage",
+      "pos": [
+        2764,
+        187
+      ],
+      "size": {
+        "0": 424.7884216308594,
+        "1": 426.2986145019531
+      },
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 24
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "EXPAND_MODEL"
+    ],
+    [
+      23,
+      5,
+      2,
+      15,
+      1,
+      "VAE"
+    ],
+    [
+      24,
+      15,
+      0,
+      16,
+      0,
+      "IMAGE"
+    ],
+    [
+      25,
+      2,
+      0,
+      18,
+      0,
+      "LIST"
+    ],
+    [
+      28,
+      2,
+      2,
+      18,
+      2,
+      "INT"
+    ],
+    [
+      29,
+      2,
+      1,
+      19,
+      0,
+      "LIST"
+    ],
+    [
+      31,
+      2,
+      3,
+      19,
+      2,
+      "INT"
+    ],
+    [
+      33,
+      4,
+      1,
+      20,
+      1,
+      "CLIP"
+    ],
+    [
+      34,
+      4,
+      1,
+      21,
+      1,
+      "CLIP"
+    ],
+    [
+      35,
+      2,
+      3,
+      21,
+      2,
+      "INT"
+    ],
+    [
+      36,
+      2,
+      2,
+      20,
+      2,
+      "INT"
+    ],
+    [
+      37,
+      2,
+      0,
+      20,
+      0,
+      "LIST"
+    ],
+    [
+      38,
+      2,
+      1,
+      21,
+      0,
+      "LIST"
+    ],
+    [
+      40,
+      18,
+      0,
+      22,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      41,
+      19,
+      0,
+      22,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      42,
+      20,
+      0,
+      22,
+      4,
+      "CONDITIONING"
+    ],
+    [
+      43,
+      21,
+      0,
+      22,
+      5,
+      "CONDITIONING"
+    ],
+    [
+      45,
+      14,
+      0,
+      22,
+      6,
+      "LATENT"
+    ],
+    [
+      54,
+      22,
+      0,
+      15,
+      0,
+      "LATENT"
+    ],
+    [
+      105,
+      4,
+      0,
+      31,
+      1,
+      "MODEL"
+    ],
+    [
+      114,
+      31,
+      1,
+      22,
+      3,
+      "MODEL"
+    ],
+    [
+      115,
+      33,
+      0,
+      2,
+      1,
+      "LIST"
+    ],
+    [
+      116,
+      34,
+      0,
+      33,
+      0,
+      "LIST"
+    ],
+    [
+      117,
+      35,
+      0,
+      36,
+      2,
+      "LIST"
+    ],
+    [
+      120,
+      5,
+      1,
+      36,
+      1,
+      "CLIP"
+    ],
+    [
+      121,
+      36,
+      1,
+      18,
+      1,
+      "CLIP"
+    ],
+    [
+      122,
+      36,
+      1,
+      19,
+      1,
+      "CLIP"
+    ],
+    [
+      126,
+      5,
+      0,
+      36,
+      0,
+      "MODEL"
+    ],
+    [
+      127,
+      36,
+      0,
+      31,
+      0,
+      "MODEL"
+    ],
+    [
+      128,
+      31,
+      0,
+      22,
+      0,
+      "MODEL"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}
