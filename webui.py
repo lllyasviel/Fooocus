@@ -79,19 +79,24 @@ with shared.gradio_root:
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False, elem_classes='min_check')
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Tabs():
-                    with gr.TabItem(label='Upscale or Variation'):
+                    with gr.TabItem(label='Upscale or Variation') as uov_tab:
                         with gr.Row():
                             with gr.Column():
                                 uov_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy')
                             with gr.Column():
                                 uov_method = gr.Radio(label='Method', choices=flags.uov_list, value=flags.disabled)
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
-                    with gr.TabItem(label='Inpaint or Outpaint (beta)'):
+
+                    uov_tab.select(lambda: flags.disabled, outputs=uov_method)
+
+                    with gr.TabItem(label='Inpaint or Outpaint (beta)') as inpaint_tab:
                         inpaint_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=512, brush_color="#FFFFFF")
                         inpaint_checkbox = gr.Radio(label='Method', choices=[flags.disabled, flags.enabled], value=flags.disabled, show_label=False, container=False)
                         gr.HTML('Outpaint Expansion:')
                         outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint', show_label=False, container=False)
                         gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
+
+                    inpaint_tab.select(lambda: flags.enabled, outputs=inpaint_checkbox)
 
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False)
 
