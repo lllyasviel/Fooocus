@@ -71,8 +71,7 @@ with shared.gradio_root:
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
                     with gr.TabItem(label='Inpaint or Outpaint (beta)') as inpaint_tab:
                         inpaint_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF")
-                        inpaint_checkbox = gr.Radio(label='Method', choices=[flags.disabled, flags.enabled], value=flags.enabled, show_label=False, container=False)
-                        gr.HTML('Outpaint Expansion:')
+                        gr.HTML('Expansion:')
                         outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint', show_label=False, container=False)
                         gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
 
@@ -147,7 +146,7 @@ with shared.gradio_root:
         ctrls += [base_model, refiner_model] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
-        ctrls += [inpaint_checkbox, outpaint_selections, inpaint_input_image]
+        ctrls += [outpaint_selections, inpaint_input_image]
 
         run_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, run_button, gallery])\
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\

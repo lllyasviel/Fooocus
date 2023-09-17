@@ -27,6 +27,7 @@ def worker():
     from modules.expansion import safe_str
     from modules.util import join_prompts, remove_empty_str, HWC3, resize_image, image_is_generated_in_current_ui
     from modules.upscaler import perform_upscale
+    from modules.inpaint_worker import InpaintWorker
 
     try:
         async_gradio_app = shared.gradio_root
@@ -49,9 +50,8 @@ def worker():
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
-            uov_method, uov_input_image, inpaint_checkbox, outpaint_selections, inpaint_input_image = task
+            uov_method, uov_input_image, outpaint_selections, inpaint_input_image = task
 
-        inpaint_checkbox = inpaint_checkbox == flags.enabled
         outpaint_selections = [o.lower() for o in outpaint_selections]
 
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
@@ -71,6 +71,7 @@ def worker():
         initial_latent = None
         denoising_strength = 1.0
         tiled = False
+        inpaint_worker = None
 
         if performance_selction == 'Speed':
             steps = 30
@@ -161,12 +162,37 @@ def worker():
                     width = W * 8
                     height = H * 8
                     print(f'Final resolution is {str((height, width))}.')
-            if current_tab == 'inpaint' and inpaint_checkbox and isinstance(inpaint_input_image, dict):
+            if current_tab == 'inpaint' and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
-                inpaint_mask = inpaint_input_image['mask']
+                inpaint_mask = inpaint_input_image['mask'][:, :, 0]
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray):
-                    # to be continued ...
-                    raise NotImplemented()
+                    if len(outpaint_selections) > 1:
+                        bg_color = np.median(inpaint_image, axis=(0, 1), keepdims=True).clip(0, 255).astype(np.uint8)
+
+                        H, W, C = inpaint_image.shape
+                        if 'top' in outpaint_selections:
+                            pad = np.zeros(shape=(int(H * 0.3), int(W)), dtype=np.uint8)
+                            inpaint_mask = np.concatenate([pad + 255, inpaint_mask], axis=0)
+                            inpaint_image = np.concatenate([pad[:, :, None] + bg_color, inpaint_image], axis=0)
+                        if 'bottom' in outpaint_selections:
+                            pad = np.zeros(shape=(int(H * 0.3), int(W)), dtype=np.uint8)
+                            inpaint_mask = np.concatenate([inpaint_mask, pad + 255], axis=0)
+                            inpaint_image = np.concatenate([inpaint_image, pad[:, :, None] + bg_color], axis=0)
+
+                        H, W, C = inpaint_image.shape
+                        if 'left' in outpaint_selections:
+                            pad = np.zeros(shape=(int(H), int(W * 0.3)), dtype=np.uint8)
+                            inpaint_mask = np.concatenate([pad + 255, inpaint_mask], axis=1)
+                            inpaint_image = np.concatenate([pad[:, :, None] + bg_color, inpaint_image], axis=1)
+                        if 'right' in outpaint_selections:
+                            pad = np.zeros(shape=(int(H), int(W * 0.3)), dtype=np.uint8)
+                            inpaint_mask = np.concatenate([inpaint_mask, pad + 255], axis=1)
+                            inpaint_image = np.concatenate([inpaint_image, pad[:, :, None] + bg_color], axis=1)
+
+                        inpaint_image = np.ascontiguousarray(inpaint_image.copy())
+                        inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
+
+                    inpaint_worker = InpaintWorker(image=inpaint_image, mask=inpaint_mask)
 
         progressbar(1, 'Initializing ...')
 
