@@ -146,10 +146,17 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
         inpaint_mask = inpaint_worker.current_task.latent_mask
 
     def blend_latent(a, b, w):
+        b = b.to(a)
+        w = w.to(a)
         return a * w + b * (1 - w)
 
     for i in trange(len(sigmas) - 1, disable=disable):
-        denoised = model(x, sigmas[i] * s_in, **extra_args)
+        if inpaint_latent is None:
+            denoised = model(x, sigmas[i] * s_in, **extra_args)
+        else:
+            energy = get_energy().to(x) * sigmas[i].to(x) + inpaint_latent.to(x)
+            x_prime = blend_latent(x, energy, inpaint_mask)
+            denoised = model(x_prime, sigmas[i] * s_in, **extra_args)
         if callback is not None:
             callback({'x': x, 'i': i, 'sigma': sigmas[i], 'sigma_hat': sigmas[i], 'denoised': denoised})
         if sigmas[i + 1] == 0:
@@ -170,10 +177,7 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
         old_denoised = denoised
         h_last = h
 
-    if inpaint_latent is not None:
-        return blend_latent(x, inpaint_latent, inpaint_mask)
-    else:
-        return x
+    return x
 
 
 def patch_all():
