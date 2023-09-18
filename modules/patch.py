@@ -55,7 +55,7 @@ def patched_model_function(func, args):
     x = args['input']
     t = args['timestep']
     c = args['c']
-    is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x) * 0.01
+    is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x) * 1e-3
     if inpaint_worker.current_task is not None:
         p = inpaint_worker.current_task.uc_guidance * cfg_cin
         x = p * is_uncond + x * (1 - is_uncond ** 2.0) ** 0.5
