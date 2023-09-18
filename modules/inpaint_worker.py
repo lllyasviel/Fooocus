@@ -36,9 +36,35 @@ def mask_to_float(x):
     return x.astype(np.float32) / 255.0
 
 
+def regulate_abcd(x, a, b, c, d):
+    H, W = x.shape[:2]
+    if a < 0:
+        a = 0
+    if a > H:
+        a = H
+    if b < 0:
+        b = 0
+    if b > H:
+        b = H
+    if c < 0:
+        c = 0
+    if c > W:
+        c = W
+    if d < 0:
+        d = 0
+    if d > W:
+        d = W
+    return int(a), int(b), int(c), int(d)
+
+
 def compute_initial_abcd(x):
     indices = np.where(x)
-    return
+    a = np.min(indices[0]) - 64
+    b = np.max(indices[0]) + 65
+    c = np.min(indices[1]) - 64
+    d = np.max(indices[1]) + 65
+    a, b, c, d = regulate_abcd(x, a, b, c, d)
+    return a, b, c, d
 
 
 class InpaintWorker:
@@ -70,14 +96,6 @@ class InpaintWorker:
         # compute abcd
         a, b, c, d = compute_initial_abcd(self.mask_raw_bg < 0.5)
 
-
-        # Fooocus inpaint logic
-        # 1. ensure that diffusion area cover all masks.
-        # 2. ensure that diffusion area cover at lease 1/4 part of images.
-        # 3. ensure that diffusion area has at least 1k resolution (by resampling).
-
-        self.raw_image = image
-        self.raw_mask = mask
         raise NotImplemented
 
 
