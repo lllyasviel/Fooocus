@@ -19,6 +19,7 @@ negative_adm = True
 
 cfg_x0 = 0.0
 cfg_s = 1.0
+cfg_cin = 1.0
 
 
 def cfg_patched(args):
@@ -41,11 +42,25 @@ def cfg_patched(args):
 
 
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
-    global cfg_x0, cfg_s
+    global cfg_x0, cfg_s, cfg_cin
     c_out, c_in = [utils.append_dims(x, input.ndim) for x in self.get_scalings(sigma)]
     cfg_x0 = input
     cfg_s = c_out
+    cfg_cin = c_in
     return self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
+
+
+def patched_model_function(func, args):
+    global cfg_cin
+    x = args['input']
+    t = args['timestep']
+    c = args['c']
+    is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x) * 0.01
+    if inpaint_worker.current_task is not None:
+        p = inpaint_worker.current_task.uc_guidance * cfg_cin
+        x = p * is_uncond + x * (1 - is_uncond ** 2.0) ** 0.5
+        print(is_uncond)
+    return func(x, t, **c)
 
 
 def sdxl_encode_adm_patched(self, **kwargs):
@@ -152,6 +167,7 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
         if inpaint_latent is None:
             denoised = model(x, sigmas[i] * s_in, **extra_args)
         else:
+            inpaint_worker.current_task.uc_guidance = x.detach().clone()
             energy = get_energy() * sigmas[i] + inpaint_latent
             x_prime = blend_latent(x, energy, inpaint_mask)
             denoised = model(x_prime, sigmas[i] * s_in, **extra_args)
