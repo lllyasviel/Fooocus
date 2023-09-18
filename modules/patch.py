@@ -122,7 +122,9 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
 
     seed = extra_args.get("seed", None)
     assert isinstance(seed, int)
-    another_seed = seed + 1
+
+    g_cpu = torch.Generator(device='cpu')
+    g_cpu.manual_seed(seed + 1)  # avoid bad results by using different seeds.
 
     sigma_min, sigma_max = sigmas[sigmas > 0].min(), sigmas.max()
     noise_sampler = BrownianTreeNoiseSampler(x, sigma_min, sigma_max, seed=seed, cpu=True) if noise_sampler is None else noise_sampler
