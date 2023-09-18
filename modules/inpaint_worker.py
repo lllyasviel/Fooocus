@@ -131,7 +131,7 @@ class InpaintWorker:
         H = int(np.ceil(float(H) * k / 16.0)) * 16
         W = int(np.ceil(float(W) * k / 16.0)) * 16
         self.image_ready = resample_image(self.image_interested, W, H)
-        self.mask_ready_soft = resample_image(self.mask_interested_soft, W, H)
+        self.mask_ready = resample_image(self.mask_interested_soft, W, H)
 
         # ending
         self.latent = None
@@ -149,5 +149,5 @@ class InpaintWorker:
         result[self.mask_raw_trim > 0.5] += 64
         result[self.mask_raw_fg > 0.5] += 128
         mask_vis = (np.ones_like(self.image_raw).astype(np.float32) * self.mask_raw_soft[:, :, None] * 255).astype(np.uint8)
-        return [result, mask_vis, self.image_ready, (self.mask_ready_soft * 255).astype(np.uint8)]
+        return [result, mask_vis, self.image_ready, (self.mask_ready * 255).astype(np.uint8)]
 
