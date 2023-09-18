@@ -1,6 +1,6 @@
 import numpy as np
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageOps
 from modules.util import resample_image
 
 
@@ -10,7 +10,8 @@ current_task = None
 def morphological_soft_open(x):
     k = 12
     x = Image.fromarray(x)
-    x = x.filter(ImageFilter.MaxFilter(k * 4 + 3))
+    for _ in range(k):
+        x = x.filter(ImageFilter.MaxFilter(3))
     x = x.filter(ImageFilter.BoxBlur(k * 2 + 1))
     x = np.array(x)
     return x
@@ -85,10 +86,30 @@ def solve_abcd(x, a, b, c, d, k, outpaint):
     return a, b, c, d
 
 
+# from automatic1111
+def automatic1111_fill(image, mask):
+    image = Image.fromarray(image)
+    mask = Image.fromarray(mask)
+
+    image_mod = Image.new('RGBA', (image.width, image.height))
+
+    image_masked = Image.new('RGBa', (image.width, image.height))
+    image_masked.paste(image.convert("RGBA").convert("RGBa"), mask=ImageOps.invert(mask.convert('L')))
+
+    image_masked = image_masked.convert('RGBa')
+
+    for radius, repeats in [(256, 1), (64, 1), (16, 2), (4, 4), (2, 2), (0, 1)]:
+        blurred = image_masked.filter(ImageFilter.GaussianBlur(radius)).convert('RGBA')
+        for _ in range(repeats):
+            image_mod.alpha_composite(blurred)
+
+    return np.array(image_mod.convert("RGB"))
+
+
 class InpaintWorker:
     def __init__(self, image, mask, is_outpaint):
         # mask processing
-        self.image_raw = image
+        self.image_raw = automatic1111_fill(image, mask)
         self.mask_raw_user_input = mask
         self.mask_raw_soft = morphological_hard_open(mask)
         self.mask_raw_fg = (self.mask_raw_soft == 255).astype(np.uint8) * 255
