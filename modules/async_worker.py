@@ -207,7 +207,7 @@ def worker():
                     width = W * 8
                     height = H * 8
                     inpaint_worker.current_task.load_latent(latent=inpaint_latent, mask=inpaint_mask)
-                    print(f'Inpaint area: {str((height, width))}')
+                    print(f'Inpaint task: {str((height, width))}')
                     # outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
                     # return
 
