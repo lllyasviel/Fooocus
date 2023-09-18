@@ -115,7 +115,7 @@ class InpaintWorker:
 
         # compute abcd
         a, b, c, d = compute_initial_abcd(self.mask_raw_bg < 0.5)
-        a, b, c, d = solve_abcd(self.mask_raw_bg, a, b, c, d, k=0.4)
+        a, b, c, d = solve_abcd(self.mask_raw_bg, a, b, c, d, k=0.3)
 
         # interested area
         self.interested_area = (a, b, c, d)
