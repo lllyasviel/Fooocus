@@ -133,7 +133,11 @@ class InpaintWorker:
         self.latent_mask = mask
 
     def color_correction(self, img):
-        return img
+        fg = img.astype(np.float32)
+        bg = self.image_raw.copy().astype(np.float32)
+        w = self.mask_raw_soft[:, :, None].astype(np.float32) / 255.0
+        y = fg * w + bg * (1 - w)
+        return y.clip(0, 255).astype(np.uint8)
 
     def post_process(self, img):
         a, b, c, d = self.interested_area
