@@ -32,13 +32,43 @@ def imsave(x, path):
     x.save(path)
 
 
+def mask_to_float(x):
+    return x.astype(np.float32) / 255.0
+
+
+def compute_initial_abcd(x):
+    indices = np.where(x)
+    return
+
+
 class InpaintWorker:
     def __init__(self, image, mask):
-
         # mask processing
-        imsave(mask, 'raw.png')
-        mask = morphological_hard_open(mask)
-        imsave(mask, 'after.png')
+        self.mask_raw_user_input = mask
+        self.mask_raw_soft = morphological_hard_open(mask)
+        self.mask_raw_fg = (self.mask_raw_soft == 255).astype(np.uint8) * 255
+        self.mask_raw_bg = (self.mask_raw_soft == 0).astype(np.uint8) * 255
+        self.mask_raw_trim = 255 - np.maximum(self.mask_raw_fg, self.mask_raw_bg)
+        self.mask_raw_error = (self.mask_raw_user_input > self.mask_raw_fg).astype(np.uint8) * 255
+
+        # log all images
+        imsave(self.mask_raw_user_input, 'mask_raw_user_input.png')
+        imsave(self.mask_raw_soft, 'mask_raw_soft.png')
+        imsave(self.mask_raw_fg, 'mask_raw_fg.png')
+        imsave(self.mask_raw_bg, 'mask_raw_bg.png')
+        imsave(self.mask_raw_trim, 'mask_raw_trim.png')
+        imsave(self.mask_raw_error, 'mask_raw_error.png')
+
+        # mask to float
+        self.mask_raw_user_input = mask_to_float(self.mask_raw_user_input)
+        self.mask_raw_soft = mask_to_float(self.mask_raw_soft)
+        self.mask_raw_fg = mask_to_float(self.mask_raw_fg)
+        self.mask_raw_bg = mask_to_float(self.mask_raw_bg)
+        self.mask_raw_trim = mask_to_float(self.mask_raw_trim)
+        # self.mask_raw_error = mask_to_float(self.mask_raw_error)
+
+        # compute abcd
+        a, b, c, d = compute_initial_abcd(self.mask_raw_bg < 0.5)
 
 
         # Fooocus inpaint logic
