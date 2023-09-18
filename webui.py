@@ -61,13 +61,30 @@ with shared.gradio_root:
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False, elem_classes='min_check')
             with gr.Row(visible=False) as image_input_panel:
-                with gr.Column(scale=0.5):
-                    with gr.Accordion(label='Upscale or Variation', open=True):
-                        uov_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy')
-                        uov_method = gr.Radio(label='Method', choices=flags.uov_list, value=flags.disabled, show_label=False, container=False)
-                    gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
+                with gr.Tabs():
+                    with gr.TabItem(label='Upscale or Variation') as uov_tab:
+                        with gr.Row():
+                            with gr.Column():
+                                uov_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy')
+                            with gr.Column():
+                                uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
+                    with gr.TabItem(label='Inpaint or Outpaint') as inpaint_tab:
+                        inpaint_input_image = gr.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF")
+                        gr.HTML('Outpaint Expansion (<a href="https://github.com/lllyasviel/Fooocus/discussions/414">\U0001F4D4 Document</a>):')
+                        outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint', show_label=False, container=False)
+                        gr.HTML('* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)')
+
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False,
                                         _js="(x) => {if(x){setTimeout(() => window.scrollTo({ top: window.scrollY + 500, behavior: 'smooth' }), 50);}else{setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);} return x}")
+
+            current_tab = gr.Textbox(value='uov', visible=False)
+            uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False)
+            inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False)
+
+            uov_input_image.upload(lambda x: x, inputs=[uov_input_image], outputs=[inpaint_input_image])
+            inpaint_input_image.upload(lambda: None).\
+                then(lambda x: x['image'], inputs=[inpaint_input_image], outputs=[uov_input_image])
 
             # def get_select_index(g, evt: gr.SelectData):
             #     return g[evt.index]['name']
@@ -132,8 +149,9 @@ with shared.gradio_root:
             performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
-        ctrls += [input_image_checkbox]
+        ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
+        ctrls += [outpaint_selections, inpaint_input_image]
 
         run_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, run_button, gallery])\
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\

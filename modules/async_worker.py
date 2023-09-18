@@ -1,4 +1,6 @@
 import threading
+
+import numpy as np
 import torch
 
 buffer = []
@@ -19,6 +21,7 @@ def worker():
     import modules.patch
     import modules.virtual_memory as virtual_memory
     import comfy.model_management
+    import modules.inpaint_worker as inpaint_worker
 
     from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
     from modules.private_logger import log
@@ -46,8 +49,10 @@ def worker():
             aspect_ratios_selction, image_number, image_seed, sharpness, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
-            input_image_checkbox, \
-            uov_method, uov_input_image = task
+            input_image_checkbox, current_tab, \
+            uov_method, uov_input_image, outpaint_selections, inpaint_input_image = task
+
+        outpaint_selections = [o.lower() for o in outpaint_selections]
 
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
 
@@ -63,9 +68,11 @@ def worker():
 
         use_style = len(style_selections) > 0
         modules.patch.sharpness = sharpness
+        modules.patch.negative_adm = True
         initial_latent = None
         denoising_strength = 1.0
         tiled = False
+        inpaint_worker.current_task = None
 
         if performance_selction == 'Speed':
             steps = 30
@@ -80,7 +87,7 @@ def worker():
 
         if input_image_checkbox:
             progressbar(0, 'Image processing ...')
-            if uov_method != flags.disabled and uov_input_image is not None:
+            if current_tab == 'uov' and uov_method != flags.disabled and uov_input_image is not None:
                 uov_input_image = HWC3(uov_input_image)
                 if 'vary' in uov_method:
                     if not image_is_generated_in_current_ui(uov_input_image, ui_width=width, ui_height=height):
@@ -156,6 +163,49 @@ def worker():
                     width = W * 8
                     height = H * 8
                     print(f'Final resolution is {str((height, width))}.')
+            if current_tab == 'inpaint' and isinstance(inpaint_input_image, dict):
+                inpaint_image = inpaint_input_image['image']
+                inpaint_mask = inpaint_input_image['mask'][:, :, 0]
+                if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
+                        and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
+                    if len(outpaint_selections) > 0:
+                        H, W, C = inpaint_image.shape
+                        if 'top' in outpaint_selections:
+                            inpaint_image = np.pad(inpaint_image, [[int(H * 0.3), 0], [0, 0], [0, 0]], mode='edge')
+                            inpaint_mask = np.pad(inpaint_mask, [[int(H * 0.3), 0], [0, 0]], mode='constant', constant_values=255)
+                        if 'bottom' in outpaint_selections:
+                            inpaint_image = np.pad(inpaint_image, [[0, int(H * 0.3)], [0, 0], [0, 0]], mode='edge')
+                            inpaint_mask = np.pad(inpaint_mask, [[0, int(H * 0.3)], [0, 0]], mode='constant', constant_values=255)
+
+                        H, W, C = inpaint_image.shape
+                        if 'left' in outpaint_selections:
+                            inpaint_image = np.pad(inpaint_image, [[0, 0], [int(H * 0.3), 0], [0, 0]], mode='edge')
+                            inpaint_mask = np.pad(inpaint_mask, [[0, 0], [int(H * 0.3), 0]], mode='constant', constant_values=255)
+                        if 'right' in outpaint_selections:
+                            inpaint_image = np.pad(inpaint_image, [[0, 0], [0, int(H * 0.3)], [0, 0]], mode='edge')
+                            inpaint_mask = np.pad(inpaint_mask, [[0, 0], [0, int(H * 0.3)]], mode='constant', constant_values=255)
+
+                        inpaint_image = np.ascontiguousarray(inpaint_image.copy())
+                        inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
+
+                    inpaint_worker.current_task = inpaint_worker.InpaintWorker(image=inpaint_image, mask=inpaint_mask,
+                                                                               is_outpaint=len(outpaint_selections) > 0)
+
+                    # print(f'Inpaint task: {str((height, width))}')
+                    # outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
+                    # return
+
+                    inpaint_pixels = core.numpy_to_pytorch(inpaint_worker.current_task.image_ready)
+                    progressbar(0, 'VAE encoding ...')
+                    initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=inpaint_pixels)
+                    inpaint_latent = initial_latent['samples']
+                    B, C, H, W = inpaint_latent.shape
+                    inpaint_mask = core.numpy_to_pytorch(inpaint_worker.current_task.mask_ready[None])
+                    inpaint_mask = torch.nn.functional.avg_pool2d(inpaint_mask, (8, 8))
+                    inpaint_mask = torch.nn.functional.interpolate(inpaint_mask, (H, W), mode='bilinear')
+                    width = W * 8
+                    height = H * 8
+                    inpaint_worker.current_task.load_latent(latent=inpaint_latent, mask=inpaint_mask)
 
         progressbar(1, 'Initializing ...')
 
@@ -262,6 +312,8 @@ def worker():
                 f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
                 y)])
 
+        print(f'[ADM] Negative ADM = {modules.patch.negative_adm}')
+
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
             try:
@@ -278,6 +330,9 @@ def worker():
                     denoise=denoising_strength,
                     tiled=tiled
                 )
+
+                if inpaint_worker.current_task is not None:
+                    imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
                 for x in imgs:
                     d = [
