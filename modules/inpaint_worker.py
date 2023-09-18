@@ -8,9 +8,10 @@ current_task = None
 
 
 def morphological_soft_open(x):
+    k = 12
     x = Image.fromarray(x)
-    x = x.filter(ImageFilter.MaxFilter(27))
-    x = x.filter(ImageFilter.BoxBlur(13))
+    x = x.filter(ImageFilter.MaxFilter(k * 4 + 3))
+    x = x.filter(ImageFilter.BoxBlur(k * 2 + 1))
     x = np.array(x)
     return x
 

@@ -197,6 +197,10 @@ def worker():
                     inpaint_worker.current_task = inpaint_worker.InpaintWorker(image=inpaint_image, mask=inpaint_mask,
                                                                                is_outpaint=len(outpaint_selections) > 0)
 
+                    print(f'Inpaint task: {str((height, width))}')
+                    outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
+                    return
+
                     inpaint_pixels = core.numpy_to_pytorch(inpaint_worker.current_task.image_ready)
                     progressbar(0, 'VAE encoding ...')
                     inpaint_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=inpaint_pixels)['samples']
@@ -204,13 +208,9 @@ def worker():
                     inpaint_mask = core.numpy_to_pytorch(inpaint_worker.current_task.mask_ready[None])
                     inpaint_mask = torch.nn.functional.avg_pool2d(inpaint_mask, (8, 8))
                     inpaint_mask = torch.nn.functional.interpolate(inpaint_mask, (H, W), mode='bilinear')
-                    inpaint_latent = inpaint_latent * (1.0 - inpaint_mask)
                     width = W * 8
                     height = H * 8
                     inpaint_worker.current_task.load_latent(latent=inpaint_latent, mask=inpaint_mask)
-                    print(f'Inpaint task: {str((height, width))}')
-                    # outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
-                    # return
 
         progressbar(1, 'Initializing ...')
 
