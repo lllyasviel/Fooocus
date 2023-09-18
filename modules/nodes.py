@@ -446,8 +446,10 @@ class FooocusLoraLoader:
             "required": {
                 "model": ("MODEL",),
                 "clip": ("CLIP",),
+            },
+            "optional": {
                 "lora_names": ("LIST",),
-            }
+            },
         }
 
     RETURN_TYPES = ("MODEL", "CLIP")
@@ -455,7 +457,7 @@ class FooocusLoraLoader:
 
     CATEGORY = "fooocus/loaders"
 
-    def load_lora(self, model, clip, lora_names):
+    def load_lora(self, model, clip, lora_names=[]):
         model_lora, clip_lora = model, clip
         for lora_name, strength in lora_names:
             if lora_name is None:
