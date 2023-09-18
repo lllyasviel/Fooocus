@@ -69,19 +69,19 @@ def prepare_environment():
     return
 
 
-#model_filenames = [
-#    ('sd_xl_base_1.0_0.9vae.safetensors',
-#     'https://civitai.com/api/download/models/162531?type=Model&format=SafeTensor&size=pruned&fp=fp16'),
-#    ('sd_xl_refiner_1.0_0.9vae.safetensors',
-#     'https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors')
-#]
-
 model_filenames = [
     ('sd_xl_base_1.0_0.9vae.safetensors',
-     'https://huggingface.co/StokeMcToke/StokedRealityXL/resolve/main/StokedRealityXL-v10_fp16.safetensors'),
+     'https://civitai.com/api/download/models/162531?type=Model&format=SafeTensor&size=pruned&fp=fp16'),
     ('sd_xl_refiner_1.0_0.9vae.safetensors',
      'https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors')
 ]
+
+#model_filenames = [
+#    ('sd_xl_base_1.0_0.9vae.safetensors',
+#     'https://huggingface.co/StokeMcToke/StokedRealityXL/resolve/main/StokedRealityXL-v10_fp16.safetensors'),
+#    ('sd_xl_refiner_1.0_0.9vae.safetensors',
+#     'https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors')
+#]
 
 lora_filenames = [
     ('sd_xl_offset_example-lora_1.0.safetensors',
