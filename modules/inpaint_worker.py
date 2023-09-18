@@ -68,8 +68,10 @@ def area_abcd(a, b, c, d):
     return (b - a) * (d - c)
 
 
-def solve_abcd(x, a, b, c, d, k):
+def solve_abcd(x, a, b, c, d, k, outpaint):
     H, W = x.shape[:2]
+    if outpaint:
+        return 0, H, 0, W
     min_area = H * W * k
     while area_abcd(a, b, c, d) < min_area:
         if (b - a) < (d - c):
@@ -83,7 +85,7 @@ def solve_abcd(x, a, b, c, d, k):
 
 
 class InpaintWorker:
-    def __init__(self, image, mask):
+    def __init__(self, image, mask, is_outpaint):
         # mask processing
         self.image_raw = image
         self.mask_raw_user_input = mask
@@ -103,7 +105,7 @@ class InpaintWorker:
 
         # compute abcd
         a, b, c, d = compute_initial_abcd(self.mask_raw_bg < 127)
-        a, b, c, d = solve_abcd(self.mask_raw_bg, a, b, c, d, k=0.3)
+        a, b, c, d = solve_abcd(self.mask_raw_bg, a, b, c, d, k=0.4, outpaint=is_outpaint)
 
         # interested area
         self.interested_area = (a, b, c, d)

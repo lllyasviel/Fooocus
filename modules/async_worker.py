@@ -194,7 +194,8 @@ def worker():
                         inpaint_image = np.ascontiguousarray(inpaint_image.copy())
                         inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
 
-                    inpaint_worker.current_task = inpaint_worker.InpaintWorker(image=inpaint_image, mask=inpaint_mask)
+                    inpaint_worker.current_task = inpaint_worker.InpaintWorker(image=inpaint_image, mask=inpaint_mask,
+                                                                               is_outpaint=len(outpaint_selections) > 0)
                     outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
                     return
 
