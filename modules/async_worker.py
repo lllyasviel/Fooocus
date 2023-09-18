@@ -167,7 +167,7 @@ def worker():
                 inpaint_image = inpaint_input_image['image']
                 inpaint_mask = inpaint_input_image['mask'][:, :, 0]
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
-                        and np.any(inpaint_mask > 127):
+                        and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
                     if len(outpaint_selections) > 0:
                         bg_color = np.median(inpaint_image, axis=(0, 1), keepdims=True).clip(0, 255).astype(np.uint8)
 
