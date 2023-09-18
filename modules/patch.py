@@ -8,6 +8,7 @@ import modules.anisotropic as anisotropic
 import comfy.ldm.modules.attention
 import comfy.k_diffusion.sampling
 import comfy.sd1_clip
+import modules.inpaint_worker as inpaint_worker
 
 from comfy.k_diffusion import utils
 from comfy.k_diffusion.sampling import BrownianTreeNoiseSampler, trange
@@ -136,6 +137,17 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
 
     old_denoised, h_last, h = None, None, None
 
+    latent_processor = model.inner_model.inner_model.inner_model.process_latent_in
+    inpaint_latent = None
+    inpaint_mask = None
+
+    if inpaint_worker.current_task is not None:
+        inpaint_latent = latent_processor(inpaint_worker.current_task.latent)
+        inpaint_mask = inpaint_worker.current_task.latent_mask
+
+    def blend_latent(a, b, w):
+        return a * w + b * (1 - w)
+
     for i in trange(len(sigmas) - 1, disable=disable):
         denoised = model(x, sigmas[i] * s_in, **extra_args)
         if callback is not None:
@@ -157,7 +169,11 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
 
         old_denoised = denoised
         h_last = h
-    return x
+
+    if inpaint_latent is not None:
+        return blend_latent(x, inpaint_latent, inpaint_mask)
+    else:
+        return x
 
 
 def patch_all():
