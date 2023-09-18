@@ -33,10 +33,6 @@ def imsave(x, path):
     x.save(path)
 
 
-def mask_to_float(x):
-    return x.astype(np.float32) / 255.0
-
-
 def regulate_abcd(x, a, b, c, d):
     H, W = x.shape[:2]
     if a < 0:
@@ -105,16 +101,8 @@ class InpaintWorker:
         # imsave(self.mask_raw_trim, 'mask_raw_trim.png')
         # imsave(self.mask_raw_error, 'mask_raw_error.png')
 
-        # mask to float
-        # self.mask_raw_user_input = mask_to_float(self.mask_raw_user_input)
-        self.mask_raw_soft = mask_to_float(self.mask_raw_soft)
-        self.mask_raw_fg = mask_to_float(self.mask_raw_fg)
-        self.mask_raw_bg = mask_to_float(self.mask_raw_bg)
-        self.mask_raw_trim = mask_to_float(self.mask_raw_trim)
-        # self.mask_raw_error = mask_to_float(self.mask_raw_error)
-
         # compute abcd
-        a, b, c, d = compute_initial_abcd(self.mask_raw_bg < 0.5)
+        a, b, c, d = compute_initial_abcd(self.mask_raw_bg < 127)
         a, b, c, d = solve_abcd(self.mask_raw_bg, a, b, c, d, k=0.3)
 
         # interested area
@@ -146,8 +134,7 @@ class InpaintWorker:
         result = self.image_raw // 4
         a, b, c, d = self.interested_area
         result[a:b, c:d] += 64
-        result[self.mask_raw_trim > 0.5] += 64
-        result[self.mask_raw_fg > 0.5] += 128
-        mask_vis = (np.ones_like(self.image_raw).astype(np.float32) * self.mask_raw_soft[:, :, None] * 255).astype(np.uint8)
-        return [result, mask_vis, self.image_ready, (self.mask_ready * 255).astype(np.uint8)]
+        result[self.mask_raw_trim > 127] += 64
+        result[self.mask_raw_fg > 127] += 128
+        return [result, self.mask_raw_soft, self.image_ready, self.mask_ready]
 
