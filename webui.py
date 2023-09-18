@@ -79,16 +79,32 @@ with shared.gradio_root:
                                         _js="(x) => {if(x){setTimeout(() => window.scrollTo({ top: window.scrollY + 500, behavior: 'smooth' }), 50);}else{setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);} return x}")
 
             current_tab = gr.Textbox(value='uov', visible=False)
-            uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False)
-            inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False)
 
-            # uov_input_image.upload(lambda x: x, inputs=[uov_input_image], outputs=[inpaint_input_image])
-            # inpaint_input_image.upload(lambda: None).\
-            #     then(lambda x: x['image'], inputs=[inpaint_input_image], outputs=[uov_input_image])
+            def get_image_cacher(flag):
+                def inner_func(previous_flag, *prs):
+                    global last_image
 
-            # def get_select_index(g, evt: gr.SelectData):
-            #     return g[evt.index]['name']
-            # gallery.select(get_select_index, gallery, uov_input_image)
+                    index = {
+                        'uov': 0,
+                        'inpaint': 1
+                    }[previous_flag]
+
+                    x = prs[index]
+
+                    if isinstance(x, dict):
+                        last_image = x['image']
+                    else:
+                        last_image = x
+
+                    return flag, last_image
+
+                return inner_func
+
+            tab_img_swap_ctrls = [current_tab, uov_input_image, inpaint_input_image]
+
+            uov_tab.select(get_image_cacher('uov'), inputs=tab_img_swap_ctrls, outputs=[current_tab, uov_input_image], queue=False)
+            inpaint_tab.select(get_image_cacher('inpaint'), inputs=tab_img_swap_ctrls, outputs=[current_tab, inpaint_input_image], queue=False)
+
         with gr.Column(scale=0.5, visible=False) as right_col:
             with gr.Tab(label='Setting'):
                 performance_selction = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
