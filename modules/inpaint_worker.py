@@ -132,7 +132,15 @@ class InpaintWorker:
         W = int(np.ceil(float(W) * k / 16.0)) * 16
         self.image_ready = resample_image(self.image_interested, W, H)
         self.mask_ready_soft = resample_image(self.mask_interested_soft, W, H)
+
+        # ending
+        self.latent = None
+        self.latent_mask = None
         return
+
+    def load_latent(self, latent, mask):
+        self.latent = latent
+        self.latent_mask = mask
 
     def visualize_mask_processing(self):
         result = self.image_raw // 4
