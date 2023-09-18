@@ -82,6 +82,9 @@ with shared.gradio_root:
             uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False)
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False)
 
+            uov_input_image.upload(lambda x: x, inputs=uov_input_image, outputs=inpaint_input_image)
+            inpaint_input_image.upload(lambda x: x, inputs=inpaint_input_image, outputs=uov_input_image)
+            
             # def get_select_index(g, evt: gr.SelectData):
             #     return g[evt.index]['name']
             # gallery.select(get_select_index, gallery, uov_input_image)
