@@ -1,6 +1,7 @@
 import numpy as np
 
 from PIL import Image, ImageFilter
+from modules.util import resample_image
 
 
 current_task = None
@@ -124,6 +125,15 @@ class InpaintWorker:
         self.mask_interested_trim = self.mask_raw_trim[a:b, c:d]
         self.image_interested = self.image_raw[a:b, c:d]
 
+        # resize to make images ready for diffusion
+        H, W, C = self.image_interested.shape
+        k = (1024.0 ** 2.0 / float(H * W)) ** 0.5
+        H = int(np.ceil(float(H) * k / 16.0)) * 16
+        W = int(np.ceil(float(W) * k / 16.0)) * 16
+        self.image_ready = resample_image(self.image_interested, W, H)
+        self.mask_ready_soft = resample_image(self.mask_interested_soft, W, H)
+        return
+
     def visualize_mask_processing(self):
         result = self.image_raw // 4
         a, b, c, d = self.interested_area
@@ -131,5 +141,5 @@ class InpaintWorker:
         result[self.mask_raw_trim > 0.5] += 64
         result[self.mask_raw_fg > 0.5] += 128
         mask_vis = (np.ones_like(self.image_raw).astype(np.float32) * self.mask_raw_soft[:, :, None] * 255).astype(np.uint8)
-        return np.concatenate([result, mask_vis], axis=0)
+        return [result, mask_vis, self.image_ready, (self.mask_ready_soft * 255).astype(np.uint8)]
 

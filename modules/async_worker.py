@@ -195,7 +195,7 @@ def worker():
                         inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
 
                     inpaint_worker.current_task = inpaint_worker.InpaintWorker(image=inpaint_image, mask=inpaint_mask)
-                    outputs.append(['results', [inpaint_worker.current_task.visualize_mask_processing()]])
+                    outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
                     return
 
         progressbar(1, 'Initializing ...')

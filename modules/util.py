@@ -28,6 +28,12 @@ def image_is_generated_in_current_ui(image, ui_width, ui_height):
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 
 
+def resample_image(im, width, height):
+    im = Image.fromarray(im)
+    im = im.resize((width, height), resample=LANCZOS)
+    return np.array(im)
+
+
 def resize_image(im, width, height, resize_mode=1):
     """
     Resizes an image with the specified resize_mode, width, and height.
