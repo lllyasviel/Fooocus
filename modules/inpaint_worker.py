@@ -98,8 +98,9 @@ def automatic1111_fill(image, mask):
 
     image_masked = image_masked.convert('RGBa')
 
-    for radius, repeats in [(256, 1), (64, 1), (16, 2), (4, 4), (2, 2), (0, 1)]:
-        blurred = image_masked.filter(ImageFilter.GaussianBlur(radius)).convert('RGBA')
+    for radius, repeats in [(min(image.width, image.height), 2),
+                            (512, 3), (256, 2), (64, 2), (16, 2), (4, 4), (2, 2), (0, 1)]:
+        blurred = image_masked.filter(ImageFilter.BoxBlur(radius)).convert('RGBA')
         for _ in range(repeats):
             image_mod.alpha_composite(blurred)
 
