@@ -191,9 +191,9 @@ def worker():
                     inpaint_worker.current_task = inpaint_worker.InpaintWorker(image=inpaint_image, mask=inpaint_mask,
                                                                                is_outpaint=len(outpaint_selections) > 0)
 
-                    print(f'Inpaint task: {str((height, width))}')
-                    outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
-                    return
+                    # print(f'Inpaint task: {str((height, width))}')
+                    # outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
+                    # return
 
                     inpaint_pixels = core.numpy_to_pytorch(inpaint_worker.current_task.image_ready)
                     progressbar(0, 'VAE encoding ...')
