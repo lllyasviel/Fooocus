@@ -17,6 +17,12 @@ def morphological_soft_open(x):
     return x
 
 
+def box_blur(x, k):
+    x = Image.fromarray(x)
+    x = x.filter(ImageFilter.BoxBlur(k))
+    return np.array(x)
+
+
 def threshold_0_255(x):
     y = np.zeros_like(x)
     y[x > 127] = 255
@@ -86,31 +92,24 @@ def solve_abcd(x, a, b, c, d, k, outpaint):
     return a, b, c, d
 
 
-# from automatic1111
-def automatic1111_fill(image, mask):
-    image = Image.fromarray(image)
-    mask = Image.fromarray(mask)
+def fooocus_fill(image, mask):
+    current_image = image.copy()
+    raw_image = image.copy()
+    area = np.where(mask > 127)
+    store = raw_image[area]
 
-    image_mod = Image.new('RGBA', (image.width, image.height))
-
-    image_masked = Image.new('RGBa', (image.width, image.height))
-    image_masked.paste(image.convert("RGBA").convert("RGBa"), mask=ImageOps.invert(mask.convert('L')))
-
-    image_masked = image_masked.convert('RGBa')
-
-    for radius, repeats in [(min(image.width, image.height), 2),
-                            (512, 4), (256, 4), (64, 4), (16, 4), (4, 8), (2, 4), (0, 1)]:
-        blurred = image_masked.filter(ImageFilter.BoxBlur(radius)).convert('RGBA')
+    for k, repeats in [(512, 1), (256, 2), (64, 4), (16, 4), (4, 4), (2, 4)]:
         for _ in range(repeats):
-            image_mod.alpha_composite(blurred)
+            current_image = box_blur(current_image, k)
+            current_image[area] = store
 
-    return np.array(image_mod.convert("RGB"))
+    return current_image
 
 
 class InpaintWorker:
     def __init__(self, image, mask, is_outpaint):
         # mask processing
-        self.image_raw = image#automatic1111_fill(image, mask)
+        self.image_raw = fooocus_fill(image, mask)
         self.mask_raw_user_input = mask
         self.mask_raw_soft = morphological_hard_open(mask)
         self.mask_raw_fg = (self.mask_raw_soft == 255).astype(np.uint8) * 255
