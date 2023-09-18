@@ -11,7 +11,7 @@ from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from comfy.model_base import SDXLRefiner
-from modules.samplers_advanced import KSampler, KSamplerWithRefiner
+from modules.samplers_advanced import KSamplerBasic, KSamplerWithRefiner
 from modules.patch import patch_all
 
 
@@ -147,7 +147,7 @@ def get_previewer(device, latent_format):
 
 @torch.no_grad()
 @torch.inference_mode()
-def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
+def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False, callback_function=None):
     # SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
@@ -199,7 +199,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 
     models = load_additional_models(positive, negative, model.model_dtype())
 
-    sampler = KSampler(real_model, steps=steps, device=device, sampler=sampler_name, scheduler=scheduler,
+    sampler = KSamplerBasic(real_model, steps=steps, device=device, sampler=sampler_name, scheduler=scheduler,
                        denoise=denoise, model_options=model.model_options)
 
     samples = sampler.sample(noise, positive_copy, negative_copy, cfg=cfg, latent_image=latent_image,
@@ -220,7 +220,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 @torch.no_grad()
 @torch.inference_mode()
 def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, refiner_negative, latent,
-                          seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
+                          seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
                           scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
                           force_full_denoise=False, callback_function=None):
     # SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
