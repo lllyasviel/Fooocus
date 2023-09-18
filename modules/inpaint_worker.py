@@ -98,7 +98,7 @@ def fooocus_fill(image, mask):
     area = np.where(mask < 127)
     store = raw_image[area]
 
-    for k, repeats in [(512, 1), (256, 2), (64, 4), (16, 4), (4, 4), (2, 4)]:
+    for k, repeats in [(64, 4), (32, 4), (16, 4), (4, 4), (2, 4)]:
         for _ in range(repeats):
             current_image = box_blur(current_image, k)
             current_image[area] = store
