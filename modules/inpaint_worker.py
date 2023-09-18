@@ -109,7 +109,7 @@ def automatic1111_fill(image, mask):
 class InpaintWorker:
     def __init__(self, image, mask, is_outpaint):
         # mask processing
-        self.image_raw = automatic1111_fill(image, mask)
+        self.image_raw = image#automatic1111_fill(image, mask)
         self.mask_raw_user_input = mask
         self.mask_raw_soft = morphological_hard_open(mask)
         self.mask_raw_fg = (self.mask_raw_soft == 255).astype(np.uint8) * 255
