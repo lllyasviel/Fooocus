@@ -169,27 +169,21 @@ def worker():
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
                     if len(outpaint_selections) > 0:
-                        bg_color = np.median(inpaint_image, axis=(0, 1), keepdims=True).clip(0, 255).astype(np.uint8)
-
                         H, W, C = inpaint_image.shape
                         if 'top' in outpaint_selections:
-                            pad = np.zeros(shape=(int(H * 0.3), int(W)), dtype=np.uint8)
-                            inpaint_mask = np.concatenate([pad + 255, inpaint_mask], axis=0)
-                            inpaint_image = np.concatenate([pad[:, :, None] + bg_color, inpaint_image], axis=0)
+                            inpaint_image = np.pad(inpaint_image, [[int(H * 0.3), 0], [0, 0], [0, 0]], mode='edge')
+                            inpaint_mask = np.pad(inpaint_mask, [[int(H * 0.3), 0], [0, 0]], mode='constant', constant_values=255)
                         if 'bottom' in outpaint_selections:
-                            pad = np.zeros(shape=(int(H * 0.3), int(W)), dtype=np.uint8)
-                            inpaint_mask = np.concatenate([inpaint_mask, pad + 255], axis=0)
-                            inpaint_image = np.concatenate([inpaint_image, pad[:, :, None] + bg_color], axis=0)
+                            inpaint_image = np.pad(inpaint_image, [[0, int(H * 0.3)], [0, 0], [0, 0]], mode='edge')
+                            inpaint_mask = np.pad(inpaint_mask, [[0, int(H * 0.3)], [0, 0]], mode='constant', constant_values=255)
 
                         H, W, C = inpaint_image.shape
                         if 'left' in outpaint_selections:
-                            pad = np.zeros(shape=(int(H), int(W * 0.3)), dtype=np.uint8)
-                            inpaint_mask = np.concatenate([pad + 255, inpaint_mask], axis=1)
-                            inpaint_image = np.concatenate([pad[:, :, None] + bg_color, inpaint_image], axis=1)
+                            inpaint_image = np.pad(inpaint_image, [[0, 0], [int(H * 0.3), 0], [0, 0]], mode='edge')
+                            inpaint_mask = np.pad(inpaint_mask, [[0, 0], [int(H * 0.3), 0]], mode='constant', constant_values=255)
                         if 'right' in outpaint_selections:
-                            pad = np.zeros(shape=(int(H), int(W * 0.3)), dtype=np.uint8)
-                            inpaint_mask = np.concatenate([inpaint_mask, pad + 255], axis=1)
-                            inpaint_image = np.concatenate([inpaint_image, pad[:, :, None] + bg_color], axis=1)
+                            inpaint_image = np.pad(inpaint_image, [[0, 0], [0, int(H * 0.3)], [0, 0]], mode='edge')
+                            inpaint_mask = np.pad(inpaint_mask, [[0, 0], [0, int(H * 0.3)]], mode='constant', constant_values=255)
 
                         inpaint_image = np.ascontiguousarray(inpaint_image.copy())
                         inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
