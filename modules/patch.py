@@ -59,7 +59,6 @@ def patched_model_function(func, args):
     if inpaint_worker.current_task is not None:
         p = inpaint_worker.current_task.uc_guidance * cfg_cin
         x = p * is_uncond + x * (1 - is_uncond ** 2.0) ** 0.5
-        print(is_uncond)
     return func(x, t, **c)
 
 
