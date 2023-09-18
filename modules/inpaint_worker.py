@@ -67,9 +67,28 @@ def compute_initial_abcd(x):
     return a, b, c, d
 
 
+def area_abcd(a, b, c, d):
+    return (b - a) * (d - c)
+
+
+def solve_abcd(x, a, b, c, d, k):
+    H, W = x.shape[:2]
+    min_area = H * W * k
+    while area_abcd(a, b, c, d) < min_area:
+        if (b - a) < (d - c):
+            a -= 1
+            b += 1
+        else:
+            c -= 1
+            d += 1
+        a, b, c, d = regulate_abcd(x, a, b, c, d)
+    return a, b, c, d
+
+
 class InpaintWorker:
     def __init__(self, image, mask):
         # mask processing
+        self.image_raw = image
         self.mask_raw_user_input = mask
         self.mask_raw_soft = morphological_hard_open(mask)
         self.mask_raw_fg = (self.mask_raw_soft == 255).astype(np.uint8) * 255
@@ -78,15 +97,15 @@ class InpaintWorker:
         self.mask_raw_error = (self.mask_raw_user_input > self.mask_raw_fg).astype(np.uint8) * 255
 
         # log all images
-        imsave(self.mask_raw_user_input, 'mask_raw_user_input.png')
-        imsave(self.mask_raw_soft, 'mask_raw_soft.png')
-        imsave(self.mask_raw_fg, 'mask_raw_fg.png')
-        imsave(self.mask_raw_bg, 'mask_raw_bg.png')
-        imsave(self.mask_raw_trim, 'mask_raw_trim.png')
-        imsave(self.mask_raw_error, 'mask_raw_error.png')
+        # imsave(self.mask_raw_user_input, 'mask_raw_user_input.png')
+        # imsave(self.mask_raw_soft, 'mask_raw_soft.png')
+        # imsave(self.mask_raw_fg, 'mask_raw_fg.png')
+        # imsave(self.mask_raw_bg, 'mask_raw_bg.png')
+        # imsave(self.mask_raw_trim, 'mask_raw_trim.png')
+        # imsave(self.mask_raw_error, 'mask_raw_error.png')
 
         # mask to float
-        self.mask_raw_user_input = mask_to_float(self.mask_raw_user_input)
+        # self.mask_raw_user_input = mask_to_float(self.mask_raw_user_input)
         self.mask_raw_soft = mask_to_float(self.mask_raw_soft)
         self.mask_raw_fg = mask_to_float(self.mask_raw_fg)
         self.mask_raw_bg = mask_to_float(self.mask_raw_bg)
@@ -95,10 +114,22 @@ class InpaintWorker:
 
         # compute abcd
         a, b, c, d = compute_initial_abcd(self.mask_raw_bg < 0.5)
+        a, b, c, d = solve_abcd(self.mask_raw_bg, a, b, c, d, k=0.4)
 
-        raise NotImplemented
+        # interested area
+        self.interested_area = (a, b, c, d)
+        self.mask_interested_soft = self.mask_raw_soft[a:b, c:d]
+        self.mask_interested_fg = self.mask_raw_fg[a:b, c:d]
+        self.mask_interested_bg = self.mask_raw_bg[a:b, c:d]
+        self.mask_interested_trim = self.mask_raw_trim[a:b, c:d]
+        self.image_interested = self.image_raw[a:b, c:d]
 
+    def visualize_mask_processing(self):
+        result = self.image_raw // 4
+        a, b, c, d = self.interested_area
+        result[a:b, c:d] += 64
+        result[self.mask_raw_trim > 0.5] += 64
+        result[self.mask_raw_fg > 0.5] += 128
+        mask_vis = (np.ones_like(self.image_raw).astype(np.float32) * self.mask_raw_soft[:, :, None] * 255).astype(np.uint8)
+        return np.concatenate([result, mask_vis], axis=0)
 
-image = np.load('D:/tmps/image.npy')
-mask = np.load('D:/tmps/mask.npy')
-InpaintWorker(image=image, mask=mask)

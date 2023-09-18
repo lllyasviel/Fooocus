@@ -168,7 +168,7 @@ def worker():
                 inpaint_mask = inpaint_input_image['mask'][:, :, 0]
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and np.any(inpaint_mask > 127):
-                    if len(outpaint_selections) > 1:
+                    if len(outpaint_selections) > 0:
                         bg_color = np.median(inpaint_image, axis=(0, 1), keepdims=True).clip(0, 255).astype(np.uint8)
 
                         H, W, C = inpaint_image.shape
@@ -195,6 +195,8 @@ def worker():
                         inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
 
                     inpaint_worker.current_task = inpaint_worker.InpaintWorker(image=inpaint_image, mask=inpaint_mask)
+                    outputs.append(['results', [inpaint_worker.current_task.visualize_mask_processing()]])
+                    return
 
         progressbar(1, 'Initializing ...')
 
