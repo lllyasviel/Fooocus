@@ -128,7 +128,7 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
     energy_generator.manual_seed(seed + 1)  # avoid bad results by using different seeds.
 
     def get_energy():
-        return torch.randn(x.size(), dtype=x.dtype, generator=energy_generator, device="cpu")
+        return torch.randn(x.size(), dtype=x.dtype, generator=energy_generator, device="cpu").to(x)
 
     sigma_min, sigma_max = sigmas[sigmas > 0].min(), sigmas.max()
     noise_sampler = BrownianTreeNoiseSampler(x, sigma_min, sigma_max, seed=seed, cpu=True) if noise_sampler is None else noise_sampler
@@ -142,21 +142,20 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
     inpaint_mask = None
 
     if inpaint_worker.current_task is not None:
-        inpaint_latent = latent_processor(inpaint_worker.current_task.latent)
-        inpaint_mask = inpaint_worker.current_task.latent_mask
+        inpaint_latent = latent_processor(inpaint_worker.current_task.latent).to(x)
+        inpaint_mask = inpaint_worker.current_task.latent_mask.to(x)
 
     def blend_latent(a, b, w):
-        b = b.to(a)
-        w = w.to(a)
         return a * w + b * (1 - w)
 
     for i in trange(len(sigmas) - 1, disable=disable):
         if inpaint_latent is None:
             denoised = model(x, sigmas[i] * s_in, **extra_args)
         else:
-            energy = get_energy().to(x) * sigmas[i].to(x) + inpaint_latent.to(x)
+            energy = get_energy() * sigmas[i] + inpaint_latent
             x_prime = blend_latent(x, energy, inpaint_mask)
             denoised = model(x_prime, sigmas[i] * s_in, **extra_args)
+            denoised = blend_latent(denoised, inpaint_latent, inpaint_mask)
         if callback is not None:
             callback({'x': x, 'i': i, 'sigma': sigmas[i], 'sigma_hat': sigmas[i], 'denoised': denoised})
         if sigmas[i + 1] == 0:
