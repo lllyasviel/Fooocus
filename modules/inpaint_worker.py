@@ -132,6 +132,17 @@ class InpaintWorker:
         self.latent = latent
         self.latent_mask = mask
 
+    def color_correction(self, img):
+        return img
+
+    def post_process(self, img):
+        a, b, c, d = self.interested_area
+        content = resample_image(img, d - c, b - a)
+        result = self.image_raw.copy()
+        result[a:b, c:d] = content
+        result = self.color_correction(result)
+        return result
+
     def visualize_mask_processing(self):
         result = self.image_raw // 4
         a, b, c, d = self.interested_area

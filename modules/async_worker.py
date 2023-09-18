@@ -335,6 +335,9 @@ def worker():
                     tiled=tiled
                 )
 
+                if inpaint_worker.current_task is not None:
+                    imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
+
                 for x in imgs:
                     d = [
                         ('Prompt', raw_prompt),
