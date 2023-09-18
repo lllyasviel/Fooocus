@@ -95,7 +95,7 @@ def solve_abcd(x, a, b, c, d, k, outpaint):
 def fooocus_fill(image, mask):
     current_image = image.copy()
     raw_image = image.copy()
-    area = np.where(mask > 127)
+    area = np.where(mask < 127)
     store = raw_image[area]
 
     for k, repeats in [(512, 1), (256, 2), (64, 4), (16, 4), (4, 4), (2, 4)]:
