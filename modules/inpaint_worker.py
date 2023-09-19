@@ -98,7 +98,12 @@ def solve_abcd(x, a, b, c, d, k, outpaint):
     if outpaint:
         return 0, H, 0, W
     min_area = H * W * k
-    while area_abcd(a, b, c, d) < min_area:
+    max_area = H * W
+    while True:
+        if area_abcd(a, b, c, d) > min_area and abs((b - a) - (d - c)) < 16:
+            break
+        if area_abcd(a, b, c, d) >= max_area:
+            break
         if (b - a) < (d - c):
             a -= 1
             b += 1
