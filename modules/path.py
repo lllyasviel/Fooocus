@@ -4,6 +4,7 @@ modelfile_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../mod
 lorafile_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/loras/'))
 vae_approx_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/vae_approx/'))
 upscale_models_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/upscale_models/'))
+inpaint_models_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/inpaint/'))
 temp_outputs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../outputs/'))
 
 fooocus_expansion_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
