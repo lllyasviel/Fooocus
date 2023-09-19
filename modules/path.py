@@ -1,4 +1,6 @@
 import os
+from modules.model_loader import load_file_from_url
+
 
 modelfile_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/checkpoints/'))
 lorafile_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../models/loras/'))
@@ -40,6 +42,20 @@ def update_all_model_names():
     global model_filenames, lora_filenames
     model_filenames = get_model_filenames(modelfile_path)
     lora_filenames = get_model_filenames(lorafile_path)
+    return
+
+
+def downloading_inpaint_models():
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/fooocus_inpaint_head.pth',
+        model_dir=inpaint_models_path,
+        file_name='fooocus_inpaint_head.pth'
+    )
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint.fooocus.patch',
+        model_dir=inpaint_models_path,
+        file_name='inpaint.fooocus.patch'
+    )
     return
 
 
