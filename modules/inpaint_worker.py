@@ -175,11 +175,11 @@ class InpaintWorker:
         self.inpaint_head_feature = None
         return
 
-    def load_inpaint_guidance(self, latent, mask):
+    def load_inpaint_guidance(self, latent, mask, model_path):
         global inpaint_head
         if inpaint_head is None:
             inpaint_head = InpaintHead()
-            sd = torch.load(os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), map_location='cpu')
+            sd = torch.load(model_path, map_location='cpu')
             inpaint_head.load_state_dict(sd)
         process_latent_in = pipeline.xl_base_patched.unet.model.process_latent_in
         feed = torch.cat([mask, process_latent_in(latent)], dim=1)

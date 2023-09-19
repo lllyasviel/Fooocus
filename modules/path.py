@@ -56,7 +56,7 @@ def downloading_inpaint_models():
         model_dir=inpaint_models_path,
         file_name='inpaint.fooocus.patch'
     )
-    return
+    return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path, 'inpaint.fooocus.patch')
 
 
 update_all_model_names()

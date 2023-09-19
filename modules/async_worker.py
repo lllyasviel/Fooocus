@@ -195,6 +195,10 @@ def worker():
                     # outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
                     # return
 
+                    progressbar(0, 'Downloading inpainter ...')
+                    inpaint_head_model_path, inpaint_patch_model_path = modules.path.downloading_inpaint_models()
+                    loras += [(inpaint_patch_model_path, 1.0)]
+
                     inpaint_pixels = core.numpy_to_pytorch(inpaint_worker.current_task.image_ready)
                     progressbar(0, 'VAE encoding ...')
                     initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=inpaint_pixels)
@@ -222,7 +226,7 @@ def worker():
                     inpaint_mask = torch.nn.functional.avg_pool2d(inpaint_mask, (8, 8))
                     inpaint_mask = torch.nn.functional.interpolate(inpaint_mask, (H, W), mode='bilinear')
 
-                    inpaint_worker.current_task.load_inpaint_guidance(latent=inpaint_latent, mask=inpaint_mask)
+                    inpaint_worker.current_task.load_inpaint_guidance(latent=inpaint_latent, mask=inpaint_mask, model_path=inpaint_head_model_path)
 
         progressbar(1, 'Initializing ...')
 
