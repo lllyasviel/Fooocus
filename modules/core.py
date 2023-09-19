@@ -8,7 +8,7 @@ import comfy.model_management
 import comfy.utils
 
 from comfy.sd import load_checkpoint_guess_config
-from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled
+from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from comfy.model_base import SDXLRefiner
 from comfy.sd import model_lora_keys_unet, model_lora_keys_clip, load_lora
@@ -22,6 +22,7 @@ opVAEDecode = VAEDecode()
 opVAEEncode = VAEEncode()
 opVAEDecodeTiled = VAEDecodeTiled()
 opVAEEncodeTiled = VAEEncodeTiled()
+opVAEEncodeForInpaint = VAEEncodeForInpaint()
 
 
 class StableDiffusionModel:
@@ -102,6 +103,12 @@ def decode_vae(vae, latent_image, tiled=False):
 @torch.inference_mode()
 def encode_vae(vae, pixels, tiled=False):
     return (opVAEEncodeTiled if tiled else opVAEEncode).encode(pixels=pixels, vae=vae)[0]
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def encode_vae_inpaint(vae, pixels, mask):
+    return opVAEEncodeForInpaint.encode(pixels=pixels, vae=vae, mask=mask)[0]
 
 
 class VAEApprox(torch.nn.Module):

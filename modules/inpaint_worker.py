@@ -182,7 +182,15 @@ class InpaintWorker:
             sd = torch.load(model_path, map_location='cpu')
             inpaint_head.load_state_dict(sd)
         process_latent_in = pipeline.xl_base_patched.unet.model.process_latent_in
-        feed = torch.cat([mask, process_latent_in(latent)], dim=1)
+
+        latent = process_latent_in(latent)
+        B, C, H, W = latent.shape
+
+        mask = torch.nn.functional.interpolate(mask, size=(H, W), mode="bilinear")
+        mask = mask.round()
+
+        feed = torch.cat([mask, latent], dim=1)
+
         inpaint_head.to(device=feed.device, dtype=feed.dtype)
         self.inpaint_head_feature = inpaint_head(feed)
         return

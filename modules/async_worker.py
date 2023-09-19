@@ -213,19 +213,14 @@ def worker():
 
                     progressbar(0, 'VAE inpaint encoding ...')
 
-                    inpaint_image = inpaint_worker.current_task.image_ready.astype(np.float32)
-                    inpaint_area_as_one = (inpaint_worker.current_task.mask_ready > 0).astype(np.float32)
-                    inpaint_image[inpaint_area_as_one > 0.5] = 127.5
-                    inpaint_mask = inpaint_area_as_one * 255.0
-                    inpaint_pixels = core.numpy_to_pytorch(inpaint_image)
+                    inpaint_mask = (inpaint_worker.current_task.mask_ready > 0).astype(np.float32)
+                    inpaint_mask = torch.tensor(inpaint_mask).float()
 
-                    inpaint_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=inpaint_pixels)['samples']
-                    B, C, H, W = inpaint_latent.shape
+                    vae_dict = core.encode_vae_inpaint(
+                        mask=inpaint_mask, vae=pipeline.xl_base_patched.vae, pixels=inpaint_pixels)
 
-                    inpaint_mask = core.numpy_to_pytorch(inpaint_mask[None])
-                    inpaint_mask = torch.nn.functional.avg_pool2d(inpaint_mask, (8, 8))
-                    inpaint_mask = torch.nn.functional.interpolate(inpaint_mask, (H, W), mode='bilinear')
-
+                    inpaint_latent = vae_dict['samples']
+                    inpaint_mask = vae_dict['noise_mask']
                     inpaint_worker.current_task.load_inpaint_guidance(latent=inpaint_latent, mask=inpaint_mask, model_path=inpaint_head_model_path)
 
         progressbar(1, 'Initializing ...')
