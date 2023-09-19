@@ -28,7 +28,7 @@ def get_model_filenames(folder_path):
     for filename in os.listdir(folder_path):
         if os.path.isfile(os.path.join(folder_path, filename)):
             _, file_extension = os.path.splitext(filename)
-            if file_extension.lower() in ['.pth', '.ckpt', '.bin', '.safetensors']:
+            if file_extension.lower() in ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']:
                 filenames.append(filename)
 
     return filenames

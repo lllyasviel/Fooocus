@@ -3,6 +3,7 @@ __pycache__
 *.safetensors
 *.pth
 *.bin
+*.patch
 lena.png
 lena_result.png
 lena_test.py
