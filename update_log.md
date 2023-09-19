@@ -1,3 +1,7 @@
+### 2.0.65
+
+* Inpaint model released.
+
 ### 2.0.50
 
 * Variation/Upscale (Midjourney Toolbar) implemented.
