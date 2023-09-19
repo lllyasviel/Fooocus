@@ -19,7 +19,7 @@ class InpaintHead(torch.nn.Module):
 
     def __call__(self, x):
         x = torch.nn.functional.pad(x, (1, 1, 1, 1), "replicate")
-        return torch.nn.functional.conv2d(input=x, weight=self.head, padding=1)
+        return torch.nn.functional.conv2d(input=x, weight=self.head)
 
 
 current_task = None
