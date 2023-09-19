@@ -2,6 +2,7 @@ import os.path
 
 import torch
 import numpy as np
+import modules.default_pipeline as pipeline
 
 from PIL import Image, ImageFilter
 from modules.util import resample_image
@@ -174,7 +175,8 @@ class InpaintWorker:
             inpaint_head = InpaintHead()
             sd = torch.load(os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), map_location='cpu')
             inpaint_head.load_state_dict(sd)
-        feed = torch.cat([mask, latent], dim=1)
+        process_latent_in = pipeline.xl_base_patched.unet.model.process_latent_in
+        feed = torch.cat([mask, process_latent_in(latent)], dim=1)
         inpaint_head.to(device=feed.device, dtype=feed.dtype)
         self.inpaint_head_feature = inpaint_head(feed)
         return
