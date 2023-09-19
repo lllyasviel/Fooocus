@@ -58,7 +58,7 @@ def patched_model_function(func, args):
     t = args['timestep']
     c = args['c']
     is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x) * 5e-3
-    if inpaint_worker.current_task is not None:
+    if inpaint_worker.current_task is not None and inpaint_worker.current_task.uc_guidance is not None:
         p = inpaint_worker.current_task.uc_guidance * cfg_cin
         x = p * is_uncond + x * (1 - is_uncond ** 2.0) ** 0.5
     return func(x, t, **c)
@@ -165,7 +165,7 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
         return a * w + b * (1 - w)
 
     for i in trange(len(sigmas) - 1, disable=disable):
-        if inpaint_latent is None:
+        if True or inpaint_latent is None:
             denoised = model(x, sigmas[i] * s_in, **extra_args)
         else:
             inpaint_worker.current_task.uc_guidance = x.detach().clone()
