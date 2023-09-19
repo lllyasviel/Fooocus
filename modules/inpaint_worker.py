@@ -1,7 +1,23 @@
+import os.path
+
+import torch
 import numpy as np
 
-from PIL import Image, ImageFilter, ImageOps
+from PIL import Image, ImageFilter
 from modules.util import resample_image
+from modules.path import inpaint_models_path
+
+
+inpaint_head = None
+
+
+class InpaintHead(torch.nn.Module):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.head = torch.nn.Parameter(torch.empty(size=(320, 5, 3, 3), device='cpu'))
+
+    def __call__(self, x):
+        return torch.nn.functional.conv2d(input=x, weight=self.head, padding=1)
 
 
 current_task = None
@@ -149,6 +165,18 @@ class InpaintWorker:
         self.latent = None
         self.latent_mask = None
         self.uc_guidance = None
+        self.inpaint_head_feature = None
+        return
+
+    def load_inpaint_guidance(self, latent, mask):
+        global inpaint_head
+        if inpaint_head is None:
+            inpaint_head = InpaintHead()
+            sd = torch.load(os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), map_location='cpu')
+            inpaint_head.load_state_dict(sd)
+        feed = torch.cat([mask, latent], dim=1)
+        inpaint_head.to(device=feed.device, dtype=feed.dtype)
+        self.inpaint_head_feature = inpaint_head(feed)
         return
 
     def load_latent(self, latent, mask):

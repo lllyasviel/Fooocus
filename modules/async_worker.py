@@ -206,6 +206,7 @@ def worker():
                     width = W * 8
                     height = H * 8
                     inpaint_worker.current_task.load_latent(latent=inpaint_latent, mask=inpaint_mask)
+                    inpaint_worker.current_task.load_inpaint_guidance(latent=inpaint_latent, mask=inpaint_mask)
 
         progressbar(1, 'Initializing ...')
 
