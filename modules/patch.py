@@ -1,4 +1,5 @@
 import torch
+import contextlib
 import comfy.model_base
 import comfy.ldm.modules.diffusionmodules.openaimodel
 import comfy.samplers
@@ -360,7 +361,39 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
         return self.out(h)
 
 
+def patched_SD1ClipModel_forward(self, tokens):
+        backup_embeds = self.transformer.get_input_embeddings()
+        device = backup_embeds.weight.device
+        tokens = self.set_up_textual_embeddings(tokens, backup_embeds)
+        tokens = torch.LongTensor(tokens).to(device)
+
+        if backup_embeds.weight.dtype != torch.float32:
+            precision_scope = torch.autocast
+        else:
+            precision_scope = contextlib.nullcontext
+
+        with precision_scope(comfy.model_management.get_autocast_device(device)):
+            outputs = self.transformer(input_ids=tokens, output_hidden_states=self.layer=="hidden")
+            self.transformer.set_input_embeddings(backup_embeds)
+
+            if self.layer == "last":
+                z = outputs.last_hidden_state
+            elif self.layer == "pooled":
+                z = outputs.pooler_output[:, None, :]
+            else:
+                z = outputs.hidden_states[self.layer_idx]
+                if self.layer_norm_hidden_state:
+                    z = self.transformer.text_model.final_layer_norm(z)
+
+            pooled_output = outputs.pooler_output
+            if self.text_projection is not None:
+                pooled_output = pooled_output.float().to(self.text_projection.device) @ self.text_projection.float()
+        return z.float(), pooled_output.float()
+
+
 def patch_all():
+    comfy.sd1_clip.SD1ClipModel.forward = patched_SD1ClipModel_forward
+
     comfy.sd.ModelPatcher.calculate_weight = calculate_weight_patched
     comfy.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
 
