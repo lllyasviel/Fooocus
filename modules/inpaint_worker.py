@@ -171,7 +171,6 @@ class InpaintWorker:
         # ending
         self.latent = None
         self.latent_mask = None
-        self.uc_guidance = None
         self.inpaint_head_feature = None
         return
 

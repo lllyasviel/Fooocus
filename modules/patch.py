@@ -272,7 +272,6 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
         if inpaint_latent is None:
             denoised = model(x, sigmas[i] * s_in, **extra_args)
         else:
-            # inpaint_worker.current_task.uc_guidance = x.detach().clone()
             energy = get_energy() * sigmas[i] + inpaint_latent
             x_prime = blend_latent(x, energy, inpaint_mask)
             denoised = model(x_prime, sigmas[i] * s_in, **extra_args)
