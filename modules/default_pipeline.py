@@ -101,8 +101,14 @@ def refresh_loras(loras):
         if name == 'None':
             continue
 
-        filename = os.path.join(modules.path.lorafile_path, name)
-        model = core.load_lora(model, filename, strength_model=weight, strength_clip=weight)
+        if os.path.exists(name):
+            filename = name
+        else:
+            filename = os.path.join(modules.path.lorafile_path, name)
+
+        assert os.path.exists(filename), 'Lora file not found!'
+
+        model = core.load_sd_lora(model, filename, strength_model=weight, strength_clip=weight)
     xl_base_patched = model
     xl_base_patched_hash = str(loras)
     print(f'LoRAs loaded: {xl_base_patched_hash}')

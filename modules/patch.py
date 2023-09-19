@@ -9,9 +9,12 @@ import comfy.ldm.modules.attention
 import comfy.k_diffusion.sampling
 import comfy.sd1_clip
 import modules.inpaint_worker as inpaint_worker
+import comfy.ldm.modules.diffusionmodules.openaimodel
+import comfy.sd
 
 from comfy.k_diffusion import utils
 from comfy.k_diffusion.sampling import BrownianTreeNoiseSampler, trange
+from comfy.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, forward_timestep_embed
 
 
 sharpness = 2.0
@@ -20,6 +23,112 @@ negative_adm = True
 cfg_x0 = 0.0
 cfg_s = 1.0
 cfg_cin = 1.0
+
+
+def calculate_weight_patched(self, patches, weight, key):
+    for p in patches:
+        alpha = p[0]
+        v = p[1]
+        strength_model = p[2]
+
+        if strength_model != 1.0:
+            weight *= strength_model
+
+        if isinstance(v, list):
+            v = (self.calculate_weight(v[1:], v[0].clone(), key),)
+
+        if len(v) == 1:
+            w1 = v[0]
+            if alpha != 0.0:
+                if w1.shape != weight.shape:
+                    print("WARNING SHAPE MISMATCH {} WEIGHT NOT MERGED {} != {}".format(key, w1.shape, weight.shape))
+                else:
+                    weight += alpha * w1.type(weight.dtype).to(weight.device)
+        elif len(v) == 3:
+            # fooocus
+            w1 = v[0].float()
+            w_min = v[1].float()
+            w_max = v[2].float()
+            w1 = (w1 / 255.0) * (w_max - w_min) + w_min
+            if alpha != 0.0:
+                if w1.shape != weight.shape:
+                    print("WARNING SHAPE MISMATCH {} FOOOCUS WEIGHT NOT MERGED {} != {}".format(key, w1.shape, weight.shape))
+                else:
+                    weight += alpha * w1.type(weight.dtype).to(weight.device)
+        elif len(v) == 4:  # lora/locon
+            mat1 = v[0].float().to(weight.device)
+            mat2 = v[1].float().to(weight.device)
+            if v[2] is not None:
+                alpha *= v[2] / mat2.shape[0]
+            if v[3] is not None:
+                mat3 = v[3].float().to(weight.device)
+                final_shape = [mat2.shape[1], mat2.shape[0], mat3.shape[2], mat3.shape[3]]
+                mat2 = torch.mm(mat2.transpose(0, 1).flatten(start_dim=1),
+                                mat3.transpose(0, 1).flatten(start_dim=1)).reshape(final_shape).transpose(0, 1)
+            try:
+                weight += (alpha * torch.mm(mat1.flatten(start_dim=1), mat2.flatten(start_dim=1))).reshape(
+                    weight.shape).type(weight.dtype)
+            except Exception as e:
+                print("ERROR", key, e)
+        elif len(v) == 8:  # lokr
+            w1 = v[0]
+            w2 = v[1]
+            w1_a = v[3]
+            w1_b = v[4]
+            w2_a = v[5]
+            w2_b = v[6]
+            t2 = v[7]
+            dim = None
+
+            if w1 is None:
+                dim = w1_b.shape[0]
+                w1 = torch.mm(w1_a.float(), w1_b.float())
+            else:
+                w1 = w1.float().to(weight.device)
+
+            if w2 is None:
+                dim = w2_b.shape[0]
+                if t2 is None:
+                    w2 = torch.mm(w2_a.float().to(weight.device), w2_b.float().to(weight.device))
+                else:
+                    w2 = torch.einsum('i j k l, j r, i p -> p r k l', t2.float().to(weight.device),
+                                      w2_b.float().to(weight.device), w2_a.float().to(weight.device))
+            else:
+                w2 = w2.float().to(weight.device)
+
+            if len(w2.shape) == 4:
+                w1 = w1.unsqueeze(2).unsqueeze(2)
+            if v[2] is not None and dim is not None:
+                alpha *= v[2] / dim
+
+            try:
+                weight += alpha * torch.kron(w1, w2).reshape(weight.shape).type(weight.dtype)
+            except Exception as e:
+                print("ERROR", key, e)
+        else:  # loha
+            w1a = v[0]
+            w1b = v[1]
+            if v[2] is not None:
+                alpha *= v[2] / w1b.shape[0]
+            w2a = v[3]
+            w2b = v[4]
+            if v[5] is not None:  # cp decomposition
+                t1 = v[5]
+                t2 = v[6]
+                m1 = torch.einsum('i j k l, j r, i p -> p r k l', t1.float().to(weight.device),
+                                  w1b.float().to(weight.device), w1a.float().to(weight.device))
+                m2 = torch.einsum('i j k l, j r, i p -> p r k l', t2.float().to(weight.device),
+                                  w2b.float().to(weight.device), w2a.float().to(weight.device))
+            else:
+                m1 = torch.mm(w1a.float().to(weight.device), w1b.float().to(weight.device))
+                m2 = torch.mm(w2a.float().to(weight.device), w2b.float().to(weight.device))
+
+            try:
+                weight += (alpha * m1 * m2).reshape(weight.shape).type(weight.dtype)
+            except Exception as e:
+                print("ERROR", key, e)
+
+    return weight
 
 
 def cfg_patched(args):
@@ -55,10 +164,7 @@ def patched_model_function(func, args):
     x = args['input']
     t = args['timestep']
     c = args['c']
-    is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x) * 5e-3
-    if inpaint_worker.current_task is not None:
-        p = inpaint_worker.current_task.uc_guidance * cfg_cin
-        x = p * is_uncond + x * (1 - is_uncond ** 2.0) ** 0.5
+    # is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x) * 5e-3
     return func(x, t, **c)
 
 
@@ -166,7 +272,6 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
         if inpaint_latent is None:
             denoised = model(x, sigmas[i] * s_in, **extra_args)
         else:
-            inpaint_worker.current_task.uc_guidance = x.detach().clone()
             energy = get_energy() * sigmas[i] + inpaint_latent
             x_prime = blend_latent(x, energy, inpaint_mask)
             denoised = model(x_prime, sigmas[i] * s_in, **extra_args)
@@ -194,7 +299,71 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
     return x
 
 
+def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=None, transformer_options={}, **kwargs):
+    inpaint_fix = None
+    if inpaint_worker.current_task is not None:
+        inpaint_fix = inpaint_worker.current_task.inpaint_head_feature
+
+    transformer_options["original_shape"] = list(x.shape)
+    transformer_options["current_index"] = 0
+
+    assert (y is not None) == (
+            self.num_classes is not None
+    ), "must specify y if and only if the model is class-conditional"
+    hs = []
+    t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False).to(self.dtype)
+    emb = self.time_embed(t_emb)
+
+    if self.num_classes is not None:
+        assert y.shape[0] == x.shape[0]
+        emb = emb + self.label_emb(y)
+
+    h = x.type(self.dtype)
+    for id, module in enumerate(self.input_blocks):
+        transformer_options["block"] = ("input", id)
+        h = forward_timestep_embed(module, h, emb, context, transformer_options)
+
+        if inpaint_fix is not None:
+            if int(h.shape[1]) == int(inpaint_fix.shape[1]):
+                h = h + inpaint_fix.to(h)
+                inpaint_fix = None
+
+        if control is not None and 'input' in control and len(control['input']) > 0:
+            ctrl = control['input'].pop()
+            if ctrl is not None:
+                h += ctrl
+        hs.append(h)
+    transformer_options["block"] = ("middle", 0)
+    h = forward_timestep_embed(self.middle_block, h, emb, context, transformer_options)
+    if control is not None and 'middle' in control and len(control['middle']) > 0:
+        h += control['middle'].pop()
+
+    for id, module in enumerate(self.output_blocks):
+        transformer_options["block"] = ("output", id)
+        hsp = hs.pop()
+        if control is not None and 'output' in control and len(control['output']) > 0:
+            ctrl = control['output'].pop()
+            if ctrl is not None:
+                hsp += ctrl
+
+        h = torch.cat([h, hsp], dim=1)
+        del hsp
+        if len(hs) > 0:
+            output_shape = hs[-1].shape
+        else:
+            output_shape = None
+        h = forward_timestep_embed(module, h, emb, context, transformer_options, output_shape)
+    h = h.type(x.dtype)
+    if self.predict_codebook_ids:
+        return self.id_predictor(h)
+    else:
+        return self.out(h)
+
+
 def patch_all():
+    comfy.sd.ModelPatcher.calculate_weight = calculate_weight_patched
+    comfy.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
+
     comfy.ldm.modules.attention.print = lambda x: None
     comfy.k_diffusion.sampling.sample_dpmpp_fooocus_2m_sde_inpaint_seamless = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
 

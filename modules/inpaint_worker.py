@@ -1,7 +1,25 @@
-import numpy as np
+import os.path
 
-from PIL import Image, ImageFilter, ImageOps
+import torch
+import numpy as np
+import modules.default_pipeline as pipeline
+
+from PIL import Image, ImageFilter
 from modules.util import resample_image
+from modules.path import inpaint_models_path
+
+
+inpaint_head = None
+
+
+class InpaintHead(torch.nn.Module):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.head = torch.nn.Parameter(torch.empty(size=(320, 5, 3, 3), device='cpu'))
+
+    def __call__(self, x):
+        x = torch.nn.functional.pad(x, (1, 1, 1, 1), "replicate")
+        return torch.nn.functional.conv2d(input=x, weight=self.head)
 
 
 current_task = None
@@ -81,7 +99,12 @@ def solve_abcd(x, a, b, c, d, k, outpaint):
     if outpaint:
         return 0, H, 0, W
     min_area = H * W * k
-    while area_abcd(a, b, c, d) < min_area:
+    max_area = H * W
+    while True:
+        if area_abcd(a, b, c, d) > min_area and abs((b - a) - (d - c)) < 16:
+            break
+        if area_abcd(a, b, c, d) >= max_area:
+            break
         if (b - a) < (d - c):
             a -= 1
             b += 1
@@ -148,7 +171,27 @@ class InpaintWorker:
         # ending
         self.latent = None
         self.latent_mask = None
-        self.uc_guidance = None
+        self.inpaint_head_feature = None
+        return
+
+    def load_inpaint_guidance(self, latent, mask, model_path):
+        global inpaint_head
+        if inpaint_head is None:
+            inpaint_head = InpaintHead()
+            sd = torch.load(model_path, map_location='cpu')
+            inpaint_head.load_state_dict(sd)
+        process_latent_in = pipeline.xl_base_patched.unet.model.process_latent_in
+
+        latent = process_latent_in(latent)
+        B, C, H, W = latent.shape
+
+        mask = torch.nn.functional.interpolate(mask, size=(H, W), mode="bilinear")
+        mask = mask.round()
+
+        feed = torch.cat([mask, latent], dim=1)
+
+        inpaint_head.to(device=feed.device, dtype=feed.dtype)
+        self.inpaint_head_feature = inpaint_head(feed)
         return
 
     def load_latent(self, latent, mask):
