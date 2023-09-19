@@ -3,6 +3,7 @@ import os
 import torch
 import modules.path
 import modules.virtual_memory as virtual_memory
+import comfy.model_management
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.patch import cfg_patched, patched_model_function
@@ -262,4 +263,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent, tiled=tiled)
     images = core.pytorch_to_numpy(decoded_latent)
+
+    comfy.model_management.soft_empty_cache()
     return images
