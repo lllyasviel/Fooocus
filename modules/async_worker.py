@@ -219,8 +219,8 @@ def worker():
                     B, C, H, W = inpaint_latent.shape
 
                     inpaint_mask = core.numpy_to_pytorch(inpaint_mask[None])
-                    inpaint_mask = torch.nn.functional.max_pool2d(inpaint_mask, (8, 8))
-                    inpaint_mask = torch.nn.functional.interpolate(inpaint_mask, (H, W), mode='nearest-exact')
+                    inpaint_mask = torch.nn.functional.avg_pool2d(inpaint_mask, (8, 8))
+                    inpaint_mask = torch.nn.functional.interpolate(inpaint_mask, (H, W), mode='bilinear')
 
                     inpaint_worker.current_task.load_inpaint_guidance(latent=inpaint_latent, mask=inpaint_mask)
 
