@@ -198,7 +198,6 @@ class InpaintWorker:
         return y.clip(0, 255).astype(np.uint8)
 
     def post_process(self, img):
-        return img
         a, b, c, d = self.interested_area
         content = resample_image(img, d - c, b - a)
         result = self.image_raw.copy()
