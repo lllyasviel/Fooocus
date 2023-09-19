@@ -72,6 +72,7 @@ def load_sd_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
 
     new_modelpatcher = model.unet.clone()
     k = new_modelpatcher.add_patches(loaded, strength_model)
+
     new_clip = model.clip.clone()
     k1 = new_clip.add_patches(loaded, strength_clip)
 
