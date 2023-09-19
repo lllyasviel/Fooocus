@@ -33,23 +33,6 @@ def prepare_environment():
     if REINSTALL_ALL or not is_installed("torch") or not is_installed("torchvision"):
         run(f'"{python}" -m {torch_command}', "Installing torch and torchvision", "Couldn't install torch", live=True)
 
-    import torch 
-
-    def detect_gpu_type():
-        if torch.cuda.is_available():
-            gpu_name = torch.cuda.get_device_name(0)  
-            if "NVIDIA" in gpu_name:
-                return "NVIDIA GPU"
-            elif "Radeon" in gpu_name:
-                return "AMD GPU"
-            else:
-                return "Unknown GPU Type"
-        else:
-            return "No GPU Available"
-
-    gpu_type = detect_gpu_type()
-    print("Detected GPU Type:", gpu_type)
-
     if REINSTALL_ALL or not is_installed("xformers"):
         if platform.system() == "Windows":
             if platform.python_version().startswith("3.10"):
@@ -60,7 +43,7 @@ def prepare_environment():
                     "You can also check this and build manually: https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Xformers#building-xformers-on-windows-by-duckness")
                 if not is_installed("xformers"):
                     exit(0)
-        elif platform.system() == "Linux" and gpu_type == 'NVIDIA GPU':
+        elif platform.system() == "Linux":
             run_pip(f"install -U -I --no-deps {xformers_package}", "xformers")
 
     if REINSTALL_ALL or not requirements_met(requirements_file):
