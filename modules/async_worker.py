@@ -1,7 +1,25 @@
 import threading
-
 import numpy as np
 import torch
+import time
+import shared
+import random
+import copy
+import modules.default_pipeline as pipeline
+import modules.core as core
+import modules.flags as flags
+import modules.path
+import modules.patch
+import modules.virtual_memory as virtual_memory
+import comfy.model_management
+import modules.inpaint_worker as inpaint_worker
+
+from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
+from modules.private_logger import log
+from modules.expansion import safe_str
+from modules.util import join_prompts, remove_empty_str, HWC3, resize_image, image_is_generated_in_current_ui
+from modules.upscaler import perform_upscale
+
 
 buffer = []
 outputs = []
@@ -9,25 +27,6 @@ outputs = []
 
 def worker():
     global buffer, outputs
-
-    import time
-    import shared
-    import random
-    import copy
-    import modules.default_pipeline as pipeline
-    import modules.core as core
-    import modules.flags as flags
-    import modules.path
-    import modules.patch
-    import modules.virtual_memory as virtual_memory
-    import comfy.model_management
-    import modules.inpaint_worker as inpaint_worker
-
-    from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
-    from modules.private_logger import log
-    from modules.expansion import safe_str
-    from modules.util import join_prompts, remove_empty_str, HWC3, resize_image, image_is_generated_in_current_ui
-    from modules.upscaler import perform_upscale
 
     try:
         async_gradio_app = shared.gradio_root

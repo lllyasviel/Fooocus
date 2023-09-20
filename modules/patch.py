@@ -391,7 +391,25 @@ def patched_SD1ClipModel_forward(self, tokens):
         return z.float(), pooled_output.float()
 
 
+VAE_DTYPE = None
+
+
+def vae_dtype_patched():
+    global VAE_DTYPE
+    if VAE_DTYPE is None:
+        VAE_DTYPE = torch.float32
+        if comfy.model_management.is_nvidia():
+            torch_version = torch.version.__version__
+            if int(torch_version[0]) >= 2:
+                if torch.cuda.is_bf16_supported():
+                    VAE_DTYPE = torch.bfloat16
+                    print('BFloat16 VAE: Enabled')
+    return VAE_DTYPE
+
+
 def patch_all():
+    comfy.model_management.vae_dtype = vae_dtype_patched
+
     comfy.sd1_clip.SD1ClipModel.forward = patched_SD1ClipModel_forward
 
     comfy.sd.ModelPatcher.calculate_weight = calculate_weight_patched
