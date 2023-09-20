@@ -1,3 +1,7 @@
+### 2.0.72
+
+* Allow users to choose path of models.
+
 ### 2.0.65
 
 * Inpaint model released.
