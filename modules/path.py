@@ -9,7 +9,7 @@ config_dict = {}
 
 try:
     if os.path.exists(config_path):
-        with open(config_path, "r") as json_file:
+        with open(config_path, "r", encoding="utf-8") as json_file:
             config_dict = json.load(json_file)
 except Exception as e:
     print('Load path config failed')
@@ -38,7 +38,7 @@ fooocus_expansion_path = get_config_or_set_default('fooocus_expansion_path',
 
 temp_outputs_path = get_config_or_set_default('temp_outputs_path', '../outputs/')
 
-with open(config_path, "w") as json_file:
+with open(config_path, "w", encoding="utf-8") as json_file:
     json.dump(config_dict, json_file, indent=4)
 
 
