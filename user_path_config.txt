@@ -1,9 +1,0 @@
-{
-    "modelfile_path": "D:\\fooocus\\models\\checkpoints",
-    "lorafile_path": "D:\\fooocus\\models\\loras",
-    "vae_approx_path": "D:\\fooocus\\models\\vae_approx",
-    "upscale_models_path": "D:\\fooocus\\models\\upscale_models",
-    "inpaint_models_path": "D:\\fooocus\\models\\inpaint",
-    "fooocus_expansion_path": "D:\\fooocus\\models\\prompt_expansion\\fooocus_expansion",
-    "temp_outputs_path": "D:\\fooocus\\outputs"
-}
