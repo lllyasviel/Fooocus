@@ -55,6 +55,7 @@ def worker():
         outpaint_selections = [o.lower() for o in outpaint_selections]
 
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
+        loras_user_raw_input = copy.deepcopy(loras)
 
         raw_style_selections = copy.deepcopy(style_selections)
 
@@ -223,6 +224,11 @@ def worker():
                     inpaint_mask = vae_dict['noise_mask']
                     inpaint_worker.current_task.load_inpaint_guidance(latent=inpaint_latent, mask=inpaint_mask, model_path=inpaint_head_model_path)
 
+                    B, C, H, W = inpaint_latent.shape
+                    width = W * 8
+                    height = H * 8
+                    print(f'Final resolution is {str((height, width))}.')
+
         progressbar(1, 'Initializing ...')
 
         raw_prompt = prompt
@@ -363,7 +369,7 @@ def worker():
                         ('Refiner Model', refiner_model_name),
                         ('Seed', task['task_seed'])
                     ]
-                    for n, w in loras:
+                    for n, w in loras_user_raw_input:
                         if n != 'None':
                             d.append((f'LoRA [{n}] weight', w))
                     log(x, d, single_line_number=3)
