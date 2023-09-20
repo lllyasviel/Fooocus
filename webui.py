@@ -79,8 +79,9 @@ with shared.gradio_root:
                                         _js="(x) => {if(x){setTimeout(() => window.scrollTo({ top: window.scrollY + 500, behavior: 'smooth' }), 50);}else{setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);} return x}")
 
             current_tab = gr.Textbox(value='uov', visible=False)
-            uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False)
-            inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False)
+
+            uov_tab.select(lambda: ['uov', worker.default_image], outputs=[current_tab, uov_input_image], queue=False)
+            inpaint_tab.select(lambda: ['inpaint', worker.default_image], outputs=[current_tab, inpaint_input_image], queue=False)
 
         with gr.Column(scale=0.5, visible=False) as right_col:
             with gr.Tab(label='Setting'):
