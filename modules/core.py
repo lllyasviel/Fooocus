@@ -1,3 +1,8 @@
+from modules.patch import patch_all
+
+patch_all()
+
+
 import os
 import random
 import einops
@@ -13,10 +18,8 @@ from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, c
 from comfy.model_base import SDXLRefiner
 from comfy.sd import model_lora_keys_unet, model_lora_keys_clip, load_lora
 from modules.samplers_advanced import KSamplerBasic, KSamplerWithRefiner
-from modules.patch import patch_all
 
 
-patch_all()
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
 opVAEEncode = VAEEncode()

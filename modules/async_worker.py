@@ -1,7 +1,5 @@
 import threading
 
-import numpy as np
-import torch
 
 buffer = []
 outputs = []
@@ -10,6 +8,8 @@ outputs = []
 def worker():
     global buffer, outputs
 
+    import numpy as np
+    import torch
     import time
     import shared
     import random
