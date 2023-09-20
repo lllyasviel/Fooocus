@@ -25,33 +25,25 @@ class InpaintHead(torch.nn.Module):
 current_task = None
 
 
-def morphological_soft_open(x):
-    k = 12
-    x = Image.fromarray(x)
-    for _ in range(k):
-        x = x.filter(ImageFilter.MaxFilter(3))
-    x = x.filter(ImageFilter.BoxBlur(k * 2 + 1))
-    x = np.array(x)
-    return x
-
-
 def box_blur(x, k):
     x = Image.fromarray(x)
     x = x.filter(ImageFilter.BoxBlur(k))
     return np.array(x)
 
 
-def threshold_0_255(x):
-    y = np.zeros_like(x)
-    y[x > 127] = 255
-    return y
+def max33(x):
+    x = Image.fromarray(x)
+    x = x.filter(ImageFilter.MaxFilter(3))
+    return np.array(x)
 
 
-def morphological_hard_open(x):
-    y = threshold_0_255(x)
-    z = morphological_soft_open(x)
-    z[y > 127] = 255
-    return z
+def morphological_open(x):
+    x_int32 = np.zeros_like(x).astype(np.int32)
+    x_int32[x > 127] = 256
+    for _ in range(32):
+        maxed = max33(x_int32) - 8
+        x_int32 = np.maximum(maxed, x_int32)
+    return x_int32.clip(0, 255).astype(np.uint8)
 
 
 def imsave(x, path):
@@ -132,21 +124,20 @@ def fooocus_fill(image, mask):
 class InpaintWorker:
     def __init__(self, image, mask, is_outpaint):
         # mask processing
-        self.image_raw = fooocus_fill(image, mask)
-        self.mask_raw_user_input = mask
-        self.mask_raw_soft = morphological_hard_open(mask)
+        self.mask_raw_soft = morphological_open(mask)
         self.mask_raw_fg = (self.mask_raw_soft == 255).astype(np.uint8) * 255
         self.mask_raw_bg = (self.mask_raw_soft == 0).astype(np.uint8) * 255
         self.mask_raw_trim = 255 - np.maximum(self.mask_raw_fg, self.mask_raw_bg)
-        self.mask_raw_error = (self.mask_raw_user_input > self.mask_raw_fg).astype(np.uint8) * 255
+
+        # image processing
+        self.image_raw = fooocus_fill(image, self.mask_raw_fg)
 
         # log all images
-        # imsave(self.mask_raw_user_input, 'mask_raw_user_input.png')
+        # imsave(self.image_raw, 'image_raw.png')
         # imsave(self.mask_raw_soft, 'mask_raw_soft.png')
         # imsave(self.mask_raw_fg, 'mask_raw_fg.png')
         # imsave(self.mask_raw_bg, 'mask_raw_bg.png')
         # imsave(self.mask_raw_trim, 'mask_raw_trim.png')
-        # imsave(self.mask_raw_error, 'mask_raw_error.png')
 
         # compute abcd
         a, b, c, d = compute_initial_abcd(self.mask_raw_bg < 127)
