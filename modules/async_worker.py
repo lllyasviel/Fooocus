@@ -208,8 +208,6 @@ def worker():
                     inpaint_mask = core.numpy_to_pytorch(inpaint_worker.current_task.mask_ready[None])
                     inpaint_mask = torch.nn.functional.avg_pool2d(inpaint_mask, (8, 8))
                     inpaint_mask = torch.nn.functional.interpolate(inpaint_mask, (H, W), mode='bilinear')
-                    width = W * 8
-                    height = H * 8
                     inpaint_worker.current_task.load_latent(latent=inpaint_latent, mask=inpaint_mask)
 
                     progressbar(0, 'VAE inpaint encoding ...')
@@ -225,9 +223,8 @@ def worker():
                     inpaint_worker.current_task.load_inpaint_guidance(latent=inpaint_latent, mask=inpaint_mask, model_path=inpaint_head_model_path)
 
                     B, C, H, W = inpaint_latent.shape
-                    width = W * 8
-                    height = H * 8
-                    print(f'Final resolution is {str((height, width))}.')
+                    height, width = inpaint_worker.current_task.image_raw.shape[:2]
+                    print(f'Final resolution is {str((height, width))}, latent is {str((H * 8, W * 8))}.')
 
         progressbar(1, 'Initializing ...')
 
