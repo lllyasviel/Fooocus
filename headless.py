@@ -1,11 +1,7 @@
 import argparse
 import time
 import random
-import modules.path
-import fooocus_version
-import modules.flags as flags
 import modules.async_worker as worker
-import comfy.model_management as model_management
 
 def generate_images(*args):
     execution_start_time = time.perf_counter()
