@@ -1,3 +1,5 @@
+(2023 sep 21) The feature updating of Fooocus will be paused for about two or three weeks because we have some events and travelling - we will come back in early or mid October. 
+
 ### 2.0.72
 
 * Allow users to choose path of models.
