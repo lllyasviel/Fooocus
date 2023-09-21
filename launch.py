@@ -54,7 +54,7 @@ def prepare_environment():
 
 model_filenames = [
     ('sd_xl_base_1.0_0.9vae.safetensors',
-     input("Enter the URL for model download (e.g., https://example.com/model.safetensors): ")),
+     input("Enter the URL for model download: ")),
     ('sd_xl_refiner_1.0_0.9vae.safetensors',
      'https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors')
 ]
