@@ -336,6 +336,8 @@ def worker():
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
             try:
+                execution_start_time = time.perf_counter()
+
                 imgs = pipeline.process_diffusion(
                     positive_cond=task['c'],
                     negative_cond=task['uc'],
@@ -352,6 +354,9 @@ def worker():
 
                 if inpaint_worker.current_task is not None:
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
+
+                execution_time = time.perf_counter() - execution_start_time
+                print(f'Diffusion time: {execution_time:.2f} seconds')
 
                 for x in imgs:
                     d = [
