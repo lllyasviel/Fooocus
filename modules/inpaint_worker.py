@@ -97,16 +97,24 @@ def solve_abcd(x, a, b, c, d, k, outpaint):
             break
         if area_abcd(a, b, c, d) >= max_area:
             break
-        if (b - a) < (d - c):
-            a -= 2
-            b += 2
-            c -= 1
-            d += 1
-        else:
+
+        add_h = (b - a) < (d - c)
+        add_w = not add_h
+
+        if b - a == H:
+            add_w = True
+
+        if d - c == W:
+            add_h = True
+
+        if add_h:
             a -= 1
             b += 1
-            c -= 2
-            d += 2
+
+        if add_w:
+            c -= 1
+            d += 1
+
         a, b, c, d = regulate_abcd(x, a, b, c, d)
     return a, b, c, d
 
