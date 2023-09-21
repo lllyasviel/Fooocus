@@ -4,6 +4,7 @@ os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 import sys
 import platform
 import fooocus_version
+import argparse
 
 from modules.launch_util import is_installed, run, python, \
     run_pip, repo_dir, git_clone, requirements_met, script_path, dir_repos
@@ -114,4 +115,11 @@ clear_comfy_args()
 
 download_models()
 
-from webui import *
+parser = argparse.ArgumentParser()
+parser.add_argument("--headless", action='store_true', help="Set to run in headless mode.")
+args = parser.parse_args()
+
+if args.headless:
+    from headless import *
+else:
+    from webui import *
