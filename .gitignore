@@ -38,3 +38,4 @@ notification.mp3
 /node_modules
 /package-lock.json
 /.coverage*
+/modules/custom_styles.json
