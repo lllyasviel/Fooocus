@@ -1,4 +1,5 @@
 __pycache__
+launch.py
 *.ckpt
 *.safetensors
 *.pth
