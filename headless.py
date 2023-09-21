@@ -31,7 +31,6 @@ def generate_images(*args):
                 print(f'Total time: {execution_time:.2f} seconds')
                 return product
 
-    print("Image generation failed.")
     return None
 
 parser = argparse.ArgumentParser()
