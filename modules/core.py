@@ -1,3 +1,8 @@
+from modules.patch import patch_all
+
+patch_all()
+
+
 import os
 import random
 import einops
@@ -8,19 +13,19 @@ import comfy.model_management
 import comfy.utils
 
 from comfy.sd import load_checkpoint_guess_config
-from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled
+from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from comfy.model_base import SDXLRefiner
-from modules.samplers_advanced import KSampler, KSamplerWithRefiner
-from modules.patch import patch_all
+from comfy.sd import model_lora_keys_unet, model_lora_keys_clip, load_lora
+from modules.samplers_advanced import KSamplerBasic, KSamplerWithRefiner
 
 
-patch_all()
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
 opVAEEncode = VAEEncode()
 opVAEDecodeTiled = VAEDecodeTiled()
 opVAEEncodeTiled = VAEEncodeTiled()
+opVAEEncodeForInpaint = VAEEncodeForInpaint()
 
 
 class StableDiffusionModel:
@@ -56,12 +61,32 @@ def load_model(ckpt_filename):
 
 @torch.no_grad()
 @torch.inference_mode()
-def load_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
+def load_sd_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
     if strength_model == 0 and strength_clip == 0:
         return model
 
-    lora = comfy.utils.load_torch_file(lora_filename, safe_load=True)
-    unet, clip = comfy.sd.load_lora_for_models(model.unet, model.clip, lora, strength_model, strength_clip)
+    lora = comfy.utils.load_torch_file(lora_filename, safe_load=False)
+
+    if lora_filename.lower().endswith('.fooocus.patch'):
+        loaded = lora
+    else:
+        key_map = model_lora_keys_unet(model.unet.model)
+        key_map = model_lora_keys_clip(model.clip.cond_stage_model, key_map)
+        loaded = load_lora(lora, key_map)
+
+    new_modelpatcher = model.unet.clone()
+    k = new_modelpatcher.add_patches(loaded, strength_model)
+
+    new_clip = model.clip.clone()
+    k1 = new_clip.add_patches(loaded, strength_clip)
+
+    k = set(k)
+    k1 = set(k1)
+    for x in loaded:
+        if (x not in k) and (x not in k1):
+            print("Lora missed: ", x)
+
+    unet, clip = new_modelpatcher, new_clip
     return StableDiffusionModel(unet=unet, clip=clip, vae=model.vae, clip_vision=model.clip_vision)
 
 
@@ -81,6 +106,12 @@ def decode_vae(vae, latent_image, tiled=False):
 @torch.inference_mode()
 def encode_vae(vae, pixels, tiled=False):
     return (opVAEEncodeTiled if tiled else opVAEEncode).encode(pixels=pixels, vae=vae)[0]
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def encode_vae_inpaint(vae, pixels, mask):
+    return opVAEEncodeForInpaint.encode(pixels=pixels, vae=vae, mask=mask)[0]
 
 
 class VAEApprox(torch.nn.Module):
@@ -147,7 +178,7 @@ def get_previewer(device, latent_format):
 
 @torch.no_grad()
 @torch.inference_mode()
-def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
+def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False, callback_function=None):
     # SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
@@ -199,7 +230,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 
     models = load_additional_models(positive, negative, model.model_dtype())
 
-    sampler = KSampler(real_model, steps=steps, device=device, sampler=sampler_name, scheduler=scheduler,
+    sampler = KSamplerBasic(real_model, steps=steps, device=device, sampler=sampler_name, scheduler=scheduler,
                        denoise=denoise, model_options=model.model_options)
 
     samples = sampler.sample(noise, positive_copy, negative_copy, cfg=cfg, latent_image=latent_image,
@@ -220,7 +251,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 @torch.no_grad()
 @torch.inference_mode()
 def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, refiner_negative, latent,
-                          seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
+                          seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
                           scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
                           force_full_denoise=False, callback_function=None):
     # SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]

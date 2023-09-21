@@ -3,9 +3,10 @@ import os
 import torch
 import modules.path
 import modules.virtual_memory as virtual_memory
+import comfy.model_management
 
 from comfy.model_base import SDXL, SDXLRefiner
-from modules.patch import cfg_patched
+from modules.patch import cfg_patched, patched_model_function
 from modules.expansion import FooocusExpansion
 
 
@@ -101,8 +102,14 @@ def refresh_loras(loras):
         if name == 'None':
             continue
 
-        filename = os.path.join(modules.path.lorafile_path, name)
-        model = core.load_lora(model, filename, strength_model=weight, strength_clip=weight)
+        if os.path.exists(name):
+            filename = name
+        else:
+            filename = os.path.join(modules.path.lorafile_path, name)
+
+        assert os.path.exists(filename), 'Lora file not found!'
+
+        model = core.load_sd_lora(model, filename, strength_model=weight, strength_clip=weight)
     xl_base_patched = model
     xl_base_patched_hash = str(loras)
     print(f'LoRAs loaded: {xl_base_patched_hash}')
@@ -201,10 +208,14 @@ def patch_all_models():
     assert xl_base_patched is not None
 
     xl_base.unet.model_options['sampler_cfg_function'] = cfg_patched
+    xl_base.unet.model_options['model_function_wrapper'] = patched_model_function
+
     xl_base_patched.unet.model_options['sampler_cfg_function'] = cfg_patched
+    xl_base_patched.unet.model_options['model_function_wrapper'] = patched_model_function
 
     if xl_refiner is not None:
         xl_refiner.unet.model_options['sampler_cfg_function'] = cfg_patched
+        xl_refiner.unet.model_options['model_function_wrapper'] = patched_model_function
 
     return
 
@@ -252,4 +263,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent, tiled=tiled)
     images = core.pytorch_to_numpy(decoded_latent)
+
+    comfy.model_management.soft_empty_cache()
     return images

@@ -1,4 +1,5 @@
 disabled = 'Disabled'
+enabled = 'Enabled'
 subtle_variation = 'Vary (Subtle)'
 strong_variation = 'Vary (Strong)'
 upscale_15 = 'Upscale (1.5x)'

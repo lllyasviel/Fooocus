@@ -15,17 +15,23 @@ def image_is_generated_in_current_ui(image, ui_width, ui_height):
     if W < ui_width:
         return False
 
-    k1 = float(H) / float(W)
-    k2 = float(ui_height) / float(ui_width)
-    d = abs(k1 - k2)
-
-    if d > 0.01:
-        return False
+    # k1 = float(H) / float(W)
+    # k2 = float(ui_height) / float(ui_width)
+    # d = abs(k1 - k2)
+    #
+    # if d > 0.01:
+    #     return False
 
     return True
 
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
+
+
+def resample_image(im, width, height):
+    im = Image.fromarray(im)
+    im = im.resize((width, height), resample=LANCZOS)
+    return np.array(im)
 
 
 def resize_image(im, width, height, resize_mode=1):
