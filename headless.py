@@ -56,7 +56,7 @@ parser.add_argument("--uov_method", type=str, required=False, default="disabled"
 parser.add_argument("--uov_input_image", type=str, required=False, default=None, help="Upscale or Variation Input Image.")
 parser.add_argument("--outpaint", type=str, nargs='+', required=False, default=[], help="List of Outpaint selections.")
 parser.add_argument("--inpaint_input_image", type=str, required=False, default=None, help="Inpaint Input Image.")
-args = parser.parse_args()
+args, unknown_args = parser.parse_known_args()
 
 args.aspect_ratio = args.aspect_ratio.replace('x', '×')
 
