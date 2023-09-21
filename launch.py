@@ -117,7 +117,7 @@ download_models()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--headless", action='store_true', help="Set to run in headless mode.")
-args = parser.parse_args()
+args, unknown_args = parser.parse_known_args()
 
 if args.headless:
     from headless import *
