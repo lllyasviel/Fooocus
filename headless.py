@@ -90,6 +90,6 @@ result = generate_images(
 )
 
 if result:
-    print("Image generated successfully.", result)
+    print("Image generation completed.")
 else:
     print("Image generation failed.")
