@@ -30,6 +30,7 @@ def generate_images(*args):
     return None
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--batch", type=str, required=False, help="Set to run batch prompts from a json file.")
 parser.add_argument("--prompt", type=str, required=True, help="Input text prompt.")
 parser.add_argument("--negative_prompt", type=str, required=False, default="", help="Negative text prompt.")
 parser.add_argument("--styles", type=str, nargs='+', required=False, default=["Fooocus V2", "Default (Slightly Cinematic)"], help="List of style selections.")
@@ -60,36 +61,75 @@ args, unknown_args = parser.parse_known_args()
 
 args.aspect_ratio = args.aspect_ratio.replace('x', '×')
 
-result = generate_images(
-    args.prompt,
-    args.negative_prompt,
-    args.styles,
-    args.performance,
-    args.aspect_ratio,
-    args.image_number,
-    args.seed,
-    args.sharpness,
-    args.base_model,
-    args.refiner_model,
-    args.l1,
-    args.w1,
-    args.l2,
-    args.w2,
-    args.l3,
-    args.w3,
-    args.l4,
-    args.w4,
-    args.l5,
-    args.w5,
-    args.use_input_image,
-    args.current_tab,
-    args.uov_method,
-    args.uov_input_image,
-    args.outpaint,
-    args.inpaint_input_image
-)
-
-if result:
-    print("Image generation completed.")
+if args.batch:
+    import json
+    prompts = []
+    with open(args.batch, 'r') as file:
+        batch_prompts = json.load(file)
+    for batch_prompt in batch_prompts:
+        prompts += [
+            batch_prompt.get("prompt", args.prompt),
+            batch_prompt.get("negative_prompt", args.negative_prompt),
+            batch_prompt.get("styles", args.styles),
+            batch_prompt.get("performance", args.performance),
+            batch_prompt.get("aspect_ratio", args.aspect_ratio),
+            batch_prompt.get("image_number", args.image_number),
+            batch_prompt.get("seed", args.seed),
+            batch_prompt.get("sharpness", args.sharpness),
+            batch_prompt.get("base_model", args.base_model),
+            batch_prompt.get("refiner_model", args.refiner_model),
+            batch_prompt.get("l1", args.l1),
+            batch_prompt.get("w1", args.w1),
+            batch_prompt.get("l2", args.l2),
+            batch_prompt.get("w2", args.w2),
+            batch_prompt.get("l3", args.l3),
+            batch_prompt.get("w3", args.w3),
+            batch_prompt.get("l4", args.l4),
+            batch_prompt.get("w4", args.w4),
+            batch_prompt.get("l5", args.l5),
+            batch_prompt.get("w5", args.w5),
+            batch_prompt.get("use_input_image", args.use_input_image),
+            batch_prompt.get("current_tab", args.current_tab),
+            batch_prompt.get("uov_method", args.uov_method),
+            batch_prompt.get("uov_input_image", args.uov_input_image),
+            batch_prompt.get("outpaint", args.outpaint),
+            batch_prompt.get("inpaint_input_image", args.inpaint_input_image)
+        ]
 else:
-    print("Image generation failed.")
+    prompts = [
+        args.prompt,
+        args.negative_prompt,
+        args.styles,
+        args.performance,
+        args.aspect_ratio,
+        args.image_number,
+        args.seed,
+        args.sharpness,
+        args.base_model,
+        args.refiner_model,
+        args.l1,
+        args.w1,
+        args.l2,
+        args.w2,
+        args.l3,
+        args.w3,
+        args.l4,
+        args.w4,
+        args.l5,
+        args.w5,
+        args.use_input_image,
+        args.current_tab,
+        args.uov_method,
+        args.uov_input_image,
+        args.outpaint,
+        args.inpaint_input_image
+    ]
+
+for prompt in prompts:
+  print("Generating:", str(prompt))
+  result = generate_images(prompt)
+
+  if result:
+      print("Image generation completed.")
+  else:
+      print("Image generation failed.")
