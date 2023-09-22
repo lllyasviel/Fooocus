@@ -76,7 +76,7 @@ if args.batch:
             batch_prompt.get("negative_prompt", args.negative_prompt),
             batch_prompt.get("styles", args.styles),
             batch_prompt.get("performance", args.performance),
-            batch_prompt.get("aspect_ratio", args.aspect_ratio),
+            batch_prompt.get("aspect_ratio", args.aspect_ratio).replace('x', '×'),
             batch_prompt.get("image_number", args.image_number),
             set_seed,
             batch_prompt.get("sharpness", args.sharpness),
@@ -105,7 +105,7 @@ else:
         args.negative_prompt,
         args.styles,
         args.performance,
-        args.aspect_ratio,
+        args.aspect_ratio.replace('x', '×'),
         args.image_number,
         args.seed,
         args.sharpness,
@@ -130,7 +130,6 @@ else:
     ])
 
 for prompt in prompts:
-  prompt['aspect_ratio'] = prompt['aspect_ratio'].replace('x', '×')
   print("Generating:", str(prompt))
   result = generate_images(prompt)
 
