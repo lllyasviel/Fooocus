@@ -1,0 +1,42 @@
+[
+  {
+    "prompt": "Note that seed -1 means 'random'. Only 'prompt' is required all other are optional and have default values. This example shows the default values",
+    "negative_prompt": "",
+    "styles": ["Fooocus V2", "Default (Slightly Cinematic)"],
+    "performance": "Speed",
+    "aspect_ratio": "1024x1024",
+    "image_number": 2,
+    "seed": -1,
+    "sharpness": 2.0,
+    "base_model": "sd_xl_base_1.0_0.9vae.safetensors",
+    "refiner_model": "sd_xl_refiner_1.0_0.9vae.safetensors",
+    "l1": "sd_xl_offset_example-lora_1.0.safetensors",
+    "w1": 0.5,
+    "l2": "None",
+    "w2": 0.5,
+    "l3": "None",
+    "w3": 0.5,
+    "l4": "None",
+    "w4": 0.5,
+    "l5": "None",
+    "w5": 0.5,
+    "current_tab": "",
+    "use_input_image": false,
+    "uov_method": "disabled",
+    "uov_input_image": null,
+    "outpaint": [],
+    "inpaint_input_image": null
+  },
+  {
+    "prompt": "This one will generate four images with aspect_ratio 1280x768",
+    "image_number": 4,
+    "aspect_ratio": "1280x768"
+  },
+  {
+    "prompt": "Here is another one with some other parameters set",
+    "negative_prompt": "You can include as many as you need",
+    "seed": "12345",
+    "performance": "Quality",
+    "sharpness": 10.0
+  }
+]
