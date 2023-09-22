@@ -64,16 +64,16 @@ args.aspect_ratio = args.aspect_ratio.replace('x', '×')
 if not args.prompt and not args.batch:
     parser.error("Either --prompt or --batch is required when running --headless.")
 
+prompts = []
 if args.batch:
     import json
-    prompts = []
     with open(args.batch, 'r') as file:
         batch_prompts = json.load(file)
     for batch_prompt in batch_prompts:
         set_seed = batch_prompt.get("seed", args.seed)
         if set_seed == -1:
             set_seed = random.randint(1, 1073741824)
-        prompts += [list(
+        prompts.append([
             batch_prompt.get("prompt", args.prompt),
             batch_prompt.get("negative_prompt", args.negative_prompt),
             batch_prompt.get("styles", args.styles),
@@ -100,9 +100,9 @@ if args.batch:
             batch_prompt.get("uov_input_image", args.uov_input_image),
             batch_prompt.get("outpaint", args.outpaint),
             batch_prompt.get("inpaint_input_image", args.inpaint_input_image)
-        )]
+        ])
 else:
-    prompts = [list(
+    prompts.append([
         args.prompt,
         args.negative_prompt,
         args.styles,
@@ -129,7 +129,7 @@ else:
         args.uov_input_image,
         args.outpaint,
         args.inpaint_input_image
-    )]
+    ])
 
 for prompt in prompts:
   print("Generating:", str(prompt))
