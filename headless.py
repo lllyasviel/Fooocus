@@ -31,7 +31,7 @@ def generate_images(prompt):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch", type=str, required=False, help="Set to run batch prompts from a json file.")
-parser.add_argument("--prompt", type=str, required=False if "--batch" in sys.argv else True, help="Input text prompt.")
+parser.add_argument("--prompt", type=str, required=False, help="Input text prompt.")
 parser.add_argument("--negative_prompt", type=str, required=False, default="", help="Negative text prompt.")
 parser.add_argument("--styles", type=str, nargs='+', required=False, default=["Fooocus V2", "Default (Slightly Cinematic)"], help="List of style selections.")
 parser.add_argument("--performance", type=str, required=False, default="Speed", help="Performance selection ('Speed' or 'Quality').")
