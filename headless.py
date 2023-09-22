@@ -67,6 +67,9 @@ if args.batch:
     with open(args.batch, 'r') as file:
         batch_prompts = json.load(file)
     for batch_prompt in batch_prompts:
+        set_seed = batch_prompt.get("seed", args.seed)
+        if set_seed == -1:
+            set_seed = random.randint(1, 1073741824)
         prompts += [
             batch_prompt.get("prompt", args.prompt),
             batch_prompt.get("negative_prompt", args.negative_prompt),
@@ -74,7 +77,7 @@ if args.batch:
             batch_prompt.get("performance", args.performance),
             batch_prompt.get("aspect_ratio", args.aspect_ratio),
             batch_prompt.get("image_number", args.image_number),
-            batch_prompt.get("seed", args.seed),
+            set_seed,
             batch_prompt.get("sharpness", args.sharpness),
             batch_prompt.get("base_model", args.base_model),
             batch_prompt.get("refiner_model", args.refiner_model),
