@@ -31,7 +31,7 @@ def generate_images(prompt):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch", type=str, required=False, help="Set to run batch prompts from a json file.")
-parser.add_argument("--prompt", type=str, required=True, help="Input text prompt.")
+parser.add_argument("--prompt", type=str, required=False if "--batch" in sys.argv else True, help="Input text prompt.")
 parser.add_argument("--negative_prompt", type=str, required=False, default="", help="Negative text prompt.")
 parser.add_argument("--styles", type=str, nargs='+', required=False, default=["Fooocus V2", "Default (Slightly Cinematic)"], help="List of style selections.")
 parser.add_argument("--performance", type=str, required=False, default="Speed", help="Performance selection ('Speed' or 'Quality').")
@@ -60,6 +60,9 @@ parser.add_argument("--inpaint_input_image", type=str, required=False, default=N
 args, unknown_args = parser.parse_known_args()
 
 args.aspect_ratio = args.aspect_ratio.replace('x', '×')
+
+if not args.prompt and not args.batch:
+    parser.error("Either --prompt or --batch is required when running --headless.")
 
 if args.batch:
     import json
