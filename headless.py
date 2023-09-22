@@ -59,8 +59,6 @@ parser.add_argument("--outpaint", type=str, nargs='+', required=False, default=[
 parser.add_argument("--inpaint_input_image", type=str, required=False, default=None, help="Inpaint Input Image.")
 args, unknown_args = parser.parse_known_args()
 
-args.aspect_ratio = args.aspect_ratio.replace('x', '×')
-
 if not args.prompt and not args.batch:
     parser.error("Either --prompt or --batch is required when running --headless.")
 
@@ -132,6 +130,7 @@ else:
     ])
 
 for prompt in prompts:
+  prompt['aspect_ratio'] = prompt['aspect_ratio'].replace('x', '×')
   print("Generating:", str(prompt))
   result = generate_images(prompt)
 
