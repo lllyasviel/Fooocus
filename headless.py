@@ -3,11 +3,11 @@ import time
 import random
 import modules.async_worker as worker
 
-def generate_images(*args):
+def generate_images(prompt):
     execution_start_time = time.perf_counter()
     last_progress_time = execution_start_time
 
-    worker.buffer.append(list(args))
+    worker.buffer.append(prompt)
     finished = False
 
     while not finished:
@@ -70,7 +70,7 @@ if args.batch:
         set_seed = batch_prompt.get("seed", args.seed)
         if set_seed == -1:
             set_seed = random.randint(1, 1073741824)
-        prompts += [
+        prompts += [list(
             batch_prompt.get("prompt", args.prompt),
             batch_prompt.get("negative_prompt", args.negative_prompt),
             batch_prompt.get("styles", args.styles),
@@ -97,9 +97,9 @@ if args.batch:
             batch_prompt.get("uov_input_image", args.uov_input_image),
             batch_prompt.get("outpaint", args.outpaint),
             batch_prompt.get("inpaint_input_image", args.inpaint_input_image)
-        ]
+        )]
 else:
-    prompts = [
+    prompts = [list(
         args.prompt,
         args.negative_prompt,
         args.styles,
@@ -126,7 +126,7 @@ else:
         args.uov_input_image,
         args.outpaint,
         args.inpaint_input_image
-    ]
+    )]
 
 for prompt in prompts:
   print("Generating:", str(prompt))
