@@ -2,6 +2,7 @@ import argparse
 import time
 import random
 import modules.async_worker as worker
+from modules.sdxl_styles import normalize_key
 
 def generate_images(prompt):
     execution_start_time = time.perf_counter()
@@ -74,7 +75,7 @@ if args.batch:
         prompts.append([
             batch_prompt.get("prompt", args.prompt),
             batch_prompt.get("negative_prompt", args.negative_prompt),
-            batch_prompt.get("styles", args.styles),
+            [normalize_key(style) for style in batch_prompt.get("styles", args.styles)],
             batch_prompt.get("performance", args.performance),
             batch_prompt.get("aspect_ratio", args.aspect_ratio).replace('x', '×'),
             batch_prompt.get("image_number", args.image_number),
@@ -103,7 +104,7 @@ else:
     prompts.append([
         args.prompt,
         args.negative_prompt,
-        args.styles,
+        [normalize_key(style) for style in args.styles],
         args.performance,
         args.aspect_ratio.replace('x', '×'),
         args.image_number,
