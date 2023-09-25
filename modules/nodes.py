@@ -39,6 +39,11 @@ def add_to_node(N):
 available_styles = [fooocus_expansion] + [i for i in styles]
 
 
+def apply_style(style, positive):
+    p, n = styles.get(style, style)
+    return p.replace("{prompt}", positive), n
+
+
 # expansion = FooocusExpansion()
 
 
@@ -90,6 +95,32 @@ class FooocusEnd:
 
 
 @add_to_node
+class CustomFooocusStyler:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "prompt_module": ("STRING", {"default": "{prompt}", "multiline": True}),
+                "negative_prompt_module": (
+                    "STRING",
+                    {"default": "", "multiline": True},
+                ),
+            },
+            "optional": {"selected": ("LIST",)},
+        }
+
+    RETURN_TYPES = ("LIST",)
+    FUNCTION = "append_style"
+
+    CATEGORY = "fooocus/styler"
+
+    def append_style(self, prompt_module, negative_prompt_module, selected=[]):
+        selected = [i for i in selected]
+        selected.append((prompt_module, negative_prompt_module))
+        return (selected,)
+
+
+@add_to_node
 class FooocusStyler:
     @classmethod
     def INPUT_TYPES(s):
@@ -117,8 +148,8 @@ class FooocusStyleMerger:
             "required": {
                 "model": ("EXPAND_MODEL",),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 1 << 32 - 1}),
-                "prompt": ("STRING", {"default": ""}),
-                "negative_prompt": ("STRING", {"default": ""}),
+                "prompt": ("STRING", {"default": "", "multiline": True}),
+                "negative_prompt": ("STRING", {"default": "", "multiline": True}),
             },
             "optional": {"selected": ("LIST",)},
         }
@@ -395,9 +426,11 @@ class FooocusGlobalStateUndoPatch:
     CATEGORY = "fooocus/utils"
 
     def unset_fooocus_model(self, model, latent, seed, refiner=None):
-        del model.model_options["sampler_cfg_function"]
+        if "sampler_cfg_function" in model.model_options:
+            del model.model_options["sampler_cfg_function"]
         if refiner is not None:
-            del refiner.model_options["sampler_cfg_function"]
+            if "sampler_cfg_function" in refiner.model_options:
+                del refiner.model_options["sampler_cfg_function"]
         if hasattr(comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser, "old_forward"):
             comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = (
                 comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.old_forward
