@@ -40,6 +40,9 @@ In the first time you launch the software, it will automatically download models
 
 If you already have these files, you can copy them to the above locations to speed up installation.
 
+If you don't want to download these two models, comment out the code as shown in the root directory's launch.py(lines:117)
+![image](https://github.com/passworked/Fooocus/blob/main/image1.png)
+
 Note that if you see **"MetadataIncompleteBuffer"**, then your model files are corrupted. Please download models again.
 
 Below is a test on a relatively low-end laptop with **16GB System RAM** and **6GB VRAM** (Nvidia 3060 laptop). The speed on this machine is about 1.35 seconds per iteration. Pretty impressive – nowadays laptops with 3060 are usually at very acceptable price.
@@ -134,6 +137,13 @@ Installation is the same as Linux part. It has been tested for 6700XT. Works for
 ### Mac/Windows(AMD GPUs)
 
 Coming soon ...
+
+## Modify default directory
+"Perform the following steps to locate and open the '**user_path_config.txt**' file in the root directory for modification:
+![image](https://github.com/passworked/Fooocus/blob/main/image2.png)
+Navigate to the root directory.
+Locate the 'user_path_config.txt' file.
+Open the file for editing and make the necessary modifications."
 
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>
