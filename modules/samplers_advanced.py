@@ -1,14 +1,13 @@
 from comfy.samplers import *
 
 import comfy.model_management
-import modules.virtual_memory
 
 
 class KSamplerBasic:
-    SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
+    SCHEDULERS = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform"]
     SAMPLERS = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
                 "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
-                "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "ddim", "uni_pc", "uni_pc_bh2", "dpmpp_fooocus_2m_sde_inpaint_seamless"]
+                "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "dpmpp_3m_sde", "dpmpp_3m_sde_gpu", "ddpm", "ddim", "uni_pc", "uni_pc_bh2", "dpmpp_fooocus_2m_sde_inpaint_seamless"]
 
     def __init__(self, model, steps, device, sampler=None, scheduler=None, denoise=None, model_options={}):
         self.model = model
@@ -50,6 +49,8 @@ class KSamplerBasic:
             sigmas = simple_scheduler(self.model_wrap, steps)
         elif self.scheduler == "ddim_uniform":
             sigmas = ddim_scheduler(self.model_wrap, steps)
+        elif self.scheduler == "sgm_uniform":
+            sigmas = sgm_scheduler(self.model_wrap, steps)
         else:
             print("error invalid scheduler", self.scheduler)
 
@@ -89,8 +90,8 @@ class KSamplerBasic:
         positive = positive[:]
         negative = negative[:]
 
-        resolve_cond_masks(positive, noise.shape[2], noise.shape[3], self.device)
-        resolve_cond_masks(negative, noise.shape[2], noise.shape[3], self.device)
+        resolve_areas_and_cond_masks(positive, noise.shape[2], noise.shape[3], self.device)
+        resolve_areas_and_cond_masks(negative, noise.shape[2], noise.shape[3], self.device)
 
         calculate_start_end_timesteps(self.model_wrap, negative)
         calculate_start_end_timesteps(self.model_wrap, positive)
@@ -203,10 +204,10 @@ class KSamplerBasic:
 
 
 class KSamplerWithRefiner:
-    SCHEDULERS = ["normal", "karras", "exponential", "simple", "ddim_uniform"]
+    SCHEDULERS = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform"]
     SAMPLERS = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
                 "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
-                "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "ddim", "uni_pc", "uni_pc_bh2", "dpmpp_fooocus_2m_sde_inpaint_seamless"]
+                "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "dpmpp_3m_sde", "dpmpp_3m_sde_gpu", "ddpm", "ddim", "uni_pc", "uni_pc_bh2", "dpmpp_fooocus_2m_sde_inpaint_seamless"]
 
     def __init__(self, model, refiner_model, steps, device, sampler=None, scheduler=None, denoise=None, model_options={}):
         self.model_patcher = model
@@ -263,6 +264,8 @@ class KSamplerWithRefiner:
             sigmas = simple_scheduler(self.model_wrap, steps)
         elif self.scheduler == "ddim_uniform":
             sigmas = ddim_scheduler(self.model_wrap, steps)
+        elif self.scheduler == "sgm_uniform":
+            sigmas = sgm_scheduler(self.model_wrap, steps)
         else:
             print("error invalid scheduler", self.scheduler)
 
@@ -304,8 +307,8 @@ class KSamplerWithRefiner:
         positive = positive[:]
         negative = negative[:]
 
-        resolve_cond_masks(positive, noise.shape[2], noise.shape[3], self.device)
-        resolve_cond_masks(negative, noise.shape[2], noise.shape[3], self.device)
+        resolve_areas_and_cond_masks(positive, noise.shape[2], noise.shape[3], self.device)
+        resolve_areas_and_cond_masks(negative, noise.shape[2], noise.shape[3], self.device)
 
         calculate_start_end_timesteps(self.model_wrap, negative)
         calculate_start_end_timesteps(self.model_wrap, positive)
@@ -332,8 +335,8 @@ class KSamplerWithRefiner:
         refiner_positive = refiner_positive[:]
         refiner_negative = refiner_negative[:]
 
-        resolve_cond_masks(refiner_positive, noise.shape[2], noise.shape[3], self.device)
-        resolve_cond_masks(refiner_negative, noise.shape[2], noise.shape[3], self.device)
+        resolve_areas_and_cond_masks(refiner_positive, noise.shape[2], noise.shape[3], self.device)
+        resolve_areas_and_cond_masks(refiner_negative, noise.shape[2], noise.shape[3], self.device)
 
         calculate_start_end_timesteps(self.refiner_model_wrap, refiner_positive)
         calculate_start_end_timesteps(self.refiner_model_wrap, refiner_negative)
@@ -351,8 +354,6 @@ class KSamplerWithRefiner:
                                           noise.shape[3], noise.shape[2], self.device, "negative")
 
         def refiner_switch():
-            modules.virtual_memory.try_move_to_virtual_memory(self.model_denoise.inner_model)
-            modules.virtual_memory.load_from_virtual_memory(self.refiner_model_denoise.inner_model)
             comfy.model_management.load_model_gpu(self.refiner_model_patcher)
             self.model_denoise.inner_model = self.refiner_model_denoise.inner_model
             for i in range(len(positive)):
