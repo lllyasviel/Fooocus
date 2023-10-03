@@ -89,9 +89,6 @@ def refresh_refiner_model(name):
     xl_refiner = core.load_unet_only(filename)
     xl_refiner_hash = model_hash
     print(f'Refiner model loaded: {model_hash}')
-
-    # Remove VAE
-    xl_refiner.vae = None
     return
 
 
