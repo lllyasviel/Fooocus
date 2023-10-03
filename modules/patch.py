@@ -147,27 +147,28 @@ def calculate_weight_patched(self, patches, weight, key):
     return weight
 
 
-# def simple_cfg(cond, uncond, cond_scale):
-#     return uncond + (cond - uncond) * cond_scale
-#
-#
-# def adain(data, reference):
-#     data_std = torch.std(data) + 1e-5
-#     reference_std = torch.std(reference) + 1e-5
-#     return data / data_std * reference_std
-#
-#
-# def adaptive_stylization(cond, uncond, cond_scale):
-#     global stylization_sigma
-#
-#     eps = simple_cfg(cond, uncond, cond_scale)
-#
-#     if False:  # or cond_scale > stylization_sigma:
-#         eps_sigma = simple_cfg(cond, uncond, stylization_sigma)
-#         eps_adain = adain(eps, eps_sigma)
-#         return eps_adain
-#     else:
-#         return eps
+def simple_cfg(cond, uncond, cond_scale):
+    return uncond + (cond - uncond) * cond_scale
+
+
+def adain(data, reference):
+    m = torch.mean(data, dim=(2, 3), keepdim=True)
+    data_std = torch.std(data - m, dim=(2, 3), keepdim=True) + 1e-5
+    reference_std = torch.std(reference, dim=(2, 3), keepdim=True) + 1e-5
+    return (data / data_std * reference_std) + m
+
+
+def adaptive_stylization(cond, uncond, cond_scale):
+    global stylization_sigma
+
+    eps = simple_cfg(cond, uncond, cond_scale)
+
+    if True:  # or cond_scale > stylization_sigma:
+        eps_sigma = simple_cfg(cond, uncond, stylization_sigma)
+        eps_adain = adain(eps, eps_sigma)
+        return eps_adain
+    else:
+        return eps
 
 
 def patched_sampler_cfg_function(args):
@@ -184,7 +185,7 @@ def patched_sampler_cfg_function(args):
     positive_eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
     positive_eps_degraded_weighted = positive_eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
-    return negative_eps + (positive_eps_degraded_weighted - negative_eps) * cfg_scale
+    return adaptive_stylization(positive_eps_degraded_weighted, negative_eps, cfg_scale)
 
 
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
