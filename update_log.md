@@ -1,5 +1,9 @@
 # 2.0.80
 
+* Improved the scheduling of ADM guidance and CFG mimicking for better visual quality in high frequency domain and small objects.
+
+# 2.0.80
+
 * Rework many patches and some UI details.
 * Speed up processing.
 * Move Colab to independent branch.
