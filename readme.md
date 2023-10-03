@@ -155,6 +155,7 @@ Below things are already inside the software, and **users do not need to do anyt
 11. A carefully designed system for balancing multiple styles as well as prompt expansion.
 12. Using automatic1111's method to normalize prompt emphasizing. This significantly improve results when users directly copy prompts from civitai.
 13. The joint swap system of refiner now also support img2img and upscale in a seamless way.
+14. CFG Scale and TSNR correction (tuned for SDXL) when CFG is bigger than 10.
 
 ## Changing Model Path
 
