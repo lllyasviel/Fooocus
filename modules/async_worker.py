@@ -47,7 +47,7 @@ def worker():
         execution_start_time = time.perf_counter()
 
         prompt, negative_prompt, style_selections, performance_selction, \
-            aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, \
+            aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, scheduler_name, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
@@ -241,7 +241,7 @@ def worker():
 
                     sampler_name = 'dpmpp_fooocus_2m_sde_inpaint_seamless'
 
-        print(f'[Parameters] Sampler = {sampler_name}')
+        print(f'[Parameters] Sampler = {sampler_name} - {scheduler_name}')
 
         progressbar(1, 'Initializing ...')
 
@@ -360,6 +360,7 @@ def worker():
                     image_seed=task['task_seed'],
                     callback=callback,
                     sampler_name=sampler_name,
+                    scheduler_name=scheduler_name,
                     latent=initial_latent,
                     denoise=denoising_strength,
                     tiled=tiled,
@@ -383,6 +384,7 @@ def worker():
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
                         ('Sampler', sampler_name),
+                        ('Scheduler', scheduler_name),
                         ('Seed', task['task_seed'])
                     ]
                     for n, w in loras_user_raw_input:

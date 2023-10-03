@@ -18,3 +18,6 @@ sampler_list = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
                 # "dpmpp_fooocus_2m_sde_inpaint_seamless"
                 ]
 default_sampler = 'dpmpp_2m_sde_gpu'
+
+scheduler_list = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform"]
+default_scheduler = "karras"

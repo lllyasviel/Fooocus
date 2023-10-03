@@ -198,7 +198,7 @@ expansion = FooocusExpansion()
 
 @torch.no_grad()
 @torch.inference_mode()
-def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0):
+def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0):
     if latent is None:
         empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
     else:
@@ -219,7 +219,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             denoise=denoise,
             callback_function=callback,
             cfg=cfg_scale,
-            sampler_name=sampler_name
+            sampler_name=sampler_name,
+            scheduler=scheduler_name
         )
     else:
         sampled_latent = core.ksampler(
@@ -232,7 +233,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             denoise=denoise,
             callback_function=callback,
             cfg=cfg_scale,
-            sampler_name=sampler_name
+            sampler_name=sampler_name,
+            scheduler=scheduler_name
         )
 
     decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent, tiled=tiled)
