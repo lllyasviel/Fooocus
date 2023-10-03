@@ -16,7 +16,7 @@ from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from comfy.model_base import SDXLRefiner
-from modules.patch import cfg_patched, patched_model_function
+from modules.patch import patched_sampler_cfg_function, patched_model_function_wrapper
 from comfy.sd import model_lora_keys_unet, model_lora_keys_clip, load_lora
 from modules.samplers_advanced import KSamplerBasic, KSamplerWithRefiner
 
@@ -41,8 +41,8 @@ class StableDiffusionModel:
 @torch.inference_mode()
 def load_model(ckpt_filename):
     unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename)
-    unet.model_options['sampler_cfg_function'] = cfg_patched
-    unet.model_options['model_function_wrapper'] = patched_model_function
+    unet.model_options['sampler_cfg_function'] = patched_sampler_cfg_function
+    unet.model_options['model_function_wrapper'] = patched_model_function_wrapper
     return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision)
 
 

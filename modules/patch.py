@@ -146,7 +146,7 @@ def calculate_weight_patched(self, patches, weight, key):
     return weight
 
 
-def cfg_patched(args):
+def patched_sampler_cfg_function(args):
     global cfg_x0, cfg_s
     positive_eps = args['cond'].clone()
     positive_x0 = args['cond'] * cfg_s + cfg_x0
@@ -174,7 +174,7 @@ def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
     return self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
 
 
-def patched_model_function(func, args):
+def patched_model_function_wrapper(func, args):
     global cfg_cin
     x = args['input']
     t = args['timestep']
