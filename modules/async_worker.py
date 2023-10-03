@@ -74,7 +74,7 @@ def worker():
         print(f'[Parameters] Sharpness = {modules.patch.sharpness}')
 
         modules.patch.positive_adm_scale = float(camera_distance)
-        modules.patch.negative_adm_scale = (1.0 / float(camera_distance)) ** 0.5
+        modules.patch.negative_adm_scale = (1.0 / float(camera_distance)) ** 0.618  # Magic number after experiments
         print(f'[Parameters] ADM Scale = {modules.patch.positive_adm_scale} / {modules.patch.negative_adm_scale}')
 
         cfg_scale = prompt_guidance
