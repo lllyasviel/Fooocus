@@ -22,17 +22,32 @@ script_path = os.path.dirname(modules_path)
 dir_repos = "repositories"
 
 
+def onerror(func, path, exc_info):
+    import stat
+    if not os.access(path, os.W_OK):
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+    else:
+        raise 'Failed to invoke "shutil.rmtree", git management failed.'
+
+
 def git_clone(url, dir, name, hash=None):
     try:
         try:
             repo = pygit2.Repository(dir)
-            print(f'{name} exists.')
+            remote_url = repo.remotes['origin'].url
+            if remote_url != url:
+                print(f'{name} exists but remote URL will be updated.')
+                del repo
+                raise url
+            else:
+                print(f'{name} exists and URL is correct.')
         except:
-            if os.path.exists(dir):
-                shutil.rmtree(dir, ignore_errors=True)
+            if os.path.isdir(dir) or os.path.exists(dir):
+                shutil.rmtree(dir, onerror=onerror)
             os.makedirs(dir, exist_ok=True)
             repo = pygit2.clone_repository(url, dir)
-            print(f'{name} cloned.')
+            print(f'{name} cloned from {url}.')
 
         remote = repo.remotes['origin']
         remote.fetch()
