@@ -203,14 +203,6 @@ expansion = FooocusExpansion()
 @torch.no_grad()
 @torch.inference_mode()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, latent=None, denoise=1.0, tiled=False):
-    patch_all_models()
-
-    if xl_refiner is not None:
-        virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
-    virtual_memory.load_from_virtual_memory(xl_base.unet.model)
-
-    assert_model_integrity()
-
     if latent is None:
         empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
     else:
