@@ -156,9 +156,8 @@ with shared.gradio_root:
                 stylize_influence = gr.Slider(label='Stylizing Influence', minimum=10, maximum=1000, step=1, value=100,
                                       info='Higher value means style is cleaner, vivider, and more artistic.')
 
-                with gr.Row():
-                    gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
-                    dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
+                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
+                dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
 
                 with gr.Column(visible=False) as dev_tools:
                     with gr.Tab(label='Developer Control and Debug Tools'):
