@@ -169,6 +169,7 @@ with shared.gradio_root:
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
                                                       '(effective when real CFG > mimicked CFG).')
                         sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list, value=flags.default_sampler, info='Only effective in non-inpaint mode.')
+                        scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list, value=flags.default_scheduler, info='Scheduler of Sampler.')
 
                 def dev_mode_checked(r):
                     return gr.update(visible=r)
@@ -189,7 +190,7 @@ with shared.gradio_root:
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col, queue=False)
         ctrls = [
             prompt, negative_prompt, style_selections,
-            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name
+            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, scheduler_name
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
