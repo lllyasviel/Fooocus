@@ -47,7 +47,7 @@ def worker():
         execution_start_time = time.perf_counter()
 
         prompt, negative_prompt, style_selections, performance_selction, \
-            aspect_ratios_selction, image_number, image_seed, sharpness, \
+            aspect_ratios_selction, image_number, image_seed, sharpness, camera_distance, prompt_guidance, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
@@ -70,7 +70,8 @@ def worker():
 
         use_style = len(style_selections) > 0
         modules.patch.sharpness = sharpness
-        modules.patch.negative_adm = True
+        modules.patch.adm_scale = camera_distance
+        cfg_scale = prompt_guidance
         initial_latent = None
         denoising_strength = 1.0
         tiled = False
@@ -349,7 +350,8 @@ def worker():
                     callback=callback,
                     latent=initial_latent,
                     denoise=denoising_strength,
-                    tiled=tiled
+                    tiled=tiled,
+                    cfg_scale=cfg_scale
                 )
 
                 if inpaint_worker.current_task is not None:
