@@ -155,9 +155,23 @@ with shared.gradio_root:
                                       info='Higher value means image and texture are sharper.')
                 stylize_influence = gr.Slider(label='Stylizing Influence', minimum=10, maximum=1000, step=1, value=100,
                                       info='Higher value means style is cleaner, vivider, and more artistic.')
-                camera_distance = gr.Slider(label='Camera Distance (beta)', minimum=0.1, maximum=3.0, step=0.001, value=1.5,
-                                            info='Higher value means camera is more far away and image contains more objects.')
-                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
+
+                with gr.Row():
+                    gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
+                    dev_mode = gr.Checkbox(label='Developer Mode', value=False, container=False)
+
+                with gr.Column(visible=False) as dev_tools:
+                    with gr.Tab(label='Developer Control Tools'):
+                        adm_scaler_positive = gr.Slider(label='Positive ADM Guidance Scaler', minimum=0.1, maximum=3.0,
+                                                        step=0.001, value=1.5, info='The scaler multiplied to positive ADM. ')
+                        adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0,
+                                                        step=0.001, value=0.8, info='The scaler multiplied to negative ADM. ')
+
+                def dev_mode_checked(r):
+                    return gr.update(visible=r)
+
+
+                dev_mode.change(dev_mode_checked, inputs=[dev_mode], outputs=[dev_tools], queue=False)
 
                 def model_refresh_clicked():
                     modules.path.update_all_model_names()
@@ -172,7 +186,7 @@ with shared.gradio_root:
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col, queue=False)
         ctrls = [
             prompt, negative_prompt, style_selections,
-            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, camera_distance, stylize_influence
+            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, stylize_influence
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
