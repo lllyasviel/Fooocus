@@ -139,6 +139,15 @@ def clip_encode_single(clip, text, verbose=False):
 
 @torch.no_grad()
 @torch.inference_mode()
+def clip_separate(cond):
+    c, p = cond[0]
+    c = c[..., -1280:].clone()
+    p = p["pooled_output"]
+    return [[c, {"pooled_output": p}]]
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def clip_encode(sd, texts, pool_top_k=1):
     if sd is None:
         return None

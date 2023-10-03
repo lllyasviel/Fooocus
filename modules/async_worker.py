@@ -319,13 +319,11 @@ def worker():
         if pipeline.xl_refiner is not None:
             for i, t in enumerate(tasks):
                 progressbar(11, f'Encoding refiner positive #{i + 1} ...')
-                t['c'][1] = pipeline.clip_encode(sd=pipeline.xl_refiner, texts=t['positive'],
-                                                 pool_top_k=positive_top_k)
+                t['c'][1] = pipeline.clip_separate(t['c'][0])
 
             for i, t in enumerate(tasks):
                 progressbar(13, f'Encoding refiner negative #{i + 1} ...')
-                t['uc'][1] = pipeline.clip_encode(sd=pipeline.xl_refiner, texts=t['negative'],
-                                                  pool_top_k=negative_top_k)
+                t['uc'][1] = pipeline.clip_separate(t['uc'][0])
 
         results = []
         all_steps = steps * image_number
