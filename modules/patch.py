@@ -210,11 +210,6 @@ def encode_adm(self, **kwargs):
     return torch.cat((clip_pooled.to(flat.device), flat), dim=1)
 
 
-def text_encoder_device_patched():
-    # Fooocus's style system uses text encoder much more times than comfy so this makes things much faster.
-    return comfy.model_management.get_torch_device()
-
-
 def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
     to_encode = list(self.empty_tokens)
     for x in token_weight_pairs:
