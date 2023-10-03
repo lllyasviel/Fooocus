@@ -12,6 +12,7 @@ from modules.path import modelfile_path, lorafile_path, vae_approx_path, fooocus
 
 REINSTALL_ALL = False
 
+
 def prepare_environment():
     torch_index_url = os.environ.get('TORCH_INDEX_URL', "https://download.pytorch.org/whl/cu118")
     torch_command = os.environ.get('TORCH_COMMAND',
