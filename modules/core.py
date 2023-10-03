@@ -186,6 +186,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
     pbar = comfy.utils.ProgressBar(steps)
 
     def callback(step, x0, x, total_steps):
+        comfy.model_management.throw_exception_if_processing_interrupted()
         y = None
         if previewer is not None:
             y = previewer(x0, step, total_steps)
@@ -253,6 +254,7 @@ def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, 
     pbar = comfy.utils.ProgressBar(steps)
 
     def callback(step, x0, x, total_steps):
+        comfy.model_management.throw_exception_if_processing_interrupted()
         y = None
         if previewer is not None:
             y = previewer(x0, step, total_steps)

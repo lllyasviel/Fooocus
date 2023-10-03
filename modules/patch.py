@@ -151,8 +151,21 @@ def simple_cfg(cond, uncond, cond_scale):
     return uncond + (cond - uncond) * cond_scale
 
 
+def avg_diff_mag(x, dim=(2, 3)):
+    avg = torch.mean(x, dim=dim, keepdim=True)
+    diff = x - avg
+    mag = diff.abs().amax(dim=dim, keepdim=True)
+    return avg, diff, mag
+
+
 def adain(data, reference):
-    return data
+    data_avg, data_diff, data_mag = avg_diff_mag(data)
+    reference_avg, reference_diff, reference_mag = avg_diff_mag(reference)
+
+    max_mag = torch.maximum(data_mag, reference_mag)
+    data_diff_clamped = data_diff.clamp(-max_mag, max_mag)
+
+    return data_avg + data_diff_clamped
 
 
 def adaptive_stylization(cond, uncond, cond_scale):
@@ -160,7 +173,7 @@ def adaptive_stylization(cond, uncond, cond_scale):
 
     eps = simple_cfg(cond, uncond, cond_scale)
 
-    if cond_scale > stylization_sigma:
+    if True or cond_scale > stylization_sigma:
         eps_sigma = simple_cfg(cond, uncond, stylization_sigma)
         eps_adain = adain(eps, eps_sigma)
         return eps_adain
