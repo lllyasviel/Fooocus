@@ -19,7 +19,6 @@ def worker():
     import modules.flags as flags
     import modules.path
     import modules.patch
-    import modules.virtual_memory as virtual_memory
     import comfy.model_management
     import modules.inpaint_worker as inpaint_worker
 
@@ -307,8 +306,6 @@ def worker():
                                               pool_top_k=negative_top_k)
 
         if pipeline.xl_refiner is not None:
-            virtual_memory.load_from_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
-
             for i, t in enumerate(tasks):
                 progressbar(11, f'Encoding refiner positive #{i + 1} ...')
                 t['c'][1] = pipeline.clip_encode(sd=pipeline.xl_refiner, texts=t['positive'],
@@ -318,8 +315,6 @@ def worker():
                 progressbar(13, f'Encoding refiner negative #{i + 1} ...')
                 t['uc'][1] = pipeline.clip_encode(sd=pipeline.xl_refiner, texts=t['negative'],
                                                   pool_top_k=negative_top_k)
-
-            virtual_memory.try_move_to_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
 
         results = []
         all_steps = steps * image_number
@@ -331,7 +326,7 @@ def worker():
                 f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
                 y)])
 
-        print(f'[ADM] Negative ADM = {modules.patch.negative_adm}')
+        print(f'[ADM Guidance] ADM Scale = {modules.patch.adm_scale}')
 
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
