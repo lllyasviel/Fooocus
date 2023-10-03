@@ -146,6 +146,10 @@ def calculate_weight_patched(self, patches, weight, key):
     return weight
 
 
+def adaptive_stylization(cond, uncond, cond_scale, max_scale=9.0):
+    return uncond + (cond - uncond) * cond_scale
+
+
 def patched_sampler_cfg_function(args):
     global cfg_x0, cfg_s
     positive_eps = args['cond'].clone()
@@ -162,7 +166,7 @@ def patched_sampler_cfg_function(args):
 
     cond = eps_degraded_weighted * cfg_s + cfg_x0
 
-    return uncond + (cond - uncond) * cond_scale
+    return adaptive_stylization(cond, uncond, cond_scale)
 
 
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
