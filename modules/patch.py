@@ -20,14 +20,13 @@ from comfy.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, f
 
 
 sharpness = 2.0
-stylization_sigma = 9.0
 positive_adm_scale = 1.5
 negative_adm_scale = 0.8
 
 cfg_x0 = 0.0
 cfg_s = 1.0
 cfg_cin = 1.0
-adaptive_cfg = True
+adaptive_cfg = 0.7
 
 
 def calculate_weight_patched(self, patches, weight, key):
@@ -152,24 +151,17 @@ def simple_cfg(cond, uncond, cond_scale):
     return uncond + (cond - uncond) * cond_scale
 
 
-def adain(data, reference):
-    m = torch.mean(data, dim=(2, 3), keepdim=True)
-    data_std = torch.std(data - m, dim=(2, 3), keepdim=True) + 1e-5
-    reference_std = torch.std(reference, dim=(2, 3), keepdim=True) + 1e-5
-    return (data / data_std * reference_std) + m
-
-
 def adaptive_stylization(cond, uncond, cond_scale):
-    global stylization_sigma
+    global adaptive_cfg
 
-    eps = simple_cfg(cond, uncond, cond_scale)
+    x_cfg = uncond + cond_scale * (cond - uncond)
+    ro_pos = torch.std(cond, dim=(1, 2, 3), keepdim=True)
+    ro_cfg = torch.std(x_cfg, dim=(1, 2, 3), keepdim=True)
 
-    if adaptive_cfg and cond_scale > stylization_sigma:
-        eps_sigma = simple_cfg(cond, uncond, stylization_sigma)
-        eps_adain = adain(eps, eps_sigma)
-        return eps_adain
-    else:
-        return eps
+    x_rescaled = x_cfg * (ro_pos / ro_cfg)
+    x_final = adaptive_cfg * x_rescaled + (1.0 - adaptive_cfg) * x_cfg
+
+    return x_final
 
 
 def patched_sampler_cfg_function(args):

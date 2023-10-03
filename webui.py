@@ -162,10 +162,11 @@ with shared.gradio_root:
                 with gr.Column(visible=False) as dev_tools:
                     with gr.Tab(label='Developer Control and Debug Tools'):
                         adm_scaler_positive = gr.Slider(label='Positive ADM Guidance Scaler', minimum=0.1, maximum=3.0,
-                                                        step=0.001, value=1.5, info='The scaler multiplied to positive ADM. ')
+                                                        step=0.001, value=1.5, info='The scaler multiplied to positive ADM (use 1.0 to disable). ')
                         adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0,
-                                                        step=0.001, value=0.8, info='The scaler multiplied to negative ADM. ')
-                        adaptive_cfg = gr.Checkbox(label='Adaptive CFG', value=True, info='Enabling Fooocus\'s implementation of CFG re-weighting.')
+                                                        step=0.001, value=0.8, info='The scaler multiplied to negative ADM (use 1.0 to disable). ')
+                        adaptive_cfg = gr.Slider(label='CFG Rescale from TSNR', minimum=0.1, maximum=1.0,
+                                                 step=0.001, value=0.7, info='Enabling Fooocus\'s implementation of CFG re-weighting for TSNR (use 0 to disable).')
 
                 def dev_mode_checked(r):
                     return gr.update(visible=r)
