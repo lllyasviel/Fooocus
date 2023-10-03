@@ -206,7 +206,7 @@ def patched_model_function_wrapper(func, args):
 
 def sdxl_encode_adm_patched(self, **kwargs):
     global positive_adm_scale, negative_adm_scale
-    
+
     clip_pooled = comfy.model_base.sdxl_pooled(kwargs, self.noise_augmentor)
     width = kwargs.get("width", 768)
     height = kwargs.get("height", 768)
