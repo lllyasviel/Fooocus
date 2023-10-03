@@ -147,15 +147,25 @@ def calculate_weight_patched(self, patches, weight, key):
     return weight
 
 
+def get_adaptive_weight_k(cfg_scale):
+    w = float(cfg_scale)
+    w -= 7.0
+    w /= 3.0
+    w = max(w, 0.0)
+    w = min(w, 1.0)
+    return w
+
+
 def compute_cfg(uncond, cond, cfg_scale):
     global adaptive_cfg
 
+    k = adaptive_cfg * get_adaptive_weight_k(cfg_scale)
     x_cfg = uncond + cfg_scale * (cond - uncond)
     ro_pos = torch.std(cond, dim=(1, 2, 3), keepdim=True)
     ro_cfg = torch.std(x_cfg, dim=(1, 2, 3), keepdim=True)
 
     x_rescaled = x_cfg * (ro_pos / ro_cfg)
-    x_final = adaptive_cfg * x_rescaled + (1.0 - adaptive_cfg) * x_cfg
+    x_final = k * x_rescaled + (1.0 - k) * x_cfg
 
     return x_final
 
