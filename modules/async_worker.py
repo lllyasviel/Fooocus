@@ -47,7 +47,7 @@ def worker():
         execution_start_time = time.perf_counter()
 
         prompt, negative_prompt, style_selections, performance_selction, \
-            aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, stylize_influence, adaptive_cfg, \
+            aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
@@ -80,7 +80,7 @@ def worker():
         modules.patch.negative_adm_scale = adm_scaler_negative
         print(f'[Parameters] ADM Scale = {modules.patch.positive_adm_scale} / {modules.patch.negative_adm_scale}')
 
-        cfg_scale = 7.0 * float(stylize_influence) / 100.0
+        cfg_scale = float(guidance_scale)
         print(f'[Parameters] CFG = {cfg_scale}')
 
         initial_latent = None
@@ -373,7 +373,7 @@ def worker():
                         ('Performance', performance_selction),
                         ('Resolution', str((width, height))),
                         ('Sharpness', sharpness),
-                        ('Stylizing Influence', stylize_influence),
+                        ('Guidance Scale', guidance_scale),
                         ('ADM Guidance', str((adm_scaler_positive, adm_scaler_negative))),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
