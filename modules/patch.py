@@ -313,6 +313,7 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
 
     transformer_options["original_shape"] = list(x.shape)
     transformer_options["current_index"] = 0
+    transformer_patches = transformer_options.get("patches", {})
 
     assert (y is not None) == (
             self.num_classes is not None
@@ -343,7 +344,9 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     transformer_options["block"] = ("middle", 0)
     h = forward_timestep_embed(self.middle_block, h, emb, context, transformer_options)
     if control is not None and 'middle' in control and len(control['middle']) > 0:
-        h += control['middle'].pop()
+        ctrl = control['middle'].pop()
+        if ctrl is not None:
+            h += ctrl
 
     for id, module in enumerate(self.output_blocks):
         transformer_options["block"] = ("output", id)
@@ -352,6 +355,11 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
             ctrl = control['output'].pop()
             if ctrl is not None:
                 hsp += ctrl
+
+        if "output_block_patch" in transformer_patches:
+            patch = transformer_patches["output_block_patch"]
+            for p in patch:
+                h, hsp = p(h, hsp, transformer_options)
 
         h = torch.cat([h, hsp], dim=1)
         del hsp
