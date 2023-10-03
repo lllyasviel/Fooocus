@@ -340,10 +340,10 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     transformer_patches = transformer_options.get("patches", {})
 
     if isinstance(y, torch.Tensor) and int(y.dim()) == 2 and int(y.shape[1]) == 5632:
-        t = 1.0 - (timesteps / 999.0)[:, None].clone().to(x)
+        t = (timesteps / 999.0)[:, None].clone().to(x) ** 2.0
         ya = y[..., :2816].clone()
         yb = y[..., 2816:].clone()
-        y = t * yb + (1 - t) * ya
+        y = t * ya + (1 - t) * yb
 
     hs = []
     t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False).to(self.dtype)
