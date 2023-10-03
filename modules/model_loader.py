@@ -2,6 +2,7 @@ import os
 from urllib.parse import urlparse
 from typing import Optional
 
+
 def load_file_from_url(
         url: str,
         *,
