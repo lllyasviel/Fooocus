@@ -189,10 +189,9 @@ def patched_sampler_cfg_function(args):
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
     global cfg_x0, cfg_s, cfg_cin
     c_out, c_in = [utils.append_dims(x, input.ndim) for x in self.get_scalings(sigma)]
-    cfg_x0 = input
-    cfg_s = c_out
-    cfg_cin = c_in
-    return self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
+    cfg_x0, cfg_s, cfg_cin = input, c_out, c_in
+    eps = self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
+    return input + eps * c_out
 
 
 def patched_model_function_wrapper(func, args):
