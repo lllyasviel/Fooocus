@@ -203,10 +203,8 @@ def sdxl_encode_adm_patched(self, **kwargs):
     clip_pooled = comfy.model_base.sdxl_pooled(kwargs, self.noise_augmentor)
     width = kwargs.get("width", 768)
     height = kwargs.get("height", 768)
-    crop_w = kwargs.get("crop_w", 0)
-    crop_h = kwargs.get("crop_h", 0)
-    target_width = kwargs.get("target_width", width)
-    target_height = kwargs.get("target_height", height)
+    target_width = width
+    target_height = height
 
     if kwargs.get("prompt_type", "") == "negative":
         width = float(width) * negative_adm_scale
@@ -218,20 +216,22 @@ def sdxl_encode_adm_patched(self, **kwargs):
     # Avoid artifacts
     width = int(width)
     height = int(height)
-    crop_w = int(crop_w)
-    crop_h = int(crop_h)
+    crop_w = 0
+    crop_h = 0
     target_width = int(target_width)
     target_height = int(target_height)
 
-    out = []
-    out.append(self.embedder(torch.Tensor([height])))
-    out.append(self.embedder(torch.Tensor([width])))
-    out.append(self.embedder(torch.Tensor([crop_h])))
-    out.append(self.embedder(torch.Tensor([crop_w])))
-    out.append(self.embedder(torch.Tensor([target_height])))
-    out.append(self.embedder(torch.Tensor([target_width])))
-    flat = torch.flatten(torch.cat(out)).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
-    return torch.cat((clip_pooled.to(flat.device), flat), dim=1)
+    out_a = [self.embedder(torch.Tensor([height])), self.embedder(torch.Tensor([width])),
+             self.embedder(torch.Tensor([crop_h])), self.embedder(torch.Tensor([crop_w])),
+             self.embedder(torch.Tensor([target_height])), self.embedder(torch.Tensor([target_width]))]
+    flat_a = torch.flatten(torch.cat(out_a)).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
+
+    out_b = [self.embedder(torch.Tensor([target_height])), self.embedder(torch.Tensor([target_width])),
+             self.embedder(torch.Tensor([crop_h])), self.embedder(torch.Tensor([crop_w])),
+             self.embedder(torch.Tensor([target_height])), self.embedder(torch.Tensor([target_width]))]
+    flat_b = torch.flatten(torch.cat(out_b)).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
+
+    return torch.cat((clip_pooled.to(flat_a.device), flat_a, clip_pooled.to(flat_b.device), flat_b), dim=1)
 
 
 def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
