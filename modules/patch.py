@@ -184,17 +184,15 @@ def patched_sampler_cfg_function(args):
     positive_eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
     positive_eps_degraded_weighted = positive_eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
-    cond = positive_eps_degraded_weighted * cfg_s + cfg_x0
-    uncond = negative_eps * cfg_s + cfg_x0
-
-    return compute_cfg(uncond, cond, cfg_scale)
+    return compute_cfg(uncond=negative_eps, cond=positive_eps_degraded_weighted, cfg_scale=cfg_scale)
 
 
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
     global cfg_x0, cfg_s, cfg_cin
     c_out, c_in = [utils.append_dims(x, input.ndim) for x in self.get_scalings(sigma)]
     cfg_x0, cfg_s, cfg_cin = input, c_out, c_in
-    return self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
+    eps = self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
+    return input + eps * c_out
 
 
 def patched_model_function_wrapper(func, args):
