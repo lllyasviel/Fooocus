@@ -147,27 +147,27 @@ def calculate_weight_patched(self, patches, weight, key):
     return weight
 
 
-def simple_cfg(cond, uncond, cond_scale):
-    return uncond + (cond - uncond) * cond_scale
-
-
-def adain(data, reference):
-    data_std = torch.std(data) + 1e-5
-    reference_std = torch.std(reference) + 1e-5
-    return data / data_std * reference_std
-
-
-def adaptive_stylization(cond, uncond, cond_scale, t):
-    global stylization_sigma
-
-    eps = simple_cfg(cond, uncond, cond_scale)
-
-    if False:  # or cond_scale > stylization_sigma:
-        eps_sigma = simple_cfg(cond, uncond, stylization_sigma)
-        eps_adain = adain(eps, eps_sigma)
-        return eps_adain
-    else:
-        return eps
+# def simple_cfg(cond, uncond, cond_scale):
+#     return uncond + (cond - uncond) * cond_scale
+#
+#
+# def adain(data, reference):
+#     data_std = torch.std(data) + 1e-5
+#     reference_std = torch.std(reference) + 1e-5
+#     return data / data_std * reference_std
+#
+#
+# def adaptive_stylization(cond, uncond, cond_scale):
+#     global stylization_sigma
+#
+#     eps = simple_cfg(cond, uncond, cond_scale)
+#
+#     if False:  # or cond_scale > stylization_sigma:
+#         eps_sigma = simple_cfg(cond, uncond, stylization_sigma)
+#         eps_adain = adain(eps, eps_sigma)
+#         return eps_adain
+#     else:
+#         return eps
 
 
 def patched_sampler_cfg_function(args):
@@ -183,7 +183,7 @@ def patched_sampler_cfg_function(args):
     eps_degraded_weighted = eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
     cond = eps_degraded_weighted * cfg_s + cfg_x0
-    return adaptive_stylization(cond, uncond, cond_scale, t)
+    return uncond + (cond - uncond) * cond_scale
 
 
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
