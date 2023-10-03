@@ -162,7 +162,7 @@ def adaptive_stylization(cond, uncond, cond_scale, t):
 
     eps = simple_cfg(cond, uncond, cond_scale)
 
-    if True or cond_scale > stylization_sigma:
+    if False:  # or cond_scale > stylization_sigma:
         eps_sigma = simple_cfg(cond, uncond, stylization_sigma)
         eps_adain = adain(eps, eps_sigma)
         return eps_adain
