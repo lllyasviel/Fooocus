@@ -370,8 +370,8 @@ def worker():
                         ('Performance', performance_selction),
                         ('Resolution', str((width, height))),
                         ('Sharpness', sharpness),
-                        ('Camera Distance', adm_scaler),
-                        ('Prompt Guidance', stylize_influence),
+                        ('Stylizing Influence', stylize_influence),
+                        ('ADM Guidance', str((adm_scaler_positive, adm_scaler_negative))),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
                         ('Seed', task['task_seed'])
