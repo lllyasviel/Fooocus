@@ -47,7 +47,7 @@ def worker():
         execution_start_time = time.perf_counter()
 
         prompt, negative_prompt, style_selections, performance_selction, \
-            aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, \
+            aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
@@ -82,8 +82,6 @@ def worker():
 
         cfg_scale = float(guidance_scale)
         print(f'[Parameters] CFG = {cfg_scale}')
-
-        sampler_name = 'dpmpp_fooocus_2m_sde_inpaint_seamless'
 
         initial_latent = None
         denoising_strength = 1.0
@@ -241,6 +239,10 @@ def worker():
                     height, width = inpaint_worker.current_task.image_raw.shape[:2]
                     print(f'Final resolution is {str((height, width))}, latent is {str((H * 8, W * 8))}.')
 
+                    sampler_name = 'dpmpp_fooocus_2m_sde_inpaint_seamless'
+
+        print(f'[Parameters] Sampler = {sampler_name}')
+
         progressbar(1, 'Initializing ...')
 
         raw_prompt = prompt
@@ -380,6 +382,7 @@ def worker():
                         ('ADM Guidance', str((adm_scaler_positive, adm_scaler_negative))),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
+                        ('Sampler', sampler_name),
                         ('Seed', task['task_seed'])
                     ]
                     for n, w in loras_user_raw_input:
