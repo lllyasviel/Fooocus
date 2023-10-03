@@ -407,7 +407,7 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
 
 
 def patch_all():
-    comfy.model_patcher.calculate_weight = calculate_weight_patched
+    comfy.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
     comfy.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
     comfy.k_diffusion.sampling.sample_dpmpp_fooocus_2m_sde_inpaint_seamless = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
     comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
