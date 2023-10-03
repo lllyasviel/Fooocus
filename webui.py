@@ -158,10 +158,10 @@ with shared.gradio_root:
 
                 with gr.Row():
                     gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
-                    dev_mode = gr.Checkbox(label='Developer Mode', value=False, container=False)
+                    dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
 
                 with gr.Column(visible=False) as dev_tools:
-                    with gr.Tab(label='Developer Control Tools'):
+                    with gr.Tab(label='Developer Control and Debug Tools'):
                         adm_scaler_positive = gr.Slider(label='Positive ADM Guidance Scaler', minimum=0.1, maximum=3.0,
                                                         step=0.001, value=1.5, info='The scaler multiplied to positive ADM. ')
                         adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0,
