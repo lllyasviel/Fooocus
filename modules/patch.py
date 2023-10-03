@@ -147,6 +147,19 @@ def calculate_weight_patched(self, patches, weight, key):
     return weight
 
 
+def compute_cfg(uncond, cond, cfg_scale):
+    global adaptive_cfg
+
+    x_cfg = uncond + cfg_scale * (cond - uncond)
+    ro_pos = torch.std(cond, dim=(1, 2, 3), keepdim=True)
+    ro_cfg = torch.std(x_cfg, dim=(1, 2, 3), keepdim=True)
+
+    x_rescaled = x_cfg * (ro_pos / ro_cfg)
+    x_final = adaptive_cfg * x_rescaled + (1.0 - adaptive_cfg) * x_cfg
+
+    return x_final
+
+
 def patched_sampler_cfg_function(args):
     global cfg_x0, cfg_s
 
@@ -164,7 +177,7 @@ def patched_sampler_cfg_function(args):
     cond = positive_eps_degraded_weighted * cfg_s + cfg_x0
     uncond = negative_eps * cfg_s + cfg_x0
 
-    return uncond + (cond - uncond) * cfg_scale
+    return compute_cfg(uncond, cond, cfg_scale)
 
 
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):

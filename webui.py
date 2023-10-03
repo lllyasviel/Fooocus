@@ -166,7 +166,7 @@ with shared.gradio_root:
                         adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0,
                                                         step=0.001, value=0.8, info='The scaler multiplied to negative ADM (use 1.0 to disable). ')
                         adaptive_cfg = gr.Slider(label='CFG Rescale from TSNR', minimum=0.0, maximum=1.0,
-                                                 step=0.001, value=0.7, info='Enabling Fooocus\'s implementation of CFG re-weighting for TSNR (use 0 to disable).')
+                                                 step=0.001, value=0.7, info='Enabling Fooocus\'s implementation of CFG re-weighting for TSNR (use 0 to disable, only effective when CFG > 7).')
 
                 def dev_mode_checked(r):
                     return gr.update(visible=r)
