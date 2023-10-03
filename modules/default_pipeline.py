@@ -78,28 +78,18 @@ def refresh_refiner_model(name):
     if xl_refiner_hash == model_hash:
         return
 
+    xl_refiner = None
+    xl_refiner_hash = ''
+
     if name == 'None':
-        xl_refiner = None
-        xl_refiner_hash = ''
         print(f'Refiner unloaded.')
         return
-
-    if xl_refiner is not None:
-        xl_refiner.to_meta()
-        xl_refiner = None
 
     xl_refiner = core.load_model(filename)
-    if not isinstance(xl_refiner.unet.model, SDXLRefiner):
-        print('Model not supported. Fooocus only support SDXL refiner as the refiner.')
-        xl_refiner = None
-        xl_refiner_hash = ''
-        print(f'Refiner unloaded.')
-        return
-
     xl_refiner_hash = model_hash
     print(f'Refiner model loaded: {model_hash}')
 
-    xl_refiner.vae.first_stage_model.to('meta')
+    # Remove VAE
     xl_refiner.vae = None
     return
 
