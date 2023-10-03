@@ -4,6 +4,7 @@ import torch
 import modules.path
 import comfy.model_management
 
+from comfy.model_patcher import ModelPatcher
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.expansion import FooocusExpansion
 
@@ -11,11 +12,11 @@ from modules.expansion import FooocusExpansion
 xl_base: core.StableDiffusionModel = None
 xl_base_hash = ''
 
-xl_refiner: core.StableDiffusionModel = None
-xl_refiner_hash = ''
-
 xl_base_patched: core.StableDiffusionModel = None
 xl_base_patched_hash = ''
+
+xl_refiner: ModelPatcher = None
+xl_refiner_hash = ''
 
 
 @torch.no_grad()
@@ -36,7 +37,7 @@ def assert_model_integrity():
         error_message = 'You have selected base model other than SDXL. This is not supported yet.'
 
     if xl_refiner is not None:
-        if not isinstance(xl_refiner.unet.model, SDXLRefiner):
+        if not isinstance(xl_refiner.model, SDXLRefiner):
             error_message = 'You have selected refiner model other than SDXL refiner. This is not supported yet.'
 
     if error_message is not None:
@@ -85,7 +86,7 @@ def refresh_refiner_model(name):
         print(f'Refiner unloaded.')
         return
 
-    xl_refiner = core.load_model(filename)
+    xl_refiner = core.load_unet_only(filename)
     xl_refiner_hash = model_hash
     print(f'Refiner model loaded: {model_hash}')
 
@@ -173,20 +174,9 @@ def clip_encode(sd, texts, pool_top_k=1):
 
 @torch.no_grad()
 @torch.inference_mode()
-def clear_sd_cond_cache(sd):
-    if sd is None:
-        return None
-    if sd.clip is None:
-        return None
-    sd.clip.fcs_cond_cache = {}
-    return
-
-
-@torch.no_grad()
-@torch.inference_mode()
 def clear_all_caches():
-    clear_sd_cond_cache(xl_base_patched)
-    clear_sd_cond_cache(xl_refiner)
+    xl_base.clip.fcs_cond_cache = {}
+    xl_base_patched.clip.fcs_cond_cache = {}
 
 
 @torch.no_grad()
@@ -222,7 +212,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             model=xl_base_patched.unet,
             positive=positive_cond[0],
             negative=negative_cond[0],
-            refiner=xl_refiner.unet,
+            refiner=xl_refiner,
             refiner_positive=positive_cond[1],
             refiner_negative=negative_cond[1],
             refiner_switch_step=switch,

@@ -10,6 +10,8 @@ import torch
 import numpy as np
 
 import comfy.model_management
+import comfy.model_detection
+import comfy.model_patcher
 import comfy.utils
 
 from comfy.sd import load_checkpoint_guess_config
@@ -34,6 +36,47 @@ class StableDiffusionModel:
         self.vae = vae
         self.clip = clip
         self.clip_vision = clip_vision
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def load_unet_only(unet_path):
+    sd_raw = comfy.utils.load_torch_file(unet_path)
+    sd = {}
+    flag = 'model.diffusion_model.'
+    for k in list(sd_raw.keys()):
+        if k.startswith(flag):
+            sd[k[len(flag):]] = sd_raw[k]
+        del sd_raw[k]
+
+    parameters = comfy.utils.calculate_parameters(sd)
+    fp16 = comfy.model_management.should_use_fp16(model_params=parameters)
+    if "input_blocks.0.0.weight" in sd:
+        # ldm
+        model_config = comfy.model_detection.model_config_from_unet(sd, "", fp16)
+        if model_config is None:
+            raise RuntimeError("ERROR: Could not detect model type of: {}".format(unet_path))
+        new_sd = sd
+    else:
+        # diffusers
+        model_config = comfy.model_detection.model_config_from_diffusers_unet(sd, fp16)
+        if model_config is None:
+            print("ERROR UNSUPPORTED UNET", unet_path)
+            return None
+
+        diffusers_keys = comfy.utils.unet_to_diffusers(model_config.unet_config)
+
+        new_sd = {}
+        for k in diffusers_keys:
+            if k in sd:
+                new_sd[diffusers_keys[k]] = sd.pop(k)
+            else:
+                print(diffusers_keys[k], k)
+    offload_device = comfy.model_management.unet_offload_device()
+    model = model_config.get_model(new_sd, "")
+    model = model.to(offload_device)
+    model.load_model_weights(new_sd, "")
+    return comfy.model_patcher.ModelPatcher(model, load_device=comfy.model_management.get_torch_device(), offload_device=offload_device)
 
 
 @torch.no_grad()
