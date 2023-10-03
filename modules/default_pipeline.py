@@ -142,7 +142,7 @@ def clip_encode_single(clip, text, verbose=False):
 def clip_separate(cond):
     c, p = cond[0]
     c = c[..., -1280:].clone()
-    p = p["pooled_output"]
+    p = p["pooled_output"].clone()
     return [[c, {"pooled_output": p}]]
 
 
