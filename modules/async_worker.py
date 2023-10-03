@@ -83,6 +83,8 @@ def worker():
         cfg_scale = float(guidance_scale)
         print(f'[Parameters] CFG = {cfg_scale}')
 
+        sampler_name = 'dpmpp_fooocus_2m_sde_inpaint_seamless'
+
         initial_latent = None
         denoising_strength = 1.0
         tiled = False
@@ -355,6 +357,7 @@ def worker():
                     height=height,
                     image_seed=task['task_seed'],
                     callback=callback,
+                    sampler_name=sampler_name,
                     latent=initial_latent,
                     denoise=denoising_strength,
                     tiled=tiled,
