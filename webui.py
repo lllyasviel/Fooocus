@@ -153,10 +153,10 @@ with shared.gradio_root:
             with gr.Tab(label='Advanced'):
                 sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=30.0, step=0.001, value=2.0,
                                       info='Higher value means image and texture are sharper.')
-                camera_distance = gr.Slider(label='Camera Distance', minimum=0.1, maximum=3.0, step=0.001, value=1.5,
-                                      info='Higher value means camera is more far away and image contains more objects.')
                 stylize_influence = gr.Slider(label='Stylizing Influence', minimum=10, maximum=1000, step=1, value=100,
                                       info='Higher value means style is cleaner, vivider, and more artistic.')
+                camera_distance = gr.Slider(label='Camera Distance (beta)', minimum=0.1, maximum=3.0, step=0.001, value=1.5,
+                                            info='Higher value means camera is more far away and image contains more objects.')
                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
 
                 def model_refresh_clicked():
