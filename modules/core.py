@@ -127,13 +127,19 @@ def generate_empty_latent(width=1024, height=1024, batch_size=1):
 @torch.no_grad()
 @torch.inference_mode()
 def decode_vae(vae, latent_image, tiled=False):
-    return (opVAEDecodeTiled if tiled else opVAEDecode).decode(samples=latent_image, vae=vae)[0]
+    if tiled:
+        return opVAEDecodeTiled.decode(samples=latent_image, vae=vae, tile_size=512)[0]
+    else:
+        return opVAEDecode.decode(samples=latent_image, vae=vae)[0]
 
 
 @torch.no_grad()
 @torch.inference_mode()
 def encode_vae(vae, pixels, tiled=False):
-    return (opVAEEncodeTiled if tiled else opVAEEncode).encode(pixels=pixels, vae=vae)[0]
+    if tiled:
+        return opVAEEncodeTiled.encode(pixels=pixels, vae=vae, tile_size=512)[0]
+    else:
+        return opVAEEncode.encode(pixels=pixels, vae=vae)[0]
 
 
 @torch.no_grad()
