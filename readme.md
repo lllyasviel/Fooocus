@@ -131,7 +131,7 @@ Or if you want to open a remote port, use
 
 ### Linux (AMD GPUs)
 
-Installation is the same as Linux part. It has been tested for 6700XT. Works for both Pytorch 1.13 and Pytorch 2. 
+Coming soon ...
 
 ### Mac/Windows(AMD GPUs)
 
