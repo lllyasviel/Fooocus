@@ -1,5 +1,6 @@
 # 2.0.80
 
+* Rework many patches and some UI details.
 * Speed up processing.
 * Move Colab to independent branch.
 * Implemented CFG Scale and TSNR correction when CFG is bigger than 10.
