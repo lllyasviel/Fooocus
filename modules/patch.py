@@ -13,6 +13,7 @@ import modules.inpaint_worker as inpaint_worker
 import comfy.ldm.modules.diffusionmodules.openaimodel
 import comfy.ldm.modules.diffusionmodules.model
 import comfy.sd
+import comfy.model_patcher
 
 from comfy.k_diffusion import utils
 from comfy.k_diffusion.sampling import BrownianTreeNoiseSampler, trange
@@ -27,7 +28,7 @@ cfg_s = 1.0
 cfg_cin = 1.0
 
 
-def calculate_weight(self, patches, weight, key):
+def calculate_weight_patched(self, patches, weight, key):
     for p in patches:
         alpha = p[0]
         v = p[1]
@@ -445,7 +446,7 @@ def patch_all():
 
     comfy.sd1_clip.SD1ClipModel.forward = patched_SD1ClipModel_forward
 
-    comfy.sd.ModelPatcher.calculate_weight = calculate_weight_patched
+    comfy.model_patcher.calculate_weight = calculate_weight_patched
     comfy.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
 
     comfy.ldm.modules.attention.print = lambda x: None
