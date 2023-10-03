@@ -179,7 +179,7 @@ def patched_model_function(func, args):
     x = args['input']
     t = args['timestep']
     c = args['c']
-    # is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x) * 5e-3
+    # is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x)
     return func(x, t, **c)
 
 
