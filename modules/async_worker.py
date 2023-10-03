@@ -44,6 +44,8 @@ def worker():
     @torch.no_grad()
     @torch.inference_mode()
     def handler(task):
+        execution_start_time = time.perf_counter()
+
         prompt, negative_prompt, style_selections, performance_selction, \
             aspect_ratios_selction, image_number, image_seed, sharpness, \
             base_model_name, refiner_model_name, \
@@ -328,11 +330,14 @@ def worker():
 
         print(f'[ADM Guidance] ADM Scale = {modules.patch.adm_scale}')
 
+        preparation_time = time.perf_counter() - execution_start_time
+        print(f'Preparation time: {preparation_time:.2f} seconds')
+
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
-            try:
-                execution_start_time = time.perf_counter()
+            execution_start_time = time.perf_counter()
 
+            try:
                 imgs = pipeline.process_diffusion(
                     positive_cond=task['c'],
                     negative_cond=task['uc'],
@@ -349,9 +354,6 @@ def worker():
 
                 if inpaint_worker.current_task is not None:
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
-
-                execution_time = time.perf_counter() - execution_start_time
-                print(f'Diffusion time: {execution_time:.2f} seconds')
 
                 for x in imgs:
                     d = [
@@ -375,6 +377,9 @@ def worker():
             except comfy.model_management.InterruptProcessingException as e:
                 print('User stopped')
                 break
+
+            execution_time = time.perf_counter() - execution_start_time
+            print(f'Generating and saving time: {execution_time:.2f} seconds')
 
         outputs.append(['results', results])
         return
