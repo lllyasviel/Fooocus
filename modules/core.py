@@ -14,10 +14,9 @@ import comfy.utils
 
 from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint
-from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
-from comfy.model_base import SDXLRefiner
+from comfy.sample import prepare_mask, broadcast_cond, get_additional_models, cleanup_additional_models
 from modules.patch import patched_sampler_cfg_function, patched_model_function_wrapper
-from comfy.sd import model_lora_keys_unet, model_lora_keys_clip, load_lora
+from comfy.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
 from modules.samplers_advanced import KSamplerBasic, KSamplerWithRefiner
 
 
@@ -61,20 +60,19 @@ def load_sd_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
         key_map = model_lora_keys_clip(model.clip.cond_stage_model, key_map)
         loaded = load_lora(lora, key_map)
 
-    new_modelpatcher = model.unet.clone()
-    k = new_modelpatcher.add_patches(loaded, strength_model)
+    new_unet = model.unet.clone()
+    loaded_unet_keys = new_unet.add_patches(loaded, strength_model)
 
     new_clip = model.clip.clone()
-    k1 = new_clip.add_patches(loaded, strength_clip)
+    loaded_clip_keys = new_clip.add_patches(loaded, strength_clip)
 
-    k = set(k)
-    k1 = set(k1)
+    loaded_keys = set(list(loaded_unet_keys) + list(loaded_clip_keys))
+
     for x in loaded:
-        if (x not in k) and (x not in k1):
-            print("Lora missed: ", x)
+        if x not in loaded_keys:
+            print("Lora key not loaded: ", x)
 
-    unet, clip = new_modelpatcher, new_clip
-    return StableDiffusionModel(unet=unet, clip=clip, vae=model.vae, clip_vision=model.clip_vision)
+    return StableDiffusionModel(unet=new_unet, clip=new_clip, vae=model.vae, clip_vision=model.clip_vision)
 
 
 @torch.no_grad()
