@@ -96,22 +96,21 @@ def download_models():
     return
 
 
-def clear_comfy_args():
+def ini_comfy_args():
     argv = sys.argv
     sys.argv = [sys.argv[0]]
+
     from comfy.cli_args import args as comfy_args
     comfy_args.disable_cuda_malloc = True
+    comfy_args.disable_smart_memory = True
+    comfy_args.auto_launch = False
+
     sys.argv = argv
-
-
-def cuda_malloc():
-    import cuda_malloc
 
 
 prepare_environment()
 
-clear_comfy_args()
-# cuda_malloc()
+ini_comfy_args()
 
 download_models()
 
