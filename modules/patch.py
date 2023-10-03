@@ -1,5 +1,4 @@
 import torch
-import contextlib
 import comfy.model_base
 import comfy.ldm.modules.diffusionmodules.openaimodel
 import comfy.samplers
@@ -183,7 +182,7 @@ def patched_model_function_wrapper(func, args):
     return func(x, t, **c)
 
 
-def encode_adm(self, **kwargs):
+def sdxl_encode_adm_patched(self, **kwargs):
     clip_pooled = comfy.model_base.sdxl_pooled(kwargs, self.noise_augmentor)
     width = kwargs.get("width", 768)
     height = kwargs.get("height", 768)
@@ -375,88 +374,11 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
         return self.out(h)
 
 
-def patched_SD1ClipModel_forward(self, tokens):
-        backup_embeds = self.transformer.get_input_embeddings()
-        device = backup_embeds.weight.device
-        tokens = self.set_up_textual_embeddings(tokens, backup_embeds)
-        tokens = torch.LongTensor(tokens).to(device)
-
-        if backup_embeds.weight.dtype != torch.float32:
-            precision_scope = torch.autocast
-        else:
-            precision_scope = contextlib.nullcontext
-
-        with precision_scope(comfy.model_management.get_autocast_device(device)):
-            outputs = self.transformer(input_ids=tokens, output_hidden_states=self.layer=="hidden")
-            self.transformer.set_input_embeddings(backup_embeds)
-
-            if self.layer == "last":
-                z = outputs.last_hidden_state
-            elif self.layer == "pooled":
-                z = outputs.pooler_output[:, None, :]
-            else:
-                z = outputs.hidden_states[self.layer_idx]
-                if self.layer_norm_hidden_state:
-                    z = self.transformer.text_model.final_layer_norm(z)
-
-            pooled_output = outputs.pooler_output
-            if self.text_projection is not None:
-                pooled_output = pooled_output.float().to(self.text_projection.device) @ self.text_projection.float()
-        return z.float(), pooled_output.float()
-
-
-VAE_DTYPE = None
-
-
-def vae_dtype_patched():
-    global VAE_DTYPE
-    if VAE_DTYPE is None:
-        VAE_DTYPE = torch.float32
-        if comfy.model_management.is_nvidia():
-            torch_version = torch.version.__version__
-            if int(torch_version[0]) >= 2:
-                if torch.cuda.is_bf16_supported():
-                    VAE_DTYPE = torch.bfloat16
-                    print('BFloat16 VAE: Enabled')
-    return VAE_DTYPE
-
-
-def vae_bf16_upsample_forward(self, x):
-    try:
-        x = torch.nn.functional.interpolate(x, scale_factor=2.0, mode="nearest")
-    except:  # operation not implemented for bf16
-        b, c, h, w = x.shape
-        out = torch.empty((b, c, h * 2, w * 2), dtype=x.dtype, layout=x.layout, device=x.device)
-        split = 8
-        l = out.shape[1] // split
-        for i in range(0, out.shape[1], l):
-            out[:, i:i + l] = torch.nn.functional.interpolate(x[:, i:i + l].to(torch.float32), scale_factor=2.0,
-                                                              mode="nearest").to(x.dtype)
-        del x
-        x = out
-
-    if self.with_conv:
-        x = self.conv(x)
-    return x
-
-
 def patch_all():
-    comfy.model_management.vae_dtype = vae_dtype_patched
-    comfy.ldm.modules.diffusionmodules.model.Upsample.forward = vae_bf16_upsample_forward
-
-    comfy.sd1_clip.SD1ClipModel.forward = patched_SD1ClipModel_forward
-
     comfy.model_patcher.calculate_weight = calculate_weight_patched
     comfy.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
-
-    comfy.ldm.modules.attention.print = lambda x: None
     comfy.k_diffusion.sampling.sample_dpmpp_fooocus_2m_sde_inpaint_seamless = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
-
-    comfy.model_management.text_encoder_device = text_encoder_device_patched
-    print(f'Fooocus Text Processing Pipelines are retargeted to {str(comfy.model_management.text_encoder_device())}')
-
     comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     comfy.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
-
     comfy.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
     return
