@@ -157,7 +157,7 @@ def adain(data, reference):
     return data / data_std * reference_std
 
 
-def adaptive_stylization(cond, uncond, cond_scale):
+def adaptive_stylization(cond, uncond, cond_scale, t):
     global stylization_sigma
 
     eps = simple_cfg(cond, uncond, cond_scale)
@@ -183,7 +183,7 @@ def patched_sampler_cfg_function(args):
     eps_degraded_weighted = eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
     cond = eps_degraded_weighted * cfg_s + cfg_x0
-    return adaptive_stylization(cond, uncond, cond_scale)
+    return adaptive_stylization(cond, uncond, cond_scale, t)
 
 
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
