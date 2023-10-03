@@ -2,7 +2,6 @@ import modules.core as core
 import os
 import torch
 import modules.path
-import modules.virtual_memory as virtual_memory
 import comfy.model_management
 
 from comfy.model_base import SDXL, SDXLRefiner
@@ -17,6 +16,33 @@ xl_refiner_hash = ''
 
 xl_base_patched: core.StableDiffusionModel = None
 xl_base_patched_hash = ''
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def assert_model_integrity():
+    error_message = None
+
+    if xl_base is None:
+        error_message = 'You have not selected SDXL base model.'
+
+    if xl_base_patched is None:
+        error_message = 'You have not selected SDXL base model.'
+
+    if not isinstance(xl_base.unet.model, SDXL):
+        error_message = 'You have selected base model other than SDXL. This is not supported yet.'
+
+    if not isinstance(xl_base_patched.unet.model, SDXL):
+        error_message = 'You have selected base model other than SDXL. This is not supported yet.'
+
+    if xl_refiner is not None:
+        if not isinstance(xl_refiner.unet.model, SDXLRefiner):
+            error_message = 'You have selected refiner model other than SDXL refiner. This is not supported yet.'
+
+    if error_message is not None:
+        raise NotImplementedError(error_message)
+
+    return True
 
 
 @torch.no_grad()
@@ -208,6 +234,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
     if xl_refiner is not None:
         virtual_memory.try_move_to_virtual_memory(xl_refiner.unet.model)
     virtual_memory.load_from_virtual_memory(xl_base.unet.model)
+
+    assert_model_integrity()
 
     if latent is None:
         empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
