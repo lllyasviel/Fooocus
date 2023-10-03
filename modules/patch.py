@@ -339,9 +339,12 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     transformer_options["current_index"] = 0
     transformer_patches = transformer_options.get("patches", {})
 
-    assert (y is not None) == (
-            self.num_classes is not None
-    ), "must specify y if and only if the model is class-conditional"
+    if isinstance(y, torch.Tensor) and int(y.dim()) == 2 and int(y.shape[1]) == 5632:
+        t = 1.0 - (timesteps / 999.0)[:, None].clone().to(x)
+        ya = y[..., :2816].clone()
+        yb = y[..., 2816:].clone()
+        y = t * yb + (1 - t) * ya
+
     hs = []
     t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False).to(self.dtype)
     emb = self.time_embed(t_emb)
