@@ -56,24 +56,13 @@ def refresh_base_model(name):
     if xl_base_hash == model_hash:
         return
 
-    if xl_base is not None:
-        xl_base.to_meta()
-        xl_base = None
+    xl_base = None
+    xl_base_hash = ''
+    xl_base_patched = None
+    xl_base_patched_hash = ''
 
     xl_base = core.load_model(filename)
-    if not isinstance(xl_base.unet.model, SDXL):
-        print('Model not supported. Fooocus only support SDXL model as the base model.')
-        xl_base = None
-        xl_base_hash = ''
-        refresh_base_model(modules.path.default_base_model_name)
-        xl_base_hash = model_hash
-        xl_base_patched = xl_base
-        xl_base_patched_hash = ''
-        return
-
     xl_base_hash = model_hash
-    xl_base_patched = xl_base
-    xl_base_patched_hash = ''
     print(f'Base model loaded: {model_hash}')
     return
 
@@ -213,6 +202,9 @@ def refresh_everything(refiner_model_name, base_model_name, loras):
     virtual_memory.load_from_virtual_memory(xl_base.unet.model)
 
     refresh_loras(loras)
+
+    assert_model_integrity()
+
     clear_all_caches()
     return
 
