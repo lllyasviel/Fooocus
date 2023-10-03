@@ -165,8 +165,9 @@ with shared.gradio_root:
                                                         step=0.001, value=1.5, info='The scaler multiplied to positive ADM (use 1.0 to disable). ')
                         adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0,
                                                         step=0.001, value=0.8, info='The scaler multiplied to negative ADM (use 1.0 to disable). ')
-                        adaptive_cfg = gr.Slider(label='CFG Rescale from TSNR', minimum=0.0, maximum=1.0,
-                                                 step=0.001, value=0.3, info='Enabling Fooocus\'s implementation of CFG re-weighting for TSNR (use 0 to disable, more effective when CFG > 7).')
+                        adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01, value=5.0,
+                                                 info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
+                                                      '(effective when real CFG > mimicked CFG).')
                         sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list, value=flags.default_sampler, info='Only effective in non-inpaint mode.')
 
                 def dev_mode_checked(r):
