@@ -199,6 +199,14 @@ def sdxl_encode_adm_patched(self, **kwargs):
         width = float(width) * negative_adm_scale
         height = float(height) * negative_adm_scale
 
+    # Avoid artifacts
+    width = int(width)
+    height = int(height)
+    crop_w = int(crop_w)
+    crop_h = int(crop_h)
+    target_width = int(target_width)
+    target_height = int(target_height)
+
     out = []
     out.append(self.embedder(torch.Tensor([height])))
     out.append(self.embedder(torch.Tensor([width])))
