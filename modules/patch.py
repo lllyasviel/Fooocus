@@ -195,11 +195,11 @@ def sdxl_encode_adm_patched(self, **kwargs):
     target_height = kwargs.get("target_height", height)
 
     if kwargs.get("prompt_type", "") == "negative":
-        width = float(width) * positive_adm_scale
-        height = float(height) * positive_adm_scale
-    elif kwargs.get("prompt_type", "") == "positive":
         width = float(width) * negative_adm_scale
         height = float(height) * negative_adm_scale
+    elif kwargs.get("prompt_type", "") == "positive":
+        width = float(width) * positive_adm_scale
+        height = float(height) * positive_adm_scale
 
     # Avoid artifacts
     width = int(width)
