@@ -151,8 +151,8 @@ def get_adaptive_weight_k(cfg_scale):
     w = float(cfg_scale)
     w -= 7.0
     w /= 3.0
-    w = max(w, 0.05)
-    w = min(w, 0.95)
+    w = max(w, 0.01)
+    w = min(w, 0.99)
     return w
 
 
