@@ -20,6 +20,7 @@ from comfy.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, f
 
 
 sharpness = 2.0
+stylization_sigma = 9.0
 positive_adm_scale = 1.5
 negative_adm_scale = 0.8
 
@@ -146,8 +147,25 @@ def calculate_weight_patched(self, patches, weight, key):
     return weight
 
 
-def adaptive_stylization(cond, uncond, cond_scale, max_scale=9.0):
+def simple_cfg(cond, uncond, cond_scale):
     return uncond + (cond - uncond) * cond_scale
+
+
+def adain(data, reference):
+    return data
+
+
+def adaptive_stylization(cond, uncond, cond_scale):
+    global stylization_sigma
+
+    eps = simple_cfg(cond, uncond, cond_scale)
+
+    if cond_scale > stylization_sigma:
+        eps_sigma = simple_cfg(cond, uncond, stylization_sigma)
+        eps_adain = adain(eps, eps_sigma)
+        return eps_adain
+    else:
+        return eps
 
 
 def patched_sampler_cfg_function(args):
