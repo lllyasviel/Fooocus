@@ -161,6 +161,10 @@ def compute_cfg(uncond, cond, cfg_scale):
 
     k = adaptive_cfg * get_adaptive_weight_k(cfg_scale)
     x_cfg = uncond + cfg_scale * (cond - uncond)
+
+    if k < 1e-5:
+        return x_cfg
+
     ro_pos = torch.std(cond, dim=(1, 2, 3), keepdim=True)
     ro_cfg = torch.std(x_cfg, dim=(1, 2, 3), keepdim=True)
 
