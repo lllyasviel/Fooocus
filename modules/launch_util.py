@@ -7,11 +7,14 @@ import sys
 import re
 import logging
 import pygit2
-pygit2.option(pygit2.GIT_OPT_SET_OWNER_VALIDATION, 0)
 
+
+pygit2.option(pygit2.GIT_OPT_SET_OWNER_VALIDATION, 0)
 
 logging.getLogger("torch.distributed.nn").setLevel(logging.ERROR)  # sshh...
 logging.getLogger("xformers").addFilter(lambda record: 'A matching Triton is not available' not in record.getMessage())
+
+re_requirement = re.compile(r"\s*([-_a-zA-Z0-9]+)\s*(?:==\s*([-+_.a-zA-Z0-9]+))?\s*")
 
 python = sys.executable
 default_command_live = (os.environ.get('LAUNCH_LIVE_OUTPUT') == "1")
@@ -114,9 +117,6 @@ def run_pip(command, desc=None, live=default_command_live):
         print(e)
         print(f'CMD Failed {desc}: {command}')
         return None
-
-
-re_requirement = re.compile(r"\s*([-_a-zA-Z0-9]+)\s*(?:==\s*([-+_.a-zA-Z0-9]+))?\s*")
 
 
 def requirements_met(requirements_file):

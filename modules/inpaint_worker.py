@@ -1,12 +1,9 @@
-import os.path
-
 import torch
 import numpy as np
 import modules.default_pipeline as pipeline
 
 from PIL import Image, ImageFilter
 from modules.util import resample_image
-from modules.path import inpaint_models_path
 
 
 inpaint_head = None
