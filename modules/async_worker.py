@@ -77,7 +77,7 @@ def worker():
         modules.patch.negative_adm_scale = (1.0 / float(camera_distance)) ** 0.618  # Magic number after experiments
         print(f'[Parameters] ADM Scale = {modules.patch.positive_adm_scale} / {modules.patch.negative_adm_scale}')
 
-        cfg_scale = prompt_guidance
+        cfg_scale = 7.0 * float(prompt_guidance) / 100.0
         print(f'[Parameters] CFG = {cfg_scale}')
 
         initial_latent = None

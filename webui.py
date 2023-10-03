@@ -153,7 +153,7 @@ with shared.gradio_root:
             with gr.Tab(label='Advanced'):
                 sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=30.0, step=0.001, value=2.0)
                 camera_distance = gr.Slider(label='Camera Distance', minimum=0.1, maximum=3.0, step=0.001, value=1.5)
-                prompt_guidance = gr.Slider(label='Prompt Guidance', minimum=1.0, maximum=30.0, step=0.01, value=7.0)
+                prompt_guidance = gr.Slider(label='Prompt Guidance', minimum=10, maximum=500, step=1, value=100)
                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
 
                 def model_refresh_clicked():
