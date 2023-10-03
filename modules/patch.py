@@ -176,11 +176,9 @@ def patched_sampler_cfg_function(args):
     positive_x0 = args['cond'] * cfg_s + cfg_x0
     uncond = args['uncond'] * cfg_s + cfg_x0
     cond_scale = args['cond_scale']
-    t = args['timestep']
-
-    alpha = 1.0 - (t / 999.0)[:, None, None, None].clone()
-    alpha *= 0.001 * sharpness
-
+    t = 1.0 - (args['timestep'] / 999.0)[:, None, None, None].clone()
+    
+    alpha = 0.001 * sharpness * t
     eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
     eps_degraded_weighted = eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
