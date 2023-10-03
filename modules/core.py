@@ -16,6 +16,7 @@ from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint
 from comfy.sample import prepare_mask, broadcast_cond, load_additional_models, cleanup_additional_models
 from comfy.model_base import SDXLRefiner
+from modules.patch import cfg_patched, patched_model_function
 from comfy.sd import model_lora_keys_unet, model_lora_keys_clip, load_lora
 from modules.samplers_advanced import KSamplerBasic, KSamplerWithRefiner
 
@@ -29,34 +30,20 @@ opVAEEncodeForInpaint = VAEEncodeForInpaint()
 
 
 class StableDiffusionModel:
-    def __init__(self, unet, vae, clip, clip_vision, model_filename=None):
-        if isinstance(model_filename, str):
-            is_refiner = isinstance(unet.model, SDXLRefiner)
-            if unet is not None:
-                unet.model.model_file = dict(filename=model_filename, prefix='model')
-            if clip is not None:
-                clip.cond_stage_model.model_file = dict(filename=model_filename, prefix='refiner_clip' if is_refiner else 'base_clip')
-            if vae is not None:
-                vae.first_stage_model.model_file = dict(filename=model_filename, prefix='first_stage_model')
+    def __init__(self, unet, vae, clip, clip_vision):
         self.unet = unet
         self.vae = vae
         self.clip = clip
         self.clip_vision = clip_vision
-
-    def to_meta(self):
-        if self.unet is not None:
-            self.unet.model.to('meta')
-        if self.clip is not None:
-            self.clip.cond_stage_model.to('meta')
-        if self.vae is not None:
-            self.vae.first_stage_model.to('meta')
 
 
 @torch.no_grad()
 @torch.inference_mode()
 def load_model(ckpt_filename):
     unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename)
-    return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision, model_filename=ckpt_filename)
+    unet.model_options['sampler_cfg_function'] = cfg_patched
+    unet.model_options['model_function_wrapper'] = patched_model_function
+    return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision)
 
 
 @torch.no_grad()
