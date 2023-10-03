@@ -20,7 +20,8 @@ from comfy.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, f
 
 
 sharpness = 2.0
-adm_scale = 1.25
+positive_adm_scale = 1.5
+negative_adm_scale = 0.8
 
 cfg_x0 = 0.0
 cfg_s = 1.0
@@ -192,11 +193,11 @@ def sdxl_encode_adm_patched(self, **kwargs):
     target_height = kwargs.get("target_height", height)
 
     if kwargs.get("prompt_type", "") == "negative":
-        width = float(width) * adm_scale
-        height = float(height) * adm_scale
+        width = float(width) * positive_adm_scale
+        height = float(height) * positive_adm_scale
     elif kwargs.get("prompt_type", "") == "positive":
-        width = float(width) / adm_scale
-        height = float(height) / adm_scale
+        width = float(width) * negative_adm_scale
+        height = float(height) * negative_adm_scale
 
     out = []
     out.append(self.embedder(torch.Tensor([height])))

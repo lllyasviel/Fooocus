@@ -69,9 +69,17 @@ def worker():
             use_expansion = False
 
         use_style = len(style_selections) > 0
+
         modules.patch.sharpness = sharpness
-        modules.patch.adm_scale = camera_distance
+        print(f'[Parameters] Sharpness = {modules.patch.sharpness}')
+
+        modules.patch.positive_adm_scale = float(camera_distance)
+        modules.patch.negative_adm_scale = 1.0 / float(camera_distance)
+        print(f'[Parameters] ADM Scale = {modules.patch.positive_adm_scale} / {modules.patch.negative_adm_scale}')
+
         cfg_scale = prompt_guidance
+        print(f'[Parameters] CFG = {cfg_scale}')
+        
         initial_latent = None
         denoising_strength = 1.0
         tiled = False
@@ -329,8 +337,6 @@ def worker():
                 f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
                 y)])
 
-        print(f'[ADM Guidance] ADM Scale = {modules.patch.adm_scale}')
-
         preparation_time = time.perf_counter() - execution_start_time
         print(f'Preparation time: {preparation_time:.2f} seconds')
 
@@ -366,6 +372,8 @@ def worker():
                         ('Performance', performance_selction),
                         ('Resolution', str((width, height))),
                         ('Sharpness', sharpness),
+                        ('Camera Distance', camera_distance),
+                        ('Prompt Guidance', prompt_guidance),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
                         ('Seed', task['task_seed'])
