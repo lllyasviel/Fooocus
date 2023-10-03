@@ -47,7 +47,7 @@ def worker():
         execution_start_time = time.perf_counter()
 
         prompt, negative_prompt, style_selections, performance_selction, \
-            aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, stylize_influence, \
+            aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, stylize_influence, adaptive_cfg, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
@@ -69,6 +69,9 @@ def worker():
             use_expansion = False
 
         use_style = len(style_selections) > 0
+
+        modules.patch.adaptive_cfg = adaptive_cfg
+        print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
 
         modules.patch.sharpness = sharpness
         print(f'[Parameters] Sharpness = {modules.patch.sharpness}')

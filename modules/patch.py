@@ -27,6 +27,7 @@ negative_adm_scale = 0.8
 cfg_x0 = 0.0
 cfg_s = 1.0
 cfg_cin = 1.0
+adaptive_cfg = True
 
 
 def calculate_weight_patched(self, patches, weight, key):
@@ -163,7 +164,7 @@ def adaptive_stylization(cond, uncond, cond_scale):
 
     eps = simple_cfg(cond, uncond, cond_scale)
 
-    if cond_scale > stylization_sigma:
+    if adaptive_cfg and cond_scale > stylization_sigma:
         eps_sigma = simple_cfg(cond, uncond, stylization_sigma)
         eps_adain = adain(eps, eps_sigma)
         return eps_adain

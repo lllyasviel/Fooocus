@@ -165,6 +165,7 @@ with shared.gradio_root:
                                                         step=0.001, value=1.5, info='The scaler multiplied to positive ADM. ')
                         adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0,
                                                         step=0.001, value=0.8, info='The scaler multiplied to negative ADM. ')
+                        adaptive_cfg = gr.Checkbox(label='Adaptive CFG', value=True, info='Enabling Fooocus\'s implementation of CFG re-weighting.')
 
                 def dev_mode_checked(r):
                     return gr.update(visible=r)
@@ -185,7 +186,7 @@ with shared.gradio_root:
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col, queue=False)
         ctrls = [
             prompt, negative_prompt, style_selections,
-            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, stylize_influence
+            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, stylize_influence, adaptive_cfg
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
