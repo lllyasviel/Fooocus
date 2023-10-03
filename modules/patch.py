@@ -147,31 +147,20 @@ def calculate_weight_patched(self, patches, weight, key):
     return weight
 
 
-def get_adaptive_weight_k(cfg_scale):
-    w = float(cfg_scale)
-    w -= 7.0
-    w /= 3.0
-    w = max(w, 0.0)
-    w = min(w, 1.0)
-    return w
-
-
-def compute_cfg(uncond, cond, cfg_scale):
+def compute_cfg(uncond, cond, cfg_scale, t):
     global adaptive_cfg
 
-    k = adaptive_cfg * get_adaptive_weight_k(cfg_scale)
-    x_cfg = uncond + cfg_scale * (cond - uncond)
+    mimic_cfg = float(adaptive_cfg)
+    real_cfg = float(cfg_scale)
 
-    if k < 1e-5:
-        return x_cfg
+    real_eps = uncond + real_cfg * (cond - uncond)
 
-    ro_pos = torch.std(cond, dim=(1, 2, 3), keepdim=True)
-    ro_cfg = torch.std(x_cfg, dim=(1, 2, 3), keepdim=True)
+    if cfg_scale < adaptive_cfg:
+        return real_eps
 
-    x_rescaled = x_cfg * (ro_pos / ro_cfg)
-    x_final = k * x_rescaled + (1.0 - k) * x_cfg
+    mimicked_eps = uncond + mimic_cfg * (cond - uncond)
 
-    return x_final
+    return real_eps * t + mimicked_eps * (1 - t)
 
 
 def patched_sampler_cfg_function(args):
@@ -188,7 +177,7 @@ def patched_sampler_cfg_function(args):
     positive_eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
     positive_eps_degraded_weighted = positive_eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
-    return compute_cfg(uncond=negative_eps, cond=positive_eps_degraded_weighted, cfg_scale=cfg_scale)
+    return compute_cfg(uncond=negative_eps, cond=positive_eps_degraded_weighted, cfg_scale=cfg_scale, t=t)
 
 
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
