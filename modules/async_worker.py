@@ -47,7 +47,7 @@ def worker():
         execution_start_time = time.perf_counter()
 
         prompt, negative_prompt, style_selections, performance_selction, \
-            aspect_ratios_selction, image_number, image_seed, sharpness, camera_distance, prompt_guidance, \
+            aspect_ratios_selction, image_number, image_seed, sharpness, camera_distance, stylize_influence, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
@@ -77,7 +77,7 @@ def worker():
         modules.patch.negative_adm_scale = (1.0 / float(camera_distance)) ** 0.618  # Magic number after experiments
         print(f'[Parameters] ADM Scale = {modules.patch.positive_adm_scale} / {modules.patch.negative_adm_scale}')
 
-        cfg_scale = 7.0 * float(prompt_guidance) / 100.0
+        cfg_scale = 7.0 * float(stylize_influence) / 100.0
         print(f'[Parameters] CFG = {cfg_scale}')
 
         initial_latent = None
@@ -373,7 +373,7 @@ def worker():
                         ('Resolution', str((width, height))),
                         ('Sharpness', sharpness),
                         ('Camera Distance', camera_distance),
-                        ('Prompt Guidance', prompt_guidance),
+                        ('Prompt Guidance', stylize_influence),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
                         ('Seed', task['task_seed'])
