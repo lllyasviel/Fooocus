@@ -76,7 +76,11 @@ with shared.gradio_root:
                                 uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
                     with gr.TabItem(label='Inpaint or Outpaint (beta)') as inpaint_tab:
-                        inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF")
+                        with gr.Row():
+                            with gr.Column():
+                                inpaint_input_image = grh.Image(label='Drag inpaint or outpaint image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF")
+                            with gr.Column():
+                                inpaint_mask_image = grh.Image(label='Drag inapint mask image to here', source='upload', type='numpy', height=500)
                         gr.HTML('Outpaint Expansion (<a href="https://github.com/lllyasviel/Fooocus/discussions/414">\U0001F4D4 Document</a>):')
                         outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint', show_label=False, container=False)
                         gr.HTML('* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)')
@@ -103,12 +107,14 @@ with shared.gradio_root:
 
             uov_input_image.upload(update_default_image, inputs=uov_input_image, queue=False)
             inpaint_input_image.upload(update_default_image, inputs=inpaint_input_image, queue=False)
+            inpaint_mask_image.upload(update_default_image, inputs=inpaint_mask_image, queue=False)
 
             uov_input_image.clear(clear_default_image, queue=False)
             inpaint_input_image.clear(clear_default_image, queue=False)
+            inpaint_mask_image.clear(clear_default_image, queue=False)
 
             uov_tab.select(lambda: ['uov', default_image], outputs=[current_tab, uov_input_image], queue=False)
-            inpaint_tab.select(lambda: ['inpaint', default_image], outputs=[current_tab, inpaint_input_image], queue=False)
+            inpaint_tab.select(lambda: ['inpaint', default_image, default_image], outputs=[current_tab, inpaint_input_image, inpaint_mask_image], queue=False)
 
         with gr.Column(scale=0.5, visible=False) as right_col:
             with gr.Tab(label='Setting'):
@@ -172,7 +178,7 @@ with shared.gradio_root:
         ctrls += [base_model, refiner_model] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
-        ctrls += [outpaint_selections, inpaint_input_image]
+        ctrls += [outpaint_selections, inpaint_input_image, inpaint_mask_image]
 
         run_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, run_button, gallery])\
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\

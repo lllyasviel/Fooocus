@@ -14,6 +14,7 @@ def worker():
     import shared
     import random
     import copy
+    import cv2
     import modules.default_pipeline as pipeline
     import modules.core as core
     import modules.flags as flags
@@ -50,7 +51,7 @@ def worker():
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
-            uov_method, uov_input_image, outpaint_selections, inpaint_input_image = task
+            uov_method, uov_input_image, outpaint_selections, inpaint_input_image, inpaint_mask_image = task
 
         outpaint_selections = [o.lower() for o in outpaint_selections]
 
@@ -166,7 +167,15 @@ def worker():
                     print(f'Final resolution is {str((height, width))}.')
             if current_tab == 'inpaint' and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
-                inpaint_mask = inpaint_input_image['mask'][:, :, 0]
+
+                # use uploaded inpaint mask image, if not brush for inpaint
+                if np.any(inpaint_input_image['mask'] == [255, 255, 255]):
+                    inpaint_mask = inpaint_input_image['mask'][:, :, 0]
+                else:
+                    inpaint_height, inpaint_width = inpaint_image.shape[:2]
+                    resized_mask_image = cv2.resize(inpaint_mask_image, (inpaint_width, inpaint_height))
+                    inpaint_mask = resized_mask_image[:, :, 0]
+
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
                     if len(outpaint_selections) > 0:
