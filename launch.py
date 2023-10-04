@@ -102,7 +102,6 @@ def ini_comfy_args():
 
     from comfy.cli_args import args as comfy_args
     comfy_args.disable_cuda_malloc = True
-    comfy_args.disable_smart_memory = True
     comfy_args.auto_launch = False
 
     sys.argv = argv
