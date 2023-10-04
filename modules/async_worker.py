@@ -8,6 +8,7 @@ outputs = []
 def worker():
     global buffer, outputs
 
+    import traceback
     import numpy as np
     import torch
     import time
@@ -433,7 +434,11 @@ def worker():
         time.sleep(0.01)
         if len(buffer) > 0:
             task = buffer.pop(0)
-            handler(task)
+            try:
+                handler(task)
+            except:
+                traceback.print_exc()
+                outputs.append(['results', []])
     pass
 
 
