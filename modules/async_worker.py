@@ -48,6 +48,7 @@ def worker():
 
         prompt, negative_prompt, style_selections, performance_selction, \
             aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, scheduler_name, \
+            overwrite_step, overwrite_switch, overwrite_width, overwrite_height, overwrite_vary_strength, overwrite_upscale_strength, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
@@ -95,9 +96,21 @@ def worker():
             steps = 60
             switch = 40
 
+        if overwrite_step > 0:
+            steps = overwrite_step
+
+        if overwrite_switch > 0:
+            switch = overwrite_switch
+
         pipeline.clear_all_caches()  # save memory
 
         width, height = aspect_ratios[aspect_ratios_selction]
+
+        if overwrite_width > 0:
+            width = overwrite_width
+
+        if overwrite_height > 0:
+            height = overwrite_height
 
         if input_image_checkbox:
             progressbar(0, 'Image processing ...')
@@ -113,6 +126,8 @@ def worker():
                         denoising_strength = 0.5
                     if 'strong' in uov_method:
                         denoising_strength = 0.85
+                    if overwrite_vary_strength > 0:
+                        denoising_strength = overwrite_vary_strength
                     initial_pixels = core.numpy_to_pytorch(uov_input_image)
                     progressbar(0, 'VAE encoding ...')
                     initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels)
@@ -169,6 +184,14 @@ def worker():
                     denoising_strength = 1.0 - 0.618
                     steps = int(steps * 0.618)
                     switch = int(steps * 0.67)
+
+                    if overwrite_upscale_strength > 0:
+                        denoising_strength = overwrite_upscale_strength
+                    if overwrite_step > 0:
+                        steps = overwrite_step
+                    if overwrite_switch > 0:
+                        switch = overwrite_switch
+
                     initial_pixels = core.numpy_to_pytorch(uov_input_image)
                     progressbar(0, 'VAE encoding ...')
 
