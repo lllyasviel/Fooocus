@@ -198,6 +198,20 @@ expansion = FooocusExpansion()
 
 @torch.no_grad()
 @torch.inference_mode()
+def prepare_text_encoder(async_call=True):
+    if async_call:
+        # TODO: make sure that this is always called in an async way so that users cannot feel it.
+        pass
+    assert_model_integrity()
+    comfy.model_management.load_models_gpu([xl_base_patched.clip.patcher, expansion.patcher])
+    return
+
+
+prepare_text_encoder(async_call=True)
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0):
     if latent is None:
         empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)

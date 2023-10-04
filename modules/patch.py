@@ -402,7 +402,13 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
         return self.out(h)
 
 
+def text_encoder_device_patched():
+    # Fooocus's style system uses text encoder much more times than comfy so this makes things much faster.
+    return comfy.model_management.get_torch_device()
+
+
 def patch_all():
+    comfy.model_management.text_encoder_device = text_encoder_device_patched
     comfy.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
     comfy.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
     comfy.k_diffusion.sampling.sample_dpmpp_fooocus_2m_sde_inpaint_seamless = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
