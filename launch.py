@@ -12,6 +12,7 @@ from modules.path import modelfile_path, lorafile_path, vae_approx_path, fooocus
 
 REINSTALL_ALL = False
 
+
 def prepare_environment():
     torch_index_url = os.environ.get('TORCH_INDEX_URL', "https://download.pytorch.org/whl/cu118")
     torch_command = os.environ.get('TORCH_COMMAND',
@@ -20,8 +21,8 @@ def prepare_environment():
 
     xformers_package = os.environ.get('XFORMERS_PACKAGE', 'xformers==0.0.20')
 
-    comfy_repo = os.environ.get('COMFY_REPO', "https://github.com/lllyasviel/ComfyUI_2bc12d.git")
-    comfy_commit_hash = os.environ.get('COMFY_COMMIT_HASH', "2bc12d3d22efb5c63ae3a7fc342bb2dd16b31735")
+    comfy_repo = os.environ.get('COMFY_REPO', "https://github.com/comfyanonymous/ComfyUI")
+    comfy_commit_hash = os.environ.get('COMFY_COMMIT_HASH', "2ef459b1d4d627929c84d11e5e0cbe3ded9c9f48")
 
     print(f"Python {sys.version}")
     print(f"Fooocus version: {fooocus_version.version}")
@@ -95,22 +96,21 @@ def download_models():
     return
 
 
-def clear_comfy_args():
+def ini_comfy_args():
     argv = sys.argv
     sys.argv = [sys.argv[0]]
+
     from comfy.cli_args import args as comfy_args
     comfy_args.disable_cuda_malloc = True
+    comfy_args.disable_smart_memory = True
+    comfy_args.auto_launch = False
+
     sys.argv = argv
-
-
-def cuda_malloc():
-    import cuda_malloc
 
 
 prepare_environment()
 
-clear_comfy_args()
-# cuda_malloc()
+ini_comfy_args()
 
 download_models()
 

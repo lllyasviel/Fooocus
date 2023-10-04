@@ -7,11 +7,14 @@ import sys
 import re
 import logging
 import pygit2
-pygit2.option(pygit2.GIT_OPT_SET_OWNER_VALIDATION, 0)
 
+
+pygit2.option(pygit2.GIT_OPT_SET_OWNER_VALIDATION, 0)
 
 logging.getLogger("torch.distributed.nn").setLevel(logging.ERROR)  # sshh...
 logging.getLogger("xformers").addFilter(lambda record: 'A matching Triton is not available' not in record.getMessage())
+
+re_requirement = re.compile(r"\s*([-_a-zA-Z0-9]+)\s*(?:==\s*([-+_.a-zA-Z0-9]+))?\s*")
 
 python = sys.executable
 default_command_live = (os.environ.get('LAUNCH_LIVE_OUTPUT') == "1")
@@ -22,17 +25,32 @@ script_path = os.path.dirname(modules_path)
 dir_repos = "repositories"
 
 
+def onerror(func, path, exc_info):
+    import stat
+    if not os.access(path, os.W_OK):
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+    else:
+        raise 'Failed to invoke "shutil.rmtree", git management failed.'
+
+
 def git_clone(url, dir, name, hash=None):
     try:
         try:
             repo = pygit2.Repository(dir)
-            print(f'{name} exists.')
+            remote_url = repo.remotes['origin'].url
+            if remote_url != url:
+                print(f'{name} exists but remote URL will be updated.')
+                del repo
+                raise url
+            else:
+                print(f'{name} exists and URL is correct.')
         except:
-            if os.path.exists(dir):
-                shutil.rmtree(dir, ignore_errors=True)
+            if os.path.isdir(dir) or os.path.exists(dir):
+                shutil.rmtree(dir, onerror=onerror)
             os.makedirs(dir, exist_ok=True)
             repo = pygit2.clone_repository(url, dir)
-            print(f'{name} cloned.')
+            print(f'{name} cloned from {url}.')
 
         remote = repo.remotes['origin']
         remote.fetch()
@@ -40,7 +58,7 @@ def git_clone(url, dir, name, hash=None):
         commit = repo.get(hash)
 
         repo.checkout_tree(commit, strategy=pygit2.GIT_CHECKOUT_FORCE)
-        print(f'{name} checkout finished.')
+        print(f'{name} checkout finished for {hash}.')
     except Exception as e:
         print(f'Git clone failed for {name}: {str(e)}')
 
@@ -99,9 +117,6 @@ def run_pip(command, desc=None, live=default_command_live):
         print(e)
         print(f'CMD Failed {desc}: {command}')
         return None
-
-
-re_requirement = re.compile(r"\s*([-_a-zA-Z0-9]+)\s*(?:==\s*([-+_.a-zA-Z0-9]+))?\s*")
 
 
 def requirements_met(requirements_file):

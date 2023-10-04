@@ -4,7 +4,7 @@ import comfy.model_management as model_management
 
 from transformers import AutoTokenizer, AutoModelForCausalLM, set_seed
 from modules.path import fooocus_expansion_path
-from comfy.sd import ModelPatcher
+from comfy.model_patcher import ModelPatcher
 
 
 fooocus_magic_split = [
@@ -47,7 +47,6 @@ class FooocusExpansion:
         print(f'Fooocus Expansion engine loaded for {load_device}.')
 
     def __call__(self, prompt, seed):
-        model_management.load_model_gpu(self.patcher)
         seed = int(seed)
         set_seed(seed)
         origin = safe_str(prompt)

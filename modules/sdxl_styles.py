@@ -1,6 +1,3 @@
-from modules.util import join_prompts
-
-
 fooocus_expansion = "Fooocus V2"
 default_styles = ["Default (Slightly Cinematic)"]
 

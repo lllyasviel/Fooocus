@@ -1,3 +1,21 @@
+# 2.0.85
+
+* Speed Up Again
+
+# 2.0.80
+
+* Improved the scheduling of ADM guidance and CFG mimicking for better visual quality in high frequency domain and small objects.
+
+# 2.0.80
+
+* Rework many patches and some UI details.
+* Speed up processing.
+* Move Colab to independent branch.
+* Implemented CFG Scale and TSNR correction when CFG is bigger than 10.
+* Implemented Developer Mode with more options to debug.
+
+### 2.0.72
+
 (2023 sep 21) The feature updating of Fooocus will be paused for about two or three weeks because we have some events and travelling - we will come back in early or mid October. 
 
 ### 2.0.72

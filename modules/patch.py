@@ -1,5 +1,4 @@
 import torch
-import contextlib
 import comfy.model_base
 import comfy.ldm.modules.diffusionmodules.openaimodel
 import comfy.samplers
@@ -13,6 +12,7 @@ import modules.inpaint_worker as inpaint_worker
 import comfy.ldm.modules.diffusionmodules.openaimodel
 import comfy.ldm.modules.diffusionmodules.model
 import comfy.sd
+import comfy.model_patcher
 
 from comfy.k_diffusion import utils
 from comfy.k_diffusion.sampling import BrownianTreeNoiseSampler, trange
@@ -20,11 +20,13 @@ from comfy.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, f
 
 
 sharpness = 2.0
-negative_adm = True
+positive_adm_scale = 1.5
+negative_adm_scale = 0.8
 
 cfg_x0 = 0.0
 cfg_s = 1.0
 cfg_cin = 1.0
+adaptive_cfg = 0.7
 
 
 def calculate_weight_patched(self, patches, weight, key):
@@ -45,25 +47,26 @@ def calculate_weight_patched(self, patches, weight, key):
                 if w1.shape != weight.shape:
                     print("WARNING SHAPE MISMATCH {} WEIGHT NOT MERGED {} != {}".format(key, w1.shape, weight.shape))
                 else:
-                    weight += alpha * w1.type(weight.dtype).to(weight.device)
+                    weight += alpha * comfy.model_management.cast_to_device(w1, weight.device, weight.dtype)
         elif len(v) == 3:
             # fooocus
-            w1 = v[0].float()
-            w_min = v[1].float()
-            w_max = v[2].float()
+            w1 = comfy.model_management.cast_to_device(v[0], weight.device, torch.float32)
+            w_min = comfy.model_management.cast_to_device(v[1], weight.device, torch.float32)
+            w_max = comfy.model_management.cast_to_device(v[2], weight.device, torch.float32)
             w1 = (w1 / 255.0) * (w_max - w_min) + w_min
             if alpha != 0.0:
                 if w1.shape != weight.shape:
                     print("WARNING SHAPE MISMATCH {} FOOOCUS WEIGHT NOT MERGED {} != {}".format(key, w1.shape, weight.shape))
                 else:
-                    weight += alpha * w1.type(weight.dtype).to(weight.device)
+                    weight += alpha * comfy.model_management.cast_to_device(w1, weight.device, weight.dtype)
         elif len(v) == 4:  # lora/locon
-            mat1 = v[0].float().to(weight.device)
-            mat2 = v[1].float().to(weight.device)
+            mat1 = comfy.model_management.cast_to_device(v[0], weight.device, torch.float32)
+            mat2 = comfy.model_management.cast_to_device(v[1], weight.device, torch.float32)
             if v[2] is not None:
                 alpha *= v[2] / mat2.shape[0]
             if v[3] is not None:
-                mat3 = v[3].float().to(weight.device)
+                # locon mid weights, hopefully the math is fine because I didn't properly test it
+                mat3 = comfy.model_management.cast_to_device(v[3], weight.device, torch.float32)
                 final_shape = [mat2.shape[1], mat2.shape[0], mat3.shape[2], mat3.shape[3]]
                 mat2 = torch.mm(mat2.transpose(0, 1).flatten(start_dim=1),
                                 mat3.transpose(0, 1).flatten(start_dim=1)).reshape(final_shape).transpose(0, 1)
@@ -84,19 +87,23 @@ def calculate_weight_patched(self, patches, weight, key):
 
             if w1 is None:
                 dim = w1_b.shape[0]
-                w1 = torch.mm(w1_a.float(), w1_b.float())
+                w1 = torch.mm(comfy.model_management.cast_to_device(w1_a, weight.device, torch.float32),
+                              comfy.model_management.cast_to_device(w1_b, weight.device, torch.float32))
             else:
-                w1 = w1.float().to(weight.device)
+                w1 = comfy.model_management.cast_to_device(w1, weight.device, torch.float32)
 
             if w2 is None:
                 dim = w2_b.shape[0]
                 if t2 is None:
-                    w2 = torch.mm(w2_a.float().to(weight.device), w2_b.float().to(weight.device))
+                    w2 = torch.mm(comfy.model_management.cast_to_device(w2_a, weight.device, torch.float32),
+                                  comfy.model_management.cast_to_device(w2_b, weight.device, torch.float32))
                 else:
-                    w2 = torch.einsum('i j k l, j r, i p -> p r k l', t2.float().to(weight.device),
-                                      w2_b.float().to(weight.device), w2_a.float().to(weight.device))
+                    w2 = torch.einsum('i j k l, j r, i p -> p r k l',
+                                      comfy.model_management.cast_to_device(t2, weight.device, torch.float32),
+                                      comfy.model_management.cast_to_device(w2_b, weight.device, torch.float32),
+                                      comfy.model_management.cast_to_device(w2_a, weight.device, torch.float32))
             else:
-                w2 = w2.float().to(weight.device)
+                w2 = comfy.model_management.cast_to_device(w2, weight.device, torch.float32)
 
             if len(w2.shape) == 4:
                 w1 = w1.unsqueeze(2).unsqueeze(2)
@@ -117,13 +124,20 @@ def calculate_weight_patched(self, patches, weight, key):
             if v[5] is not None:  # cp decomposition
                 t1 = v[5]
                 t2 = v[6]
-                m1 = torch.einsum('i j k l, j r, i p -> p r k l', t1.float().to(weight.device),
-                                  w1b.float().to(weight.device), w1a.float().to(weight.device))
-                m2 = torch.einsum('i j k l, j r, i p -> p r k l', t2.float().to(weight.device),
-                                  w2b.float().to(weight.device), w2a.float().to(weight.device))
+                m1 = torch.einsum('i j k l, j r, i p -> p r k l',
+                                  comfy.model_management.cast_to_device(t1, weight.device, torch.float32),
+                                  comfy.model_management.cast_to_device(w1b, weight.device, torch.float32),
+                                  comfy.model_management.cast_to_device(w1a, weight.device, torch.float32))
+
+                m2 = torch.einsum('i j k l, j r, i p -> p r k l',
+                                  comfy.model_management.cast_to_device(t2, weight.device, torch.float32),
+                                  comfy.model_management.cast_to_device(w2b, weight.device, torch.float32),
+                                  comfy.model_management.cast_to_device(w2a, weight.device, torch.float32))
             else:
-                m1 = torch.mm(w1a.float().to(weight.device), w1b.float().to(weight.device))
-                m2 = torch.mm(w2a.float().to(weight.device), w2b.float().to(weight.device))
+                m1 = torch.mm(comfy.model_management.cast_to_device(w1a, weight.device, torch.float32),
+                              comfy.model_management.cast_to_device(w1b, weight.device, torch.float32))
+                m2 = torch.mm(comfy.model_management.cast_to_device(w2a, weight.device, torch.float32),
+                              comfy.model_management.cast_to_device(w2b, weight.device, torch.float32))
 
             try:
                 weight += (alpha * m1 * m2).reshape(weight.shape).type(weight.dtype)
@@ -133,76 +147,91 @@ def calculate_weight_patched(self, patches, weight, key):
     return weight
 
 
-def cfg_patched(args):
+def compute_cfg(uncond, cond, cfg_scale, t):
+    global adaptive_cfg
+
+    mimic_cfg = float(adaptive_cfg)
+    real_cfg = float(cfg_scale)
+
+    real_eps = uncond + real_cfg * (cond - uncond)
+
+    if cfg_scale < adaptive_cfg:
+        return real_eps
+
+    mimicked_eps = uncond + mimic_cfg * (cond - uncond)
+
+    return real_eps * t + mimicked_eps * (1 - t)
+
+
+def patched_sampler_cfg_function(args):
     global cfg_x0, cfg_s
-    positive_eps = args['cond'].clone()
+
+    positive_eps = args['cond']
+    negative_eps = args['uncond']
+    cfg_scale = args['cond_scale']
+
     positive_x0 = args['cond'] * cfg_s + cfg_x0
-    uncond = args['uncond'] * cfg_s + cfg_x0
-    cond_scale = args['cond_scale']
-    t = args['timestep']
+    t = 1.0 - (args['timestep'] / 999.0)[:, None, None, None].clone()
+    alpha = 0.001 * sharpness * t
 
-    alpha = 1.0 - (t / 999.0)[:, None, None, None].clone()
-    alpha *= 0.001 * sharpness
+    positive_eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
+    positive_eps_degraded_weighted = positive_eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
-    eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
-    eps_degraded_weighted = eps_degraded * alpha + positive_eps * (1.0 - alpha)
-
-    cond = eps_degraded_weighted * cfg_s + cfg_x0
-
-    return uncond + (cond - uncond) * cond_scale
+    return compute_cfg(uncond=negative_eps, cond=positive_eps_degraded_weighted, cfg_scale=cfg_scale, t=t)
 
 
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
     global cfg_x0, cfg_s, cfg_cin
     c_out, c_in = [utils.append_dims(x, input.ndim) for x in self.get_scalings(sigma)]
-    cfg_x0 = input
-    cfg_s = c_out
-    cfg_cin = c_in
-    return self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
+    cfg_x0, cfg_s, cfg_cin = input, c_out, c_in
+    eps = self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
+    return input + eps * c_out
 
 
-def patched_model_function(func, args):
+def patched_model_function_wrapper(func, args):
     global cfg_cin
     x = args['input']
     t = args['timestep']
     c = args['c']
-    # is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x) * 5e-3
+    # is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x)
     return func(x, t, **c)
 
 
 def sdxl_encode_adm_patched(self, **kwargs):
-    global negative_adm
+    global positive_adm_scale, negative_adm_scale
 
-    clip_pooled = kwargs["pooled_output"]
+    clip_pooled = comfy.model_base.sdxl_pooled(kwargs, self.noise_augmentor)
     width = kwargs.get("width", 768)
     height = kwargs.get("height", 768)
-    crop_w = kwargs.get("crop_w", 0)
-    crop_h = kwargs.get("crop_h", 0)
-    target_width = kwargs.get("target_width", width)
-    target_height = kwargs.get("target_height", height)
+    target_width = width
+    target_height = height
 
-    if negative_adm:
-        if kwargs.get("prompt_type", "") == "negative":
-            width *= 0.8
-            height *= 0.8
-        elif kwargs.get("prompt_type", "") == "positive":
-            width *= 1.5
-            height *= 1.5
+    if kwargs.get("prompt_type", "") == "negative":
+        width = float(width) * negative_adm_scale
+        height = float(height) * negative_adm_scale
+    elif kwargs.get("prompt_type", "") == "positive":
+        width = float(width) * positive_adm_scale
+        height = float(height) * positive_adm_scale
 
-    out = []
-    out.append(self.embedder(torch.Tensor([height])))
-    out.append(self.embedder(torch.Tensor([width])))
-    out.append(self.embedder(torch.Tensor([crop_h])))
-    out.append(self.embedder(torch.Tensor([crop_w])))
-    out.append(self.embedder(torch.Tensor([target_height])))
-    out.append(self.embedder(torch.Tensor([target_width])))
-    flat = torch.flatten(torch.cat(out))[None, ]
-    return torch.cat((clip_pooled.to(flat.device), flat), dim=1)
+    # Avoid artifacts
+    width = int(width)
+    height = int(height)
+    crop_w = 0
+    crop_h = 0
+    target_width = int(target_width)
+    target_height = int(target_height)
 
+    out_a = [self.embedder(torch.Tensor([height])), self.embedder(torch.Tensor([width])),
+             self.embedder(torch.Tensor([crop_h])), self.embedder(torch.Tensor([crop_w])),
+             self.embedder(torch.Tensor([target_height])), self.embedder(torch.Tensor([target_width]))]
+    flat_a = torch.flatten(torch.cat(out_a)).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
 
-def text_encoder_device_patched():
-    # Fooocus's style system uses text encoder much more times than comfy so this makes things much faster.
-    return comfy.model_management.get_torch_device()
+    out_b = [self.embedder(torch.Tensor([target_height])), self.embedder(torch.Tensor([target_width])),
+             self.embedder(torch.Tensor([crop_h])), self.embedder(torch.Tensor([crop_w])),
+             self.embedder(torch.Tensor([target_height])), self.embedder(torch.Tensor([target_width]))]
+    flat_b = torch.flatten(torch.cat(out_b)).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
+
+    return torch.cat((clip_pooled.to(flat_a.device), flat_a, clip_pooled.to(flat_b.device), flat_b), dim=1)
 
 
 def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
@@ -308,10 +337,14 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
 
     transformer_options["original_shape"] = list(x.shape)
     transformer_options["current_index"] = 0
+    transformer_patches = transformer_options.get("patches", {})
 
-    assert (y is not None) == (
-            self.num_classes is not None
-    ), "must specify y if and only if the model is class-conditional"
+    if isinstance(y, torch.Tensor) and int(y.dim()) == 2 and int(y.shape[1]) == 5632:
+        t = (timesteps / 999.0)[:, None].clone().to(x) ** 2.0
+        ya = y[..., :2816].clone()
+        yb = y[..., 2816:].clone()
+        y = t * ya + (1 - t) * yb
+
     hs = []
     t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False).to(self.dtype)
     emb = self.time_embed(t_emb)
@@ -338,7 +371,9 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     transformer_options["block"] = ("middle", 0)
     h = forward_timestep_embed(self.middle_block, h, emb, context, transformer_options)
     if control is not None and 'middle' in control and len(control['middle']) > 0:
-        h += control['middle'].pop()
+        ctrl = control['middle'].pop()
+        if ctrl is not None:
+            h += ctrl
 
     for id, module in enumerate(self.output_blocks):
         transformer_options["block"] = ("output", id)
@@ -347,6 +382,11 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
             ctrl = control['output'].pop()
             if ctrl is not None:
                 hsp += ctrl
+
+        if "output_block_patch" in transformer_patches:
+            patch = transformer_patches["output_block_patch"]
+            for p in patch:
+                h, hsp = p(h, hsp, transformer_options)
 
         h = torch.cat([h, hsp], dim=1)
         del hsp
@@ -362,88 +402,17 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
         return self.out(h)
 
 
-def patched_SD1ClipModel_forward(self, tokens):
-        backup_embeds = self.transformer.get_input_embeddings()
-        device = backup_embeds.weight.device
-        tokens = self.set_up_textual_embeddings(tokens, backup_embeds)
-        tokens = torch.LongTensor(tokens).to(device)
-
-        if backup_embeds.weight.dtype != torch.float32:
-            precision_scope = torch.autocast
-        else:
-            precision_scope = contextlib.nullcontext
-
-        with precision_scope(comfy.model_management.get_autocast_device(device)):
-            outputs = self.transformer(input_ids=tokens, output_hidden_states=self.layer=="hidden")
-            self.transformer.set_input_embeddings(backup_embeds)
-
-            if self.layer == "last":
-                z = outputs.last_hidden_state
-            elif self.layer == "pooled":
-                z = outputs.pooler_output[:, None, :]
-            else:
-                z = outputs.hidden_states[self.layer_idx]
-                if self.layer_norm_hidden_state:
-                    z = self.transformer.text_model.final_layer_norm(z)
-
-            pooled_output = outputs.pooler_output
-            if self.text_projection is not None:
-                pooled_output = pooled_output.float().to(self.text_projection.device) @ self.text_projection.float()
-        return z.float(), pooled_output.float()
-
-
-VAE_DTYPE = None
-
-
-def vae_dtype_patched():
-    global VAE_DTYPE
-    if VAE_DTYPE is None:
-        VAE_DTYPE = torch.float32
-        if comfy.model_management.is_nvidia():
-            torch_version = torch.version.__version__
-            if int(torch_version[0]) >= 2:
-                if torch.cuda.is_bf16_supported():
-                    VAE_DTYPE = torch.bfloat16
-                    print('BFloat16 VAE: Enabled')
-    return VAE_DTYPE
-
-
-def vae_bf16_upsample_forward(self, x):
-    try:
-        x = torch.nn.functional.interpolate(x, scale_factor=2.0, mode="nearest")
-    except:  # operation not implemented for bf16
-        b, c, h, w = x.shape
-        out = torch.empty((b, c, h * 2, w * 2), dtype=x.dtype, layout=x.layout, device=x.device)
-        split = 8
-        l = out.shape[1] // split
-        for i in range(0, out.shape[1], l):
-            out[:, i:i + l] = torch.nn.functional.interpolate(x[:, i:i + l].to(torch.float32), scale_factor=2.0,
-                                                              mode="nearest").to(x.dtype)
-        del x
-        x = out
-
-    if self.with_conv:
-        x = self.conv(x)
-    return x
+def text_encoder_device_patched():
+    # Fooocus's style system uses text encoder much more times than comfy so this makes things much faster.
+    return comfy.model_management.get_torch_device()
 
 
 def patch_all():
-    comfy.model_management.vae_dtype = vae_dtype_patched
-    comfy.ldm.modules.diffusionmodules.model.Upsample.forward = vae_bf16_upsample_forward
-
-    comfy.sd1_clip.SD1ClipModel.forward = patched_SD1ClipModel_forward
-
-    comfy.sd.ModelPatcher.calculate_weight = calculate_weight_patched
-    comfy.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
-
-    comfy.ldm.modules.attention.print = lambda x: None
-    comfy.k_diffusion.sampling.sample_dpmpp_fooocus_2m_sde_inpaint_seamless = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
-
     comfy.model_management.text_encoder_device = text_encoder_device_patched
-    print(f'Fooocus Text Processing Pipelines are retargeted to {str(comfy.model_management.text_encoder_device())}')
-
+    comfy.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
+    comfy.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
+    comfy.k_diffusion.sampling.sample_dpmpp_fooocus_2m_sde_inpaint_seamless = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
     comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     comfy.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
-
     comfy.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
     return

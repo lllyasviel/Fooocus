@@ -20,7 +20,6 @@ def worker():
     import modules.flags as flags
     import modules.path
     import modules.patch
-    import modules.virtual_memory as virtual_memory
     import comfy.model_management
     import modules.inpaint_worker as inpaint_worker
 
@@ -46,8 +45,10 @@ def worker():
     @torch.no_grad()
     @torch.inference_mode()
     def handler(task):
+        execution_start_time = time.perf_counter()
+
         prompt, negative_prompt, style_selections, performance_selction, \
-            aspect_ratios_selction, image_number, image_seed, sharpness, \
+            aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, scheduler_name, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
@@ -69,8 +70,20 @@ def worker():
             use_expansion = False
 
         use_style = len(style_selections) > 0
+
+        modules.patch.adaptive_cfg = adaptive_cfg
+        print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
+
         modules.patch.sharpness = sharpness
-        modules.patch.negative_adm = True
+        print(f'[Parameters] Sharpness = {modules.patch.sharpness}')
+
+        modules.patch.positive_adm_scale = adm_scaler_positive
+        modules.patch.negative_adm_scale = adm_scaler_negative
+        print(f'[Parameters] ADM Scale = {modules.patch.positive_adm_scale} / {modules.patch.negative_adm_scale}')
+
+        cfg_scale = float(guidance_scale)
+        print(f'[Parameters] CFG = {cfg_scale}')
+
         initial_latent = None
         denoising_strength = 1.0
         tiled = False
@@ -235,6 +248,10 @@ def worker():
                     height, width = inpaint_worker.current_task.image_raw.shape[:2]
                     print(f'Final resolution is {str((height, width))}, latent is {str((H * 8, W * 8))}.')
 
+                    sampler_name = 'dpmpp_fooocus_2m_sde_inpaint_seamless'
+
+        print(f'[Parameters] Sampler = {sampler_name} - {scheduler_name}')
+
         progressbar(1, 'Initializing ...')
 
         raw_prompt = prompt
@@ -263,6 +280,7 @@ def worker():
             refiner_model_name=refiner_model_name,
             base_model_name=base_model_name,
             loras=loras)
+        pipeline.prepare_text_encoder(async_call=False)
 
         progressbar(3, 'Processing prompts ...')
 
@@ -316,19 +334,13 @@ def worker():
                                               pool_top_k=negative_top_k)
 
         if pipeline.xl_refiner is not None:
-            virtual_memory.load_from_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
-
             for i, t in enumerate(tasks):
                 progressbar(11, f'Encoding refiner positive #{i + 1} ...')
-                t['c'][1] = pipeline.clip_encode(sd=pipeline.xl_refiner, texts=t['positive'],
-                                                 pool_top_k=positive_top_k)
+                t['c'][1] = pipeline.clip_separate(t['c'][0])
 
             for i, t in enumerate(tasks):
                 progressbar(13, f'Encoding refiner negative #{i + 1} ...')
-                t['uc'][1] = pipeline.clip_encode(sd=pipeline.xl_refiner, texts=t['negative'],
-                                                  pool_top_k=negative_top_k)
-
-            virtual_memory.try_move_to_virtual_memory(pipeline.xl_refiner.clip.cond_stage_model)
+                t['uc'][1] = pipeline.clip_separate(t['uc'][0])
 
         results = []
         all_steps = steps * image_number
@@ -340,13 +352,14 @@ def worker():
                 f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
                 y)])
 
-        print(f'[ADM] Negative ADM = {modules.patch.negative_adm}')
+        preparation_time = time.perf_counter() - execution_start_time
+        print(f'Preparation time: {preparation_time:.2f} seconds')
 
         outputs.append(['preview', (13, 'Starting tasks ...', None)])
         for current_task_id, task in enumerate(tasks):
-            try:
-                execution_start_time = time.perf_counter()
+            execution_start_time = time.perf_counter()
 
+            try:
                 imgs = pipeline.process_diffusion(
                     positive_cond=task['c'],
                     negative_cond=task['uc'],
@@ -356,16 +369,16 @@ def worker():
                     height=height,
                     image_seed=task['task_seed'],
                     callback=callback,
+                    sampler_name=sampler_name,
+                    scheduler_name=scheduler_name,
                     latent=initial_latent,
                     denoise=denoising_strength,
-                    tiled=tiled
+                    tiled=tiled,
+                    cfg_scale=cfg_scale
                 )
 
                 if inpaint_worker.current_task is not None:
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
-
-                execution_time = time.perf_counter() - execution_start_time
-                print(f'Diffusion time: {execution_time:.2f} seconds')
 
                 for x in imgs:
                     d = [
@@ -376,8 +389,12 @@ def worker():
                         ('Performance', performance_selction),
                         ('Resolution', str((width, height))),
                         ('Sharpness', sharpness),
+                        ('Guidance Scale', guidance_scale),
+                        ('ADM Guidance', str((adm_scaler_positive, adm_scaler_negative))),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
+                        ('Sampler', sampler_name),
+                        ('Scheduler', scheduler_name),
                         ('Seed', task['task_seed'])
                     ]
                     for n, w in loras_user_raw_input:
@@ -390,7 +407,12 @@ def worker():
                 print('User stopped')
                 break
 
+            execution_time = time.perf_counter() - execution_start_time
+            print(f'Generating and saving time: {execution_time:.2f} seconds')
+
         outputs.append(['results', results])
+
+        pipeline.prepare_text_encoder(async_call=True)
         return
 
     while True:

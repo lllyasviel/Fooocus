@@ -143,7 +143,7 @@ with shared.gradio_root:
                                                     choices=[fooocus_expansion] + style_keys,
                                                     value=[fooocus_expansion] + default_styles,
                                                     label='Image Style')
-            with gr.Tab(label='Advanced'):
+            with gr.Tab(label='Model'):
                 with gr.Row():
                     base_model = gr.Dropdown(label='SDXL Base Model', choices=modules.path.model_filenames, value=modules.path.default_base_model_name, show_label=True)
                     refiner_model = gr.Dropdown(label='SDXL Refiner', choices=['None'] + modules.path.model_filenames, value=modules.path.default_refiner_model_name, show_label=True)
@@ -156,9 +156,32 @@ with shared.gradio_root:
                             lora_ctrls += [lora_model, lora_weight]
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
-                with gr.Accordion(label='Advanced', open=False):
-                    sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=30.0, step=0.01, value=2.0)
-                    gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
+            with gr.Tab(label='Advanced'):
+                sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=30.0, step=0.001, value=2.0,
+                                      info='Higher value means image and texture are sharper.')
+                guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01, value=7.0,
+                                      info='Higher value means style is cleaner, vivider, and more artistic.')
+
+                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
+                dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
+
+                with gr.Column(visible=False) as dev_tools:
+                    with gr.Tab(label='Developer Control and Debug Tools'):
+                        adm_scaler_positive = gr.Slider(label='Positive ADM Guidance Scaler', minimum=0.1, maximum=3.0,
+                                                        step=0.001, value=1.5, info='The scaler multiplied to positive ADM (use 1.0 to disable). ')
+                        adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0,
+                                                        step=0.001, value=0.8, info='The scaler multiplied to negative ADM (use 1.0 to disable). ')
+                        adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01, value=7.0,
+                                                 info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
+                                                      '(effective when real CFG > mimicked CFG).')
+                        sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list, value=flags.default_sampler, info='Only effective in non-inpaint mode.')
+                        scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list, value=flags.default_scheduler, info='Scheduler of Sampler.')
+
+                def dev_mode_checked(r):
+                    return gr.update(visible=r)
+
+
+                dev_mode.change(dev_mode_checked, inputs=[dev_mode], outputs=[dev_tools], queue=False)
 
                 def model_refresh_clicked():
                     modules.path.update_all_model_names()
@@ -173,7 +196,7 @@ with shared.gradio_root:
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col, queue=False)
         ctrls = [
             prompt, negative_prompt, style_selections,
-            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness
+            performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, scheduler_name
         ]
         ctrls += [base_model, refiner_model] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
