@@ -46,8 +46,8 @@ def worker():
     def handler(task):
         execution_start_time = time.perf_counter()
 
-        prompt, negative_prompt, style_selections, performance_selction, \
-            aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, scheduler_name, \
+        prompt, negative_prompt, style_selections, performance_selection, \
+            aspect_ratios_selection, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, scheduler_name, \
             overwrite_step, overwrite_switch, overwrite_width, overwrite_height, overwrite_vary_strength, overwrite_upscale_strength, \
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
@@ -89,7 +89,7 @@ def worker():
         tiled = False
         inpaint_worker.current_task = None
 
-        if performance_selction == 'Speed':
+        if performance_selection == 'Speed':
             steps = 30
             switch = 20
         else:
@@ -104,7 +104,7 @@ def worker():
 
         pipeline.clear_all_caches()  # save memory
 
-        width, height = aspect_ratios[aspect_ratios_selction]
+        width, height = aspect_ratios[aspect_ratios_selection]
 
         if overwrite_width > 0:
             width = overwrite_width
@@ -400,7 +400,7 @@ def worker():
                         ('Negative Prompt', raw_negative_prompt),
                         ('Fooocus V2 Expansion', task['expansion']),
                         ('Styles', str(raw_style_selections)),
-                        ('Performance', performance_selction),
+                        ('Performance', performance_selection),
                         ('Resolution', str((width, height))),
                         ('Sharpness', sharpness),
                         ('Guidance Scale', guidance_scale),
