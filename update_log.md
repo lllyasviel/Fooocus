@@ -1,3 +1,7 @@
+# 2.0.85
+
+* Speed Up Again
+
 # 2.0.80
 
 * Improved the scheduling of ADM guidance and CFG mimicking for better visual quality in high frequency domain and small objects.

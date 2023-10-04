@@ -271,6 +271,7 @@ def worker():
             refiner_model_name=refiner_model_name,
             base_model_name=base_model_name,
             loras=loras)
+        pipeline.prepare_text_encoder(async_call=False)
 
         progressbar(3, 'Processing prompts ...')
 
@@ -401,6 +402,8 @@ def worker():
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
         outputs.append(['results', results])
+
+        pipeline.prepare_text_encoder(async_call=True)
         return
 
     while True:
