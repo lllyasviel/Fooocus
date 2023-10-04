@@ -171,6 +171,27 @@ with shared.gradio_root:
                         sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list, value=flags.default_sampler, info='Only effective in non-inpaint mode.')
                         scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list, value=flags.default_scheduler, info='Scheduler of Sampler.')
 
+                        overwrite_step = gr.Slider(label='Forced Overwrite of Sampling Step',
+                                                   minimum=-1, maximum=200, step=1, value=-1,
+                                                   info='Set as -1 to disable. For developer debugging.')
+                        overwrite_switch = gr.Slider(label='Forced Overwrite of Refiner Switch Step',
+                                                     minimum=-1, maximum=200, step=1, value=-1,
+                                                     info='Set as -1 to disable. For developer debugging.')
+                        overwrite_width = gr.Slider(label='Forced Overwrite of Generating Width',
+                                                    minimum=-1, maximum=2048, step=1, value=-1,
+                                                    info='Set as -1 to disable. For developer debugging.')
+                        overwrite_height = gr.Slider(label='Forced Overwrite of Generating Height',
+                                                     minimum=-1, maximum=2048, step=1, value=-1,
+                                                     info='Set as -1 to disable. For developer debugging.')
+                        overwrite_vary_strength = gr.Slider(label='Forced Overwrite of Denoising Strength of "Vary"',
+                                                            minimum=-1, maximum=1.0, step=0.001, value=-1,
+                                                            info='Set as negative number to disable. For developer debugging.')
+                        overwrite_upscale_strength = gr.Slider(label='Forced Overwrite of Denoising Strength of "Upscale"',
+                                                               minimum=-1, maximum=1.0, step=0.001, value=-1,
+                                                               info='Set as negative number to disable. For developer debugging.')
+
+                        overwrite_ctrls = [overwrite_step, overwrite_switch, overwrite_width, overwrite_height, overwrite_vary_strength, overwrite_upscale_strength]
+
                 def dev_mode_checked(r):
                     return gr.update(visible=r)
 
@@ -192,6 +213,7 @@ with shared.gradio_root:
             prompt, negative_prompt, style_selections,
             performance_selction, aspect_ratios_selction, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, scheduler_name
         ]
+        ctrls += overwrite_ctrls
         ctrls += [base_model, refiner_model] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
