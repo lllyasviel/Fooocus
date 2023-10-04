@@ -58,6 +58,8 @@ def git_clone(url, dir, name, hash=None):
         commit = repo.get(hash)
 
         repo.checkout_tree(commit, strategy=pygit2.GIT_CHECKOUT_FORCE)
+        repo.set_head(commit.id)
+
         print(f'{name} checkout finished for {hash}.')
     except Exception as e:
         print(f'Git clone failed for {name}: {str(e)}')
