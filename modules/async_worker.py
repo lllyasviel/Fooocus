@@ -138,7 +138,7 @@ def worker():
                         denoising_strength = overwrite_vary_strength
                     initial_pixels = core.numpy_to_pytorch(uov_input_image)
                     progressbar(0, 'VAE encoding ...')
-                    initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels)
+                    initial_latent = core.encode_vae(vae=pipeline.final_vae, pixels=initial_pixels)
                     B, C, H, W = initial_latent['samples'].shape
                     width = W * 8
                     height = H * 8
@@ -203,7 +203,7 @@ def worker():
                     initial_pixels = core.numpy_to_pytorch(uov_input_image)
                     progressbar(0, 'VAE encoding ...')
 
-                    initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=initial_pixels, tiled=True)
+                    initial_latent = core.encode_vae(vae=pipeline.final_vae, pixels=initial_pixels, tiled=True)
                     B, C, H, W = initial_latent['samples'].shape
                     width = W * 8
                     height = H * 8
@@ -246,7 +246,7 @@ def worker():
 
                     inpaint_pixels = core.numpy_to_pytorch(inpaint_worker.current_task.image_ready)
                     progressbar(0, 'VAE encoding ...')
-                    initial_latent = core.encode_vae(vae=pipeline.xl_base_patched.vae, pixels=inpaint_pixels)
+                    initial_latent = core.encode_vae(vae=pipeline.final_vae, pixels=inpaint_pixels)
                     inpaint_latent = initial_latent['samples']
                     B, C, H, W = inpaint_latent.shape
                     inpaint_mask = core.numpy_to_pytorch(inpaint_worker.current_task.mask_ready[None])
@@ -260,7 +260,7 @@ def worker():
                     inpaint_mask = torch.tensor(inpaint_mask).float()
 
                     vae_dict = core.encode_vae_inpaint(
-                        mask=inpaint_mask, vae=pipeline.xl_base_patched.vae, pixels=inpaint_pixels)
+                        mask=inpaint_mask, vae=pipeline.final_vae, pixels=inpaint_pixels)
 
                     inpaint_latent = vae_dict['samples']
                     inpaint_mask = vae_dict['noise_mask']
@@ -347,20 +347,18 @@ def worker():
         if use_expansion:
             for i, t in enumerate(tasks):
                 progressbar(5, f'Preparing Fooocus text #{i + 1} ...')
-                expansion = pipeline.expansion(prompt, t['task_seed'])
+                expansion = pipeline.final_expansion(prompt, t['task_seed'])
                 print(f'[Prompt Expansion] New suffix: {expansion}')
                 t['expansion'] = expansion
                 t['positive'] = copy.deepcopy(t['positive']) + [join_prompts(prompt, expansion)]  # Deep copy.
 
         for i, t in enumerate(tasks):
             progressbar(7, f'Encoding base positive #{i + 1} ...')
-            t['c'][0] = pipeline.clip_encode(sd=pipeline.xl_base_patched, texts=t['positive'],
-                                             pool_top_k=positive_top_k)
+            t['c'][0] = pipeline.clip_encode(texts=t['positive'], pool_top_k=positive_top_k)
 
         for i, t in enumerate(tasks):
             progressbar(9, f'Encoding base negative #{i + 1} ...')
-            t['uc'][0] = pipeline.clip_encode(sd=pipeline.xl_base_patched, texts=t['negative'],
-                                              pool_top_k=negative_top_k)
+            t['uc'][0] = pipeline.clip_encode(texts=t['negative'], pool_top_k=negative_top_k)
 
         if pipeline.xl_refiner is not None:
             for i, t in enumerate(tasks):
