@@ -21,7 +21,7 @@ from comfy.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, f
 
 sharpness = 2.0
 
-adm_scaler_end = 0.4
+adm_scaler_end = 0.3
 positive_adm_scale = 1.5
 negative_adm_scale = 0.8
 
