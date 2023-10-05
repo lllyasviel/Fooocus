@@ -84,8 +84,8 @@ with shared.gradio_root:
                                     ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False, height=300))
                                     ip_types.append(gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
                         ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
-                        gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
-                        gr.HTML('* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1).')
+                        gr.HTML('* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1). <a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
+
                         def ip_advance_checked(x):
                             return [gr.update(visible=x)] * len(ip_types)
 
