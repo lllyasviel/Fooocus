@@ -91,10 +91,8 @@ with shared.gradio_root:
                         ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
                         gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
 
-
                         def ip_advance_checked(x):
                             return [gr.update(visible=x)] * len(ip_types)
-
 
                         ip_advanced.change(ip_advance_checked, inputs=ip_advanced, outputs=ip_types, queue=False)
 
