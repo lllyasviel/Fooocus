@@ -240,6 +240,7 @@ with shared.gradio_root:
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image]
+        ctrls += ip_imgs + ip_types
 
         run_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, run_button, gallery])\
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\

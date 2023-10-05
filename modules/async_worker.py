@@ -53,7 +53,8 @@ def worker():
             base_model_name, refiner_model_name, \
             l1, w1, l2, w2, l3, w3, l4, w4, l5, w5, \
             input_image_checkbox, current_tab, \
-            uov_method, uov_input_image, outpaint_selections, inpaint_input_image = task
+            uov_method, uov_input_image, outpaint_selections, inpaint_input_image, \
+            ip1_img, ip2_img, ip3_img, ip4_img, ip1_type, ip2_type, ip3_type, ip4_type = task
 
         outpaint_selections = [o.lower() for o in outpaint_selections]
 
