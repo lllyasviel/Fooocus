@@ -37,6 +37,12 @@ class FooocusExpansion:
         offload_device = model_management.text_encoder_offload_device()
         use_fp16 = model_management.should_use_fp16(device=load_device)
 
+        # MPS hack
+        if model_management.is_device_mps(load_device):
+            load_device = torch.device('cpu')
+            offload_device = torch.device('cpu')
+            use_fp16 = False
+
         if use_fp16:
             self.model.half()
 
