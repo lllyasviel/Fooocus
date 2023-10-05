@@ -75,6 +75,29 @@ with shared.gradio_root:
                             with gr.Column():
                                 uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
+                    with gr.TabItem(label='Image Prompt') as ip_tab:
+                        with gr.Row():
+                            ip_imgs = []
+                            ip_types = []
+                            with gr.Column():
+                                ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False))
+                                ip_types.append(gr.Radio(label='Type:', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
+                            with gr.Column():
+                                ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False))
+                                ip_types.append(gr.Radio(label='Type:', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
+                            with gr.Column():
+                                ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False))
+                                ip_types.append(gr.Radio(label='Type:', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
+                        ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
+                        gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
+
+
+                        def ip_advance_checked(x):
+                            return [gr.update(visible=x)] * len(ip_types)
+
+
+                        ip_advanced.change(ip_advance_checked, inputs=ip_advanced, outputs=ip_types, queue=False)
+
                     with gr.TabItem(label='Inpaint or Outpaint (beta)') as inpaint_tab:
                         inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF")
                         gr.HTML('Outpaint Expansion (<a href="https://github.com/lllyasviel/Fooocus/discussions/414">\U0001F4D4 Document</a>):')

@@ -21,3 +21,6 @@ default_sampler = 'dpmpp_2m_sde_gpu'
 
 scheduler_list = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform"]
 default_scheduler = "karras"
+
+ip_list = ["Image Prompt", "Structure"]
+default_ip = "Image Prompt"
