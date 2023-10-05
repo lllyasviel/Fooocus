@@ -166,7 +166,7 @@ with shared.gradio_root:
                         adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0,
                                                         step=0.001, value=0.8, info='The scaler multiplied to negative ADM (use 1.0 to disable). ')
                         adm_scaler_end = gr.Slider(label='ADM Guidance End At Step', minimum=0.0, maximum=1.0,
-                                                   step=0.001, value=0.3,
+                                                   step=0.001, value=0.1,
                                                    info='When to end the guidance from positive/negative ADM. ')
                         adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01, value=7.0,
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
