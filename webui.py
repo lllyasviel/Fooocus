@@ -165,6 +165,9 @@ with shared.gradio_root:
                                                         step=0.001, value=1.5, info='The scaler multiplied to positive ADM (use 1.0 to disable). ')
                         adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0,
                                                         step=0.001, value=0.8, info='The scaler multiplied to negative ADM (use 1.0 to disable). ')
+                        adm_scaler_end = gr.Slider(label='ADM Guidance End At Step', minimum=0.0, maximum=1.0,
+                                                   step=0.001, value=0.3,
+                                                   info='When to end the guidance from positive/negative ADM. ')
                         adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01, value=7.0,
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
                                                       '(effective when real CFG > mimicked CFG).')
@@ -211,7 +214,7 @@ with shared.gradio_root:
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col, queue=False)
         ctrls = [
             prompt, negative_prompt, style_selections,
-            performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, guidance_scale, adaptive_cfg, sampler_name, scheduler_name
+            performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, adm_scaler_positive, adm_scaler_negative, adm_scaler_end, guidance_scale, adaptive_cfg, sampler_name, scheduler_name
         ]
         ctrls += overwrite_ctrls
         ctrls += [base_model, refiner_model] + lora_ctrls

@@ -20,6 +20,8 @@ from comfy.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, f
 
 
 sharpness = 2.0
+
+adm_scaler_end = 0.3
 positive_adm_scale = 1.5
 negative_adm_scale = 0.8
 
@@ -340,10 +342,10 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     transformer_patches = transformer_options.get("patches", {})
 
     if isinstance(y, torch.Tensor) and int(y.dim()) == 2 and int(y.shape[1]) == 5632:
-        t = (timesteps / 999.0)[:, None].clone().to(x) ** 2.0
-        ya = y[..., :2816].clone()
-        yb = y[..., 2816:].clone()
-        y = t * ya + (1 - t) * yb
+        y_mask = (timesteps > 999.0 * (1.0 - float(adm_scaler_end))).to(y)[..., None]
+        y_with_adm = y[..., :2816].clone()
+        y_without_adm = y[..., 2816:].clone()
+        y = y_with_adm * y_mask + y_without_adm * (1.0 - y_mask)
 
     hs = []
     t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False).to(self.dtype)
