@@ -81,13 +81,13 @@ with shared.gradio_root:
                             ip_types = []
                             with gr.Column():
                                 ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False))
-                                ip_types.append(gr.Radio(label='Type:', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
+                                ip_types.append(gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
                             with gr.Column():
                                 ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False))
-                                ip_types.append(gr.Radio(label='Type:', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
+                                ip_types.append(gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
                             with gr.Column():
                                 ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False))
-                                ip_types.append(gr.Radio(label='Type:', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
+                                ip_types.append(gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
                         ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
                         gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
 
