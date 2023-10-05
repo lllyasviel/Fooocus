@@ -79,15 +79,10 @@ with shared.gradio_root:
                         with gr.Row():
                             ip_imgs = []
                             ip_types = []
-                            with gr.Column():
-                                ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False))
-                                ip_types.append(gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
-                            with gr.Column():
-                                ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False))
-                                ip_types.append(gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
-                            with gr.Column():
-                                ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False))
-                                ip_types.append(gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
+                            for _ in range(4):
+                                with gr.Column():
+                                    ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False))
+                                    ip_types.append(gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))
                         ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
                         gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
 
@@ -102,8 +97,10 @@ with shared.gradio_root:
                         outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint', show_label=False, container=False)
                         gr.HTML('* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)')
 
-            input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False,
-                                        _js="(x) => {if(x){setTimeout(() => window.scrollTo({ top: window.scrollY + 500, behavior: 'smooth' }), 50);}else{setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);} return x}")
+            switch_js = "(x) => {if(x){setTimeout(() => window.scrollTo({ top: 700, behavior: 'smooth' }), 50);}else{setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);} return x}"
+            down_js = "() => {setTimeout(() => window.scrollTo({ top: 700, behavior: 'smooth' }), 50);}"
+
+            input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False, _js=switch_js)
 
             current_tab = gr.Textbox(value='uov', visible=False)
 
@@ -128,8 +125,9 @@ with shared.gradio_root:
             uov_input_image.clear(clear_default_image, queue=False)
             inpaint_input_image.clear(clear_default_image, queue=False)
 
-            uov_tab.select(lambda: ['uov', default_image], outputs=[current_tab, uov_input_image], queue=False)
-            inpaint_tab.select(lambda: ['inpaint', default_image], outputs=[current_tab, inpaint_input_image], queue=False)
+            uov_tab.select(lambda: ['uov', default_image], outputs=[current_tab, uov_input_image], queue=False, _js=down_js)
+            inpaint_tab.select(lambda: ['inpaint', default_image], outputs=[current_tab, inpaint_input_image], queue=False, _js=down_js)
+            ip_tab.select(lambda: 'ip', outputs=[current_tab], queue=False, _js=down_js)
 
         with gr.Column(scale=0.5, visible=False) as right_col:
             with gr.Tab(label='Setting'):
