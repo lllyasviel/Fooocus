@@ -271,6 +271,13 @@ def worker():
                     print(f'Final resolution is {str((height, width))}, latent is {str((H * 8, W * 8))}.')
 
                     sampler_name = 'dpmpp_fooocus_2m_sde_inpaint_seamless'
+            if current_tab == 'ip':
+                image_prompts_ip_tasks = image_prompts[flags.ip_ip]
+                image_prompts_structure_tasks = image_prompts[flags.ip_structure]
+                if len(image_prompts_ip_tasks) > 0:
+                    print('NotImplementedError: image_prompts_ip_tasks')
+                if len(image_prompts_structure_tasks) > 0:
+                    print('NotImplementedError: image_prompts_structure_tasks')
 
         print(f'[Parameters] Sampler = {sampler_name} - {scheduler_name}')
 
