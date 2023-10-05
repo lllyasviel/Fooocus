@@ -275,9 +275,9 @@ def worker():
                 image_prompts_ip_tasks = image_prompts[flags.ip_ip]
                 image_prompts_structure_tasks = image_prompts[flags.ip_structure]
                 if len(image_prompts_ip_tasks) > 0:
-                    print('NotImplementedError: image_prompts_ip_tasks')
+                    print(f'NotImplementedError: image_prompts_ip_tasks = {len(image_prompts_ip_tasks)}')
                 if len(image_prompts_structure_tasks) > 0:
-                    print('NotImplementedError: image_prompts_structure_tasks')
+                    print(f'NotImplementedError: image_prompts_structure_tasks = {len(image_prompts_structure_tasks)}')
 
         print(f'[Parameters] Sampler = {sampler_name} - {scheduler_name}')
 
