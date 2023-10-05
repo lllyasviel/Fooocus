@@ -79,7 +79,7 @@ with shared.gradio_root:
                         with gr.Row():
                             ip_imgs = []
                             ip_types = []
-                            for _ in range(4):
+                            for _ in range(flags.ip_number):
                                 with gr.Column():
                                     ip_imgs.append(grh.Image(label='Image', source='upload', type='numpy', show_label=False, height=300))
                                     ip_types.append(gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False, visible=False))

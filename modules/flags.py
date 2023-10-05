@@ -24,3 +24,4 @@ default_scheduler = "karras"
 
 ip_list = ["Image Prompt", "Structure"]
 default_ip = "Image Prompt"
+ip_number = 4
