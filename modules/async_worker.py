@@ -61,6 +61,8 @@ def worker():
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
         loras_user_raw_input = copy.deepcopy(loras)
 
+        image_prompts = [(ip1_img, ip1_type), (ip2_img, ip2_type), (ip3_img, ip3_type), (ip4_img, ip4_type)]
+
         raw_style_selections = copy.deepcopy(style_selections)
 
         uov_method = uov_method.lower()
