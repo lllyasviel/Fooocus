@@ -1,11 +1,12 @@
 import os
 import json
+import re
 from modules.model_loader import load_file_from_url
 
 
 config_path = "user_path_config.txt"
 config_dict = {}
-
+filter = re.compile(r'[Xx][Ll]')
 
 try:
     if os.path.exists(config_path):
@@ -44,11 +45,6 @@ with open(config_path, "w", encoding="utf-8") as json_file:
 
 os.makedirs(temp_outputs_path, exist_ok=True)
 
-default_base_model_name = 'sd_xl_base_1.0_0.9vae.safetensors'
-default_refiner_model_name = 'sd_xl_refiner_1.0_0.9vae.safetensors'
-default_lora_name = 'sd_xl_offset_example-lora_1.0.safetensors'
-default_lora_weight = 0.5
-
 model_filenames = []
 lora_filenames = []
 
@@ -61,10 +57,9 @@ def get_model_filenames(folder_path):
     for filename in os.listdir(folder_path):
         if os.path.isfile(os.path.join(folder_path, filename)):
             for ends in ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']:
-                if filename.lower().endswith(ends):
+                if filename.lower().endswith(ends) and filter.search(filename):
                     filenames.append(filename)
                     break
-
     return filenames
 
 
@@ -74,6 +69,27 @@ def update_all_model_names():
     lora_filenames = get_model_filenames(lorafile_path)
     return
 
+update_all_model_names()
+
+'''def sdxl_model_fitler(model_filenames,lora_filenames):
+    print(model_filenames)
+    for model in model_filenames:
+        if filter.match(model) == None:
+            print(model)
+            model_filenames.remove(model)
+    print(model_filenames)
+    print(lora_filenames)
+    for lora in lora_filenames:
+        if filter.match(lora) == None:
+            print(lora)
+            model_filenames.remove(lora)
+    print(lora_filenames)
+'''
+
+default_base_model_name = model_filenames[0]
+default_refiner_model_name = model_filenames[0]
+default_lora_name = lora_filenames[0]
+default_lora_weight = 0.5
 
 def downloading_inpaint_models():
     load_file_from_url(
