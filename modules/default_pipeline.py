@@ -183,26 +183,6 @@ def clear_all_caches():
 
 @torch.no_grad()
 @torch.inference_mode()
-def refresh_everything(refiner_model_name, base_model_name, loras):
-    global final_unet, final_clip, final_vae, final_refiner, final_expansion
-
-    refresh_refiner_model(refiner_model_name)
-    refresh_base_model(base_model_name)
-    refresh_loras(loras)
-    assert_model_integrity()
-    clear_all_caches()
-
-    final_unet, final_clip, final_vae, final_refiner = \
-        xl_base_patched.unet, xl_base_patched.clip, xl_base_patched.vae, xl_refiner
-
-    if final_expansion is None:
-        final_expansion = FooocusExpansion()
-
-    return
-
-
-@torch.no_grad()
-@torch.inference_mode()
 def prepare_text_encoder(async_call=True):
     if async_call:
         # TODO: make sure that this is always called in an async way so that users cannot feel it.
@@ -212,13 +192,32 @@ def prepare_text_encoder(async_call=True):
     return
 
 
+@torch.no_grad()
+@torch.inference_mode()
+def refresh_everything(refiner_model_name, base_model_name, loras):
+    global final_unet, final_clip, final_vae, final_refiner, final_expansion
+
+    refresh_refiner_model(refiner_model_name)
+    refresh_base_model(base_model_name)
+    refresh_loras(loras)
+    assert_model_integrity()
+
+    final_unet, final_clip, final_vae, final_refiner = \
+        xl_base_patched.unet, xl_base_patched.clip, xl_base_patched.vae, xl_refiner
+
+    if final_expansion is None:
+        final_expansion = FooocusExpansion()
+
+    prepare_text_encoder(async_call=True)
+    clear_all_caches()
+    return
+
+
 refresh_everything(
     refiner_model_name=modules.path.default_refiner_model_name,
     base_model_name=modules.path.default_base_model_name,
     loras=[(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5)]
 )
-
-prepare_text_encoder(async_call=True)
 
 
 @torch.no_grad()

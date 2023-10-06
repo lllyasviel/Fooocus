@@ -59,7 +59,6 @@ def worker():
         outpaint_selections = [o.lower() for o in outpaint_selections]
 
         loras = [(l1, w1), (l2, w2), (l3, w3), (l4, w4), (l5, w5)]
-        loras_user_raw_input = copy.deepcopy(loras)
 
         image_prompts = {k: [] for k in flags.ip_list}
         for v, k in [(ip1_img, ip1_type), (ip2_img, ip2_type), (ip3_img, ip3_type), (ip4_img, ip4_type)]:
@@ -120,13 +119,7 @@ def worker():
         seed = seed % max_seed
 
         progressbar(3, 'Loading models ...')
-
-        pipeline.refresh_everything(
-            refiner_model_name=refiner_model_name,
-            base_model_name=base_model_name,
-            loras=loras)
-        pipeline.prepare_text_encoder(async_call=False)
-        pipeline.clear_all_caches()
+        pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name, loras=loras)
 
         progressbar(3, 'Processing prompts ...')
 
@@ -330,10 +323,13 @@ def worker():
 
                     progressbar(13, 'Downloading inpainter ...')
                     inpaint_head_model_path, inpaint_patch_model_path = modules.path.downloading_inpaint_models()
-                    loras += [(inpaint_patch_model_path, 1.0)]
 
-                    inpaint_pixels = core.numpy_to_pytorch(inpaint_worker.current_task.image_ready)
+                    progressbar(13, 'Loading inpainter ...')
+                    pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
+                                                loras=loras + [(inpaint_patch_model_path, 1.0)])
+
                     progressbar(13, 'VAE encoding ...')
+                    inpaint_pixels = core.numpy_to_pytorch(inpaint_worker.current_task.image_ready)
                     initial_latent = core.encode_vae(vae=pipeline.final_vae, pixels=inpaint_pixels)
                     inpaint_latent = initial_latent['samples']
                     B, C, H, W = inpaint_latent.shape
@@ -431,7 +427,7 @@ def worker():
                         ('Scheduler', scheduler_name),
                         ('Seed', task['task_seed'])
                     ]
-                    for n, w in loras_user_raw_input:
+                    for n, w in loras:
                         if n != 'None':
                             d.append((f'LoRA [{n}] weight', w))
                     log(x, d, single_line_number=3)
