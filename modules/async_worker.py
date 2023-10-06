@@ -270,9 +270,14 @@ def worker():
                         return
 
                     tiled = True
-                    denoising_strength = 1.0 - 0.618
-                    steps = int(steps * 0.618)
-                    switch = int(steps * 0.67)
+                    denoising_strength = 0.382
+
+                    if performance_selection == 'Speed':
+                        steps = 18
+                        switch = 12
+                    else:
+                        steps = 36
+                        switch = 24
 
                     if overwrite_upscale_strength > 0:
                         denoising_strength = overwrite_upscale_strength
