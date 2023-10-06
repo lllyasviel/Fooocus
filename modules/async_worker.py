@@ -177,7 +177,7 @@ def worker():
             progressbar(9, f'Encoding base negative #{i + 1} ...')
             t['uc'][0] = pipeline.clip_encode(texts=t['negative'], pool_top_k=negative_top_k)
 
-        if pipeline.xl_refiner is not None:
+        if pipeline.final_refiner is not None:
             for i, t in enumerate(tasks):
                 progressbar(11, f'Encoding refiner positive #{i + 1} ...')
                 t['c'][1] = pipeline.clip_separate(t['c'][0])
