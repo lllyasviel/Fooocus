@@ -42,6 +42,13 @@ def worker():
         print(f'[Fooocus] {text}')
         outputs.append(['preview', (number, text, None)])
 
+    def ordinal(i):
+        if 10 <= i % 100 <= 20:
+            suffix = 'th'
+        else:
+            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(i % 10, 'th')
+        return str(i) + suffix
+
     @torch.no_grad()
     @torch.inference_mode()
     def handler(task):
@@ -365,7 +372,7 @@ def worker():
             done_steps = current_task_id * steps + step
             outputs.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
+                f'Step {step}/{total_steps} in the {ordinal(current_task_id + 1)} Sampling',
                 y)])
 
         preparation_time = time.perf_counter() - execution_start_time
