@@ -99,8 +99,6 @@ def worker():
 
         progressbar(1, 'Initializing ...')
 
-        pipeline.clear_all_caches()  # save memory
-
         raw_prompt = prompt
         raw_negative_prompt = negative_prompt
 
@@ -128,6 +126,7 @@ def worker():
             base_model_name=base_model_name,
             loras=loras)
         pipeline.prepare_text_encoder(async_call=False)
+        pipeline.clear_all_caches()
 
         progressbar(3, 'Processing prompts ...')
 
