@@ -1,3 +1,8 @@
+# 2.1.0
+
+* Image Prompt
+* Finished the "Moving from Midjourney" Table
+
 # 2.0.85
 
 * Speed Up Again
