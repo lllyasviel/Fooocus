@@ -18,6 +18,29 @@ xl_base_patched_hash = ''
 xl_refiner: ModelPatcher = None
 xl_refiner_hash = ''
 
+final_expansion = None
+final_unet = None
+final_clip = None
+final_vae = None
+final_refiner = None
+
+loaded_ControlNets = {}
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def refresh_controlnets(model_paths):
+    global loaded_ControlNets
+    cache = {}
+    for p in model_paths:
+        if p is not None:
+            if p in loaded_ControlNets:
+                cache[p] = loaded_ControlNets[p]
+            else:
+                cache[p] = core.load_controlnet(p)
+    loaded_ControlNets = cache
+    return
+
 
 @torch.no_grad()
 @torch.inference_mode()
@@ -137,31 +160,21 @@ def clip_encode_single(clip, text, verbose=False):
 
 @torch.no_grad()
 @torch.inference_mode()
-def clip_separate(cond):
-    c, p = cond[0]
-    c = c[..., -1280:].clone()
-    p = p["pooled_output"].clone()
-    return [[c, {"pooled_output": p}]]
+def clip_encode(texts, pool_top_k=1):
+    global final_clip
 
-
-@torch.no_grad()
-@torch.inference_mode()
-def clip_encode(sd, texts, pool_top_k=1):
-    if sd is None:
-        return None
-    if sd.clip is None:
+    if final_clip is None:
         return None
     if not isinstance(texts, list):
         return None
     if len(texts) == 0:
         return None
 
-    clip = sd.clip
     cond_list = []
     pooled_acc = 0
 
     for i, text in enumerate(texts):
-        cond, pooled = clip_encode_single(clip, text)
+        cond, pooled = clip_encode_single(final_clip, text)
         cond_list.append(cond)
         if i < pool_top_k:
             pooled_acc += pooled
@@ -178,11 +191,32 @@ def clear_all_caches():
 
 @torch.no_grad()
 @torch.inference_mode()
+def prepare_text_encoder(async_call=True):
+    if async_call:
+        # TODO: make sure that this is always called in an async way so that users cannot feel it.
+        pass
+    assert_model_integrity()
+    comfy.model_management.load_models_gpu([final_clip.patcher, final_expansion.patcher])
+    return
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def refresh_everything(refiner_model_name, base_model_name, loras):
+    global final_unet, final_clip, final_vae, final_refiner, final_expansion
+
     refresh_refiner_model(refiner_model_name)
     refresh_base_model(base_model_name)
     refresh_loras(loras)
     assert_model_integrity()
+
+    final_unet, final_clip, final_vae, final_refiner = \
+        xl_base_patched.unet, xl_base_patched.clip, xl_base_patched.vae, xl_refiner
+
+    if final_expansion is None:
+        final_expansion = FooocusExpansion()
+
+    prepare_text_encoder(async_call=True)
     clear_all_caches()
     return
 
@@ -193,22 +227,6 @@ refresh_everything(
     loras=[(modules.path.default_lora_name, 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5), ('None', 0.5)]
 )
 
-expansion = FooocusExpansion()
-
-
-@torch.no_grad()
-@torch.inference_mode()
-def prepare_text_encoder(async_call=True):
-    if async_call:
-        # TODO: make sure that this is always called in an async way so that users cannot feel it.
-        pass
-    assert_model_integrity()
-    comfy.model_management.load_models_gpu([xl_base_patched.clip.patcher, expansion.patcher])
-    return
-
-
-prepare_text_encoder(async_call=True)
-
 
 @torch.no_grad()
 @torch.inference_mode()
@@ -218,40 +236,23 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
     else:
         empty_latent = latent
 
-    if xl_refiner is not None:
-        sampled_latent = core.ksampler_with_refiner(
-            model=xl_base_patched.unet,
-            positive=positive_cond[0],
-            negative=negative_cond[0],
-            refiner=xl_refiner,
-            refiner_positive=positive_cond[1],
-            refiner_negative=negative_cond[1],
-            refiner_switch_step=switch,
-            latent=empty_latent,
-            steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
-            seed=image_seed,
-            denoise=denoise,
-            callback_function=callback,
-            cfg=cfg_scale,
-            sampler_name=sampler_name,
-            scheduler=scheduler_name
-        )
-    else:
-        sampled_latent = core.ksampler(
-            model=xl_base_patched.unet,
-            positive=positive_cond[0],
-            negative=negative_cond[0],
-            latent=empty_latent,
-            steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
-            seed=image_seed,
-            denoise=denoise,
-            callback_function=callback,
-            cfg=cfg_scale,
-            sampler_name=sampler_name,
-            scheduler=scheduler_name
-        )
+    sampled_latent = core.ksampler(
+        model=final_unet,
+        refiner=final_refiner,
+        positive=positive_cond,
+        negative=negative_cond,
+        latent=empty_latent,
+        steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
+        seed=image_seed,
+        denoise=denoise,
+        callback_function=callback,
+        cfg=cfg_scale,
+        sampler_name=sampler_name,
+        scheduler=scheduler_name,
+        refiner_switch=switch
+    )
 
-    decoded_latent = core.decode_vae(vae=xl_base_patched.vae, latent_image=sampled_latent, tiled=tiled)
+    decoded_latent = core.decode_vae(vae=final_vae, latent_image=sampled_latent, tiled=tiled)
     images = core.pytorch_to_numpy(decoded_latent)
 
     comfy.model_management.soft_empty_cache()
