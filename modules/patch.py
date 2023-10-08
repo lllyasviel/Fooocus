@@ -12,7 +12,10 @@ import modules.inpaint_worker as inpaint_worker
 import comfy.ldm.modules.diffusionmodules.openaimodel
 import comfy.ldm.modules.diffusionmodules.model
 import comfy.sd
+import comfy.cldm.cldm
 import comfy.model_patcher
+import comfy.samplers
+import modules.advanced_parameters as advanced_parameters
 
 from comfy.k_diffusion import utils
 from comfy.k_diffusion.sampling import BrownianTreeNoiseSampler, trange
@@ -191,11 +194,9 @@ def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
 
 
 def patched_model_function_wrapper(func, args):
-    global cfg_cin
     x = args['input']
     t = args['timestep']
     c = args['c']
-    # is_uncond = torch.tensor(args['cond_or_uncond'])[:, None, None, None].to(x)
     return func(x, t, **c)
 
 
@@ -271,6 +272,8 @@ def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
 
 @torch.no_grad()
 def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=None, callback=None, disable=None, eta=1., s_noise=1., noise_sampler=None, **kwargs):
+    print('[Sampler] Inpaint sampler is activated.')
+
     sigma_min, sigma_max = sigmas[sigmas > 0].min(), sigmas.max()
     noise_sampler = BrownianTreeNoiseSampler(x, sigma_min, sigma_max, seed=extra_args.get("seed", None), cpu=False) if noise_sampler is None else noise_sampler
 
@@ -332,7 +335,54 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
     return x
 
 
+def timed_adm(y, timesteps):
+    if isinstance(y, torch.Tensor) and int(y.dim()) == 2 and int(y.shape[1]) == 5632:
+        y_mask = (timesteps > 999.0 * (1.0 - float(adm_scaler_end))).to(y)[..., None]
+        y_with_adm = y[..., :2816].clone()
+        y_without_adm = y[..., 2816:].clone()
+        return y_with_adm * y_mask + y_without_adm * (1.0 - y_mask)
+    return y
+
+
+def patched_cldm_forward(self, x, hint, timesteps, context, y=None, **kwargs):
+    t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False).to(self.dtype)
+    emb = self.time_embed(t_emb)
+
+    guided_hint = self.input_hint_block(hint, emb, context)
+
+    y = timed_adm(y, timesteps)
+
+    outs = []
+
+    hs = []
+    if self.num_classes is not None:
+        assert y.shape[0] == x.shape[0]
+        emb = emb + self.label_emb(y)
+
+    h = x.type(self.dtype)
+    for module, zero_conv in zip(self.input_blocks, self.zero_convs):
+        if guided_hint is not None:
+            h = module(h, emb, context)
+            h += guided_hint
+            guided_hint = None
+        else:
+            h = module(h, emb, context)
+        outs.append(zero_conv(h, emb, context))
+
+    h = self.middle_block(h, emb, context)
+    outs.append(self.middle_block_out(h, emb, context))
+
+    if not advanced_parameters.disable_soft_cn:
+        for i in range(10):
+            k = float(i) / 9.0
+            outs[i] = outs[i] * (0.1 + 0.9 * k)
+
+    return outs
+
+
 def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=None, transformer_options={}, **kwargs):
+    self.current_step = 1.0 - timesteps.to(x) / 999.0
+
     inpaint_fix = None
     if inpaint_worker.current_task is not None:
         inpaint_fix = inpaint_worker.current_task.inpaint_head_feature
@@ -341,11 +391,7 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     transformer_options["current_index"] = 0
     transformer_patches = transformer_options.get("patches", {})
 
-    if isinstance(y, torch.Tensor) and int(y.dim()) == 2 and int(y.shape[1]) == 5632:
-        y_mask = (timesteps > 999.0 * (1.0 - float(adm_scaler_end))).to(y)[..., None]
-        y_with_adm = y[..., :2816].clone()
-        y_without_adm = y[..., 2816:].clone()
-        y = y_with_adm * y_mask + y_without_adm * (1.0 - y_mask)
+    y = timed_adm(y, timesteps)
 
     hs = []
     t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False).to(self.dtype)
@@ -410,8 +456,10 @@ def text_encoder_device_patched():
 
 
 def patch_all():
+    comfy.samplers.SAMPLER_NAMES += ['dpmpp_fooocus_2m_sde_inpaint_seamless']
     comfy.model_management.text_encoder_device = text_encoder_device_patched
     comfy.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
+    comfy.cldm.cldm.ControlNet.forward = patched_cldm_forward
     comfy.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
     comfy.k_diffusion.sampling.sample_dpmpp_fooocus_2m_sde_inpaint_seamless = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
     comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward

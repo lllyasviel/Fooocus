@@ -13,13 +13,16 @@ import comfy.model_management
 import comfy.model_detection
 import comfy.model_patcher
 import comfy.utils
+import comfy.controlnet
+import modules.sample_hijack
+import comfy.samplers
 
 from comfy.sd import load_checkpoint_guess_config
-from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint
-from comfy.sample import prepare_mask, broadcast_cond, get_additional_models, cleanup_additional_models
+from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint, \
+    ControlNetApplyAdvanced
+from comfy.sample import prepare_mask
 from modules.patch import patched_sampler_cfg_function, patched_model_function_wrapper
 from comfy.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
-from modules.samplers_advanced import KSamplerBasic, KSamplerWithRefiner
 
 
 opEmptyLatentImage = EmptyLatentImage()
@@ -28,6 +31,7 @@ opVAEEncode = VAEEncode()
 opVAEDecodeTiled = VAEDecodeTiled()
 opVAEEncodeTiled = VAEEncodeTiled()
 opVAEEncodeForInpaint = VAEEncodeForInpaint()
+opControlNetApplyAdvanced = ControlNetApplyAdvanced()
 
 
 class StableDiffusionModel:
@@ -36,6 +40,19 @@ class StableDiffusionModel:
         self.vae = vae
         self.clip = clip
         self.clip_vision = clip_vision
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def load_controlnet(ckpt_filename):
+    return comfy.controlnet.load_controlnet(ckpt_filename)
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def apply_controlnet(positive, negative, control_net, image, strength, start_percent, end_percent):
+    return opControlNetApplyAdvanced.apply_controlnet(positive=positive, negative=negative, control_net=control_net,
+        image=image, strength=strength, start_percent=start_percent, end_percent=end_percent)
 
 
 @torch.no_grad()
@@ -214,12 +231,8 @@ def get_previewer():
 @torch.inference_mode()
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
-             force_full_denoise=False, callback_function=None):
-    seed = seed if isinstance(seed, int) else random.randint(0, 2**63 - 1)
-
-    device = comfy.model_management.get_torch_device()
+             force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1):
     latent_image = latent["samples"]
-
     if disable_noise:
         noise = torch.zeros(latent_image.size(), dtype=latent_image.dtype, layout=latent_image.layout, device="cpu")
     else:
@@ -232,8 +245,6 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
 
     previewer = get_previewer()
 
-    pbar = comfy.utils.ProgressBar(steps)
-
     def callback(step, x0, x, total_steps):
         comfy.model_management.throw_exception_if_processing_interrupted()
         y = None
@@ -241,111 +252,23 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
             y = previewer(x0, step, total_steps)
         if callback_function is not None:
             callback_function(step, x0, x, total_steps, y)
-        pbar.update_absolute(step + 1, total_steps, None)
 
-    sigmas = None
     disable_pbar = False
+    modules.sample_hijack.current_refiner = refiner
+    modules.sample_hijack.refiner_switch_step = refiner_switch
+    comfy.samplers.sample = modules.sample_hijack.sample_hacked
 
-    if noise_mask is not None:
-        noise_mask = prepare_mask(noise_mask, noise.shape, device)
+    try:
+        samples = comfy.sample.sample(model, noise, steps, cfg, sampler_name, scheduler, positive, negative, latent_image,
+                                      denoise=denoise, disable_noise=disable_noise, start_step=start_step,
+                                      last_step=last_step,
+                                      force_full_denoise=force_full_denoise, noise_mask=noise_mask, callback=callback,
+                                      disable_pbar=disable_pbar, seed=seed)
 
-    models, inference_memory = get_additional_models(positive, negative, model.model_dtype())
-    comfy.model_management.load_models_gpu([model] + models, comfy.model_management.batch_area_memory(noise.shape[0] * noise.shape[2] * noise.shape[3]) + inference_memory)
-    real_model = model.model
-
-    noise = noise.to(device)
-    latent_image = latent_image.to(device)
-
-    positive_copy = broadcast_cond(positive, noise.shape[0], device)
-    negative_copy = broadcast_cond(negative, noise.shape[0], device)
-
-    sampler = KSamplerBasic(real_model, steps=steps, device=device, sampler=sampler_name, scheduler=scheduler,
-                       denoise=denoise, model_options=model.model_options)
-
-    samples = sampler.sample(noise, positive_copy, negative_copy, cfg=cfg, latent_image=latent_image,
-                             start_step=start_step, last_step=last_step, force_full_denoise=force_full_denoise,
-                             denoise_mask=noise_mask, sigmas=sigmas, callback=callback, disable_pbar=disable_pbar,
-                             seed=seed)
-
-    samples = samples.cpu()
-
-    cleanup_additional_models(models)
-
-    out = latent.copy()
-    out["samples"] = samples
-
-    return out
-
-
-@torch.no_grad()
-@torch.inference_mode()
-def ksampler_with_refiner(model, positive, negative, refiner, refiner_positive, refiner_negative, latent,
-                          seed=None, steps=30, refiner_switch_step=20, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
-                          scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
-                          force_full_denoise=False, callback_function=None):
-    seed = seed if isinstance(seed, int) else random.randint(0, 2**63 - 1)
-
-    device = comfy.model_management.get_torch_device()
-    latent_image = latent["samples"]
-
-    if disable_noise:
-        noise = torch.zeros(latent_image.size(), dtype=latent_image.dtype, layout=latent_image.layout, device="cpu")
-    else:
-        batch_inds = latent["batch_index"] if "batch_index" in latent else None
-        noise = comfy.sample.prepare_noise(latent_image, seed, batch_inds)
-
-    noise_mask = None
-    if "noise_mask" in latent:
-        noise_mask = latent["noise_mask"]
-
-    previewer = get_previewer()
-
-    pbar = comfy.utils.ProgressBar(steps)
-
-    def callback(step, x0, x, total_steps):
-        comfy.model_management.throw_exception_if_processing_interrupted()
-        y = None
-        if previewer is not None:
-            y = previewer(x0, step, total_steps)
-        if callback_function is not None:
-            callback_function(step, x0, x, total_steps, y)
-        pbar.update_absolute(step + 1, total_steps, None)
-
-    sigmas = None
-    disable_pbar = False
-
-    if noise_mask is not None:
-        noise_mask = prepare_mask(noise_mask, noise.shape, device)
-
-    models, inference_memory = get_additional_models(positive, negative, model.model_dtype())
-    comfy.model_management.load_models_gpu([model] + models, comfy.model_management.batch_area_memory(noise.shape[0] * noise.shape[2] * noise.shape[3]) + inference_memory)
-
-    noise = noise.to(device)
-    latent_image = latent_image.to(device)
-
-    positive_copy = broadcast_cond(positive, noise.shape[0], device)
-    negative_copy = broadcast_cond(negative, noise.shape[0], device)
-
-    refiner_positive_copy = broadcast_cond(refiner_positive, noise.shape[0], device)
-    refiner_negative_copy = broadcast_cond(refiner_negative, noise.shape[0], device)
-
-    sampler = KSamplerWithRefiner(model=model, refiner_model=refiner, steps=steps, device=device,
-                                  sampler=sampler_name, scheduler=scheduler,
-                                  denoise=denoise, model_options=model.model_options)
-
-    samples = sampler.sample(noise, positive_copy, negative_copy, refiner_positive=refiner_positive_copy,
-                             refiner_negative=refiner_negative_copy, refiner_switch_step=refiner_switch_step,
-                             cfg=cfg, latent_image=latent_image,
-                             start_step=start_step, last_step=last_step, force_full_denoise=force_full_denoise,
-                             denoise_mask=noise_mask, sigmas=sigmas, callback_function=callback, disable_pbar=disable_pbar,
-                             seed=seed)
-
-    samples = samples.cpu()
-
-    cleanup_additional_models(models)
-
-    out = latent.copy()
-    out["samples"] = samples
+        out = latent.copy()
+        out["samples"] = samples
+    finally:
+        modules.sample_hijack.current_refiner = None
 
     return out
 

@@ -13,3 +13,4 @@ pytorch_lightning==1.9.4
 omegaconf==2.2.3
 gradio==3.39.0
 pygit2==1.12.2
+opencv-contrib-python==4.8.0.74

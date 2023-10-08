@@ -91,6 +91,11 @@ progress::after {
   min-width: min(1px, 100%) !important;
 }
 
+.resizable_area {
+  resize: vertical;
+  overflow: auto !important;
+}
+
 '''
 progress_html = '''
 <div class="loader-container">

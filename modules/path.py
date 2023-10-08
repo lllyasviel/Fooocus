@@ -33,6 +33,8 @@ lorafile_path = get_config_or_set_default('lorafile_path', '../models/loras/')
 vae_approx_path = get_config_or_set_default('vae_approx_path', '../models/vae_approx/')
 upscale_models_path = get_config_or_set_default('upscale_models_path', '../models/upscale_models/')
 inpaint_models_path = get_config_or_set_default('inpaint_models_path', '../models/inpaint/')
+controlnet_models_path = get_config_or_set_default('controlnet_models_path', '../models/controlnet/')
+clip_vision_models_path = get_config_or_set_default('clip_vision_models_path', '../models/clip_vision/')
 fooocus_expansion_path = get_config_or_set_default('fooocus_expansion_path',
                                                    '../models/prompt_expansion/fooocus_expansion')
 
@@ -87,6 +89,51 @@ def downloading_inpaint_models():
         file_name='inpaint.fooocus.patch'
     )
     return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path, 'inpaint.fooocus.patch')
+
+
+def downloading_controlnet_canny():
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/misc/resolve/main/control-lora-canny-rank128.safetensors',
+        model_dir=controlnet_models_path,
+        file_name='control-lora-canny-rank128.safetensors'
+    )
+    return os.path.join(controlnet_models_path, 'control-lora-canny-rank128.safetensors')
+
+
+def downloading_controlnet_cpds():
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_xl_cpds_128.safetensors',
+        model_dir=controlnet_models_path,
+        file_name='fooocus_xl_cpds_128.safetensors'
+    )
+    return os.path.join(controlnet_models_path, 'fooocus_xl_cpds_128.safetensors')
+
+
+def downloading_ip_adapters():
+    results = []
+
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/misc/resolve/main/clip_vision_vit_h.safetensors',
+        model_dir=clip_vision_models_path,
+        file_name='clip_vision_vit_h.safetensors'
+    )
+    results += [os.path.join(clip_vision_models_path, 'clip_vision_vit_h.safetensors')]
+
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_ip_negative.safetensors',
+        model_dir=controlnet_models_path,
+        file_name='fooocus_ip_negative.safetensors'
+    )
+    results += [os.path.join(controlnet_models_path, 'fooocus_ip_negative.safetensors')]
+
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/misc/resolve/main/ip-adapter-plus_sdxl_vit-h.bin',
+        model_dir=controlnet_models_path,
+        file_name='ip-adapter-plus_sdxl_vit-h.bin'
+    )
+    results += [os.path.join(controlnet_models_path, 'ip-adapter-plus_sdxl_vit-h.bin')]
+
+    return results
 
 
 update_all_model_names()
