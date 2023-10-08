@@ -18,6 +18,35 @@ Fooocus also developed many "fooocus-only" features for advanced users to get pe
 
 `[1]` David Holz, 2019.
 
+# Moving from Midjourney to Fooocus
+
+Using Fooocus is as easy as (probably easier than) Midjourney – but this does not mean we lack functionality. Below are the details.
+
+| Midjourney | Fooocus |
+| - | - |
+| High-quality text-to-image without needing much prompt engineering or parameter tunning. <br> (Unknown method) | High-quality text-to-image without needing much prompt engineering or parameter tunning. <br> (Fooocus has offline GPT-2 based prompt processing engine and lots of sampling improvements so that results are always beautiful, no matter your prompt is as short as “house in garden” or as long as 1000 words) |
+| V1 V2 V3 V4 | Input Image -> Upscale or Variation -> Vary (Subtle) / Vary (Strong)|
+| U1 U2 U3 U4 | Input Image -> Upscale or Variation -> Upscale (1.5x) / Upscale (2x) |
+| Inpaint / Up / Down / Left / Right (Pan) | Input Image -> Inpaint or Outpaint -> Inpaint / Up / Down / Left / Right <br> (Fooocus uses its own inpaint algorithm and inpaint models so that results are more satisfying than all other software that uses standard SDXL inpaint method/model) |
+| Image Prompt | Input Image -> Image Prompt <br> (Fooocus uses its own image prompt algorithm so that result quality and prompt understanding are more satisfying than all other software that uses standard SDXL methods like standard IP-Adapters or Revisions) |
+| --style | Advanced -> Style |
+| --stylize | Advanced -> Advanced -> Guidance |
+| --niji | Fooocus support SDXL models on Civitai <br> (You can google search “Civitai” if you do not know about it) |
+| --quality | Advanced -> Quality |
+| --repeat | Advanced -> Image Number |
+| Multi Prompts (::) | Just use multiple lines of prompts |
+| Prompt Weights | You can use " I am (happy:1.5)". <br> Fooocus uses A1111's reweighting algorithm so that results are better than ComfyUI is users directly copy prompts from Civitai. (Because if prompts are written in ComfyUI's reweighting, users are less likely to copy prompt texts as they prefer dragging files) |
+| --no | Advanced -> Negative Prompt |
+| --ar | Advanced -> Aspect Ratios |
+
+We also have a few things borrowed from the best parts of LeonardoAI:
+
+| LeonardoAi | Fooocus |
+| - | - |
+| Prompt Magic | Advanced -> Style -> Fooocus V2 |
+| Advanced Sampler Parameters (like Contrast/Sharpness/etc) | Advanced -> Advanced -> Sampling Sharpness / etc |
+| User-friendly ControlNets | Advanced -> Image Prompt -> Advanced |
+
 ## Download
 
 ### Windows
