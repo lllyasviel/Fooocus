@@ -45,7 +45,7 @@ We also have a few things borrowed from the best parts of LeonardoAI:
 | - | - |
 | Prompt Magic | Advanced -> Style -> Fooocus V2 |
 | Advanced Sampler Parameters (like Contrast/Sharpness/etc) | Advanced -> Advanced -> Sampling Sharpness / etc |
-| User-friendly ControlNets | Advanced -> Image Prompt -> Advanced |
+| User-friendly ControlNets | Input Image -> Image Prompt -> Advanced |
 
 ## Download
 
