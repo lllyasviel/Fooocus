@@ -136,4 +136,13 @@ def downloading_ip_adapters():
     return results
 
 
+def downloading_upscale_model():
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_upscaler_s409985e5.bin',
+        model_dir=upscale_models_path,
+        file_name='fooocus_upscaler_s409985e5.bin'
+    )
+    return os.path.join(upscale_models_path, 'fooocus_upscaler_s409985e5.bin')
+
+
 update_all_model_names()
