@@ -440,7 +440,7 @@ def worker():
                 cn_img = HWC3(cn_img)
 
                 # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
-                cn_img = resize_image(HWC3(cn_img), width=224, height=224, resize_mode=0)
+                cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
 
                 task[0] = ip_adapter.preprocess(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
