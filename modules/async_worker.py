@@ -163,6 +163,8 @@ def worker():
                         else:
                             steps = 36
                             switch = 24
+                    progressbar(13, 'Downloading upscale models ...')
+                    modules.path.downloading_upscale_model()
             if (current_tab == 'inpaint' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint))\
                     and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
@@ -170,7 +172,7 @@ def worker():
                 inpaint_image = HWC3(inpaint_image)
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
-                    progressbar(1, 'Downloading inpainter ...')
+                    progressbar(13, 'Downloading inpainter ...')
                     inpaint_head_model_path, inpaint_patch_model_path = modules.path.downloading_inpaint_models()
                     loras += [(inpaint_patch_model_path, 1.0)]
                     goals.append('inpaint')
@@ -179,14 +181,14 @@ def worker():
                     advanced_parameters.mixing_image_prompt_and_inpaint or \
                     advanced_parameters.mixing_image_prompt_and_vary_upscale:
                 goals.append('cn')
-                progressbar(1, 'Downloading control models ...')
+                progressbar(13, 'Downloading control models ...')
                 if len(cn_tasks[flags.cn_canny]) > 0:
                     controlnet_canny_path = modules.path.downloading_controlnet_canny()
                 if len(cn_tasks[flags.cn_cpds]) > 0:
                     controlnet_cpds_path = modules.path.downloading_controlnet_cpds()
                 if len(cn_tasks[flags.cn_ip]) > 0:
                     clip_vision_path, ip_negative_path, ip_adapter_path = modules.path.downloading_ip_adapters()
-                progressbar(1, 'Loading control models ...')
+                progressbar(13, 'Loading control models ...')
 
         # Load or unload CNs
         pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path])
@@ -436,7 +438,14 @@ def worker():
             for task in cn_tasks[flags.cn_ip]:
                 cn_img, cn_stop, cn_weight = task
                 cn_img = HWC3(cn_img)
+
+                # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
+                cn_img = resize_image(HWC3(cn_img), width=224, height=224, resize_mode=0)
+
                 task[0] = ip_adapter.preprocess(cn_img)
+                if advanced_parameters.debugging_cn_preprocessor:
+                    outputs.append(['results', [cn_img]])
+                    return
 
             if len(cn_tasks[flags.cn_ip]) > 0:
                 pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, cn_tasks[flags.cn_ip])
