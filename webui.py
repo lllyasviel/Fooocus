@@ -102,8 +102,9 @@ with shared.gradio_root:
                                             ip_ctrls.append(ip_weight)
 
                                         ip_type = gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False)
-                                        ip_ctrls.append(ip_type)
                                         ip_types.append(ip_type)
+                                        ip_ctrls.append(ip_type)
+                                        
                                         ip_type.change(lambda x: flags.default_parameters[x], inputs=[ip_type], outputs=[ip_stop, ip_weight], queue=False, show_progress=False)
                                     ip_ad_cols.append(ad_col)
                         ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
