@@ -210,12 +210,8 @@ def preprocess(img):
 
 @torch.no_grad()
 @torch.inference_mode()
-def patch_model(model, ip_tasks):
+def patch_model(model, tasks):
     new_model = model.clone()
-
-    tasks = []
-    for cn_img, cn_stop, cn_weight in ip_tasks:
-        tasks.append((cn_img, cn_stop, cn_weight, {}))
 
     def make_attn_patcher(ip_index):
         def patcher(n, context_attn2, value_attn2, extra_options):
@@ -229,7 +225,7 @@ def patch_model(model, ip_tasks):
                 v = [value_attn2]
                 b, _, _ = q.shape
 
-                for ip_conds, cn_stop, cn_weight, cache in tasks:
+                for ip_conds, cn_stop, cn_weight in tasks:
                     if current_step < cn_stop:
                         ip_k_c = ip_conds[ip_index * 2].to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
                         ip_v_c = ip_conds[ip_index * 2 + 1].to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
