@@ -104,7 +104,7 @@ with shared.gradio_root:
                                         ip_type = gr.Radio(label='Type', choices=flags.ip_list, value=flags.default_ip, container=False)
                                         ip_types.append(ip_type)
                                         ip_ctrls.append(ip_type)
-                                        
+
                                         ip_type.change(lambda x: flags.default_parameters[x], inputs=[ip_type], outputs=[ip_stop, ip_weight], queue=False, show_progress=False)
                                     ip_ad_cols.append(ad_col)
                         ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
@@ -246,13 +246,14 @@ with shared.gradio_root:
 
                         debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessor of ControlNets', value=False)
 
-                        disable_soft_cn = gr.Checkbox(label='Do not use soft weighting in ControlNets', value=False)
+                        controlnet_softness = gr.Slider(label='Softness of ControlNet', minimum=0.0, maximum=1.0,
+                                                        step=0.001, value=0.25, info='Similar to the Control Mode in A1111 (use 0.0 to disable). ')
 
                         adps = [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name,
                                scheduler_name, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
                                overwrite_vary_strength, overwrite_upscale_strength,
                                mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
-                                debugging_cn_preprocessor, disable_soft_cn]
+                                debugging_cn_preprocessor, controlnet_softness]
 
                 def dev_mode_checked(r):
                     return gr.update(visible=r)
