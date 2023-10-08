@@ -966,7 +966,20 @@ SD_XL_BASE_RATIOS = {
     "3.0": (1728, 576),
 }
 
-aspect_ratios = {str(v[0]) + '×' + str(v[1]): v for k, v in SD_XL_BASE_RATIOS.items()}
+aspect_ratios = {}
+default_aspect_ratio = None
+
+# import math
+
+for k, (w, h) in SD_XL_BASE_RATIOS.items():
+    txt = f'{w}×{h}'
+
+    # gcd = math.gcd(w, h)
+    # txt += f' {w//gcd}:{h//gcd}'
+    
+    aspect_ratios[txt] = (w, h)
+    if k == "1.29":
+        default_aspect_ratio = txt
 
 
 def apply_style(style, positive):

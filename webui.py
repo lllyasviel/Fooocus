@@ -12,7 +12,7 @@ import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import comfy.model_management as model_management
 
-from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles
+from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles, default_aspect_ratio
 
 
 def generate_clicked(*args):
@@ -162,7 +162,7 @@ with shared.gradio_root:
             with gr.Tab(label='Setting'):
                 performance_selection = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=list(aspect_ratios.keys()),
-                                                  value='1152×896', info='width × height')
+                                                   value=default_aspect_ratio, info='width × height')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=2)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing objects that you do not want to see.')
