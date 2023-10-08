@@ -41,7 +41,7 @@ Using Fooocus is as easy as (probably easier than) Midjourney – but this does 
 
 We also have a few things borrowed from the best parts of LeonardoAI:
 
-| LeonardoAi | Fooocus |
+| LeonardoAI | Fooocus |
 | - | - |
 | Prompt Magic | Advanced -> Style -> Fooocus V2 |
 | Advanced Sampler Parameters (like Contrast/Sharpness/etc) | Advanced -> Advanced -> Sampling Sharpness / etc |
