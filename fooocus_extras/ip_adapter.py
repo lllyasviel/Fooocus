@@ -227,10 +227,10 @@ def patch_model(model, tasks):
 
                 for ip_conds, cn_stop, cn_weight in tasks:
                     if current_step < cn_stop:
-                        ip_k_c = ip_conds[ip_index * 2].to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
-                        ip_v_c = ip_conds[ip_index * 2 + 1].to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
-                        ip_k_uc = ip_unconds[ip_index * 2].to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
-                        ip_v_uc = ip_unconds[ip_index * 2 + 1].to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
+                        ip_k_c = ip_conds[ip_index * 2].to(q)
+                        ip_v_c = ip_conds[ip_index * 2 + 1].to(q)
+                        ip_k_uc = ip_unconds[ip_index * 2].to(q)
+                        ip_v_uc = ip_unconds[ip_index * 2 + 1].to(q)
 
                         ip_k = torch.cat([(ip_k_c, ip_k_uc)[i] for i in cond_or_uncond], dim=0)
                         ip_v = torch.cat([(ip_v_c, ip_v_uc)[i] for i in cond_or_uncond], dim=0)
