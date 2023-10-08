@@ -372,10 +372,10 @@ def patched_cldm_forward(self, x, hint, timesteps, context, y=None, **kwargs):
     h = self.middle_block(h, emb, context)
     outs.append(self.middle_block_out(h, emb, context))
 
-    if not advanced_parameters.disable_soft_cn:
+    if advanced_parameters.controlnet_softness > 0:
         for i in range(10):
-            k = float(i) / 9.0
-            outs[i] = outs[i] * (0.1 + 0.9 * k)
+            k = 1.0 - float(i) / 9.0
+            outs[i] = outs[i] * (1.0 - advanced_parameters.controlnet_softness * k)
 
     return outs
 
