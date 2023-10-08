@@ -146,7 +146,6 @@ def worker():
         tasks = []
 
         if input_image_checkbox:
-            progressbar(13, 'Image processing ...')
             if (current_tab == 'uov' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_vary_upscale)) \
                     and uov_method != flags.disabled and uov_input_image is not None:
                 uov_input_image = HWC3(uov_input_image)
@@ -163,7 +162,7 @@ def worker():
                         else:
                             steps = 36
                             switch = 24
-                    progressbar(13, 'Downloading upscale models ...')
+                    progressbar(1, 'Downloading upscale models ...')
                     modules.path.downloading_upscale_model()
             if (current_tab == 'inpaint' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint))\
                     and isinstance(inpaint_input_image, dict):
@@ -172,7 +171,7 @@ def worker():
                 inpaint_image = HWC3(inpaint_image)
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
-                    progressbar(13, 'Downloading inpainter ...')
+                    progressbar(1, 'Downloading inpainter ...')
                     inpaint_head_model_path, inpaint_patch_model_path = modules.path.downloading_inpaint_models()
                     loras += [(inpaint_patch_model_path, 1.0)]
                     goals.append('inpaint')
@@ -181,14 +180,14 @@ def worker():
                     advanced_parameters.mixing_image_prompt_and_inpaint or \
                     advanced_parameters.mixing_image_prompt_and_vary_upscale:
                 goals.append('cn')
-                progressbar(13, 'Downloading control models ...')
+                progressbar(1, 'Downloading control models ...')
                 if len(cn_tasks[flags.cn_canny]) > 0:
                     controlnet_canny_path = modules.path.downloading_controlnet_canny()
                 if len(cn_tasks[flags.cn_cpds]) > 0:
                     controlnet_cpds_path = modules.path.downloading_controlnet_cpds()
                 if len(cn_tasks[flags.cn_ip]) > 0:
                     clip_vision_path, ip_negative_path, ip_adapter_path = modules.path.downloading_ip_adapters()
-                progressbar(13, 'Loading control models ...')
+                progressbar(1, 'Loading control models ...')
 
         # Load or unload CNs
         pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path])
