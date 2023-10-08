@@ -179,7 +179,7 @@ def preprocess(img):
     global ip_unconds
 
     inputs = clip_vision.processor(images=img, return_tensors="pt")
-    comfy.model_management.load_models_gpu([clip_vision.patcher, image_proj_model, ip_layers])
+    comfy.model_management.load_model_gpu(clip_vision.patcher)
     pixel_values = inputs['pixel_values'].to(clip_vision.load_device)
 
     if clip_vision.dtype != torch.float32:
@@ -195,11 +195,15 @@ def preprocess(img):
     else:
         cond = outputs.image_embeds.to(ip_adapter.dtype)
 
+    comfy.model_management.load_model_gpu(image_proj_model)
+    cond = image_proj_model.model(cond).to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
+
+    comfy.model_management.load_model_gpu(ip_layers)
+
     if ip_unconds is None:
         uncond = ip_negative.to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
         ip_unconds = [m(uncond).cpu() for m in ip_layers.model.to_kvs]
 
-    cond = image_proj_model.model(cond).to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
     ip_conds = [m(cond).cpu() for m in ip_layers.model.to_kvs]
     return ip_conds
 
