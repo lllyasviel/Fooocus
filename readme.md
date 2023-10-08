@@ -69,7 +69,7 @@ In the first time you launch the software, it will automatically download models
 
 If you already have these files, you can copy them to the above locations to speed up installation.
 
-Note that if you see **"MetadataIncompleteBuffer"**, then your model files are corrupted. Please download models again.
+Note that if you see **"MetadataIncompleteBuffer" or "PytorchStreamReader"**, then your model files are corrupted. Please download models again.
 
 Below is a test on a relatively low-end laptop with **16GB System RAM** and **6GB VRAM** (Nvidia 3060 laptop). The speed on this machine is about 1.35 seconds per iteration. Pretty impressive – nowadays laptops with 3060 are usually at very acceptable price.
 
