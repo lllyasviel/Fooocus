@@ -50,6 +50,10 @@ class FooocusExpansion:
         print(f'Fooocus Expansion engine loaded for {load_device}, use_fp16 = {use_fp16}.')
 
     def __call__(self, prompt, seed):
+        if self.patcher.current_device != self.patcher.load_device:
+            print('Fooocus Expansion loaded by itself.')
+            model_management.load_model_gpu(self.patcher)
+
         seed = int(seed)
         set_seed(seed)
         origin = safe_str(prompt)
