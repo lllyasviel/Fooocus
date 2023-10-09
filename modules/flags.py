@@ -31,5 +31,5 @@ ip_list = [cn_ip, cn_canny, cn_cpds]
 default_ip = cn_ip
 
 default_parameters = {
-    cn_ip: (0.4, 0.6), cn_canny: (0.4, 1.0), cn_cpds: (0.4, 1.0)
+    cn_ip: (0.5, 0.6), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0)
 }  # stop, weight
