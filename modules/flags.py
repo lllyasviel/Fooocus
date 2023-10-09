@@ -1,6 +1,3 @@
-import comfy.samplers
-
-
 disabled = 'Disabled'
 enabled = 'Enabled'
 subtle_variation = 'Vary (Subtle)'
@@ -13,10 +10,17 @@ uov_list = [
     disabled, subtle_variation, strong_variation, upscale_15, upscale_2, upscale_fast
 ]
 
-sampler_list = comfy.samplers.SAMPLER_NAMES
+KSAMPLER_NAMES = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
+                  "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
+                  "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "dpmpp_3m_sde", "dpmpp_3m_sde_gpu", "ddpm"]
+
+SCHEDULER_NAMES = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform"]
+SAMPLER_NAMES = KSAMPLER_NAMES + ["ddim", "uni_pc", "uni_pc_bh2"]
+
+sampler_list = SAMPLER_NAMES
 default_sampler = 'dpmpp_2m_sde_gpu'
 
-scheduler_list = comfy.samplers.SCHEDULER_NAMES
+scheduler_list = SCHEDULER_NAMES
 default_scheduler = "karras"
 
 cn_ip = "Image Prompt"

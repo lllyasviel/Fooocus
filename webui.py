@@ -10,7 +10,6 @@ import modules.async_worker as worker
 import modules.flags as flags
 import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
-import comfy.model_management as model_management
 
 from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles, default_aspect_ratio
 
@@ -60,6 +59,7 @@ with shared.gradio_root:
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row', visible=False)
 
                     def stop_clicked():
+                        import comfy.model_management as model_management
                         model_management.interrupt_current_processing()
                         return gr.update(interactive=False)
 
