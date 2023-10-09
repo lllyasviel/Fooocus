@@ -6,7 +6,7 @@ def centered_canny(x: np.ndarray, center: float):
     assert isinstance(x, np.ndarray)
     assert x.ndim == 2 and x.dtype == np.uint8
 
-    sigma = 0.5
+    sigma = 0.4
     center = float(center)
 
     lower = int(max(0, (1.0 - sigma) * center))
