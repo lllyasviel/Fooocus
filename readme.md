@@ -18,6 +18,8 @@ Fooocus also developed many "fooocus-only" features for advanced users to get pe
 
 `[1]` David Holz, 2019.
 
+## [Installing Fooocus](#download)
+
 # Moving from Midjourney to Fooocus
 
 Using Fooocus is as easy as (probably easier than) Midjourney – but this does not mean we lack functionality. Below are the details.
@@ -47,7 +49,7 @@ We also have a few things borrowed from the best parts of LeonardoAI:
 | Advanced Sampler Parameters (like Contrast/Sharpness/etc) | Advanced -> Advanced -> Sampling Sharpness / etc |
 | User-friendly ControlNets | Input Image -> Image Prompt -> Advanced |
 
-## Download
+# Download
 
 ### Windows
 
