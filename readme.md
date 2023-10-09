@@ -162,7 +162,12 @@ Or if you want to open a remote port, use
 
 ### Linux (AMD GPUs)
 
-Same with the above instructions. Not intensively tested, however.
+Same with the above instructions. You need to change torch to AMD version
+
+    pip uninstall torch torchvision torchaudio torchtext functorch xformers 
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+
+AMD is not intensively tested, however.
 
 ### Mac/Windows(AMD GPUs)
 
