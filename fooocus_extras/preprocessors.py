@@ -40,16 +40,12 @@ def pyramid_canny_color(x: np.ndarray):
     return acc_edge
 
 
-def norm255(x, percentile):
+def norm255(x, low=4, high=96):
     assert isinstance(x, np.ndarray)
     assert x.ndim == 2 and x.dtype == np.float32
 
-    if percentile:
-        v_min = np.percentile(x, 4)
-        v_max = np.percentile(x, 96)
-    else:
-        v_min = np.min(x)
-        v_max = np.max(x)
+    v_min = np.percentile(x, low)
+    v_max = np.percentile(x, high)
 
     x -= v_min
     x /= v_max - v_min
@@ -64,7 +60,7 @@ def canny_pyramid(x):
     color_canny = pyramid_canny_color(x)
     result = np.sum(color_canny, axis=2)
 
-    return norm255(result, percentile=False).clip(0, 255).astype(np.uint8)
+    return norm255(result, low=1, high=98).clip(0, 255).astype(np.uint8)
 
 
 def cpds(x):
@@ -82,4 +78,4 @@ def cpds(x):
     offset = np.sum((raw - boost) ** 2.0, axis=2) ** 0.5
     result = density + offset
 
-    return norm255(result, percentile=True).clip(0, 255).astype(np.uint8)
+    return norm255(result, low=4, high=96).clip(0, 255).astype(np.uint8)
