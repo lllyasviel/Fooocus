@@ -14,6 +14,18 @@ import comfy.model_management as model_management
 
 from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles, default_aspect_ratio
 
+start_in_advanced_mode = True
+images_to_generate_max = 50
+images_to_generate_default = 1
+
+'''
+variants of display the styles:
+1 = default: checkboxes, takes a lot of space and has no search capabilities
+2 = a Listbox with multiselect-support and search capabilities
+everything else then 1 or 2 will display variant 1
+'''
+styles_display_variant = 2
+
 
 def generate_clicked(*args):
     execution_start_time = time.perf_counter()
@@ -66,7 +78,7 @@ with shared.gradio_root:
                     stop_button.click(stop_clicked, outputs=stop_button, queue=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
-                advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False, elem_classes='min_check')
+                advanced_checkbox = gr.Checkbox(label='Advanced', value=start_in_advanced_mode, container=False, elem_classes='min_check')
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Tabs():
                     with gr.TabItem(label='Upscale or Variation') as uov_tab:
@@ -158,12 +170,12 @@ with shared.gradio_root:
             inpaint_tab.select(lambda: ['inpaint', default_image], outputs=[current_tab, inpaint_input_image], queue=False, _js=down_js)
             ip_tab.select(lambda: 'ip', outputs=[current_tab], queue=False, _js=down_js)
 
-        with gr.Column(scale=0.5, visible=False) as right_col:
+        with gr.Column(scale=0.5, visible=start_in_advanced_mode) as right_col:
             with gr.Tab(label='Setting'):
                 performance_selection = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=list(aspect_ratios.keys()),
                                                    value=default_aspect_ratio, info='width × height')
-                image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=2)
+                image_number = gr.Slider(label='Image Number', minimum=1, maximum=images_to_generate_max, step=1, value=images_to_generate_default)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing objects that you do not want to see.')
                 seed_random = gr.Checkbox(label='Random', value=True)
@@ -181,10 +193,27 @@ with shared.gradio_root:
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed], queue=False)
 
             with gr.Tab(label='Style'):
-                style_selections = gr.CheckboxGroup(show_label=False, container=False,
-                                                    choices=[fooocus_expansion] + style_keys,
-                                                    value=[fooocus_expansion] + default_styles,
-                                                    label='Image Style')
+                if styles_display_variant == 1:
+                    style_selections = gr.CheckboxGroup(show_label=False,
+                                                        container=False,
+                                                        choices=[fooocus_expansion] + style_keys,
+                                                        value=[fooocus_expansion] + default_styles,
+                                                        label='Image Styles')
+                elif styles_display_variant == 2:
+                    style_selections = gr.Dropdown(show_label=False,
+                                                   container=False,
+                                                   choices=[fooocus_expansion] + style_keys,
+                                                   value=[fooocus_expansion] + default_styles,
+                                                   multiselect = True,
+                                                   label='Image Styles')
+                else:
+                    style_selections = gr.CheckboxGroup(show_label=False,
+                                                        container=False,
+                                                        choices=[fooocus_expansion] + style_keys,
+                                                        value=[fooocus_expansion] + default_styles,
+                                                        label='Image Styles')
+
+
             with gr.Tab(label='Model'):
                 with gr.Row():
                     base_model = gr.Dropdown(label='SDXL Base Model', choices=modules.path.model_filenames, value=modules.path.default_base_model_name, show_label=True)
