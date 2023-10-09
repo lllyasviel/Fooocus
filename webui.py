@@ -208,7 +208,7 @@ with shared.gradio_root:
                 dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
 
                 with gr.Column(visible=False) as dev_tools:
-                    with gr.Tab(label='Developer Control and Debug Tools'):
+                    with gr.Tab(label='Developer Debug Tools'):
                         adm_scaler_positive = gr.Slider(label='Positive ADM Guidance Scaler', minimum=0.1, maximum=3.0,
                                                         step=0.001, value=1.5, info='The scaler multiplied to positive ADM (use 1.0 to disable). ')
                         adm_scaler_negative = gr.Slider(label='Negative ADM Guidance Scaler', minimum=0.1, maximum=3.0,
@@ -241,19 +241,38 @@ with shared.gradio_root:
                                                                minimum=-1, maximum=1.0, step=0.001, value=-1,
                                                                info='Set as negative number to disable. For developer debugging.')
 
-                        mixing_image_prompt_and_vary_upscale = gr.Checkbox(label='Mixing Image Prompt and Vary/Upscale', value=False)
-                        mixing_image_prompt_and_inpaint = gr.Checkbox(label='Mixing Image Prompt and Inpaint', value=False)
-
+                    with gr.Tab(label='Control Debug'):
                         debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessor of ControlNets', value=False)
 
-                        controlnet_softness = gr.Slider(label='Softness of ControlNet', minimum=0.0, maximum=1.0,
-                                                        step=0.001, value=0.25, info='Similar to the Control Mode in A1111 (use 0.0 to disable). ')
+                        mixing_image_prompt_and_vary_upscale = gr.Checkbox(label='Mixing Image Prompt and Vary/Upscale',
+                                                                           value=False)
+                        mixing_image_prompt_and_inpaint = gr.Checkbox(label='Mixing Image Prompt and Inpaint',
+                                                                      value=False)
 
-                        adps = [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name,
-                               scheduler_name, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
-                               overwrite_vary_strength, overwrite_upscale_strength,
-                               mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
-                                debugging_cn_preprocessor, controlnet_softness]
+                        controlnet_softness = gr.Slider(label='Softness of ControlNet', minimum=0.0, maximum=1.0,
+                                                        step=0.001, value=0.25,
+                                                        info='Similar to the Control Mode in A1111 (use 0.0 to disable). ')
+
+                        with gr.Tab(label='Canny'):
+                            canny_low_threshold = gr.Slider(label='Canny Low Threshold', minimum=1, maximum=255,
+                                                            step=1, value=64)
+                            canny_high_threshold = gr.Slider(label='Canny High Threshold', minimum=1, maximum=255,
+                                                             step=1, value=128)
+
+                    with gr.Tab(label='FreeU'):
+                        freeu_enabled = gr.Checkbox(label='Enabled', value=False)
+                        freeu_b1 = gr.Slider(label='B1', minimum=0, maximum=2, step=0.01, value=1.01)
+                        freeu_b2 = gr.Slider(label='B2', minimum=0, maximum=2, step=0.01, value=1.02)
+                        freeu_s1 = gr.Slider(label='S1', minimum=0, maximum=4, step=0.01, value=0.99)
+                        freeu_s2 = gr.Slider(label='S2', minimum=0, maximum=4, step=0.01, value=0.95)
+                        freeu_ctrls = [freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2]
+
+                adps = [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name,
+                        scheduler_name, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
+                        overwrite_vary_strength, overwrite_upscale_strength,
+                        mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
+                        debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold]
+                adps += freeu_ctrls
 
                 def dev_mode_checked(r):
                     return gr.update(visible=r)

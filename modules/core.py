@@ -20,6 +20,7 @@ import comfy.samplers
 from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint, \
     ControlNetApplyAdvanced
+from comfy_extras.nodes_freelunch import FreeU
 from comfy.sample import prepare_mask
 from modules.patch import patched_sampler_cfg_function, patched_model_function_wrapper
 from comfy.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
@@ -32,6 +33,7 @@ opVAEDecodeTiled = VAEDecodeTiled()
 opVAEEncodeTiled = VAEEncodeTiled()
 opVAEEncodeForInpaint = VAEEncodeForInpaint()
 opControlNetApplyAdvanced = ControlNetApplyAdvanced()
+opFreeU = FreeU()
 
 
 class StableDiffusionModel:
@@ -40,6 +42,12 @@ class StableDiffusionModel:
         self.vae = vae
         self.clip = clip
         self.clip_vision = clip_vision
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def apply_freeu(model, b1, b2, s1, s2):
+    return opFreeU.patch(model=model, b1=b1, b2=b2, s1=s1, s2=s2)[0]
 
 
 @torch.no_grad()

@@ -449,6 +449,16 @@ def worker():
             if len(cn_tasks[flags.cn_ip]) > 0:
                 pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, cn_tasks[flags.cn_ip])
 
+        if advanced_parameters.freeu_enabled:
+            print(f'FreeU is enabled!')
+            pipeline.final_unet = core.apply_freeu(
+                pipeline.final_unet,
+                advanced_parameters.freeu_b1,
+                advanced_parameters.freeu_b2,
+                advanced_parameters.freeu_s1,
+                advanced_parameters.freeu_s2
+            )
+
         results = []
         all_steps = steps * image_number
 
