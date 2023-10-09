@@ -167,7 +167,7 @@ Same with the above instructions. You need to change torch to AMD version
     pip uninstall torch torchvision torchaudio torchtext functorch xformers 
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
 
-AMD is not intensively tested, however.
+AMD is not intensively tested, however. The AMD support is in beta.
 
 ### Windows(AMD GPUs)
 
@@ -180,9 +180,22 @@ Same with Windows. Download the software, edit the content of `run.bat` as:
 
 Then run the `run.bat`.
 
+AMD is not intensively tested, however. The AMD support is in beta.
+
 ### Mac
 
-Coming soon ...
+Mac is not intensively tested. Below is an unofficial guideline for using Mac. You can discuss problems [here](https://github.com/lllyasviel/Fooocus/pull/129).
+
+You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or a newer version. Fooocus runs on Apple silicon computers via [PyTorch](https://pytorch.org/get-started/locally/) MPS device acceleration.
+
+> :point_up: Mac Silicon computers don't come with a dedicated graphics card, resulting in significantly longer image processing times compared to computers with dedicated graphics cards.
+1. Install the conda package manager and pytorch nightly. Read the [Accelerated PyTorch training on Mac](https://developer.apple.com/metal/pytorch/) Apple Developer guide for instructions. Make sure pytorch recognizes your MPS device.
+1. Open the macOS Terminal app and clone this repository with `git clone https://github.com/lllyasviel/Fooocus.git`.
+1. Change to the new Fooocus directory, `cd Fooocus`.
+1. Create a new conda environment, `conda env create -f environment.yaml`.
+1. Activate your new conda environment, `conda activate fooocus`.
+1. Install the packages required by Fooocus, `pip install -r requirements_versions.txt`.
+1. Launch Fooocus by running `python launch.py`. The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
 
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>
