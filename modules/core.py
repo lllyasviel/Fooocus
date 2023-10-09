@@ -47,8 +47,7 @@ class StableDiffusionModel:
 @torch.no_grad()
 @torch.inference_mode()
 def apply_freeu(model, b1, b2, s1, s2):
-    unet = opFreeU.patch(model=model.unet, b1=b1, b2=b2, s1=s1, s2=s2)[0]
-    return StableDiffusionModel(unet=unet, clip=model.clip, vae=model.vae, clip_vision=model.clip_vision)
+    return opFreeU.patch(model=model, b1=b1, b2=b2, s1=s1, s2=s2)[0]
 
 
 @torch.no_grad()
