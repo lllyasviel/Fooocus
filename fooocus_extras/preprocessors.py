@@ -37,7 +37,7 @@ def cpds(x):
     # See http://www.cse.cuhk.edu.hk/leojia/projects/color2gray/index.html
     # See https://docs.opencv.org/3.0-beta/modules/photo/doc/decolor.html
 
-    raw = cv2.GaussianBlur(x, (0, 0), 1.0)
+    raw = cv2.GaussianBlur(x, (0, 0), 0.8)
     density, boost = cv2.decolor(raw)
 
     raw = raw.astype(np.float32)
@@ -48,8 +48,11 @@ def cpds(x):
 
     result = density + offset
 
-    result -= np.min(result)
-    result /= np.max(result)
+    v_min = np.percentile(result, 4)
+    v_max = np.percentile(result, 96)
+
+    result -= v_min
+    result /= v_max - v_min
 
     result *= 255.0
 
