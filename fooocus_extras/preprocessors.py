@@ -60,7 +60,7 @@ def canny_pyramid(x):
     color_canny = pyramid_canny_color(x)
     result = np.sum(color_canny, axis=2)
 
-    return norm255(result, low=1, high=98).clip(0, 255).astype(np.uint8)
+    return norm255(result, low=1, high=99).clip(0, 255).astype(np.uint8)
 
 
 def cpds(x):
