@@ -1,12 +1,13 @@
 import cv2
 import numpy as np
+import modules.advanced_parameters as advanced_parameters
 
 
 def centered_canny(x: np.ndarray):
     assert isinstance(x, np.ndarray)
     assert x.ndim == 2 and x.dtype == np.uint8
 
-    y = cv2.Canny(x, 64, 128)
+    y = cv2.Canny(x, int(advanced_parameters.canny_low_threshold), int(advanced_parameters.canny_high_threshold))
     y = y.astype(np.float32) / 255.0
     return y
 
