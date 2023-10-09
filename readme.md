@@ -175,7 +175,7 @@ Same with Windows. Download the software, edit the content of `run.bat` as:
 
     .\python_embeded\python.exe -m pip uninstall torch torchvision torchaudio torchtext functorch xformers -y
     .\python_embeded\python.exe -m pip install torch-directml
-    .\python_embeded\python.exe -s Fooocus\entry_with_update.py
+    .\python_embeded\python.exe -s Fooocus\entry_with_update.py --directml
     pause
 
 Then run the `run.bat`.
