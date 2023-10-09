@@ -22,7 +22,7 @@ def prepare_environment():
     requirements_file = os.environ.get('REQS_FILE', "requirements_versions.txt")
 
     comfy_repo = os.environ.get('COMFY_REPO', "https://github.com/comfyanonymous/ComfyUI")
-    comfy_commit_hash = os.environ.get('COMFY_COMMIT_HASH', "c16f5744e306fb042363767d771da68929f088d8")
+    comfy_commit_hash = os.environ.get('COMFY_COMMIT_HASH', "d1a0abd40b86f3f079b0cc71e49f9f4604831457")
 
     print(f"Python {sys.version}")
     print(f"Fooocus version: {fooocus_version.version}")
