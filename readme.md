@@ -160,7 +160,7 @@ Or if you want to open a remote port, use
 
 ### Linux (AMD GPUs)
 
-Coming soon ...
+Same with the above instructions. Not intensively tested, however.
 
 ### Mac/Windows(AMD GPUs)
 
