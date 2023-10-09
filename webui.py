@@ -10,6 +10,7 @@ import modules.async_worker as worker
 import modules.flags as flags
 import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
+import args_manager
 
 from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles, default_aspect_ratio
 
@@ -310,9 +311,9 @@ with shared.gradio_root:
             .then(lambda: (gr.update(visible=True), gr.update(visible=False)), outputs=[run_button, stop_button])
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--port", type=int, default=None, help="Set the listen port.")
-parser.add_argument("--share", action='store_true', help="Set whether to share on Gradio.")
-parser.add_argument("--listen", type=str, default=None, metavar="IP", nargs="?", const="0.0.0.0", help="Set the listen interface.")
-args = parser.parse_args()
-shared.gradio_root.launch(inbrowser=True, server_name=args.listen, server_port=args.port, share=args.share)
+shared.gradio_root.launch(
+    inbrowser=args_manager.args.auto_launch,
+    server_name=args_manager.args.listen,
+    server_port=args_manager.args.port,
+    share=args_manager.args.share
+)

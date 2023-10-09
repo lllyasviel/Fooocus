@@ -1,3 +1,7 @@
+# 2.1.25
+
+AMD support on Linux and Windows.
+
 # 2.1.0
 
 * Image Prompt
