@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-def centered_canny(x: np.ndarray, center: float):
+def centered_canny(x: np.ndarray):
     assert isinstance(x, np.ndarray)
     assert x.ndim == 2 and x.dtype == np.uint8
 
@@ -11,12 +11,11 @@ def centered_canny(x: np.ndarray, center: float):
     return y
 
 
-def centered_canny_color(x: np.ndarray, centers: list):
-    assert isinstance(x, np.ndarray) and isinstance(centers, list)
+def centered_canny_color(x: np.ndarray):
+    assert isinstance(x, np.ndarray)
     assert x.ndim == 3 and x.shape[2] == 3
-    assert len(centers) == 3
 
-    result = [centered_canny(x[..., i], c) for i, c in enumerate(centers)]
+    result = [centered_canny(x[..., i]) for i in range(3)]
     result = np.stack(result, axis=2)
     return result
 
@@ -25,14 +24,13 @@ def pyramid_canny_color(x: np.ndarray):
     assert isinstance(x, np.ndarray)
     assert x.ndim == 3 and x.shape[2] == 3
 
-    centers = np.median(x, axis=[0, 1]).tolist()
     H, W, C = x.shape
     acc_edge = None
 
     for k in [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
         Hs, Ws = int(H * k), int(W * k)
         small = cv2.resize(x, (Ws, Hs), interpolation=cv2.INTER_AREA)
-        edge = centered_canny_color(small, centers)
+        edge = centered_canny_color(small)
         if acc_edge is None:
             acc_edge = edge
         else:
