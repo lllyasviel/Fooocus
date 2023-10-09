@@ -91,20 +91,12 @@ def download_models():
 
 
 def ini_comfy_args():
-    argv = sys.argv
-    sys.argv = [sys.argv[0]]
-
-    from comfy.cli_args import args as comfy_args
-    comfy_args.disable_cuda_malloc = True
-    comfy_args.auto_launch = False
-
-    sys.argv = argv
+    from args_manager import args
+    return args
 
 
 prepare_environment()
-
 ini_comfy_args()
-
 download_models()
 
 from webui import *

@@ -169,7 +169,18 @@ Same with the above instructions. You need to change torch to AMD version
 
 AMD is not intensively tested, however.
 
-### Mac/Windows(AMD GPUs)
+### Windows(AMD GPUs)
+
+Same with Windows. Download the software, edit the content of `run.bat` as:
+
+    .\python_embeded\python.exe -m pip uninstall torch torchvision torchaudio torchtext functorch xformers -y
+    .\python_embeded\python.exe -m pip install torch-directml
+    .\python_embeded\python.exe -s Fooocus\entry_with_update.py
+    pause
+
+Then run the `run.bat`.
+
+### Mac
 
 Coming soon ...
 
