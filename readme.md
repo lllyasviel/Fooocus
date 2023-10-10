@@ -263,7 +263,7 @@ Then you will get this special Fooocus software for you
 
 </details>
 
-Below is default Fooocus without config customization:
+Below, for comparison, is default Fooocus without config customization:
 
 <details>
 
