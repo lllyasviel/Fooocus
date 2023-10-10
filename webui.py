@@ -85,7 +85,7 @@ with shared.gradio_root:
                                 uov_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy')
                             with gr.Column():
                                 uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
-                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390">\U0001F4D4 Document</a>')
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390" target="_blank">\U0001F4D4 Document</a>')
                     with gr.TabItem(label='Image Prompt') as ip_tab:
                         with gr.Row():
                             ip_images = []
@@ -118,7 +118,7 @@ with shared.gradio_root:
                                         ip_type.change(lambda x: flags.default_parameters[x], inputs=[ip_type], outputs=[ip_stop, ip_weight], queue=False, show_progress=False)
                                     ip_ad_cols.append(ad_col)
                         ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
-                        gr.HTML('* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1). <a href="https://github.com/lllyasviel/Fooocus/discussions/557">\U0001F4D4 Document</a>')
+                        gr.HTML('* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1). <a href="https://github.com/lllyasviel/Fooocus/discussions/557" target="_blank">\U0001F4D4 Document</a>')
 
                         def ip_advance_checked(x):
                             return [gr.update(visible=x)] * len(ip_ad_cols) + \
@@ -131,7 +131,7 @@ with shared.gradio_root:
 
                     with gr.TabItem(label='Inpaint or Outpaint (beta)') as inpaint_tab:
                         inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF")
-                        gr.HTML('Outpaint Expansion (<a href="https://github.com/lllyasviel/Fooocus/discussions/414">\U0001F4D4 Document</a>):')
+                        gr.HTML('Outpaint Expansion (<a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>):')
                         outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint', show_label=False, container=False)
                         gr.HTML('* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)')
 
@@ -190,7 +190,7 @@ with shared.gradio_root:
 
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed], queue=False)
 
-                gr.HTML(f'<a href="/file={get_current_html_path()}">\U0001F4DA History Log</a>')
+                gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
 
             with gr.Tab(label='Style'):
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
@@ -216,7 +216,7 @@ with shared.gradio_root:
                 guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01, value=modules.path.default_cfg_scale,
                                       info='Higher value means style is cleaner, vivider, and more artistic.')
 
-                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
+                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117" target="_blank">\U0001F4D4 Document</a>')
                 dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
 
                 with gr.Column(visible=False) as dev_tools:
