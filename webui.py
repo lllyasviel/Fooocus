@@ -242,6 +242,9 @@ with shared.gradio_root:
                                                                minimum=-1, maximum=1.0, step=0.001, value=-1,
                                                                info='Set as negative number to disable. For developer debugging.')
 
+                        inpaint_engine = gr.Dropdown(label='Inpaint Engine', value='v1', choices=['v1', 'v2'],
+                                                     info='Version of Fooocus inpaint model')
+
                     with gr.Tab(label='Control Debug'):
                         debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessor of ControlNets', value=False)
 
@@ -272,7 +275,8 @@ with shared.gradio_root:
                         scheduler_name, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
                         overwrite_vary_strength, overwrite_upscale_strength,
                         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
-                        debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold]
+                        debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold,
+                        inpaint_engine]
                 adps += freeu_ctrls
 
                 def dev_mode_checked(r):

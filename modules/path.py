@@ -77,18 +77,30 @@ def update_all_model_names():
     return
 
 
-def downloading_inpaint_models():
+def downloading_inpaint_models(v):
+    assert v in ['v1', 'v2']
+
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/fooocus_inpaint_head.pth',
         model_dir=inpaint_models_path,
         file_name='fooocus_inpaint_head.pth'
     )
-    load_file_from_url(
-        url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint.fooocus.patch',
-        model_dir=inpaint_models_path,
-        file_name='inpaint.fooocus.patch'
-    )
-    return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path, 'inpaint.fooocus.patch')
+
+    if v == 'v1':
+        load_file_from_url(
+            url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint.fooocus.patch',
+            model_dir=inpaint_models_path,
+            file_name='inpaint.fooocus.patch'
+        )
+        return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path, 'inpaint.fooocus.patch')
+
+    if v == 'v2':
+        load_file_from_url(
+            url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint_v2.fooocus.patch',
+            model_dir=inpaint_models_path,
+            file_name='inpaint_v2.fooocus.patch'
+        )
+        return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path, 'inpaint_v2.fooocus.patch')
 
 
 def downloading_controlnet_canny():
