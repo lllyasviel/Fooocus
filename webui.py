@@ -2,7 +2,6 @@ import gradio as gr
 import random
 import time
 import shared
-import argparse
 import modules.path
 import fooocus_version
 import modules.html
@@ -12,7 +11,8 @@ import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import args_manager
 
-from modules.sdxl_styles import legal_style_names, aspect_ratios, fooocus_expansion, default_aspect_ratio
+from modules.sdxl_styles import legal_style_names, aspect_ratios, default_aspect_ratio
+from modules.private_logger import get_current_html_path
 
 
 def generate_clicked(*args):
@@ -189,6 +189,8 @@ with shared.gradio_root:
                         return s
 
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed], queue=False)
+
+                gr.HTML(f'<a href="/file={get_current_html_path()}">\U0001F4DA History Log</a>')
 
             with gr.Tab(label='Style'):
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
