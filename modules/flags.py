@@ -18,10 +18,7 @@ SCHEDULER_NAMES = ["normal", "karras", "exponential", "sgm_uniform", "simple", "
 SAMPLER_NAMES = KSAMPLER_NAMES + ["ddim", "uni_pc", "uni_pc_bh2"]
 
 sampler_list = SAMPLER_NAMES
-default_sampler = 'dpmpp_2m_sde_gpu'
-
 scheduler_list = SCHEDULER_NAMES
-default_scheduler = "karras"
 
 cn_ip = "Image Prompt"
 cn_canny = "PyraCanny"

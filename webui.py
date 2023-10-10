@@ -12,7 +12,7 @@ import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import args_manager
 
-from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles, default_aspect_ratio
+from modules.sdxl_styles import legal_style_names, aspect_ratios, fooocus_expansion, default_aspect_ratio
 
 
 def generate_clicked(*args):
@@ -192,8 +192,8 @@ with shared.gradio_root:
 
             with gr.Tab(label='Style'):
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
-                                                    choices=[fooocus_expansion] + style_keys,
-                                                    value=[fooocus_expansion] + default_styles,
+                                                    choices=legal_style_names,
+                                                    value=modules.path.default_styles,
                                                     label='Image Style')
             with gr.Tab(label='Model'):
                 with gr.Row():
@@ -211,7 +211,7 @@ with shared.gradio_root:
             with gr.Tab(label='Advanced'):
                 sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=30.0, step=0.001, value=2.0,
                                       info='Higher value means image and texture are sharper.')
-                guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01, value=7.0,
+                guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01, value=modules.path.default_cfg_scale,
                                       info='Higher value means style is cleaner, vivider, and more artistic.')
 
                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117">\U0001F4D4 Document</a>')
@@ -229,8 +229,12 @@ with shared.gradio_root:
                         adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01, value=7.0,
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
                                                       '(effective when real CFG > mimicked CFG).')
-                        sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list, value=flags.default_sampler, info='Only effective in non-inpaint mode.')
-                        scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list, value=flags.default_scheduler, info='Scheduler of Sampler.')
+                        sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list,
+                                                   value=modules.path.default_sampler,
+                                                   info='Only effective in non-inpaint mode.')
+                        scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list,
+                                                     value=modules.path.default_scheduler,
+                                                     info='Scheduler of Sampler.')
 
                         overwrite_step = gr.Slider(label='Forced Overwrite of Sampling Step',
                                                    minimum=-1, maximum=200, step=1, value=-1,

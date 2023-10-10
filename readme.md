@@ -217,9 +217,69 @@ Below things are already inside the software, and **users do not need to do anyt
 13. The joint swap system of refiner now also support img2img and upscale in a seamless way.
 14. CFG Scale and TSNR correction (tuned for SDXL) when CFG is bigger than 10.
 
-## Changing Model Path
+## Customization
 
-After the first time you run Fooocus, a config file will be generated at `Fooocus\user_path_config.txt`. This file can be edited for changing the model path.
+After the first time you run Fooocus, a config file will be generated at `Fooocus\user_path_config.txt`. This file can be edited for changing the model path. You can also change some parameters to turn Fooocus into "your Fooocus".
+
+For example ["realisticStockPhoto_v10" is a pretty good model from CivitAI](https://civitai.com/models/139565/realistic-stock-photo). This model needs a special `CFG=3.0` and probably works better with some specific styles. Below is an example config to turn Fooocus into a **"Fooocus Realistic Stock Photo Software"**:
+
+`Fooocus\user_path_config.txt`:
+
+```json
+{
+    "modelfile_path": "D:\\Fooocus\\models\\checkpoints",
+    "lorafile_path": "D:\\Fooocus\\models\\loras",
+    "vae_approx_path": "D:\\Fooocus\\models\\vae_approx",
+    "upscale_models_path": "D:\\Fooocus\\models\\upscale_models",
+    "inpaint_models_path": "D:\\Fooocus\\models\\inpaint",
+    "controlnet_models_path": "D:\\Fooocus\\models\\controlnet",
+    "clip_vision_models_path": "D:\\Fooocus\\models\\clip_vision",
+    "fooocus_expansion_path": "D:\\Fooocus\\models\\prompt_expansion\\fooocus_expansion",
+    "temp_outputs_path": "D:\\Fooocus\\outputs",
+    "default_model": "realisticStockPhoto_v10.safetensors",
+    "default_refiner": "",
+    "default_lora": "",
+    "default_lora_weight": 0.25,
+    "default_cfg_scale": 3.0,
+    "default_sampler": "dpmpp_2m",
+    "default_scheduler": "karras",
+    "default_styles": [
+        "Fooocus V2",
+        "Default (Slightly Cinematic)",
+        "SAI Photographic"
+    ]
+}
+```
+
+Then you will get this special Fooocus software for you
+
+<details>
+
+<summary>Click here to the see the image. </summary>
+
+![image](https://github.com/lllyasviel/misc/assets/19834515/002b0fd1-2cf3-4cd7-8a73-cde573729c07)
+
+("girl in garden, holding flowers, freckles", seed 12345)
+
+</details>
+
+Below, for comparison, is the default Fooocus without config customization:
+
+<details>
+
+<summary>Click here to the see the image. </summary>
+
+![image](https://github.com/lllyasviel/misc/assets/19834515/1a9fa48b-37af-48bc-bc7e-1cb03bb38b59)
+
+("girl in garden, holding flowers, freckles", seed 12345)
+
+</details>
+
+You can see that default Fooocus is also strong though "realisticStockPhoto_v10" may understand "freckles" better. 
+
+Consider twice before you really change the config because in many cases results are worse than default official Fooocus. You are warned, and you need to know exactly what you are doing.
+
+If you find yourself breaking things, just delete `Fooocus\user_path_config.txt`. Fooocus will go back to default.
 
 ## Advanced Features
 
