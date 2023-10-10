@@ -29,7 +29,7 @@ def worker():
     from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
     from modules.private_logger import log
     from modules.expansion import safe_str
-    from modules.util import join_prompts, remove_empty_str, HWC3, resize_image, image_is_generated_in_current_ui
+    from modules.util import join_prompts, remove_empty_str, HWC3, resize_image, image_is_generated_in_current_ui, make_sure_that_image_is_not_too_large
     from modules.upscaler import perform_upscale
 
     try:
@@ -288,6 +288,8 @@ def worker():
                 denoising_strength = 0.85
             if advanced_parameters.overwrite_vary_strength > 0:
                 denoising_strength = advanced_parameters.overwrite_vary_strength
+
+            uov_input_image = make_sure_that_image_is_not_too_large(uov_input_image)
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
             progressbar(13, 'VAE encoding ...')
             initial_latent = core.encode_vae(vae=pipeline.final_vae, pixels=initial_pixels)

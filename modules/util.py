@@ -92,6 +92,18 @@ def resize_image(im, width, height, resize_mode=1):
     return np.array(res)
 
 
+def make_sure_that_image_is_not_too_large(x):
+    H, W, C = x.shape
+    k = float(2048 * 2048) / float(H * W)
+    k = k ** 0.5
+    if k < 1:
+        H_new = int(H * k)
+        W_new = int(W * k)
+        print(f'Image is too large - resizing from ({H}, {W}) to ({H_new}, {W_new}).')
+        x = resize_image(x, width=W_new, height=H_new, resize_mode=0)
+    return x
+
+
 def HWC3(x):
     assert x.dtype == np.uint8
     if x.ndim == 2:
