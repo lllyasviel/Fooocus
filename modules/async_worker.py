@@ -174,6 +174,7 @@ def worker():
                     progressbar(1, 'Downloading inpainter ...')
                     inpaint_head_model_path, inpaint_patch_model_path = modules.path.downloading_inpaint_models(advanced_parameters.inpaint_engine)
                     loras += [(inpaint_patch_model_path, 1.0)]
+                    print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
                     goals.append('inpaint')
                     sampler_name = 'dpmpp_fooocus_2m_sde_inpaint_seamless'
             if current_tab == 'ip' or \
