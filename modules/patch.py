@@ -455,7 +455,20 @@ def text_encoder_device_patched():
     return comfy.model_management.get_torch_device()
 
 
+def patched_get_autocast_device(dev):
+    # https://github.com/lllyasviel/Fooocus/discussions/571
+    # https://github.com/lllyasviel/Fooocus/issues/620
+    result = ''
+    if hasattr(dev, 'type'):
+        result = str(dev.type)
+    if 'cuda' in result:
+        return 'cuda'
+    else:
+        return 'cpu'
+
+
 def patch_all():
+    comfy.model_management.get_autocast_device = patched_get_autocast_device
     comfy.samplers.SAMPLER_NAMES += ['dpmpp_fooocus_2m_sde_inpaint_seamless']
     comfy.model_management.text_encoder_device = text_encoder_device_patched
     comfy.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
