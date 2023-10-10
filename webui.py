@@ -12,7 +12,7 @@ import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import args_manager
 
-from modules.sdxl_styles import style_keys, aspect_ratios, fooocus_expansion, default_styles, default_aspect_ratio
+from modules.sdxl_styles import legal_style_names, aspect_ratios, fooocus_expansion, default_aspect_ratio
 
 
 def generate_clicked(*args):
@@ -192,8 +192,8 @@ with shared.gradio_root:
 
             with gr.Tab(label='Style'):
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
-                                                    choices=[fooocus_expansion] + style_keys,
-                                                    value=[fooocus_expansion] + default_styles,
+                                                    choices=legal_style_names,
+                                                    value=modules.path.default_styles,
                                                     label='Image Style')
             with gr.Tab(label='Model'):
                 with gr.Row():

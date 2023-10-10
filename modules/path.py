@@ -1,6 +1,7 @@
 import os
 import json
 import modules.flags
+import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
 
@@ -46,7 +47,7 @@ def get_config_item_or_set_default(key, default_value, validator):
     if key not in config_dict:
         config_dict[key] = default_value
         return default_value
-    
+
     v = config_dict.get(key, None)
     if v is None or v == '':
         v = 'None'
@@ -91,6 +92,11 @@ default_scheduler = get_config_item_or_set_default(
     key='default_scheduler',
     default_value='karras',
     validator=lambda x: x in modules.flags.scheduler_list
+)
+default_styles = get_config_item_or_set_default(
+    key='default_styles',
+    default_value=['Fooocus V2', 'Default (Slightly Cinematic)'],
+    validator=lambda x: isinstance(x, list) and all(y in modules.sdxl_styles.legal_style_names for y in x)
 )
 
 with open(config_path, "w", encoding="utf-8") as json_file:
