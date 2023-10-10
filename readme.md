@@ -251,7 +251,7 @@ For example ["realisticStockPhoto_v10" is a pretty good model from CivitAI](http
 }
 ```
 
-Then will get this special Fooocus software for you
+Then you will get this special Fooocus software for you
 
 <details>
 
