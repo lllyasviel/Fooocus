@@ -253,6 +253,8 @@ For example ["realisticStockPhoto_v10" is a pretty good model from CivitAI](http
 
 Then will get this special Fooocus software for you
 
+<details>
+
 <summary>Click here to the see the image. </summary>
 
 ![image](https://github.com/lllyasviel/misc/assets/19834515/002b0fd1-2cf3-4cd7-8a73-cde573729c07)
@@ -262,6 +264,8 @@ Then will get this special Fooocus software for you
 </details>
 
 Below is default Fooocus without config customization:
+
+<details>
 
 <summary>Click here to the see the image. </summary>
 
