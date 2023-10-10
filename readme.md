@@ -94,13 +94,13 @@ Please open an issue if you use similar devices but still cannot achieve accepta
 
 ### Colab
 
-(Last tested - 2023 Sep 13)
+(Last tested - 2023 Oct 10)
 
 | Colab | Info
 | --- | --- |
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lllyasviel/Fooocus/blob/colab/colab.ipynb) | Fooocus Colab Version
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lllyasviel/Fooocus/blob/main/fooocus_colab.ipynb) | Fooocus Official
 
-Note that this link is optimized for Google Colab - the codes may be different from offline Fooocus for better Colab experience.
+Note that this Colab will disable refiner by default because Colab free's resource is relatively limited. 
 
 Thanks to [camenduru](https://github.com/camenduru)!
 
