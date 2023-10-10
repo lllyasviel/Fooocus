@@ -15,6 +15,8 @@ import comfy.sd
 import comfy.cldm.cldm
 import comfy.model_patcher
 import comfy.samplers
+import comfy.cli_args
+import args_manager
 import modules.advanced_parameters as advanced_parameters
 
 from comfy.k_diffusion import utils
@@ -468,6 +470,14 @@ def patched_get_autocast_device(dev):
 
 
 def patch_all():
+    if not comfy.model_management.DISABLE_SMART_MEMORY:
+        if comfy.model_management.total_vram < 20 * 1024:
+            # https://github.com/lllyasviel/Fooocus/issues/602
+            print('[Fooocus Smart Memory] VRAM is less than 20GB: always disable smart memory.')
+            comfy.model_management.DISABLE_SMART_MEMORY = True
+            args_manager.args.disable_smart_memory = True
+            comfy.cli_args.args.disable_smart_memory = True
+
     comfy.model_management.get_autocast_device = patched_get_autocast_device
     comfy.samplers.SAMPLER_NAMES += ['dpmpp_fooocus_2m_sde_inpaint_seamless']
     comfy.model_management.text_encoder_device = text_encoder_device_patched
