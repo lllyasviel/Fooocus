@@ -471,9 +471,12 @@ def patched_get_autocast_device(dev):
 
 def patch_all():
     if not comfy.model_management.DISABLE_SMART_MEMORY:
-        if comfy.model_management.total_vram < 20 * 1024:
+        vram_inadequate = comfy.model_management.total_vram < 20 * 1024
+        is_old_gpu_arch = not comfy.model_management.should_use_fp16()
+        if vram_inadequate or is_old_gpu_arch:
             # https://github.com/lllyasviel/Fooocus/issues/602
-            print('[Fooocus Smart Memory] VRAM is less than 20GB: always disable smart memory.')
+            print(f'[Fooocus Smart Memory] Disabling smart memory, '
+                  f'vram_inadequate = {vram_inadequate}, is_old_gpu_arch = {is_old_gpu_arch}.')
             comfy.model_management.DISABLE_SMART_MEMORY = True
             args_manager.args.disable_smart_memory = True
             comfy.cli_args.args.disable_smart_memory = True
