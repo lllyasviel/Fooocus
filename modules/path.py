@@ -1,5 +1,7 @@
 import os
 import json
+import modules.flags
+
 from modules.model_loader import load_file_from_url
 
 
@@ -16,40 +18,86 @@ except Exception as e:
     print(e)
 
 
-def get_config_or_set_default(key, default):
+def get_dir_or_set_default(key, default_value):
     global config_dict
     v = config_dict.get(key, None)
     if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
         return v
     else:
-        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default))
+        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
         os.makedirs(dp, exist_ok=True)
         config_dict[key] = dp
         return dp
 
 
-modelfile_path = get_config_or_set_default('modelfile_path', '../models/checkpoints/')
-lorafile_path = get_config_or_set_default('lorafile_path', '../models/loras/')
-vae_approx_path = get_config_or_set_default('vae_approx_path', '../models/vae_approx/')
-upscale_models_path = get_config_or_set_default('upscale_models_path', '../models/upscale_models/')
-inpaint_models_path = get_config_or_set_default('inpaint_models_path', '../models/inpaint/')
-controlnet_models_path = get_config_or_set_default('controlnet_models_path', '../models/controlnet/')
-clip_vision_models_path = get_config_or_set_default('clip_vision_models_path', '../models/clip_vision/')
-fooocus_expansion_path = get_config_or_set_default('fooocus_expansion_path',
-                                                   '../models/prompt_expansion/fooocus_expansion')
+modelfile_path = get_dir_or_set_default('modelfile_path', '../models/checkpoints/')
+lorafile_path = get_dir_or_set_default('lorafile_path', '../models/loras/')
+vae_approx_path = get_dir_or_set_default('vae_approx_path', '../models/vae_approx/')
+upscale_models_path = get_dir_or_set_default('upscale_models_path', '../models/upscale_models/')
+inpaint_models_path = get_dir_or_set_default('inpaint_models_path', '../models/inpaint/')
+controlnet_models_path = get_dir_or_set_default('controlnet_models_path', '../models/controlnet/')
+clip_vision_models_path = get_dir_or_set_default('clip_vision_models_path', '../models/clip_vision/')
+fooocus_expansion_path = get_dir_or_set_default('fooocus_expansion_path', '../models/prompt_expansion/fooocus_expansion')
+temp_outputs_path = get_dir_or_set_default('temp_outputs_path', '../outputs/')
 
-temp_outputs_path = get_config_or_set_default('temp_outputs_path', '../outputs/')
+
+def get_config_item_or_set_default(key, default_value, validator):
+    global config_dict
+    if key not in config_dict:
+        config_dict[key] = default_value
+        return default_value
+    
+    v = config_dict.get(key, None)
+    if v is None or v == '':
+        v = 'None'
+    if validator(v):
+        return v
+    else:
+        config_dict[key] = default_value
+        return default_value
+
+
+default_base_model_name = get_config_item_or_set_default(
+    key='default_model',
+    default_value='sd_xl_base_1.0_0.9vae.safetensors',
+    validator=lambda x: isinstance(x, str) and os.path.exists(os.path.join(modelfile_path, x))
+)
+default_refiner_model_name = get_config_item_or_set_default(
+    key='default_refiner',
+    default_value='sd_xl_refiner_1.0_0.9vae.safetensors',
+    validator=lambda x: x == 'None' or (isinstance(x, str) and os.path.exists(os.path.join(modelfile_path, x)))
+)
+default_lora_name = get_config_item_or_set_default(
+    key='default_lora',
+    default_value='sd_xl_offset_example-lora_1.0.safetensors',
+    validator=lambda x: x == 'None' or (isinstance(x, str) and os.path.exists(os.path.join(lorafile_path, x)))
+)
+default_lora_weight = get_config_item_or_set_default(
+    key='default_lora_weight',
+    default_value=0.5,
+    validator=lambda x: isinstance(x, float)
+)
+default_cfg_scale = get_config_item_or_set_default(
+    key='default_cfg_scale',
+    default_value=7.0,
+    validator=lambda x: isinstance(x, float)
+)
+default_sampler = get_config_item_or_set_default(
+    key='default_sampler',
+    default_value='dpmpp_2m_sde_gpu',
+    validator=lambda x: x in modules.flags.sampler_list
+)
+default_scheduler = get_config_item_or_set_default(
+    key='default_scheduler',
+    default_value='karras',
+    validator=lambda x: x in modules.flags.scheduler_list
+)
 
 with open(config_path, "w", encoding="utf-8") as json_file:
     json.dump(config_dict, json_file, indent=4)
 
 
 os.makedirs(temp_outputs_path, exist_ok=True)
-
-default_base_model_name = 'sd_xl_base_1.0_0.9vae.safetensors'
-default_refiner_model_name = 'sd_xl_refiner_1.0_0.9vae.safetensors'
-default_lora_name = 'sd_xl_offset_example-lora_1.0.safetensors'
-default_lora_weight = 0.5
 
 model_filenames = []
 lora_filenames = []
