@@ -253,15 +253,23 @@ For example ["realisticStockPhoto_v10" is a pretty good model from CivitAI](http
 
 Then will get this special Fooocus software for you
 
+<summary>Click here to the see the image. </summary>
+
 ![image](https://github.com/lllyasviel/misc/assets/19834515/002b0fd1-2cf3-4cd7-8a73-cde573729c07)
 
 ("girl in garden, holding flowers, freckles", seed 12345)
 
+</details>
+
 Below is default Fooocus without config customization:
+
+<summary>Click here to the see the image. </summary>
 
 ![image](https://github.com/lllyasviel/misc/assets/19834515/1a9fa48b-37af-48bc-bc7e-1cb03bb38b59)
 
 ("girl in garden, holding flowers, freckles", seed 12345)
+
+</details>
 
 You can see that default Fooocus is also strong though "realisticStockPhoto_v10" may understand "freckles" better. 
 
