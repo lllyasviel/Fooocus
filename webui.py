@@ -57,14 +57,23 @@ with shared.gradio_root:
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", container=False, autofocus=True, elem_classes='type_row', lines=1024)
                 with gr.Column(scale=0.15, min_width=0):
                     run_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', visible=True)
-                    stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row', visible=False)
+                    skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', visible=False)
+                    stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', visible=False)
 
                     def stop_clicked():
                         import comfy.model_management as model_management
+                        shared.last_stop = 'stop'
                         model_management.interrupt_current_processing()
-                        return gr.update(interactive=False)
+                        return [gr.update(interactive=False)] * 2
 
-                    stop_button.click(stop_clicked, outputs=stop_button, queue=False)
+                    def skip_clicked():
+                        import comfy.model_management as model_management
+                        shared.last_stop = 'skip'
+                        model_management.interrupt_current_processing()
+                        return
+
+                    stop_button.click(stop_clicked, outputs=[skip_button, stop_button], queue=False)
+                    skip_button.click(skip_clicked, queue=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=False, container=False, elem_classes='min_check')
@@ -308,11 +317,11 @@ with shared.gradio_root:
         ctrls += [outpaint_selections, inpaint_input_image]
         ctrls += ip_ctrls
 
-        run_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, run_button, gallery])\
+        run_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, run_button, gallery])\
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps)\
             .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, gallery])\
-            .then(lambda: (gr.update(visible=True), gr.update(visible=False)), outputs=[run_button, stop_button])
+            .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[run_button, stop_button, skip_button])
 
 
 shared.gradio_root.launch(

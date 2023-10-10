@@ -542,8 +542,12 @@ def worker():
 
                 results += imgs
             except comfy.model_management.InterruptProcessingException as e:
-                print('User stopped')
-                break
+                if shared.last_stop == 'skip':
+                    print('User skipped')
+                    continue
+                else:
+                    print('User stopped')
+                    break
 
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
