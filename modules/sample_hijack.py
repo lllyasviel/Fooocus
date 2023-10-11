@@ -37,6 +37,8 @@ def clip_separate(cond, target_model=None, target_clip=None):
         final_layer_norm.to(device='cpu', dtype=torch.float32)
         c = c.to(device='cpu', dtype=torch.float32)
 
+        c = torch.chunk(c, int(c.size(1)) // 77, 1)
+
         c = final_layer_norm(c)
 
         final_layer_norm.to(device=final_layer_norm_origin_device, dtype=final_layer_norm_origin_dtype)
