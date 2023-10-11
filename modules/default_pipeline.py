@@ -258,11 +258,27 @@ refresh_everything(
 
 @torch.no_grad()
 @torch.inference_mode()
+def vae_parse(x, tiled=False):
+    if final_vae is None or final_refiner_vae is None:
+        return x
+
+    print('VAE parsing ...')
+    x = core.decode_vae(vae=final_vae, latent_image=x, tiled=tiled)
+    x = core.encode_vae(vae=final_refiner_vae, latent_image=x, tiled=tiled)
+    print('VAE parsed ...')
+
+    return x
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, use_two_samplers=False):
     if latent is None:
         empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
     else:
         empty_latent = latent
+
+    forced_vae_parse = True
 
     if use_two_samplers and final_refiner_unet is not None:
         sampled_latent = core.ksampler(
@@ -278,7 +294,12 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             sampler_name=sampler_name,
             scheduler=scheduler_name,
         )
+
         print('Refiner swapped in another ksampler.')
+
+        if forced_vae_parse:
+            sampled_latent = vae_parse(sampled_latent, tiled=tiled)
+
         sampled_latent = core.ksampler(
             model=final_refiner_unet,
             positive=clip_separate(positive_cond),
