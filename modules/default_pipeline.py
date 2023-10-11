@@ -3,7 +3,6 @@ import os
 import torch
 import modules.path
 import comfy.model_management
-import comfy.latent_formats
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.expansion import FooocusExpansion
