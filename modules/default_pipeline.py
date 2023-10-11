@@ -393,7 +393,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             scheduler=scheduler_name,
             previewer_start=switch,
             previewer_end=steps,
-            noise_multiplier=1.2,
+            # noise_multiplier=1.0,
         )
 
         target_model = final_refiner_vae
