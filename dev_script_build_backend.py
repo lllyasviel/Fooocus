@@ -39,6 +39,7 @@ get_item('custom_nodes')
 get_item('latent_preview.py')
 get_item('folder_paths.py')
 get_item('nodes.py')
+get_item('LICENSE')
 
 shutil.rmtree(comfy_temp_path, onerror=onerror)
 
