@@ -3,6 +3,7 @@ import os
 import torch
 import modules.path
 import comfy.model_management
+import comfy.latent_formats
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.expansion import FooocusExpansion
@@ -296,6 +297,11 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
     # #
 
     assert refiner_swap_method in ['joint', 'separate', 'vae']
+
+    if final_refiner_unet is not None:
+        if isinstance(final_refiner_unet.model.latent_format, comfy.latent_formats.SD15):
+            refiner_swap_method = 'vae'
+
     print(f'[Sampler] refiner_swap_method = {refiner_swap_method}')
 
     if latent is None:
