@@ -2,7 +2,7 @@ import torch
 import comfy.samplers
 import comfy.model_management
 
-from comfy.model_base import SDXLRefiner, BaseModel
+from comfy.model_base import SDXLRefiner
 from comfy.sample import get_additional_models
 from comfy.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
     create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_adm, \
