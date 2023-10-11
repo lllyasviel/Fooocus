@@ -59,8 +59,8 @@ lora_filenames = [
 ]
 
 vae_approx_filenames = [
-    ('xlvaeapp.pth',
-     'https://huggingface.co/lllyasviel/misc/resolve/main/xlvaeapp.pth')
+    ('xlvaeapp.pth', 'https://huggingface.co/lllyasviel/misc/resolve/main/xlvaeapp.pth'),
+    ('vaeapp_sd15.pth', 'https://huggingface.co/lllyasviel/misc/resolve/main/vaeapp_sd15.pt')
 ]
 
 

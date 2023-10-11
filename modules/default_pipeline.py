@@ -273,27 +273,27 @@ def vae_parse(x, tiled=False):
 @torch.inference_mode()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, refiner_swap_method='joint'):
 
-    #
-    empty_latent = core.generate_empty_latent(width=width // 2, height=height // 2, batch_size=1)
-    sampled_latent = core.ksampler(
-        model=final_refiner_unet,
-        positive=clip_separate(positive_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
-        negative=clip_separate(negative_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
-        latent=empty_latent,
-        steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
-        seed=image_seed,
-        denoise=denoise,
-        callback_function=callback,
-        cfg=cfg_scale,
-        sampler_name=sampler_name,
-        scheduler=scheduler_name,
-        previewer_start=0,
-        previewer_end=steps,
-    )
-    decoded_latent = core.decode_vae(vae=final_refiner_vae, latent_image=sampled_latent, tiled=tiled)
-    images = core.pytorch_to_numpy(decoded_latent)
-    return images
-    #
+    # #
+    # empty_latent = core.generate_empty_latent(width=width // 2, height=height // 2, batch_size=1)
+    # sampled_latent = core.ksampler(
+    #     model=final_refiner_unet,
+    #     positive=clip_separate(positive_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
+    #     negative=clip_separate(negative_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
+    #     latent=empty_latent,
+    #     steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
+    #     seed=image_seed,
+    #     denoise=denoise,
+    #     callback_function=callback,
+    #     cfg=cfg_scale,
+    #     sampler_name=sampler_name,
+    #     scheduler=scheduler_name,
+    #     previewer_start=0,
+    #     previewer_end=steps,
+    # )
+    # decoded_latent = core.decode_vae(vae=final_refiner_vae, latent_image=sampled_latent, tiled=tiled)
+    # images = core.pytorch_to_numpy(decoded_latent)
+    # return images
+    # #
 
     assert refiner_swap_method in ['joint', 'separate', 'vae']
     print(f'[Sampler] refiner_swap_method = {refiner_swap_method}')
