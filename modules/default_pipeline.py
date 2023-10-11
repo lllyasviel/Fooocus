@@ -324,7 +324,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         target_model = final_refiner_unet
         if target_model is None:
             target_model = final_unet
-            print('Use base model to refiner itself - this may because developer mode.')
+            print('Use base model to refine itself - this may because of developer mode.')
 
         sampled_latent = core.ksampler(
             model=target_model,
@@ -370,7 +370,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         target_model = final_refiner_unet
         if target_model is None:
             target_model = final_unet
-            print('Use base model to refiner itself - this may because developer mode.')
+            print('Use base model to refine itself - this may because of developer mode.')
 
         sampled_latent = vae_parse(sampled_latent)
 
