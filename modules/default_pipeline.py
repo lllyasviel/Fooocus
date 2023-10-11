@@ -64,6 +64,8 @@ def assert_model_integrity():
     if xl_refiner is not None:
         if xl_refiner.unet is None or xl_refiner.unet.model is None:
             error_message = 'You have selected an invalid refiner!'
+        elif isinstance(xl_refiner.unet.model, BaseModel):
+            error_message = 'SD1.5 or 2.1 as refiner is not supported!'
 
     if error_message is not None:
         raise NotImplementedError(error_message)
@@ -124,7 +126,7 @@ def refresh_refiner_model(name):
         xl_refiner.vae = None
 
     if isinstance(xl_refiner.unet.model, BaseModel):
-        xl_refiner.clip = None
+        xl_refiner = None  # 1.5/2.1 not supported yet.
 
     return
 
@@ -272,48 +274,16 @@ def vae_parse(x, tiled=False):
 
 @torch.no_grad()
 @torch.inference_mode()
-def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, use_two_samplers=False):
+def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, refiner_swap_method='joint'):
+    assert refiner_swap_method in ['joint', 'separate', 'vae']
+    print(f'[Sampler] refiner_swap_method = {refiner_swap_method}')
+
     if latent is None:
         empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
     else:
         empty_latent = latent
 
-    if final_refiner_vae is not None:
-        use_two_samplers = True
-
-    if use_two_samplers and final_refiner_unet is not None:
-        sampled_latent = core.ksampler(
-            model=final_unet,
-            positive=positive_cond,
-            negative=negative_cond,
-            latent=empty_latent,
-            steps=steps, start_step=0, last_step=switch, disable_noise=False, force_full_denoise=True,
-            seed=image_seed,
-            denoise=denoise,
-            callback_function=callback,
-            cfg=cfg_scale,
-            sampler_name=sampler_name,
-            scheduler=scheduler_name,
-        )
-
-        print('Refiner swapped in another ksampler.')
-
-        sampled_latent = vae_parse(sampled_latent, tiled=tiled)
-
-        sampled_latent = core.ksampler(
-            model=final_refiner_unet,
-            positive=clip_separate(positive_cond, get_base=isinstance(final_refiner_unet.model, BaseModel)),
-            negative=clip_separate(negative_cond, get_base=isinstance(final_refiner_unet.model, BaseModel)),
-            latent=sampled_latent,
-            steps=steps, start_step=switch, last_step=steps, disable_noise=False, force_full_denoise=True,
-            seed=image_seed,
-            denoise=denoise,
-            callback_function=callback,
-            cfg=cfg_scale,
-            sampler_name=sampler_name,
-            scheduler=scheduler_name,
-        )
-    else:
+    if refiner_swap_method == 'joint':
         sampled_latent = core.ksampler(
             model=final_unet,
             refiner=final_refiner_unet,
@@ -327,13 +297,104 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             cfg=cfg_scale,
             sampler_name=sampler_name,
             scheduler=scheduler_name,
-            refiner_switch=switch
+            refiner_switch=switch,
+            previewer_start=0,
+            previewer_end=steps,
+        )
+        decoded_latent = core.decode_vae(vae=final_vae, latent_image=sampled_latent, tiled=tiled)
+        images = core.pytorch_to_numpy(decoded_latent)
+        return images
+
+    if refiner_swap_method == 'separate':
+        sampled_latent = core.ksampler(
+            model=final_unet,
+            positive=positive_cond,
+            negative=negative_cond,
+            latent=empty_latent,
+            steps=steps, start_step=0, last_step=switch, disable_noise=False, force_full_denoise=False,
+            seed=image_seed,
+            denoise=denoise,
+            callback_function=callback,
+            cfg=cfg_scale,
+            sampler_name=sampler_name,
+            scheduler=scheduler_name,
+            previewer_start=0,
+            previewer_end=switch,
+        )
+        print('Refiner swapped by changing ksampler. Noise preserved.')
+
+        target_model = final_refiner_unet
+        if target_model is None:
+            target_model = final_unet
+            print('Use base model to refiner itself - this may because developer mode.')
+
+        sampled_latent = core.ksampler(
+            model=target_model,
+            positive=clip_separate(positive_cond, target_model=target_model.model),
+            negative=clip_separate(negative_cond, target_model=target_model.model),
+            latent=sampled_latent,
+            steps=steps, start_step=switch, last_step=steps, disable_noise=True, force_full_denoise=True,
+            seed=image_seed,
+            denoise=denoise,
+            callback_function=callback,
+            cfg=cfg_scale,
+            sampler_name=sampler_name,
+            scheduler=scheduler_name,
+            previewer_start=switch,
+            previewer_end=steps,
         )
 
-    decoded_latent = core.decode_vae(vae=final_vae if final_refiner_vae is None else final_refiner_vae,
-                                     latent_image=sampled_latent, tiled=tiled)
+        target_model = final_refiner_vae
+        if target_model is None:
+            target_model = final_vae
+        decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
+        images = core.pytorch_to_numpy(decoded_latent)
+        return images
 
-    images = core.pytorch_to_numpy(decoded_latent)
+    if refiner_swap_method == 'vae':
+        sampled_latent = core.ksampler(
+            model=final_unet,
+            positive=positive_cond,
+            negative=negative_cond,
+            latent=empty_latent,
+            steps=steps, start_step=0, last_step=switch, disable_noise=False, force_full_denoise=True,
+            seed=image_seed,
+            denoise=denoise,
+            callback_function=callback,
+            cfg=cfg_scale,
+            sampler_name=sampler_name,
+            scheduler=scheduler_name,
+            previewer_start=0,
+            previewer_end=switch,
+        )
+        print('Refiner swapped by changing ksampler. Noise is not preserved.')
 
-    comfy.model_management.soft_empty_cache()
-    return images
+        target_model = final_refiner_unet
+        if target_model is None:
+            target_model = final_unet
+            print('Use base model to refiner itself - this may because developer mode.')
+
+        sampled_latent = vae_parse(sampled_latent)
+
+        sampled_latent = core.ksampler(
+            model=target_model,
+            positive=clip_separate(positive_cond, target_model=target_model.model),
+            negative=clip_separate(negative_cond, target_model=target_model.model),
+            latent=sampled_latent,
+            steps=steps, start_step=switch, last_step=steps, disable_noise=False, force_full_denoise=True,
+            seed=image_seed,
+            denoise=denoise,
+            callback_function=callback,
+            cfg=cfg_scale,
+            sampler_name=sampler_name,
+            scheduler=scheduler_name,
+            previewer_start=switch,
+            previewer_end=steps,
+        )
+
+        target_model = final_refiner_vae
+        if target_model is None:
+            target_model = final_vae
+        decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
+        images = core.pytorch_to_numpy(decoded_latent)
+        return images

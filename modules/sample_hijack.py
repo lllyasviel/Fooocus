@@ -2,7 +2,7 @@ import torch
 import comfy.samplers
 import comfy.model_management
 
-from comfy.model_base import SDXLRefiner
+from comfy.model_base import SDXLRefiner, SDXL, BaseModel
 from comfy.sample import get_additional_models
 from comfy.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
     create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_adm, \
@@ -15,12 +15,14 @@ refiner_switch_step = -1
 
 @torch.no_grad()
 @torch.inference_mode()
-def clip_separate(cond, get_base=False):
+def clip_separate(cond, target_model=None):
     c, p = cond[0]
-    if get_base:
+    if target_model is None or isinstance(target_model, SDXLRefiner):
+        c = c[..., -1280:].clone()
+    elif isinstance(target_model, BaseModel):
         c = c[..., :768].clone()
     else:
-        c = c[..., -1280:].clone()
+        c = c.clone()
     p = p["pooled_output"].clone()
     return [[c, {"pooled_output": p}]]
 
@@ -58,12 +60,8 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
         negative = encode_adm(model, negative, noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")
 
     if current_refiner is not None and current_refiner.model.is_adm():
-        positive_refiner = positive
-        negative_refiner = negative
-
-        if isinstance(current_refiner.model, SDXLRefiner):
-            positive_refiner = clip_separate(positive_refiner)
-            negative_refiner = clip_separate(negative_refiner)
+        positive_refiner = clip_separate(positive, target_model=current_refiner.model)
+        negative_refiner = clip_separate(negative, target_model=current_refiner.model)
 
         positive_refiner = encode_adm(current_refiner.model, positive_refiner, noise.shape[0], noise.shape[3], noise.shape[2], device, "positive")
         negative_refiner = encode_adm(current_refiner.model, negative_refiner, noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")

@@ -197,7 +197,7 @@ def get_previewer():
 @torch.inference_mode()
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
-             force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1):
+             force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1, previewer_start=None, previewer_end=None):
     latent_image = latent["samples"]
     if disable_noise:
         noise = torch.zeros(latent_image.size(), dtype=latent_image.dtype, layout=latent_image.layout, device="cpu")
@@ -210,15 +210,20 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
         noise_mask = latent["noise_mask"]
 
     previewer = get_previewer()
-    previewer_offset = start_step if isinstance(start_step, int) else 0
+
+    if previewer_start is None:
+        previewer_start = 0
+
+    if previewer_end is None:
+        previewer_end = steps
 
     def callback(step, x0, x, total_steps):
         comfy.model_management.throw_exception_if_processing_interrupted()
         y = None
         if previewer is not None:
-            y = previewer(x0, previewer_offset + step, steps)
+            y = previewer(x0, previewer_start + step, previewer_end)
         if callback_function is not None:
-            callback_function(previewer_offset + step, x0, x, steps, y)
+            callback_function(previewer_start + step, x0, x, previewer_end, y)
 
     disable_pbar = False
     modules.sample_hijack.current_refiner = refiner

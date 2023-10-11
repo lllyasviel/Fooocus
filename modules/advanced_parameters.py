@@ -3,7 +3,7 @@ adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_
     overwrite_vary_strength, overwrite_upscale_strength, \
     mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, \
     debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold, inpaint_engine, \
-    discontinued_sampler, \
+    refiner_swap_method, \
     freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2 = [None] * 25
 
 
@@ -13,7 +13,7 @@ def set_all_advanced_parameters(*args):
         overwrite_vary_strength, overwrite_upscale_strength, \
         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, \
         debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold, inpaint_engine, \
-        discontinued_sampler, \
+        refiner_swap_method, \
         freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2
 
     adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name, \
@@ -21,7 +21,7 @@ def set_all_advanced_parameters(*args):
         overwrite_vary_strength, overwrite_upscale_strength, \
         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, \
         debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold, inpaint_engine, \
-        discontinued_sampler, \
+        refiner_swap_method, \
         freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2 = args
 
     return
