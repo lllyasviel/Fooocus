@@ -302,8 +302,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
         sampled_latent = core.ksampler(
             model=final_refiner_unet,
-            positive=clip_separate(positive_cond),
-            negative=clip_separate(negative_cond),
+            positive=clip_separate(positive_cond, get_base=isinstance(final_refiner_unet.model, BaseModel)),
+            negative=clip_separate(negative_cond, get_base=isinstance(final_refiner_unet.model, BaseModel)),
             latent=sampled_latent,
             steps=steps, start_step=switch, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
@@ -330,7 +330,9 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             refiner_switch=switch
         )
 
-    decoded_latent = core.decode_vae(vae=final_vae, latent_image=sampled_latent, tiled=tiled)
+    decoded_latent = core.decode_vae(vae=final_vae if final_refiner_vae is None else final_refiner_vae,
+                                     latent_image=sampled_latent, tiled=tiled)
+
     images = core.pytorch_to_numpy(decoded_latent)
 
     comfy.model_management.soft_empty_cache()

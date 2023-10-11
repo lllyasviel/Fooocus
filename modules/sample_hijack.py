@@ -15,9 +15,12 @@ refiner_switch_step = -1
 
 @torch.no_grad()
 @torch.inference_mode()
-def clip_separate(cond):
+def clip_separate(cond, get_base=False):
     c, p = cond[0]
-    c = c[..., -1280:].clone()
+    if get_base:
+        c = c[..., :768].clone()
+    else:
+        c = c[..., -1280:].clone()
     p = p["pooled_output"].clone()
     return [[c, {"pooled_output": p}]]
 
