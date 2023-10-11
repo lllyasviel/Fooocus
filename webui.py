@@ -1,3 +1,5 @@
+from python_hijack import *
+
 import gradio as gr
 import random
 import time
