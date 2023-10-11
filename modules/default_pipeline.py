@@ -322,7 +322,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             sampler_name=sampler_name,
             scheduler=scheduler_name,
             previewer_start=0,
-            previewer_end=switch,
+            previewer_end=steps,
         )
         print('Refiner swapped by changing ksampler. Noise preserved.')
 
@@ -368,7 +368,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             sampler_name=sampler_name,
             scheduler=scheduler_name,
             previewer_start=0,
-            previewer_end=switch,
+            previewer_end=steps,
         )
         print('Refiner swapped by changing ksampler. Noise is not preserved.')
 
