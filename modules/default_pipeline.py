@@ -123,7 +123,7 @@ def refresh_refiner_model(name):
         xl_refiner.clip = None
         xl_refiner.vae = None
     else:
-        xl_refiner = None  # 1.5/2.1 not supported yet.
+        xl_refiner.clip = None
 
     return
 
@@ -387,6 +387,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             scheduler=scheduler_name,
             previewer_start=switch,
             previewer_end=steps,
+            noise_multiplier=1.2,
         )
 
         target_model = final_refiner_vae

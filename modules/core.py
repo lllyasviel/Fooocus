@@ -197,13 +197,18 @@ def get_previewer():
 @torch.inference_mode()
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
-             force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1, previewer_start=None, previewer_end=None):
+             force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1,
+             previewer_start=None, previewer_end=None, noise_multiplier=1.0):
+
     latent_image = latent["samples"]
     if disable_noise:
         noise = torch.zeros(latent_image.size(), dtype=latent_image.dtype, layout=latent_image.layout, device="cpu")
     else:
         batch_inds = latent["batch_index"] if "batch_index" in latent else None
         noise = comfy.sample.prepare_noise(latent_image, seed, batch_inds)
+
+    if noise_multiplier != 1.0:
+        noise = noise * noise_multiplier
 
     noise_mask = None
     if "noise_mask" in latent:
