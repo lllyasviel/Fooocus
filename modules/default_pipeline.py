@@ -63,8 +63,8 @@ def assert_model_integrity():
     if xl_refiner is not None:
         if xl_refiner.unet is None or xl_refiner.unet.model is None:
             error_message = 'You have selected an invalid refiner!'
-        elif not isinstance(xl_refiner.unet.model, SDXL) and not isinstance(xl_refiner.unet.model, SDXLRefiner):
-            error_message = 'SD1.5 or 2.1 as refiner is not supported!'
+        # elif not isinstance(xl_refiner.unet.model, SDXL) and not isinstance(xl_refiner.unet.model, SDXLRefiner):
+        #     error_message = 'SD1.5 or 2.1 as refiner is not supported!'
 
     if error_message is not None:
         raise NotImplementedError(error_message)
@@ -327,8 +327,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
         sampled_latent = core.ksampler(
             model=target_model,
-            positive=clip_separate(positive_cond, target_model=target_model.model),
-            negative=clip_separate(negative_cond, target_model=target_model.model),
+            positive=clip_separate(positive_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
+            negative=clip_separate(negative_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
             latent=sampled_latent,
             steps=steps, start_step=switch, last_step=steps, disable_noise=True, force_full_denoise=True,
             seed=image_seed,
@@ -375,8 +375,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
         sampled_latent = core.ksampler(
             model=target_model,
-            positive=clip_separate(positive_cond, target_model=target_model.model),
-            negative=clip_separate(negative_cond, target_model=target_model.model),
+            positive=clip_separate(positive_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
+            negative=clip_separate(negative_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
             latent=sampled_latent,
             steps=steps, start_step=switch, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
