@@ -2,7 +2,7 @@ import torch
 import comfy.samplers
 import comfy.model_management
 
-from comfy.model_base import SDXLRefiner, BaseModel
+from comfy.model_base import SDXLRefiner, SDXL
 from comfy.sample import get_additional_models
 from comfy.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
     create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_adm, \
@@ -20,12 +20,12 @@ def clip_separate(cond, target_model=None):
     if target_model is None or isinstance(target_model, SDXLRefiner):
         c = c[..., -1280:].clone()
         p = {"pooled_output": p["pooled_output"].clone()}
-    elif isinstance(target_model, BaseModel):
-        c = c[..., :768].clone()
-        p = {}
-    else:
+    elif isinstance(target_model, SDXL):
         c = c.clone()
         p = {"pooled_output": p["pooled_output"].clone()}
+    else:
+        c = c[..., :768].clone()
+        p = {}
     return [[c, p]]
 
 
