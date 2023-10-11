@@ -230,6 +230,10 @@ with shared.gradio_root:
                         adm_scaler_end = gr.Slider(label='ADM Guidance End At Step', minimum=0.0, maximum=1.0,
                                                    step=0.001, value=0.3,
                                                    info='When to end the guidance from positive/negative ADM. ')
+
+                        refiner_swap_method = gr.Dropdown(label='Refiner swap method', value='joint',
+                                                          choices=['joint', 'separate', 'vae'])
+
                         adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01, value=7.0,
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
                                                       '(effective when real CFG > mimicked CFG).')
@@ -293,7 +297,7 @@ with shared.gradio_root:
                         overwrite_vary_strength, overwrite_upscale_strength,
                         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
                         debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold,
-                        inpaint_engine]
+                        inpaint_engine, refiner_swap_method]
                 adps += freeu_ctrls
 
                 def dev_mode_checked(r):

@@ -2,7 +2,8 @@ import torch
 import comfy.samplers
 import comfy.model_management
 
-from comfy.sample import prepare_sampling, cleanup_additional_models, get_additional_models
+from comfy.model_base import SDXLRefiner, SDXL
+from comfy.sample import get_additional_models
 from comfy.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
     create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_adm, \
     blank_inpaint_image_like
@@ -14,11 +15,18 @@ refiner_switch_step = -1
 
 @torch.no_grad()
 @torch.inference_mode()
-def clip_separate(cond):
+def clip_separate(cond, target_model=None):
     c, p = cond[0]
-    c = c[..., -1280:].clone()
-    p = p["pooled_output"].clone()
-    return [[c, {"pooled_output": p}]]
+    if target_model is None or isinstance(target_model, SDXLRefiner):
+        c = c[..., -1280:].clone()
+        p = {"pooled_output": p["pooled_output"].clone()}
+    elif isinstance(target_model, SDXL):
+        c = c.clone()
+        p = {"pooled_output": p["pooled_output"].clone()}
+    else:
+        c = c[..., :768].clone()
+        p = {}
+    return [[c, p]]
 
 
 @torch.no_grad()
@@ -54,8 +62,11 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
         negative = encode_adm(model, negative, noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")
 
     if current_refiner is not None and current_refiner.model.is_adm():
-        positive_refiner = encode_adm(current_refiner.model, clip_separate(positive), noise.shape[0], noise.shape[3], noise.shape[2], device, "positive")
-        negative_refiner = encode_adm(current_refiner.model, clip_separate(negative), noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")
+        positive_refiner = clip_separate(positive, target_model=current_refiner.model)
+        negative_refiner = clip_separate(negative, target_model=current_refiner.model)
+
+        positive_refiner = encode_adm(current_refiner.model, positive_refiner, noise.shape[0], noise.shape[3], noise.shape[2], device, "positive")
+        negative_refiner = encode_adm(current_refiner.model, negative_refiner, noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")
 
         positive_refiner[0][1]['adm_encoded'].to(positive[0][1]['adm_encoded'])
         negative_refiner[0][1]['adm_encoded'].to(negative[0][1]['adm_encoded'])

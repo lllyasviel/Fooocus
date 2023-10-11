@@ -22,7 +22,7 @@ def get_empty_folder(path):
 
 
 comfy_repo = "https://github.com/comfyanonymous/ComfyUI"
-comfy_commit_hash = "5e885bd9c822a3cc7d50d75a40958265f497cd03"
+comfy_commit_hash = "8cc75c64ff7188ce72cd4ba595119586e425c09f"
 comfy_temp_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'comfy_temp'))
 comfy_core_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'headless'))
 

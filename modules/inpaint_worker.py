@@ -83,16 +83,13 @@ def area_abcd(a, b, c, d):
     return (b - a) * (d - c)
 
 
-def solve_abcd(x, a, b, c, d, k, outpaint):
+def solve_abcd(x, a, b, c, d, outpaint):
     H, W = x.shape[:2]
     if outpaint:
         return 0, H, 0, W
-    min_area = H * W * k
-    max_area = H * W
+    min_area = (min(H, W) ** 2) * 0.5
     while True:
-        if area_abcd(a, b, c, d) > min_area and abs((b - a) - (d - c)) < 16:
-            break
-        if area_abcd(a, b, c, d) >= max_area:
+        if area_abcd(a, b, c, d) >= min_area:
             break
 
         add_h = (b - a) < (d - c)
@@ -150,7 +147,7 @@ class InpaintWorker:
 
         # compute abcd
         a, b, c, d = compute_initial_abcd(self.mask_raw_bg < 127)
-        a, b, c, d = solve_abcd(self.mask_raw_bg, a, b, c, d, k=0.618, outpaint=is_outpaint)
+        a, b, c, d = solve_abcd(self.mask_raw_bg, a, b, c, d, outpaint=is_outpaint)
 
         # interested area
         self.interested_area = (a, b, c, d)

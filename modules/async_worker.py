@@ -513,7 +513,8 @@ def worker():
                     latent=initial_latent,
                     denoise=denoising_strength,
                     tiled=tiled,
-                    cfg_scale=cfg_scale
+                    cfg_scale=cfg_scale,
+                    refiner_swap_method=advanced_parameters.refiner_swap_method
                 )
 
                 del task['c'], task['uc'], positive_cond, negative_cond  # Save memory
