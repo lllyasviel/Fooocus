@@ -264,7 +264,7 @@ def vae_parse(x, tiled=False):
 
     print('VAE parsing ...')
     x = core.decode_vae(vae=final_vae, latent_image=x, tiled=tiled)
-    x = core.encode_vae(vae=final_refiner_vae, latent_image=x, tiled=tiled)
+    x = core.encode_vae(vae=final_refiner_vae, pixels=x, tiled=tiled)
     print('VAE parsed ...')
 
     return x
@@ -278,7 +278,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
     else:
         empty_latent = latent
 
-    forced_vae_parse = True
 
     if use_two_samplers and final_refiner_unet is not None:
         sampled_latent = core.ksampler(
@@ -297,8 +296,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
         print('Refiner swapped in another ksampler.')
 
-        if forced_vae_parse:
-            sampled_latent = vae_parse(sampled_latent, tiled=tiled)
+        sampled_latent = vae_parse(sampled_latent, tiled=tiled)
 
         sampled_latent = core.ksampler(
             model=final_refiner_unet,
