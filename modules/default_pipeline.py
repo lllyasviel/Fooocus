@@ -378,7 +378,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             print('Use base model to refine itself - this may because of developer mode.')
 
         sampled_latent = vae_parse(sampled_latent)
-
         remaining_step = steps - switch
         remaining_noise = denoise * 0.5
 
