@@ -39,7 +39,8 @@ def clip_separate(cond, target_model=None, target_clip=None):
 
         c = torch.chunk(c, int(c.size(1)) // 77, 1)
 
-        c = final_layer_norm(c)
+        c = [final_layer_norm(ci) for ci in c]
+        c = torch.cat(c, dim=1)
 
         final_layer_norm.to(device=final_layer_norm_origin_device, dtype=final_layer_norm_origin_dtype)
         c = c.to(device=c_origin_device, dtype=c_origin_dtype)
