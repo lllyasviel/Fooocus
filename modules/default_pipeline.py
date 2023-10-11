@@ -61,8 +61,8 @@ def assert_model_integrity():
         error_message = 'You have selected base model other than SDXL. This is not supported yet.'
 
     if xl_refiner is not None:
-        if xl_refiner.unet.model.model_type.name != 'EPS':
-            error_message = 'You have selected SD 2.1 as refiner. This is not supported yet.'
+        if xl_refiner.unet is None or xl_refiner.unet.model is None:
+            error_message = 'You have selected invalid refiner!'
 
     if error_message is not None:
         raise NotImplementedError(error_message)
