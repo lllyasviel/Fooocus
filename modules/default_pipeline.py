@@ -62,7 +62,7 @@ def assert_model_integrity():
 
     if xl_refiner is not None:
         if xl_refiner.unet is None or xl_refiner.unet.model is None:
-            error_message = 'You have selected invalid refiner!'
+            error_message = 'You have selected an invalid refiner!'
 
     if error_message is not None:
         raise NotImplementedError(error_message)
