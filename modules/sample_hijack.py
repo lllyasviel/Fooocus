@@ -19,12 +19,14 @@ def clip_separate(cond, target_model=None):
     c, p = cond[0]
     if target_model is None or isinstance(target_model, SDXLRefiner):
         c = c[..., -1280:].clone()
+        p = {"pooled_output": p["pooled_output"].clone()}
     elif isinstance(target_model, BaseModel):
         c = c[..., :768].clone()
+        p = {}
     else:
         c = c.clone()
-    p = p["pooled_output"].clone()
-    return [[c, {"pooled_output": p}]]
+        p = {"pooled_output": p["pooled_output"].clone()}
+    return [[c, p]]
 
 
 @torch.no_grad()
