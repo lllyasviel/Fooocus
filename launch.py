@@ -1,14 +1,12 @@
-import os
-os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
+from python_hijack import *
 
 import sys
 import platform
 import fooocus_version
 
-from modules.launch_util import is_installed, run, python, \
-    run_pip, repo_dir, git_clone, requirements_met, script_path, dir_repos
+from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
-from modules.path import modelfile_path, lorafile_path, vae_approx_path, fooocus_expansion_path, upscale_models_path
+from modules.path import modelfile_path, lorafile_path, vae_approx_path, fooocus_expansion_path
 
 
 REINSTALL_ALL = False
@@ -21,15 +19,8 @@ def prepare_environment():
                                    f"pip install torch==2.1.0 torchvision==0.16.0 --extra-index-url {torch_index_url}")
     requirements_file = os.environ.get('REQS_FILE', "requirements_versions.txt")
 
-    comfy_repo = os.environ.get('COMFY_REPO', "https://github.com/comfyanonymous/ComfyUI")
-    comfy_commit_hash = os.environ.get('COMFY_COMMIT_HASH', "d1a0abd40b86f3f079b0cc71e49f9f4604831457")
-
     print(f"Python {sys.version}")
     print(f"Fooocus version: {fooocus_version.version}")
-
-    comfyui_name = 'ComfyUI-from-StabilityAI-Official'
-    git_clone(comfy_repo, repo_dir(comfyui_name), "Inference Engine", comfy_commit_hash)
-    sys.path.append(os.path.join(script_path, dir_repos, comfyui_name))
 
     if REINSTALL_ALL or not is_installed("torch") or not is_installed("torchvision"):
         run(f'"{python}" -m {torch_command}', "Installing torch and torchvision", "Couldn't install torch", live=True)
