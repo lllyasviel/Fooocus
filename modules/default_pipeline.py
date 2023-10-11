@@ -123,7 +123,7 @@ def refresh_refiner_model(name):
         xl_refiner.clip = None
         xl_refiner.vae = None
     else:
-        xl_refiner = None  # 1.5/2.1 not supported yet.
+        xl_refiner.clip = None
 
     return
 
