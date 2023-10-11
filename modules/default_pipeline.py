@@ -379,21 +379,23 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
         sampled_latent = vae_parse(sampled_latent)
 
+        remaining_step = steps - switch
+        remaining_noise = denoise * 0.5
+
         sampled_latent = core.ksampler(
             model=target_model,
             positive=clip_separate(positive_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
             negative=clip_separate(negative_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
             latent=sampled_latent,
-            steps=steps, start_step=switch, last_step=steps, disable_noise=False, force_full_denoise=True,
+            steps=remaining_step, start_step=0, last_step=remaining_step, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
-            denoise=denoise,
+            denoise=remaining_noise,
             callback_function=callback,
             cfg=cfg_scale,
             sampler_name=sampler_name,
             scheduler=scheduler_name,
             previewer_start=switch,
             previewer_end=steps,
-            # noise_multiplier=1.0,
         )
 
         target_model = final_refiner_vae
