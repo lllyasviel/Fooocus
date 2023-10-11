@@ -177,7 +177,8 @@ with shared.gradio_root:
                                                    value=default_aspect_ratio, info='width × height')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=2)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
-                                             info='Describing objects that you do not want to see.')
+                                             info='Describing objects that you do not want to see.',
+                                             value=modules.path.default_negative_prompt)
                 seed_random = gr.Checkbox(label='Random', value=True)
                 image_seed = gr.Number(label='Seed', value=0, precision=0, visible=False)
 
