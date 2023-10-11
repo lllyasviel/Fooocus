@@ -278,6 +278,9 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
     else:
         empty_latent = latent
 
+    if final_refiner_vae is not None:
+        use_two_samplers = True
+
     if use_two_samplers and final_refiner_unet is not None:
         sampled_latent = core.ksampler(
             model=final_unet,
