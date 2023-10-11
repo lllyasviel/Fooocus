@@ -231,7 +231,8 @@ with shared.gradio_root:
                                                    step=0.001, value=0.3,
                                                    info='When to end the guidance from positive/negative ADM. ')
 
-                        discontinued_sampler = gr.Checkbox(label='Use discontinued refiner sampler', value=False)
+                        discontinued_sampler = gr.Checkbox(label='Use discontinued refiner sampler', value=False,
+                                                           info='One sampler for base model; another one for refiner.')
 
                         adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01, value=7.0,
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
