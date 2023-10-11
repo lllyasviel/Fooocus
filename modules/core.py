@@ -210,14 +210,15 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
         noise_mask = latent["noise_mask"]
 
     previewer = get_previewer()
+    previewer_offset = start_step if isinstance(start_step, int) else 0
 
     def callback(step, x0, x, total_steps):
         comfy.model_management.throw_exception_if_processing_interrupted()
         y = None
         if previewer is not None:
-            y = previewer(x0, step, total_steps)
+            y = previewer(x0, previewer_offset + step, previewer_offset + total_steps)
         if callback_function is not None:
-            callback_function(step, x0, x, total_steps, y)
+            callback_function(previewer_offset + step, x0, x, previewer_offset + total_steps, y)
 
     disable_pbar = False
     modules.sample_hijack.current_refiner = refiner

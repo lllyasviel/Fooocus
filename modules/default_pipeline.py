@@ -7,6 +7,7 @@ import comfy.latent_formats
 
 from comfy.model_base import SDXL, SDXLRefiner, BaseModel
 from modules.expansion import FooocusExpansion
+from modules.sample_hijack import clip_separate
 
 
 xl_base: core.StableDiffusionModel = None
@@ -257,27 +258,56 @@ refresh_everything(
 
 @torch.no_grad()
 @torch.inference_mode()
-def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0):
+def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, use_two_samplers=False):
     if latent is None:
         empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
     else:
         empty_latent = latent
 
-    sampled_latent = core.ksampler(
-        model=final_unet,
-        refiner=final_refiner_unet,
-        positive=positive_cond,
-        negative=negative_cond,
-        latent=empty_latent,
-        steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
-        seed=image_seed,
-        denoise=denoise,
-        callback_function=callback,
-        cfg=cfg_scale,
-        sampler_name=sampler_name,
-        scheduler=scheduler_name,
-        refiner_switch=switch
-    )
+    if use_two_samplers and final_refiner_unet is not None:
+        sampled_latent = core.ksampler(
+            model=final_unet,
+            positive=positive_cond,
+            negative=negative_cond,
+            latent=empty_latent,
+            steps=steps, start_step=0, last_step=switch, disable_noise=False, force_full_denoise=False,
+            seed=image_seed,
+            denoise=denoise,
+            callback_function=callback,
+            cfg=cfg_scale,
+            sampler_name=sampler_name,
+            scheduler=scheduler_name,
+        )
+        print('Refiner swapped in another ksampler.')
+        sampled_latent = core.ksampler(
+            model=final_refiner_unet,
+            positive=clip_separate(positive_cond),
+            negative=clip_separate(negative_cond),
+            latent=sampled_latent,
+            steps=steps, start_step=switch, last_step=steps, disable_noise=True, force_full_denoise=True,
+            seed=image_seed,
+            denoise=denoise,
+            callback_function=callback,
+            cfg=cfg_scale,
+            sampler_name=sampler_name,
+            scheduler=scheduler_name,
+        )
+    else:
+        sampled_latent = core.ksampler(
+            model=final_unet,
+            refiner=final_refiner_unet,
+            positive=positive_cond,
+            negative=negative_cond,
+            latent=empty_latent,
+            steps=steps, start_step=0, last_step=steps, disable_noise=False, force_full_denoise=True,
+            seed=image_seed,
+            denoise=denoise,
+            callback_function=callback,
+            cfg=cfg_scale,
+            sampler_name=sampler_name,
+            scheduler=scheduler_name,
+            refiner_switch=switch
+        )
 
     decoded_latent = core.decode_vae(vae=final_vae, latent_image=sampled_latent, tiled=tiled)
     images = core.pytorch_to_numpy(decoded_latent)
