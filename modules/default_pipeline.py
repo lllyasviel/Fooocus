@@ -5,7 +5,7 @@ import modules.path
 import comfy.model_management
 import comfy.latent_formats
 
-from comfy.model_base import SDXL, SDXLRefiner, BaseModel
+from comfy.model_base import SDXL, SDXLRefiner
 from modules.expansion import FooocusExpansion
 from modules.sample_hijack import clip_separate
 
@@ -64,7 +64,7 @@ def assert_model_integrity():
     if xl_refiner is not None:
         if xl_refiner.unet is None or xl_refiner.unet.model is None:
             error_message = 'You have selected an invalid refiner!'
-        elif isinstance(xl_refiner.unet.model, BaseModel):
+        elif not isinstance(xl_refiner.unet.model, SDXL) and not isinstance(xl_refiner.unet.model, SDXLRefiner):
             error_message = 'SD1.5 or 2.1 as refiner is not supported!'
 
     if error_message is not None:
@@ -120,12 +120,10 @@ def refresh_refiner_model(name):
     if isinstance(xl_refiner.unet.model, SDXL):
         xl_refiner.clip = None
         xl_refiner.vae = None
-
-    if isinstance(xl_refiner.unet.model, SDXLRefiner):
+    elif isinstance(xl_refiner.unet.model, SDXLRefiner):
         xl_refiner.clip = None
         xl_refiner.vae = None
-
-    if isinstance(xl_refiner.unet.model, BaseModel):
+    else:
         xl_refiner = None  # 1.5/2.1 not supported yet.
 
     return
