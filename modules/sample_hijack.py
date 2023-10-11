@@ -2,7 +2,8 @@ import torch
 import comfy.samplers
 import comfy.model_management
 
-from comfy.sample import prepare_sampling, cleanup_additional_models, get_additional_models
+from comfy.model_base import SDXLRefiner, BaseModel
+from comfy.sample import get_additional_models
 from comfy.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
     create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_adm, \
     blank_inpaint_image_like
@@ -54,8 +55,15 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
         negative = encode_adm(model, negative, noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")
 
     if current_refiner is not None and current_refiner.model.is_adm():
-        positive_refiner = encode_adm(current_refiner.model, clip_separate(positive), noise.shape[0], noise.shape[3], noise.shape[2], device, "positive")
-        negative_refiner = encode_adm(current_refiner.model, clip_separate(negative), noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")
+        positive_refiner = positive
+        negative_refiner = negative
+
+        if isinstance(current_refiner.model, SDXLRefiner):
+            positive_refiner = clip_separate(positive_refiner)
+            negative_refiner = clip_separate(negative_refiner)
+
+        positive_refiner = encode_adm(current_refiner.model, positive_refiner, noise.shape[0], noise.shape[3], noise.shape[2], device, "positive")
+        negative_refiner = encode_adm(current_refiner.model, negative_refiner, noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")
 
         positive_refiner[0][1]['adm_encoded'].to(positive[0][1]['adm_encoded'])
         negative_refiner[0][1]['adm_encoded'].to(negative[0][1]['adm_encoded'])

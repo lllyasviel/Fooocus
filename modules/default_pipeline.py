@@ -3,9 +3,9 @@ import os
 import torch
 import modules.path
 import comfy.model_management
+import comfy.latent_formats
 
-from comfy.model_patcher import ModelPatcher
-from comfy.model_base import SDXL, SDXLRefiner
+from comfy.model_base import SDXL, SDXLRefiner, BaseModel
 from modules.expansion import FooocusExpansion
 
 
@@ -15,14 +15,15 @@ xl_base_hash = ''
 xl_base_patched: core.StableDiffusionModel = None
 xl_base_patched_hash = ''
 
-xl_refiner: ModelPatcher = None
+xl_refiner: core.StableDiffusionModel = None
 xl_refiner_hash = ''
 
 final_expansion = None
 final_unet = None
 final_clip = None
 final_vae = None
-final_refiner = None
+final_refiner_unet = None
+final_refiner_vae = None
 
 loaded_ControlNets = {}
 
@@ -60,8 +61,8 @@ def assert_model_integrity():
         error_message = 'You have selected base model other than SDXL. This is not supported yet.'
 
     if xl_refiner is not None:
-        if not isinstance(xl_refiner.model, SDXLRefiner):
-            error_message = 'You have selected refiner model other than SDXL refiner. This is not supported yet.'
+        if xl_refiner.unet.model.model_type.name != 'EPS':
+            error_message = 'You have selected SD 2.1 as refiner. This is not supported yet.'
 
     if error_message is not None:
         raise NotImplementedError(error_message)
@@ -109,9 +110,21 @@ def refresh_refiner_model(name):
         print(f'Refiner unloaded.')
         return
 
-    xl_refiner = core.load_unet_only(filename)
+    xl_refiner = core.load_model(filename)
     xl_refiner_hash = model_hash
     print(f'Refiner model loaded: {model_hash}')
+
+    if isinstance(xl_refiner.unet.model, SDXL):
+        xl_refiner.clip = None
+        xl_refiner.vae = None
+
+    if isinstance(xl_refiner.unet.model, SDXLRefiner):
+        xl_refiner.clip = None
+        xl_refiner.vae = None
+
+    if isinstance(xl_refiner.unet.model, BaseModel):
+        xl_refiner.clip = None
+
     return
 
 
@@ -203,15 +216,23 @@ def prepare_text_encoder(async_call=True):
 @torch.no_grad()
 @torch.inference_mode()
 def refresh_everything(refiner_model_name, base_model_name, loras):
-    global final_unet, final_clip, final_vae, final_refiner, final_expansion
+    global final_unet, final_clip, final_vae, final_refiner_unet, final_refiner_vae, final_expansion
 
     refresh_refiner_model(refiner_model_name)
     refresh_base_model(base_model_name)
     refresh_loras(loras)
     assert_model_integrity()
 
-    final_unet, final_clip, final_vae, final_refiner = \
-        xl_base_patched.unet, xl_base_patched.clip, xl_base_patched.vae, xl_refiner
+    final_unet = xl_base_patched.unet
+    final_clip = xl_base_patched.clip
+    final_vae = xl_base_patched.vae
+
+    if xl_refiner is None:
+        final_refiner_unet = None
+        final_refiner_vae = None
+    else:
+        final_refiner_unet = xl_refiner.unet
+        final_refiner_vae = xl_refiner.vae
 
     if final_expansion is None:
         final_expansion = FooocusExpansion()
@@ -244,7 +265,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     sampled_latent = core.ksampler(
         model=final_unet,
-        refiner=final_refiner,
+        refiner=final_refiner_unet,
         positive=positive_cond,
         negative=negative_cond,
         latent=empty_latent,
