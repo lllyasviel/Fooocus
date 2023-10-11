@@ -24,7 +24,7 @@ def get_empty_folder(path):
 comfy_repo = "https://github.com/comfyanonymous/ComfyUI"
 comfy_commit_hash = "be903eb2e2921f03a3a03dc9d6b0c6437ae201f5"
 comfy_temp_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'comfy_temp'))
-comfy_core_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'comfy_core'))
+comfy_core_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'headless'))
 
 git_clone(comfy_repo, comfy_temp_path, "ComfyUI", comfy_commit_hash)
 
