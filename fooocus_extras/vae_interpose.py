@@ -4,9 +4,9 @@ import os
 import torch
 import safetensors.torch as sf
 import torch.nn as nn
-import cbh.model_management
+import fcbh.model_management
 
-from cbh.model_patcher import ModelPatcher
+from fcbh.model_patcher import ModelPatcher
 from modules.path import vae_approx_path
 
 
@@ -76,17 +76,17 @@ def parse(x):
         model.eval()
         sd = sf.load_file(vae_approx_filename)
         model.load_state_dict(sd)
-        fp16 = cbh.model_management.should_use_fp16()
+        fp16 = fcbh.model_management.should_use_fp16()
         if fp16:
             model = model.half()
         vae_approx_model = ModelPatcher(
             model=model,
-            load_device=cbh.model_management.get_torch_device(),
+            load_device=fcbh.model_management.get_torch_device(),
             offload_device=torch.device('cpu')
         )
         vae_approx_model.dtype = torch.float16 if fp16 else torch.float32
 
-    cbh.model_management.load_model_gpu(vae_approx_model)
+    fcbh.model_management.load_model_gpu(vae_approx_model)
 
     x = x_origin.to(device=vae_approx_model.load_device, dtype=vae_approx_model.dtype)
     x = vae_approx_model.model(x)
