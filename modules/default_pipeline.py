@@ -277,7 +277,9 @@ def vae_parse(x, tiled=False, use_interpose=True):
     return x
 
 
-def calculate_sigmas(sampler, model, scheduler, steps):
+@torch.no_grad()
+@torch.inference_mode()
+def calculate_sigmas_all(sampler, model, scheduler, steps):
     from comfy.samplers import calculate_sigmas_scheduler
 
     discard_penultimate_sigma = False
@@ -289,6 +291,18 @@ def calculate_sigmas(sampler, model, scheduler, steps):
 
     if discard_penultimate_sigma:
         sigmas = torch.cat([sigmas[:-2], sigmas[-1:]])
+    return sigmas
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def calculate_sigmas(sampler, model, scheduler, steps, denoise):
+    if denoise is None or denoise > 0.9999:
+        sigmas = calculate_sigmas(steps)
+    else:
+        new_steps = int(steps / denoise)
+        sigmas = calculate_sigmas_all(sampler, model, scheduler, new_steps)
+        sigmas = sigmas[-(steps + 1):]
     return sigmas
 
 
@@ -406,7 +420,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         return images
 
     if refiner_swap_method == 'vae':
-        sigmas = calculate_sigmas(sampler=sampler_name, scheduler=scheduler_name, model=final_unet.model, steps=steps)
+        sigmas = calculate_sigmas(sampler=sampler_name, scheduler=scheduler_name, model=final_unet.model, steps=steps, denoise=denoise)
         sigmas_a = sigmas[:switch]
         sigmas_b = sigmas[switch:]
 

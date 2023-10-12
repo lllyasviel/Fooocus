@@ -207,7 +207,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
              previewer_start=None, previewer_end=None, sigmas=None):
 
     if sigmas is not None:
-        sigmas = sigmas.clone()
+        sigmas = sigmas.clone().to(comfy.model_management.get_torch_device())
 
     latent_image = latent["samples"]
     if disable_noise:
