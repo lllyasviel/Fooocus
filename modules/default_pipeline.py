@@ -424,7 +424,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             negative=clip_separate(negative_cond, target_model=target_model.model, target_clip=final_clip),
             latent=sampled_latent,
             steps=steps, start_step=switch, last_step=steps, disable_noise=False, force_full_denoise=True,
-            seed=image_seed,
+            seed=image_seed + 1,
             denoise=denoise,
             callback_function=callback,
             cfg=cfg_scale,
