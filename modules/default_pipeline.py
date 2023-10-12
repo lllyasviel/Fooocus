@@ -415,7 +415,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
         sampled_latent = vae_parse(sampled_latent)
         remaining_step = steps - switch
-        remaining_noise = denoise * 0.5
+        remaining_noise = (1.0 - float(switch) / float(steps)) ** 0.6180339887
+        remaining_noise *= denoise
 
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.swap()
