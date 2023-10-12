@@ -259,14 +259,20 @@ refresh_everything(
 
 @torch.no_grad()
 @torch.inference_mode()
-def vae_parse(x, tiled=False):
+def vae_parse(x, tiled=False, use_interpose=True):
     if final_vae is None or final_refiner_vae is None:
         return x
 
-    print('VAE parsing ...')
-    x = core.decode_vae(vae=final_vae, latent_image=x, tiled=tiled)
-    x = core.encode_vae(vae=final_refiner_vae, pixels=x, tiled=tiled)
-    print('VAE parsed ...')
+    if use_interpose:
+        print('VAE interposing ...')
+        import fooocus_extras.vae_interpose
+        x = fooocus_extras.vae_interpose.parse(x)
+        print('VAE interposed ...')
+    else:
+        print('VAE parsing ...')
+        x = core.decode_vae(vae=final_vae, latent_image=x, tiled=tiled)
+        x = core.encode_vae(vae=final_refiner_vae, pixels=x, tiled=tiled)
+        print('VAE parsed ...')
 
     return x
 
