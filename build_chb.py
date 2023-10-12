@@ -33,19 +33,19 @@ def findReplace(directory, find, replace, filePattern):
                 f.write(s)
 
 
-cbh_repo = "https://github.com/comfyanonymous/ComfyUI"
-cbh_commit_hash = None
+repo = "https://github.com/comfyanonymous/ComfyUI"
+commit_hash = None
 
-cbh_temp_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'temp'))
-cbh_core_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'headless'))
+temp_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'temp'))
+core_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'headless'))
 
-git_clone(cbh_repo, cbh_temp_path, cbh_commit_hash)
+git_clone(repo, temp_path, commit_hash)
 
 
 def get_item(name, rename=None):
     if rename is None:
         rename = name
-    shutil.move(os.path.join(cbh_temp_path, name), os.path.join(cbh_core_path, rename))
+    shutil.move(os.path.join(temp_path, name), os.path.join(core_path, rename))
 
 
 get_item('comfy', 'fcbh')
@@ -55,7 +55,7 @@ get_item('folder_paths.py')
 get_item('nodes.py')
 get_item('LICENSE')
 
-shutil.rmtree(cbh_temp_path, onerror=onerror)
+shutil.rmtree(temp_path, onerror=onerror)
 
 findReplace("./backend", "comfy", "fcbh", "*.py")
 findReplace("./backend", "Comfy", "FCBH", "*.py")
