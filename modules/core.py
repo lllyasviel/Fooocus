@@ -206,6 +206,9 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
              force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1,
              previewer_start=None, previewer_end=None, sigmas=None):
 
+    if sigmas is not None:
+        sigmas = sigmas.clone()
+
     latent_image = latent["samples"]
     if disable_noise:
         noise = torch.zeros(latent_image.size(), dtype=latent_image.dtype, layout=latent_image.layout, device="cpu")
