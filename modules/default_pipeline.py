@@ -407,6 +407,9 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     if refiner_swap_method == 'vae':
         sigmas = calculate_sigmas(sampler=sampler_name, scheduler=scheduler_name, model=final_unet.model, steps=steps)
+        sigmas_a = sigmas[:switch]
+        sigmas_b = sigmas[switch:]
+        sigmas = torch.cat([sigmas_a, sigmas_b], dim=0)
 
         sampled_latent = core.ksampler(
             model=final_unet,
