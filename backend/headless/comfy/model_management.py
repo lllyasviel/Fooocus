@@ -154,14 +154,18 @@ def is_nvidia():
             return True
     return False
 
-ENABLE_PYTORCH_ATTENTION = args.use_pytorch_cross_attention
+ENABLE_PYTORCH_ATTENTION = False
+if args.use_pytorch_cross_attention:
+    ENABLE_PYTORCH_ATTENTION = True
+    XFORMERS_IS_AVAILABLE = False
+
 VAE_DTYPE = torch.float32
 
 try:
     if is_nvidia():
         torch_version = torch.version.__version__
         if int(torch_version[0]) >= 2:
-            if ENABLE_PYTORCH_ATTENTION == False and XFORMERS_IS_AVAILABLE == False and args.use_split_cross_attention == False and args.use_quad_cross_attention == False:
+            if ENABLE_PYTORCH_ATTENTION == False and args.use_split_cross_attention == False and args.use_quad_cross_attention == False:
                 ENABLE_PYTORCH_ATTENTION = True
             if torch.cuda.is_bf16_supported():
                 VAE_DTYPE = torch.bfloat16
@@ -186,7 +190,6 @@ if ENABLE_PYTORCH_ATTENTION:
     torch.backends.cuda.enable_math_sdp(True)
     torch.backends.cuda.enable_flash_sdp(True)
     torch.backends.cuda.enable_mem_efficient_sdp(True)
-    XFORMERS_IS_AVAILABLE = False
 
 if args.lowvram:
     set_vram_to = VRAMState.LOW_VRAM
@@ -354,6 +357,8 @@ def load_models_gpu(models, memory_required=0):
             current_loaded_models.insert(0, current_loaded_models.pop(index))
             models_already_loaded.append(loaded_model)
         else:
+            if hasattr(x, "model"):
+                print(f"Requested to load {x.model.__class__.__name__}")
             models_to_load.append(loaded_model)
 
     if len(models_to_load) == 0:
@@ -363,7 +368,7 @@ def load_models_gpu(models, memory_required=0):
                 free_memory(extra_mem, d, models_already_loaded)
         return
 
-    print("loading new")
+    print(f"Loading {len(models_to_load)} new model{'s' if len(models_to_load) > 1 else ''}")
 
     total_memory_required = {}
     for loaded_model in models_to_load:
@@ -405,7 +410,6 @@ def load_model_gpu(model):
 def cleanup_models():
     to_delete = []
     for i in range(len(current_loaded_models)):
-        print(sys.getrefcount(current_loaded_models[i].model))
         if sys.getrefcount(current_loaded_models[i].model) <= 2:
             to_delete = [i] + to_delete
 
