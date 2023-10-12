@@ -204,7 +204,7 @@ def get_previewer(model):
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1,
-             previewer_start=None, previewer_end=None):
+             previewer_start=None, previewer_end=None, sigmas=None):
 
     latent_image = latent["samples"]
     if disable_noise:
@@ -243,7 +243,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
                                       denoise=denoise, disable_noise=disable_noise, start_step=start_step,
                                       last_step=last_step,
                                       force_full_denoise=force_full_denoise, noise_mask=noise_mask, callback=callback,
-                                      disable_pbar=disable_pbar, seed=seed)
+                                      disable_pbar=disable_pbar, seed=seed, sigmas=sigmas)
 
         out = latent.copy()
         out["samples"] = samples

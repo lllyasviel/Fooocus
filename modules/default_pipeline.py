@@ -277,6 +277,21 @@ def vae_parse(x, tiled=False, use_interpose=True):
     return x
 
 
+def calculate_sigmas(sampler, model, scheduler, steps):
+    from comfy.samplers import calculate_sigmas_scheduler
+
+    discard_penultimate_sigma = False
+    if sampler in ['dpm_2', 'dpm_2_ancestral']:
+        steps += 1
+        discard_penultimate_sigma = True
+
+    sigmas = calculate_sigmas_scheduler(model, scheduler, steps)
+
+    if discard_penultimate_sigma:
+        sigmas = torch.cat([sigmas[:-2], sigmas[-1:]])
+    return sigmas
+
+
 @torch.no_grad()
 @torch.inference_mode()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, refiner_swap_method='joint'):
@@ -391,6 +406,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         return images
 
     if refiner_swap_method == 'vae':
+        sigmas = calculate_sigmas(sampler=sampler_name, scheduler=scheduler_name, model=final_unet.model, steps=steps)
+
         sampled_latent = core.ksampler(
             model=final_unet,
             positive=positive_cond,
@@ -405,6 +422,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             scheduler=scheduler_name,
             previewer_start=0,
             previewer_end=steps,
+            sigmas=sigmas
         )
         print('Fooocus VAE-based swap.')
 
@@ -424,7 +442,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             negative=clip_separate(negative_cond, target_model=target_model.model, target_clip=final_clip),
             latent=sampled_latent,
             steps=steps, start_step=switch, last_step=steps, disable_noise=False, force_full_denoise=True,
-            seed=image_seed + 1,
+            seed=image_seed,
             denoise=denoise,
             callback_function=callback,
             cfg=cfg_scale,
@@ -432,6 +450,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             scheduler=scheduler_name,
             previewer_start=switch,
             previewer_end=steps,
+            sigmas=sigmas
         )
 
         if modules.inpaint_worker.current_task is not None:
