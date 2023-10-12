@@ -283,7 +283,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
     assert refiner_swap_method in ['joint', 'separate', 'vae', 'upscale']
 
     if final_refiner_unet is not None:
-        if isinstance(final_refiner_unet.model.latent_format, comfy.latent_formats.SD15):
+        if isinstance(final_refiner_unet.model.latent_format, comfy.latent_formats.SD15) \
+                and refiner_swap_method != 'upscale':
             refiner_swap_method = 'vae'
 
     print(f'[Sampler] refiner_swap_method = {refiner_swap_method}')
