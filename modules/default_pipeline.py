@@ -409,6 +409,13 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         sigmas = calculate_sigmas(sampler=sampler_name, scheduler=scheduler_name, model=final_unet.model, steps=steps)
         sigmas_a = sigmas[:switch]
         sigmas_b = sigmas[switch:]
+
+        if final_refiner_unet is not None:
+            k1 = final_refiner_unet.model.latent_format.scale_factor
+            k2 = final_unet.model.latent_format.scale_factor
+            k = float(k1) / float(k2)
+            sigmas_b = sigmas_b * k
+
         sigmas = torch.cat([sigmas_a, sigmas_b], dim=0)
 
         sampled_latent = core.ksampler(
