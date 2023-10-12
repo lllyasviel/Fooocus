@@ -22,49 +22,6 @@ index_url = os.environ.get('INDEX_URL', "")
 
 modules_path = os.path.dirname(os.path.realpath(__file__))
 script_path = os.path.dirname(modules_path)
-dir_repos = "repositories"
-
-
-def onerror(func, path, exc_info):
-    import stat
-    if not os.access(path, os.W_OK):
-        os.chmod(path, stat.S_IWUSR)
-        func(path)
-    else:
-        raise 'Failed to invoke "shutil.rmtree", git management failed.'
-
-
-def git_clone(url, dir, name, hash=None):
-    try:
-        try:
-            repo = pygit2.Repository(dir)
-            remote_url = repo.remotes['origin'].url
-            if remote_url != url:
-                print(f'{name} exists but remote URL will be updated.')
-                del repo
-                raise url
-            else:
-                print(f'{name} exists and URL is correct.')
-        except:
-            if os.path.isdir(dir) or os.path.exists(dir):
-                shutil.rmtree(dir, onerror=onerror)
-            os.makedirs(dir, exist_ok=True)
-            repo = pygit2.clone_repository(url, dir)
-            print(f'{name} cloned from {url}.')
-
-        if hash is not None:
-            remote = repo.remotes['origin']
-            remote.fetch()
-            commit = repo.get(hash)
-            repo.checkout_tree(commit, strategy=pygit2.GIT_CHECKOUT_FORCE)
-            repo.set_head(commit.id)
-            print(f'{name} checkout finished for {hash}.')
-    except Exception as e:
-        print(f'Git clone failed for {name}: {str(e)}')
-
-
-def repo_dir(name):
-    return os.path.join(script_path, dir_repos, name)
 
 
 def is_installed(package):

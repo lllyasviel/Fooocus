@@ -8,22 +8,22 @@ import einops
 import torch
 import numpy as np
 
-import comfy.model_management
-import comfy.model_detection
-import comfy.model_patcher
-import comfy.utils
-import comfy.controlnet
+import cbh.model_management
+import cbh.model_detection
+import cbh.model_patcher
+import cbh.utils
+import cbh.controlnet
 import modules.sample_hijack
-import comfy.samplers
-import comfy.latent_formats
+import cbh.samplers
+import cbh.latent_formats
 
-from comfy.sd import load_checkpoint_guess_config
+from cbh.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint, \
     ControlNetApplyAdvanced
-from comfy_extras.nodes_freelunch import FreeU
-from comfy.sample import prepare_mask
+from cbh_extras.nodes_freelunch import FreeU
+from cbh.sample import prepare_mask
 from modules.patch import patched_sampler_cfg_function, patched_model_function_wrapper
-from comfy.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
+from cbh.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
 
 
 opEmptyLatentImage = EmptyLatentImage()
@@ -53,7 +53,7 @@ def apply_freeu(model, b1, b2, s1, s2):
 @torch.no_grad()
 @torch.inference_mode()
 def load_controlnet(ckpt_filename):
-    return comfy.controlnet.load_controlnet(ckpt_filename)
+    return cbh.controlnet.load_controlnet(ckpt_filename)
 
 
 @torch.no_grad()
@@ -78,7 +78,7 @@ def load_sd_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
     if strength_model == 0 and strength_clip == 0:
         return model
 
-    lora = comfy.utils.load_torch_file(lora_filename, safe_load=False)
+    lora = cbh.utils.load_torch_file(lora_filename, safe_load=False)
 
     if lora_filename.lower().endswith('.fooocus.patch'):
         loaded = lora
@@ -164,7 +164,7 @@ def get_previewer(model):
     global VAE_approx_models
 
     from modules.path import vae_approx_path
-    is_sdxl = isinstance(model.model.latent_format, comfy.latent_formats.SDXL)
+    is_sdxl = isinstance(model.model.latent_format, cbh.latent_formats.SDXL)
     vae_approx_filename = os.path.join(vae_approx_path, 'xlvaeapp.pth' if is_sdxl else 'vaeapp_sd15.pth')
 
     if vae_approx_filename in VAE_approx_models:
@@ -176,14 +176,14 @@ def get_previewer(model):
         del sd
         VAE_approx_model.eval()
 
-        if comfy.model_management.should_use_fp16():
+        if cbh.model_management.should_use_fp16():
             VAE_approx_model.half()
             VAE_approx_model.current_type = torch.float16
         else:
             VAE_approx_model.float()
             VAE_approx_model.current_type = torch.float32
 
-        VAE_approx_model.to(comfy.model_management.get_torch_device())
+        VAE_approx_model.to(cbh.model_management.get_torch_device())
         VAE_approx_models[vae_approx_filename] = VAE_approx_model
 
     @torch.no_grad()
@@ -207,14 +207,14 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
              previewer_start=None, previewer_end=None, sigmas=None):
 
     if sigmas is not None:
-        sigmas = sigmas.clone().to(comfy.model_management.get_torch_device())
+        sigmas = sigmas.clone().to(cbh.model_management.get_torch_device())
 
     latent_image = latent["samples"]
     if disable_noise:
         noise = torch.zeros(latent_image.size(), dtype=latent_image.dtype, layout=latent_image.layout, device="cpu")
     else:
         batch_inds = latent["batch_index"] if "batch_index" in latent else None
-        noise = comfy.sample.prepare_noise(latent_image, seed, batch_inds)
+        noise = cbh.sample.prepare_noise(latent_image, seed, batch_inds)
 
     noise_mask = None
     if "noise_mask" in latent:
@@ -229,7 +229,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
         previewer_end = steps
 
     def callback(step, x0, x, total_steps):
-        comfy.model_management.throw_exception_if_processing_interrupted()
+        cbh.model_management.throw_exception_if_processing_interrupted()
         y = None
         if previewer is not None:
             y = previewer(x0, previewer_start + step, previewer_end)
@@ -239,10 +239,10 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
     disable_pbar = False
     modules.sample_hijack.current_refiner = refiner
     modules.sample_hijack.refiner_switch_step = refiner_switch
-    comfy.samplers.sample = modules.sample_hijack.sample_hacked
+    cbh.samplers.sample = modules.sample_hijack.sample_hacked
 
     try:
-        samples = comfy.sample.sample(model, noise, steps, cfg, sampler_name, scheduler, positive, negative, latent_image,
+        samples = cbh.sample.sample(model, noise, steps, cfg, sampler_name, scheduler, positive, negative, latent_image,
                                       denoise=denoise, disable_noise=disable_noise, start_step=start_step,
                                       last_step=last_step,
                                       force_full_denoise=force_full_denoise, noise_mask=noise_mask, callback=callback,

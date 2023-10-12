@@ -63,13 +63,13 @@ with shared.gradio_root:
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', visible=False)
 
                     def stop_clicked():
-                        import comfy.model_management as model_management
+                        import cbh.model_management as model_management
                         shared.last_stop = 'stop'
                         model_management.interrupt_current_processing()
                         return [gr.update(interactive=False)] * 2
 
                     def skip_clicked():
-                        import comfy.model_management as model_management
+                        import cbh.model_management as model_management
                         shared.last_stop = 'skip'
                         model_management.interrupt_current_processing()
                         return

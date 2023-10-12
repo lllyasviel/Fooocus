@@ -2,10 +2,10 @@ import torch
 from PIL import Image
 import struct
 import numpy as np
-from comfy.cli_args import args, LatentPreviewMethod
-from comfy.taesd.taesd import TAESD
+from cbh.cli_args import args, LatentPreviewMethod
+from cbh.taesd.taesd import TAESD
 import folder_paths
-import comfy.utils
+import cbh.utils
 
 MAX_PREVIEW_RESOLUTION = 512
 
@@ -87,7 +87,7 @@ def prepare_callback(model, steps, x0_output_dict=None):
 
     previewer = get_previewer(model.load_device, model.model.latent_format)
 
-    pbar = comfy.utils.ProgressBar(steps)
+    pbar = cbh.utils.ProgressBar(steps)
     def callback(step, x0, x, total_steps):
         if x0_output_dict is not None:
             x0_output_dict["x0"] = x0

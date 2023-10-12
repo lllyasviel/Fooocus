@@ -20,7 +20,7 @@ def worker():
     import modules.flags as flags
     import modules.path
     import modules.patch
-    import comfy.model_management
+    import cbh.model_management
     import fooocus_extras.preprocessors as preprocessors
     import modules.inpaint_worker as inpaint_worker
     import modules.advanced_parameters as advanced_parameters
@@ -483,7 +483,7 @@ def worker():
 
         outputs.append(['preview', (13, 'Moving model to GPU ...', None)])
         execution_start_time = time.perf_counter()
-        comfy.model_management.load_models_gpu([pipeline.final_unet])
+        cbh.model_management.load_models_gpu([pipeline.final_unet])
         moving_time = time.perf_counter() - execution_start_time
         print(f'Moving model to GPU: {moving_time:.2f} seconds')
 
@@ -558,7 +558,7 @@ def worker():
                     log(x, d, single_line_number=3)
 
                 results += imgs
-            except comfy.model_management.InterruptProcessingException as e:
+            except cbh.model_management.InterruptProcessingException as e:
                 if shared.last_stop == 'skip':
                     print('User skipped')
                     continue
