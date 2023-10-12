@@ -36,7 +36,7 @@ def findReplace(directory, find, replace, filePattern):
 cbh_repo = "https://github.com/comfyanonymous/ComfyUI"
 cbh_commit_hash = None
 
-cbh_temp_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'cbh_temp'))
+cbh_temp_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'temp'))
 cbh_core_path = get_empty_folder(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend', 'headless'))
 
 git_clone(cbh_repo, cbh_temp_path, cbh_commit_hash)
@@ -48,8 +48,8 @@ def get_item(name, rename=None):
     shutil.move(os.path.join(cbh_temp_path, name), os.path.join(cbh_core_path, rename))
 
 
-get_item('comfy', 'cbh')
-get_item('comfy_extras', 'cbh_extras')
+get_item('comfy', 'fcbh')
+get_item('comfy_extras', 'fcbh_extras')
 get_item('latent_preview.py')
 get_item('folder_paths.py')
 get_item('nodes.py')
@@ -57,8 +57,8 @@ get_item('LICENSE')
 
 shutil.rmtree(cbh_temp_path, onerror=onerror)
 
-findReplace("./backend", "comfy", "cbh", "*.py")
-findReplace("./backend", "Comfy", "CBH", "*.py")
-findReplace("./backend", "CBHUI", "cbh_backend", "*.py")
+findReplace("./backend", "comfy", "fcbh", "*.py")
+findReplace("./backend", "Comfy", "FCBH", "*.py")
+findReplace("./backend", "FCBHUI", "fcbh_backend", "*.py")
 
 print('Backend is built.')
