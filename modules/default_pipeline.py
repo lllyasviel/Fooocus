@@ -4,6 +4,7 @@ import torch
 import modules.path
 import comfy.model_management
 import comfy.latent_formats
+import modules.inpaint_worker
 
 from comfy.model_base import SDXL, SDXLRefiner
 from modules.expansion import FooocusExpansion
@@ -381,6 +382,9 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         remaining_step = steps - switch
         remaining_noise = denoise * 0.5
 
+        if modules.inpaint_worker.current_task is not None:
+            modules.inpaint_worker.current_task.swap()
+
         sampled_latent = core.ksampler(
             model=target_model,
             positive=clip_separate(positive_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
@@ -396,6 +400,9 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             previewer_start=switch,
             previewer_end=steps,
         )
+
+        if modules.inpaint_worker.current_task is not None:
+            modules.inpaint_worker.current_task.swap()
 
         target_model = final_refiner_vae
         if target_model is None:

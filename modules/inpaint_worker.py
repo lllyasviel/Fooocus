@@ -167,6 +167,7 @@ class InpaintWorker:
 
         # ending
         self.latent = None
+        self.latent_after_swap = None
         self.latent_mask = None
         self.inpaint_head_feature = None
         return
@@ -191,9 +192,14 @@ class InpaintWorker:
         self.inpaint_head_feature = inpaint_head(feed)
         return
 
-    def load_latent(self, latent, mask):
+    def load_latent(self, latent, mask, latent_after_swap=None):
         self.latent = latent
         self.latent_mask = mask
+        self.latent_after_swap = latent_after_swap
+
+    def swap(self):
+        if self.latent_after_swap is not None:
+            self.latent, self.latent_after_swap = self.latent_after_swap, self.latent
 
     def color_correction(self, img):
         fg = img.astype(np.float32)

@@ -398,7 +398,14 @@ def worker():
             inpaint_mask = core.numpy_to_pytorch(inpaint_worker.current_task.mask_ready[None])
             inpaint_mask = torch.nn.functional.avg_pool2d(inpaint_mask, (8, 8))
             inpaint_mask = torch.nn.functional.interpolate(inpaint_mask, (H, W), mode='bilinear')
-            inpaint_worker.current_task.load_latent(latent=inpaint_latent, mask=inpaint_mask)
+
+            latent_after_swap = None
+            if pipeline.final_refiner_vae is not None:
+                progressbar(13, 'VAE SD15 encoding ...')
+                latent_after_swap = core.encode_vae(vae=pipeline.final_refiner_vae, pixels=inpaint_pixels)['samples']
+
+            inpaint_worker.current_task.load_latent(latent=inpaint_latent, mask=inpaint_mask,
+                                                    latent_after_swap=latent_after_swap)
 
             progressbar(13, 'VAE inpaint encoding ...')
 
