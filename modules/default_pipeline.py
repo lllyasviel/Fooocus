@@ -370,7 +370,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             previewer_start=0,
             previewer_end=steps,
         )
-        print('Refiner swapped by changing ksampler. Noise is not preserved.')
+        print('Fooocus VAE-based swap.')
 
         target_model = final_refiner_unet
         if target_model is None:
