@@ -369,8 +369,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
         sampled_latent = core.ksampler(
             model=target_model,
-            positive=clip_separate(positive_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
-            negative=clip_separate(negative_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
+            positive=clip_separate(positive_cond, target_model=target_model.model, target_clip=final_clip),
+            negative=clip_separate(negative_cond, target_model=target_model.model, target_clip=final_clip),
             latent=sampled_latent,
             steps=steps, start_step=switch, last_step=steps, disable_noise=True, force_full_denoise=True,
             seed=image_seed,
@@ -420,8 +420,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
         sampled_latent = core.ksampler(
             model=target_model,
-            positive=clip_separate(positive_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
-            negative=clip_separate(negative_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
+            positive=clip_separate(positive_cond, target_model=target_model.model, target_clip=final_clip),
+            negative=clip_separate(negative_cond, target_model=target_model.model, target_clip=final_clip),
             latent=sampled_latent,
             steps=steps, start_step=switch, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
