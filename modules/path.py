@@ -100,8 +100,7 @@ default_styles = get_config_item_or_set_default(
 )
 default_negative_prompt = get_config_item_or_set_default(
     key='default_negative_prompt',
-    default_value='watermark, lowres, worst quality, bad anatomy, bad hands, cropped, missing fingers, '
-                  'extra digit, low quality',
+    default_value='lowres, worst quality, bad hands, bad eyes, cropped, missing fingers, extra digit, low quality',
     validator=lambda x: isinstance(x, str)
 )
 
