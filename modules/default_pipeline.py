@@ -414,9 +414,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             print('Use base model to refine itself - this may because of developer mode.')
 
         sampled_latent = vae_parse(sampled_latent)
-        remaining_step = steps - switch
-        remaining_noise = (1.0 - float(switch) / float(steps)) ** 0.6180339887
-        remaining_noise *= denoise
 
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.swap()
@@ -426,9 +423,9 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             positive=clip_separate(positive_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
             negative=clip_separate(negative_cond, target_model=final_refiner_unet.model, target_clip=final_clip),
             latent=sampled_latent,
-            steps=remaining_step, start_step=0, last_step=remaining_step, disable_noise=False, force_full_denoise=True,
+            steps=steps, start_step=switch, last_step=steps, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
-            denoise=remaining_noise,
+            denoise=denoise,
             callback_function=callback,
             cfg=cfg_scale,
             sampler_name=sampler_name,
