@@ -363,7 +363,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     if refiner_swap_method == 'vae':
         pseudo_step = int(switch * 0.5 + steps * 0.5)
-
         sampled_latent = core.ksampler(
             model=final_unet,
             positive=positive_cond,
