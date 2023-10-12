@@ -3,14 +3,10 @@ import comfy.clip_vision
 import safetensors.torch as sf
 import comfy.model_management as model_management
 import contextlib
+import comfy.ldm.modules.attention as attention
 
 from fooocus_extras.resampler import Resampler
 from comfy.model_patcher import ModelPatcher
-
-
-if model_management.xformers_enabled():
-    import xformers
-    import xformers.ops
 
 
 SD_V12_CHANNELS = [320] * 4 + [640] * 4 + [1280] * 4 + [1280] * 6 + [640] * 6 + [320] * 6 + [1280] * 2
@@ -18,32 +14,7 @@ SD_XL_CHANNELS = [640] * 8 + [1280] * 40 + [1280] * 60 + [640] * 12 + [1280] * 2
 
 
 def sdp(q, k, v, extra_options):
-    if model_management.xformers_enabled():
-        b, _, _ = q.shape
-        q, k, v = map(
-            lambda t: t.unsqueeze(3)
-            .reshape(b, t.shape[1], extra_options["n_heads"], extra_options["dim_head"])
-            .permute(0, 2, 1, 3)
-            .reshape(b * extra_options["n_heads"], t.shape[1], extra_options["dim_head"])
-            .contiguous(),
-            (q, k, v),
-        )
-        out = xformers.ops.memory_efficient_attention(q, k, v, attn_bias=None, op=None)
-        out = (
-            out.unsqueeze(0)
-            .reshape(b, extra_options["n_heads"], out.shape[1], extra_options["dim_head"])
-            .permute(0, 2, 1, 3)
-            .reshape(b, out.shape[1], extra_options["n_heads"] * extra_options["dim_head"])
-        )
-    else:
-        b, _, _ = q.shape
-        q, k, v = map(
-            lambda t: t.view(b, -1, extra_options["n_heads"], extra_options["dim_head"]).transpose(1, 2),
-            (q, k, v),
-        )
-        out = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=None, dropout_p=0.0, is_causal=False)
-        out = out.transpose(1, 2).reshape(b, -1, extra_options["n_heads"] * extra_options["dim_head"])
-    return out
+    return attention.optimized_attention(q, k, v, heads=extra_options["n_heads"], mask=None)
 
 
 class ImageProjModel(torch.nn.Module):
