@@ -386,7 +386,7 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     self.current_step = 1.0 - timesteps.to(x) / 999.0
 
     inpaint_fix = None
-    if inpaint_worker.current_task is not None:
+    if getattr(self, 'in_inpaint', False) and inpaint_worker.current_task is not None:
         inpaint_fix = inpaint_worker.current_task.inpaint_head_feature
 
     transformer_options["original_shape"] = list(x.shape)

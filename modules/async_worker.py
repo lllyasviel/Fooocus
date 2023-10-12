@@ -113,6 +113,7 @@ def worker():
         inpaint_worker.current_task = None
         width, height = aspect_ratios[aspect_ratios_selection]
         skip_prompt_processing = False
+        refiner_swap_method = advanced_parameters.refiner_swap_method
 
         raw_prompt = prompt
         raw_negative_prompt = negative_prompt
@@ -352,11 +353,14 @@ def worker():
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
             progressbar(13, 'VAE encoding ...')
 
-            initial_latent = core.encode_vae(vae=pipeline.final_vae, pixels=initial_pixels, tiled=True)
+            initial_latent = core.encode_vae(
+                vae=pipeline.final_vae if pipeline.final_refiner_vae is None else pipeline.final_refiner_vae,
+                pixels=initial_pixels, tiled=True)
             B, C, H, W = initial_latent['samples'].shape
             width = W * 8
             height = H * 8
             print(f'Final resolution is {str((height, width))}.')
+            refiner_swap_method = 'upscale'
 
         if 'inpaint' in goals:
             if len(outpaint_selections) > 0:
@@ -386,6 +390,8 @@ def worker():
             inpaint_worker.current_task = inpaint_worker.InpaintWorker(image=inpaint_image, mask=inpaint_mask,
                                                                        is_outpaint=len(outpaint_selections) > 0)
 
+            pipeline.final_unet.model.diffusion_model.in_inpaint = True
+
             # print(f'Inpaint task: {str((height, width))}')
             # outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
             # return
@@ -398,7 +404,14 @@ def worker():
             inpaint_mask = core.numpy_to_pytorch(inpaint_worker.current_task.mask_ready[None])
             inpaint_mask = torch.nn.functional.avg_pool2d(inpaint_mask, (8, 8))
             inpaint_mask = torch.nn.functional.interpolate(inpaint_mask, (H, W), mode='bilinear')
-            inpaint_worker.current_task.load_latent(latent=inpaint_latent, mask=inpaint_mask)
+
+            latent_after_swap = None
+            if pipeline.final_refiner_vae is not None:
+                progressbar(13, 'VAE SD15 encoding ...')
+                latent_after_swap = core.encode_vae(vae=pipeline.final_refiner_vae, pixels=inpaint_pixels)['samples']
+
+            inpaint_worker.current_task.load_latent(latent=inpaint_latent, mask=inpaint_mask,
+                                                    latent_after_swap=latent_after_swap)
 
             progressbar(13, 'VAE inpaint encoding ...')
 
@@ -514,7 +527,7 @@ def worker():
                     denoise=denoising_strength,
                     tiled=tiled,
                     cfg_scale=cfg_scale,
-                    refiner_swap_method=advanced_parameters.refiner_swap_method
+                    refiner_swap_method=refiner_swap_method
                 )
 
                 del task['c'], task['uc'], positive_cond, negative_cond  # Save memory

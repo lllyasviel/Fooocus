@@ -98,6 +98,11 @@ default_styles = get_config_item_or_set_default(
     default_value=['Fooocus V2', 'Default (Slightly Cinematic)'],
     validator=lambda x: isinstance(x, list) and all(y in modules.sdxl_styles.legal_style_names for y in x)
 )
+default_negative_prompt = get_config_item_or_set_default(
+    key='default_negative_prompt',
+    default_value='low quality, bad hands, bad eyes, cropped, missing fingers, extra digit',
+    validator=lambda x: isinstance(x, str)
+)
 
 with open(config_path, "w", encoding="utf-8") as json_file:
     json.dump(config_dict, json_file, indent=4)

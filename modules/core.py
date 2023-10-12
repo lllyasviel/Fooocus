@@ -15,6 +15,7 @@ import comfy.utils
 import comfy.controlnet
 import modules.sample_hijack
 import comfy.samplers
+import comfy.latent_formats
 
 from comfy.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint, \
@@ -154,17 +155,21 @@ class VAEApprox(torch.nn.Module):
         return x
 
 
-VAE_approx_model = None
+VAE_approx_models = {}
 
 
 @torch.no_grad()
 @torch.inference_mode()
-def get_previewer():
-    global VAE_approx_model
+def get_previewer(model):
+    global VAE_approx_models
 
-    if VAE_approx_model is None:
-        from modules.path import vae_approx_path
-        vae_approx_filename = os.path.join(vae_approx_path, 'xlvaeapp.pth')
+    from modules.path import vae_approx_path
+    is_sdxl = isinstance(model.model.latent_format, comfy.latent_formats.SDXL)
+    vae_approx_filename = os.path.join(vae_approx_path, 'xlvaeapp.pth' if is_sdxl else 'vaeapp_sd15.pth')
+
+    if vae_approx_filename in VAE_approx_models:
+        VAE_approx_model = VAE_approx_models[vae_approx_filename]
+    else:
         sd = torch.load(vae_approx_filename, map_location='cpu')
         VAE_approx_model = VAEApprox()
         VAE_approx_model.load_state_dict(sd)
@@ -179,6 +184,7 @@ def get_previewer():
             VAE_approx_model.current_type = torch.float32
 
         VAE_approx_model.to(comfy.model_management.get_torch_device())
+        VAE_approx_models[vae_approx_filename] = VAE_approx_model
 
     @torch.no_grad()
     @torch.inference_mode()
@@ -198,7 +204,10 @@ def get_previewer():
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1,
-             previewer_start=None, previewer_end=None, noise_multiplier=1.0):
+             previewer_start=None, previewer_end=None, sigmas=None):
+
+    if sigmas is not None:
+        sigmas = sigmas.clone().to(comfy.model_management.get_torch_device())
 
     latent_image = latent["samples"]
     if disable_noise:
@@ -207,14 +216,11 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
         batch_inds = latent["batch_index"] if "batch_index" in latent else None
         noise = comfy.sample.prepare_noise(latent_image, seed, batch_inds)
 
-    if noise_multiplier != 1.0:
-        noise = noise * noise_multiplier
-
     noise_mask = None
     if "noise_mask" in latent:
         noise_mask = latent["noise_mask"]
 
-    previewer = get_previewer()
+    previewer = get_previewer(model)
 
     if previewer_start is None:
         previewer_start = 0
@@ -240,7 +246,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
                                       denoise=denoise, disable_noise=disable_noise, start_step=start_step,
                                       last_step=last_step,
                                       force_full_denoise=force_full_denoise, noise_mask=noise_mask, callback=callback,
-                                      disable_pbar=disable_pbar, seed=seed)
+                                      disable_pbar=disable_pbar, seed=seed, sigmas=sigmas)
 
         out = latent.copy()
         out["samples"] = samples

@@ -15,7 +15,7 @@ refiner_switch_step = -1
 
 @torch.no_grad()
 @torch.inference_mode()
-def clip_separate(cond, target_model=None):
+def clip_separate(cond, target_model=None, target_clip=None):
     c, p = cond[0]
     if target_model is None or isinstance(target_model, SDXLRefiner):
         c = c[..., -1280:].clone()
@@ -25,6 +25,25 @@ def clip_separate(cond, target_model=None):
         p = {"pooled_output": p["pooled_output"].clone()}
     else:
         c = c[..., :768].clone()
+
+        final_layer_norm = target_clip.cond_stage_model.clip_l.transformer.text_model.final_layer_norm
+
+        final_layer_norm_origin_device = final_layer_norm.weight.device
+        final_layer_norm_origin_dtype = final_layer_norm.weight.dtype
+
+        c_origin_device = c.device
+        c_origin_dtype = c.dtype
+
+        final_layer_norm.to(device='cpu', dtype=torch.float32)
+        c = c.to(device='cpu', dtype=torch.float32)
+
+        c = torch.chunk(c, int(c.size(1)) // 77, 1)
+        c = [final_layer_norm(ci) for ci in c]
+        c = torch.cat(c, dim=1)
+
+        final_layer_norm.to(device=final_layer_norm_origin_device, dtype=final_layer_norm_origin_dtype)
+        c = c.to(device=c_origin_device, dtype=c_origin_dtype)
+
         p = {}
     return [[c, p]]
 
