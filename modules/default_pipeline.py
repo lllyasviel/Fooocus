@@ -229,11 +229,15 @@ def refresh_everything(refiner_model_name, base_model_name, loras):
     final_clip = xl_base_patched.clip
     final_vae = xl_base_patched.vae
 
+    final_unet.model.diffusion_model.in_inpaint = False
+
     if xl_refiner is None:
         final_refiner_unet = None
         final_refiner_vae = None
     else:
         final_refiner_unet = xl_refiner.unet
+        final_refiner_unet.model.diffusion_model.in_inpaint = False
+
         final_refiner_vae = xl_refiner.vae
 
     if final_expansion is None:

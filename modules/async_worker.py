@@ -390,6 +390,8 @@ def worker():
             inpaint_worker.current_task = inpaint_worker.InpaintWorker(image=inpaint_image, mask=inpaint_mask,
                                                                        is_outpaint=len(outpaint_selections) > 0)
 
+            pipeline.final_unet.model.diffusion_model.in_inpaint = True
+
             # print(f'Inpaint task: {str((height, width))}')
             # outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
             # return
