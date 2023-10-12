@@ -68,19 +68,27 @@ vae_approx_filename = os.path.join(vae_approx_path, 'xl-to-v1_interposer-v3.1.sa
 
 def parse(x):
     global vae_approx_model
+
+    x_origin = x['samples'].clone()
+
     if vae_approx_model is None:
         model = Interposer()
         model.eval()
         sd = sf.load_file(vae_approx_filename)
         model.load_state_dict(sd)
-        if comfy.model_management.should_use_fp16():
+        fp16 = comfy.model_management.should_use_fp16()
+        if fp16:
             model = model.half()
         vae_approx_model = ModelPatcher(
             model=model,
             load_device=comfy.model_management.get_torch_device(),
             offload_device=torch.device('cpu')
         )
+        vae_approx_model.dtype = torch.float16 if fp16 else torch.float32
+
     comfy.model_management.load_model_gpu(vae_approx_model)
-    x_origin = x.copy()
+
+    x = x_origin.to(device=vae_approx_model.load_device, dtype=vae_approx_model.dtype)
     x = vae_approx_model.model(x)
-    return x.to(x_origin)
+
+    return {'samples': x.to(x_origin)}
