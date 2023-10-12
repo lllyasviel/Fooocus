@@ -60,5 +60,7 @@ shutil.rmtree(temp_path, onerror=onerror)
 findReplace("./backend", "comfy", "fcbh", "*.py")
 findReplace("./backend", "Comfy", "FCBH", "*.py")
 findReplace("./backend", "FCBHUI", "fcbh_backend", "*.py")
+findReplace("./backend", "os.path.dirname(os.path.realpath(__file__))",
+            "os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))", "folder_paths.py")
 
 print('Backend is built.')
