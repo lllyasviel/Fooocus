@@ -52,15 +52,13 @@ def git_clone(url, dir, name, hash=None):
             repo = pygit2.clone_repository(url, dir)
             print(f'{name} cloned from {url}.')
 
-        remote = repo.remotes['origin']
-        remote.fetch()
-
-        commit = repo.get(hash)
-
-        repo.checkout_tree(commit, strategy=pygit2.GIT_CHECKOUT_FORCE)
-        repo.set_head(commit.id)
-
-        print(f'{name} checkout finished for {hash}.')
+        if hash is not None:
+            remote = repo.remotes['origin']
+            remote.fetch()
+            commit = repo.get(hash)
+            repo.checkout_tree(commit, strategy=pygit2.GIT_CHECKOUT_FORCE)
+            repo.set_head(commit.id)
+            print(f'{name} checkout finished for {hash}.')
     except Exception as e:
         print(f'Git clone failed for {name}: {str(e)}')
 
