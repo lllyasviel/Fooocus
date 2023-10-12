@@ -353,7 +353,9 @@ def worker():
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
             progressbar(13, 'VAE encoding ...')
 
-            initial_latent = core.encode_vae(vae=pipeline.final_vae, pixels=initial_pixels, tiled=True)
+            initial_latent = core.encode_vae(
+                vae=pipeline.final_vae if pipeline.final_refiner_vae is None else pipeline.final_refiner_vae,
+                pixels=initial_pixels, tiled=True)
             B, C, H, W = initial_latent['samples'].shape
             width = W * 8
             height = H * 8
