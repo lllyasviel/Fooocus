@@ -2,11 +2,11 @@ import modules.core as core
 import os
 import torch
 import modules.path
-import comfy.model_management
-import comfy.latent_formats
+import fcbh.model_management
+import fcbh.latent_formats
 import modules.inpaint_worker
 
-from comfy.model_base import SDXL, SDXLRefiner
+from fcbh.model_base import SDXL, SDXLRefiner
 from modules.expansion import FooocusExpansion
 from modules.sample_hijack import clip_separate
 
@@ -211,7 +211,7 @@ def prepare_text_encoder(async_call=True):
         # TODO: make sure that this is always called in an async way so that users cannot feel it.
         pass
     assert_model_integrity()
-    comfy.model_management.load_models_gpu([final_clip.patcher, final_expansion.patcher])
+    fcbh.model_management.load_models_gpu([final_clip.patcher, final_expansion.patcher])
     return
 
 
@@ -284,7 +284,7 @@ def vae_parse(x, tiled=False, use_interpose=True):
 @torch.no_grad()
 @torch.inference_mode()
 def calculate_sigmas_all(sampler, model, scheduler, steps):
-    from comfy.samplers import calculate_sigmas_scheduler
+    from fcbh.samplers import calculate_sigmas_scheduler
 
     discard_penultimate_sigma = False
     if sampler in ['dpm_2', 'dpm_2_ancestral']:
@@ -316,7 +316,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
     assert refiner_swap_method in ['joint', 'separate', 'vae', 'upscale']
 
     if final_refiner_unet is not None:
-        if isinstance(final_refiner_unet.model.latent_format, comfy.latent_formats.SD15) \
+        if isinstance(final_refiner_unet.model.latent_format, fcbh.latent_formats.SD15) \
                 and refiner_swap_method != 'upscale':
             refiner_swap_method = 'vae'
 

@@ -1,8 +1,8 @@
 import os
 import torch
 
-from comfy_extras.chainner_models.architecture.RRDB import RRDBNet as ESRGAN
-from comfy_extras.nodes_upscale_model import ImageUpscaleWithModel
+from fcbh_extras.chainner_models.architecture.RRDB import RRDBNet as ESRGAN
+from fcbh_extras.nodes_upscale_model import ImageUpscaleWithModel
 from collections import OrderedDict
 from modules.path import upscale_models_path
 

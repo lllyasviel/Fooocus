@@ -1,10 +1,10 @@
 import torch
 
-import comfy.model_management as model_management
+import fcbh.model_management as model_management
 
 from transformers import AutoTokenizer, AutoModelForCausalLM, set_seed
 from modules.path import fooocus_expansion_path
-from comfy.model_patcher import ModelPatcher
+from fcbh.model_patcher import ModelPatcher
 
 
 fooocus_magic_split = [

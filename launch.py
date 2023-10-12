@@ -83,13 +83,13 @@ def download_models():
     return
 
 
-def ini_comfy_args():
+def ini_cbh_args():
     from args_manager import args
     return args
 
 
 prepare_environment()
-ini_comfy_args()
+ini_cbh_args()
 download_models()
 
 from webui import *
