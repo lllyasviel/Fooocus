@@ -128,7 +128,7 @@ class CheckpointSave:
         return {"required": { "model": ("MODEL",),
                               "clip": ("CLIP",),
                               "vae": ("VAE",),
-                              "filename_prefix": ("STRING", {"default": "checkpoints/CBHUI"}),},
+                              "filename_prefix": ("STRING", {"default": "checkpoints/cbh_backend"}),},
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},}
     RETURN_TYPES = ()
     FUNCTION = "save"
@@ -186,7 +186,7 @@ class CLIPSave:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "clip": ("CLIP",),
-                              "filename_prefix": ("STRING", {"default": "clip/CBHUI"}),},
+                              "filename_prefix": ("STRING", {"default": "clip/cbh_backend"}),},
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},}
     RETURN_TYPES = ()
     FUNCTION = "save"
@@ -242,7 +242,7 @@ class VAESave:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "vae": ("VAE",),
-                              "filename_prefix": ("STRING", {"default": "vae/CBHUI_vae"}),},
+                              "filename_prefix": ("STRING", {"default": "vae/cbh_backend_vae"}),},
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},}
     RETURN_TYPES = ()
     FUNCTION = "save"

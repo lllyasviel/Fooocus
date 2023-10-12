@@ -366,7 +366,7 @@ class SaveLatent:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "samples": ("LATENT", ),
-                              "filename_prefix": ("STRING", {"default": "latents/CBHUI"})},
+                              "filename_prefix": ("STRING", {"default": "latents/cbh_backend"})},
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
                 }
     RETURN_TYPES = ()
@@ -376,7 +376,7 @@ class SaveLatent:
 
     CATEGORY = "_for_testing"
 
-    def save(self, samples, filename_prefix="CBHUI", prompt=None, extra_pnginfo=None):
+    def save(self, samples, filename_prefix="cbh_backend", prompt=None, extra_pnginfo=None):
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir)
 
         # support save metadata for latent sharing
@@ -1279,7 +1279,7 @@ class SaveImage:
     def INPUT_TYPES(s):
         return {"required": 
                     {"images": ("IMAGE", ),
-                     "filename_prefix": ("STRING", {"default": "CBHUI"})},
+                     "filename_prefix": ("STRING", {"default": "cbh_backend"})},
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
                 }
 
@@ -1290,7 +1290,7 @@ class SaveImage:
 
     CATEGORY = "image"
 
-    def save_images(self, images, filename_prefix="CBHUI", prompt=None, extra_pnginfo=None):
+    def save_images(self, images, filename_prefix="cbh_backend", prompt=None, extra_pnginfo=None):
         filename_prefix += self.prefix_append
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0])
         results = list()

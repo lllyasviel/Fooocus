@@ -37,10 +37,10 @@ parser.add_argument("--listen", type=str, default="127.0.0.1", metavar="IP", nar
 parser.add_argument("--port", type=int, default=8188, help="Set the listen port.")
 parser.add_argument("--enable-cors-header", type=str, default=None, metavar="ORIGIN", nargs="?", const="*", help="Enable CORS (Cross-Origin Resource Sharing) with optional origin or allow all with default '*'.")
 parser.add_argument("--extra-model-paths-config", type=str, default=None, metavar="PATH", nargs='+', action='append', help="Load one or more extra_model_paths.yaml files.")
-parser.add_argument("--output-directory", type=str, default=None, help="Set the CBHUI output directory.")
-parser.add_argument("--temp-directory", type=str, default=None, help="Set the CBHUI temp directory (default is in the CBHUI directory).")
-parser.add_argument("--input-directory", type=str, default=None, help="Set the CBHUI input directory.")
-parser.add_argument("--auto-launch", action="store_true", help="Automatically launch CBHUI in the default browser.")
+parser.add_argument("--output-directory", type=str, default=None, help="Set the cbh_backend output directory.")
+parser.add_argument("--temp-directory", type=str, default=None, help="Set the cbh_backend temp directory (default is in the cbh_backend directory).")
+parser.add_argument("--input-directory", type=str, default=None, help="Set the cbh_backend input directory.")
+parser.add_argument("--auto-launch", action="store_true", help="Automatically launch cbh_backend in the default browser.")
 parser.add_argument("--disable-auto-launch", action="store_true", help="Disable auto launching the browser.")
 parser.add_argument("--cuda-device", type=int, default=None, metavar="DEVICE_ID", help="Set the id of the cuda device this instance will use.")
 cm_group = parser.add_mutually_exclusive_group()
@@ -86,7 +86,7 @@ vram_group.add_argument("--novram", action="store_true", help="When lowvram isn'
 vram_group.add_argument("--cpu", action="store_true", help="To use the CPU for everything (slow).")
 
 
-parser.add_argument("--disable-smart-memory", action="store_true", help="Force CBHUI to agressively offload to regular ram instead of keeping models in vram when it can.")
+parser.add_argument("--disable-smart-memory", action="store_true", help="Force cbh_backend to agressively offload to regular ram instead of keeping models in vram when it can.")
 
 
 parser.add_argument("--dont-print-server", action="store_true", help="Don't print server output.")
