@@ -280,7 +280,7 @@ def vae_parse(x, tiled=False, use_interpose=True):
 @torch.no_grad()
 @torch.inference_mode()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, refiner_swap_method='joint'):
-    assert refiner_swap_method in ['joint', 'separate', 'vae']
+    assert refiner_swap_method in ['joint', 'separate', 'vae', 'upscale']
 
     if final_refiner_unet is not None:
         if isinstance(final_refiner_unet.model.latent_format, comfy.latent_formats.SD15):
