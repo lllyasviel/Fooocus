@@ -1,10 +1,10 @@
 import torch
-import comfy.samplers
-import comfy.model_management
+import cbh.samplers
+import cbh.model_management
 
-from comfy.model_base import SDXLRefiner, SDXL
-from comfy.sample import get_additional_models
-from comfy.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
+from cbh.model_base import SDXLRefiner, SDXL
+from cbh.sample import get_additional_models
+from cbh.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
     create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_adm, \
     blank_inpaint_image_like
 
@@ -119,7 +119,7 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
         extra_args['model_options'] = {k: {} if k == 'transformer_options' else v for k, v in extra_args['model_options'].items()}
 
         models, inference_memory = get_additional_models(positive_refiner, negative_refiner, current_refiner.model_dtype())
-        comfy.model_management.load_models_gpu([current_refiner] + models, comfy.model_management.batch_area_memory(
+        cbh.model_management.load_models_gpu([current_refiner] + models, cbh.model_management.batch_area_memory(
             noise.shape[0] * noise.shape[2] * noise.shape[3]) + inference_memory)
 
         model_wrap.inner_model.inner_model = current_refiner.model
@@ -136,4 +136,4 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
     return model.process_latent_out(samples.to(torch.float32))
 
 
-comfy.samplers.sample = sample_hacked
+cbh.samplers.sample = sample_hacked

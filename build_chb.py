@@ -57,6 +57,7 @@ get_item('LICENSE')
 
 shutil.rmtree(cbh_temp_path, onerror=onerror)
 
+# findReplace("./modules", "comfy", "cbh", "*.py")
 findReplace("./backend", "comfy", "cbh", "*.py")
 findReplace("./backend", "Comfy", "CBH", "*.py")
 findReplace("./backend", "CBHUI", "cbh_backend", "*.py")

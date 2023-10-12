@@ -1,27 +1,27 @@
 import torch
-import comfy.model_base
-import comfy.ldm.modules.diffusionmodules.openaimodel
-import comfy.samplers
-import comfy.k_diffusion.external
-import comfy.model_management
+import cbh.model_base
+import cbh.ldm.modules.diffusionmodules.openaimodel
+import cbh.samplers
+import cbh.k_diffusion.external
+import cbh.model_management
 import modules.anisotropic as anisotropic
-import comfy.ldm.modules.attention
-import comfy.k_diffusion.sampling
-import comfy.sd1_clip
+import cbh.ldm.modules.attention
+import cbh.k_diffusion.sampling
+import cbh.sd1_clip
 import modules.inpaint_worker as inpaint_worker
-import comfy.ldm.modules.diffusionmodules.openaimodel
-import comfy.ldm.modules.diffusionmodules.model
-import comfy.sd
-import comfy.cldm.cldm
-import comfy.model_patcher
-import comfy.samplers
-import comfy.cli_args
+import cbh.ldm.modules.diffusionmodules.openaimodel
+import cbh.ldm.modules.diffusionmodules.model
+import cbh.sd
+import cbh.cldm.cldm
+import cbh.model_patcher
+import cbh.samplers
+import cbh.cli_args
 import args_manager
 import modules.advanced_parameters as advanced_parameters
 
-from comfy.k_diffusion import utils
-from comfy.k_diffusion.sampling import BrownianTreeNoiseSampler, trange
-from comfy.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, forward_timestep_embed
+from cbh.k_diffusion import utils
+from cbh.k_diffusion.sampling import BrownianTreeNoiseSampler, trange
+from cbh.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, forward_timestep_embed
 
 
 sharpness = 2.0
@@ -54,26 +54,26 @@ def calculate_weight_patched(self, patches, weight, key):
                 if w1.shape != weight.shape:
                     print("WARNING SHAPE MISMATCH {} WEIGHT NOT MERGED {} != {}".format(key, w1.shape, weight.shape))
                 else:
-                    weight += alpha * comfy.model_management.cast_to_device(w1, weight.device, weight.dtype)
+                    weight += alpha * cbh.model_management.cast_to_device(w1, weight.device, weight.dtype)
         elif len(v) == 3:
             # fooocus
-            w1 = comfy.model_management.cast_to_device(v[0], weight.device, torch.float32)
-            w_min = comfy.model_management.cast_to_device(v[1], weight.device, torch.float32)
-            w_max = comfy.model_management.cast_to_device(v[2], weight.device, torch.float32)
+            w1 = cbh.model_management.cast_to_device(v[0], weight.device, torch.float32)
+            w_min = cbh.model_management.cast_to_device(v[1], weight.device, torch.float32)
+            w_max = cbh.model_management.cast_to_device(v[2], weight.device, torch.float32)
             w1 = (w1 / 255.0) * (w_max - w_min) + w_min
             if alpha != 0.0:
                 if w1.shape != weight.shape:
                     print("WARNING SHAPE MISMATCH {} FOOOCUS WEIGHT NOT MERGED {} != {}".format(key, w1.shape, weight.shape))
                 else:
-                    weight += alpha * comfy.model_management.cast_to_device(w1, weight.device, weight.dtype)
+                    weight += alpha * cbh.model_management.cast_to_device(w1, weight.device, weight.dtype)
         elif len(v) == 4:  # lora/locon
-            mat1 = comfy.model_management.cast_to_device(v[0], weight.device, torch.float32)
-            mat2 = comfy.model_management.cast_to_device(v[1], weight.device, torch.float32)
+            mat1 = cbh.model_management.cast_to_device(v[0], weight.device, torch.float32)
+            mat2 = cbh.model_management.cast_to_device(v[1], weight.device, torch.float32)
             if v[2] is not None:
                 alpha *= v[2] / mat2.shape[0]
             if v[3] is not None:
                 # locon mid weights, hopefully the math is fine because I didn't properly test it
-                mat3 = comfy.model_management.cast_to_device(v[3], weight.device, torch.float32)
+                mat3 = cbh.model_management.cast_to_device(v[3], weight.device, torch.float32)
                 final_shape = [mat2.shape[1], mat2.shape[0], mat3.shape[2], mat3.shape[3]]
                 mat2 = torch.mm(mat2.transpose(0, 1).flatten(start_dim=1),
                                 mat3.transpose(0, 1).flatten(start_dim=1)).reshape(final_shape).transpose(0, 1)
@@ -94,23 +94,23 @@ def calculate_weight_patched(self, patches, weight, key):
 
             if w1 is None:
                 dim = w1_b.shape[0]
-                w1 = torch.mm(comfy.model_management.cast_to_device(w1_a, weight.device, torch.float32),
-                              comfy.model_management.cast_to_device(w1_b, weight.device, torch.float32))
+                w1 = torch.mm(cbh.model_management.cast_to_device(w1_a, weight.device, torch.float32),
+                              cbh.model_management.cast_to_device(w1_b, weight.device, torch.float32))
             else:
-                w1 = comfy.model_management.cast_to_device(w1, weight.device, torch.float32)
+                w1 = cbh.model_management.cast_to_device(w1, weight.device, torch.float32)
 
             if w2 is None:
                 dim = w2_b.shape[0]
                 if t2 is None:
-                    w2 = torch.mm(comfy.model_management.cast_to_device(w2_a, weight.device, torch.float32),
-                                  comfy.model_management.cast_to_device(w2_b, weight.device, torch.float32))
+                    w2 = torch.mm(cbh.model_management.cast_to_device(w2_a, weight.device, torch.float32),
+                                  cbh.model_management.cast_to_device(w2_b, weight.device, torch.float32))
                 else:
                     w2 = torch.einsum('i j k l, j r, i p -> p r k l',
-                                      comfy.model_management.cast_to_device(t2, weight.device, torch.float32),
-                                      comfy.model_management.cast_to_device(w2_b, weight.device, torch.float32),
-                                      comfy.model_management.cast_to_device(w2_a, weight.device, torch.float32))
+                                      cbh.model_management.cast_to_device(t2, weight.device, torch.float32),
+                                      cbh.model_management.cast_to_device(w2_b, weight.device, torch.float32),
+                                      cbh.model_management.cast_to_device(w2_a, weight.device, torch.float32))
             else:
-                w2 = comfy.model_management.cast_to_device(w2, weight.device, torch.float32)
+                w2 = cbh.model_management.cast_to_device(w2, weight.device, torch.float32)
 
             if len(w2.shape) == 4:
                 w1 = w1.unsqueeze(2).unsqueeze(2)
@@ -132,19 +132,19 @@ def calculate_weight_patched(self, patches, weight, key):
                 t1 = v[5]
                 t2 = v[6]
                 m1 = torch.einsum('i j k l, j r, i p -> p r k l',
-                                  comfy.model_management.cast_to_device(t1, weight.device, torch.float32),
-                                  comfy.model_management.cast_to_device(w1b, weight.device, torch.float32),
-                                  comfy.model_management.cast_to_device(w1a, weight.device, torch.float32))
+                                  cbh.model_management.cast_to_device(t1, weight.device, torch.float32),
+                                  cbh.model_management.cast_to_device(w1b, weight.device, torch.float32),
+                                  cbh.model_management.cast_to_device(w1a, weight.device, torch.float32))
 
                 m2 = torch.einsum('i j k l, j r, i p -> p r k l',
-                                  comfy.model_management.cast_to_device(t2, weight.device, torch.float32),
-                                  comfy.model_management.cast_to_device(w2b, weight.device, torch.float32),
-                                  comfy.model_management.cast_to_device(w2a, weight.device, torch.float32))
+                                  cbh.model_management.cast_to_device(t2, weight.device, torch.float32),
+                                  cbh.model_management.cast_to_device(w2b, weight.device, torch.float32),
+                                  cbh.model_management.cast_to_device(w2a, weight.device, torch.float32))
             else:
-                m1 = torch.mm(comfy.model_management.cast_to_device(w1a, weight.device, torch.float32),
-                              comfy.model_management.cast_to_device(w1b, weight.device, torch.float32))
-                m2 = torch.mm(comfy.model_management.cast_to_device(w2a, weight.device, torch.float32),
-                              comfy.model_management.cast_to_device(w2b, weight.device, torch.float32))
+                m1 = torch.mm(cbh.model_management.cast_to_device(w1a, weight.device, torch.float32),
+                              cbh.model_management.cast_to_device(w1b, weight.device, torch.float32))
+                m2 = torch.mm(cbh.model_management.cast_to_device(w2a, weight.device, torch.float32),
+                              cbh.model_management.cast_to_device(w2b, weight.device, torch.float32))
 
             try:
                 weight += (alpha * m1 * m2).reshape(weight.shape).type(weight.dtype)
@@ -205,7 +205,7 @@ def patched_model_function_wrapper(func, args):
 def sdxl_encode_adm_patched(self, **kwargs):
     global positive_adm_scale, negative_adm_scale
 
-    clip_pooled = comfy.model_base.sdxl_pooled(kwargs, self.noise_augmentor)
+    clip_pooled = cbh.model_base.sdxl_pooled(kwargs, self.noise_augmentor)
     width = kwargs.get("width", 768)
     height = kwargs.get("height", 768)
     target_width = width
@@ -453,8 +453,8 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
 
 
 def text_encoder_device_patched():
-    # Fooocus's style system uses text encoder much more times than comfy so this makes things much faster.
-    return comfy.model_management.get_torch_device()
+    # Fooocus's style system uses text encoder much more times than cbh so this makes things much faster.
+    return cbh.model_management.get_torch_device()
 
 
 def patched_get_autocast_device(dev):
@@ -470,25 +470,25 @@ def patched_get_autocast_device(dev):
 
 
 def patch_all():
-    if not comfy.model_management.DISABLE_SMART_MEMORY:
-        vram_inadequate = comfy.model_management.total_vram < 20 * 1024
-        is_old_gpu_arch = not comfy.model_management.should_use_fp16()
+    if not cbh.model_management.DISABLE_SMART_MEMORY:
+        vram_inadequate = cbh.model_management.total_vram < 20 * 1024
+        is_old_gpu_arch = not cbh.model_management.should_use_fp16()
         if vram_inadequate or is_old_gpu_arch:
             # https://github.com/lllyasviel/Fooocus/issues/602
             print(f'[Fooocus Smart Memory] Disabling smart memory, '
                   f'vram_inadequate = {vram_inadequate}, is_old_gpu_arch = {is_old_gpu_arch}.')
-            comfy.model_management.DISABLE_SMART_MEMORY = True
+            cbh.model_management.DISABLE_SMART_MEMORY = True
             args_manager.args.disable_smart_memory = True
-            comfy.cli_args.args.disable_smart_memory = True
+            cbh.cli_args.args.disable_smart_memory = True
 
-    comfy.model_management.get_autocast_device = patched_get_autocast_device
-    comfy.samplers.SAMPLER_NAMES += ['dpmpp_fooocus_2m_sde_inpaint_seamless']
-    comfy.model_management.text_encoder_device = text_encoder_device_patched
-    comfy.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
-    comfy.cldm.cldm.ControlNet.forward = patched_cldm_forward
-    comfy.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
-    comfy.k_diffusion.sampling.sample_dpmpp_fooocus_2m_sde_inpaint_seamless = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
-    comfy.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
-    comfy.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
-    comfy.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
+    cbh.model_management.get_autocast_device = patched_get_autocast_device
+    cbh.samplers.SAMPLER_NAMES += ['dpmpp_fooocus_2m_sde_inpaint_seamless']
+    cbh.model_management.text_encoder_device = text_encoder_device_patched
+    cbh.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
+    cbh.cldm.cldm.ControlNet.forward = patched_cldm_forward
+    cbh.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
+    cbh.k_diffusion.sampling.sample_dpmpp_fooocus_2m_sde_inpaint_seamless = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
+    cbh.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
+    cbh.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
+    cbh.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
     return
