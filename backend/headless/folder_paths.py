@@ -5,7 +5,7 @@ supported_pt_extensions = set(['.ckpt', '.pt', '.bin', '.pth', '.safetensors'])
 
 folder_names_and_paths = {}
 
-base_path = os.path.dirname(os.path.realpath(__file__))
+base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 models_dir = os.path.join(base_path, "models")
 folder_names_and_paths["checkpoints"] = ([os.path.join(models_dir, "checkpoints")], supported_pt_extensions)
 folder_names_and_paths["configs"] = ([os.path.join(models_dir, "configs")], [".yaml"])
@@ -31,9 +31,9 @@ folder_names_and_paths["hypernetworks"] = ([os.path.join(models_dir, "hypernetwo
 
 folder_names_and_paths["classifiers"] = ([os.path.join(models_dir, "classifiers")], {""})
 
-output_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), "output")
-temp_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), "temp")
-input_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), "input")
+output_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))), "output")
+temp_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))), "temp")
+input_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))), "input")
 
 filename_list_cache = {}
 
