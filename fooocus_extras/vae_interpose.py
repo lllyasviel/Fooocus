@@ -73,11 +73,14 @@ def parse(x):
         model.eval()
         sd = sf.load_file(vae_approx_filename)
         model.load_state_dict(sd)
+        if comfy.model_management.should_use_fp16():
+            model = model.half()
         vae_approx_model = ModelPatcher(
             model=model,
             load_device=comfy.model_management.get_torch_device(),
             offload_device=torch.device('cpu')
         )
     comfy.model_management.load_model_gpu(vae_approx_model)
+    x_origin = x.copy()
     x = vae_approx_model.model(x)
-    return x
+    return x.to(x_origin)
