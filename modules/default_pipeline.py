@@ -460,6 +460,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         last_clean_latent = final_unet.model.process_latent_out(last_clean_latent.cpu().to(torch.float32))
         last_noisy_latent = final_unet.model.process_latent_out(last_noisy_latent.cpu().to(torch.float32))
         last_noise = last_noisy_latent - last_clean_latent
+        last_noise = last_noise / last_noise.std()
 
         sampled_latent = {'samples': last_clean_latent}
         sampled_latent = vae_parse(sampled_latent)
