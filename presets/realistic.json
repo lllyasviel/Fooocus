@@ -12,7 +12,7 @@
         "Fooocus Strong Negative"
     ],
     "default_negative_prompt": "unrealistic, saturated, high contrast, big nose, painting, drawing, sketch, cartoon, anime, manga, render, CG, 3d, watermark, signature, label",
-    "default_positive_prompt": "",
+    "default_positive_prompt": "selfie, ",
     "checkpoint_downloads": {
         "sd_xl_base_1.0_0.9vae.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors"
     },
