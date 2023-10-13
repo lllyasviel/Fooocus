@@ -41,15 +41,16 @@ fooocus_expansion_path = get_dir_or_set_default('fooocus_expansion_path',
 temp_outputs_path = get_dir_or_set_default('temp_outputs_path', '../outputs/')
 
 
-def get_config_item_or_set_default(key, default_value, validator):
+def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False):
     global config_dict
     if key not in config_dict:
         config_dict[key] = default_value
         return default_value
 
     v = config_dict.get(key, None)
-    if v is None or v == '':
-        v = 'None'
+    if not disable_empty_as_none:
+        if v is None or v == '':
+            v = 'None'
     if validator(v):
         return v
     else:
@@ -102,7 +103,12 @@ default_negative_prompt = get_config_item_or_set_default(
     default_value='low quality, bad hands, bad eyes, cropped, missing fingers, extra digit',
     validator=lambda x: isinstance(x, str)
 )
-default_positive_prompt = ''
+default_positive_prompt = get_config_item_or_set_default(
+    key='default_positive_prompt',
+    default_value='',
+    validator=lambda x: isinstance(x, str),
+    disable_empty_as_none=True
+)
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
     default_value={
