@@ -1,16 +1,17 @@
 {
     "default_model": "sd_xl_base_1.0_0.9vae.safetensors",
-    "default_refiner": "sd_xl_refiner_1.0_0.9vae.safetensors",
+    "default_refiner": "",
     "default_lora": "sd_xl_offset_example-lora_1.0.safetensors",
-    "default_lora_weight": 0.5,
-    "default_cfg_scale": 7.0,
+    "default_lora_weight": 0.2,
+    "default_cfg_scale": 3.0,
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
     "default_styles": [
         "Fooocus V2",
-        "Default (Slightly Cinematic)"
+        "Fooocus Realistic",
+        "Fooocus Strong Negative"
     ],
-    "default_negative_prompt": "low quality, bad hands, bad eyes, cropped, missing fingers, extra digit",
+    "default_negative_prompt": "unrealistic, saturated, high contrast, big nose, painting, drawing, sketch, cartoon, anime, manga, render, CG, 3d, watermark, signature, label",
     "default_positive_prompt": "",
     "checkpoint_downloads": {
         "sd_xl_base_1.0_0.9vae.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors",
