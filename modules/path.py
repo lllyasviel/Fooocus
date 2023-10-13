@@ -102,11 +102,7 @@ default_negative_prompt = get_config_item_or_set_default(
     default_value='low quality, bad hands, bad eyes, cropped, missing fingers, extra digit',
     validator=lambda x: isinstance(x, str)
 )
-default_positive_prompt = get_config_item_or_set_default(
-    key='default_positive_prompt',
-    default_value='',
-    validator=lambda x: isinstance(x, str)
-)
+default_positive_prompt = ''
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
     default_value={
