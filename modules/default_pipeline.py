@@ -421,18 +421,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
 
     if refiner_swap_method == 'vae':
-        sigmas = calculate_sigmas(sampler=sampler_name, scheduler=scheduler_name, model=final_unet.model, steps=steps, denoise=denoise)
-        sigmas_a = sigmas[:switch]
-        sigmas_b = sigmas[switch:]
-
-        if final_refiner_unet is not None:
-            k1 = final_refiner_unet.model.latent_format.scale_factor
-            k2 = final_unet.model.latent_format.scale_factor
-            k = float(k1) / float(k2)
-            sigmas_b = sigmas_b * k
-
-        sigmas = torch.cat([sigmas_a, sigmas_b], dim=0)
-
+        sample_hijack.history_record = []
         sampled_latent = core.ksampler(
             model=final_unet,
             positive=positive_cond,
@@ -446,8 +435,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             sampler_name=sampler_name,
             scheduler=scheduler_name,
             previewer_start=0,
-            previewer_end=steps,
-            sigmas=sigmas
+            previewer_end=steps
         )
         print('Fooocus VAE-based swap.')
 
@@ -458,6 +446,18 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
         sampled_latent = vae_parse(sampled_latent)
 
+        sigmas = None
+        if final_refiner_unet is not None:
+            sigmas = calculate_sigmas(sampler=sampler_name,
+                                      scheduler=scheduler_name,
+                                      model=final_refiner_unet.model,
+                                      steps=steps,
+                                      denoise=denoise)[switch:]
+            k1 = final_refiner_unet.model.latent_format.scale_factor
+            k2 = final_unet.model.latent_format.scale_factor
+            k = float(k1) / float(k2)
+            sigmas = sigmas * k
+
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.swap()
 
@@ -466,7 +466,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             positive=clip_separate(positive_cond, target_model=target_model.model, target_clip=final_clip),
             negative=clip_separate(negative_cond, target_model=target_model.model, target_clip=final_clip),
             latent=sampled_latent,
-            steps=steps, start_step=switch, last_step=steps, disable_noise=False, force_full_denoise=True,
+            steps=switch, start_step=0, last_step=switch, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
             denoise=denoise,
             callback_function=callback,
