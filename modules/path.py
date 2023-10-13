@@ -1,5 +1,6 @@
 import os
 import json
+import args_manager
 import modules.flags
 import modules.sdxl_styles
 
@@ -15,6 +16,23 @@ try:
 except Exception as e:
     print('Load path config failed')
     print(e)
+
+preset = args_manager.args.preset
+
+if preset is not None:
+    preset = os.path.abspath(f'./presets/{preset}.json')
+    try:
+        if os.path.exists(preset):
+            with open(preset, "r", encoding="utf-8") as json_file:
+                preset = json.load(json_file)
+    except Exception as e:
+        print('Load preset config failed')
+        print(e)
+
+preset = preset if isinstance(preset, dict) else None
+
+if preset is not None:
+    config_dict.update(preset)
 
 
 def get_dir_or_set_default(key, default_value):
@@ -125,8 +143,10 @@ default_aspect_ratio = get_config_item_or_set_default(
     validator=lambda x: x.replace('*', '×') in modules.sdxl_styles.aspect_ratios
 ).replace('*', '×')
 
-with open(config_path, "w", encoding="utf-8") as json_file:
-    json.dump(config_dict, json_file, indent=4)
+if preset is None:
+    # Do not overwrite user config if preset is applied.
+    with open(config_path, "w", encoding="utf-8") as json_file:
+        json.dump(config_dict, json_file, indent=4)
 
 os.makedirs(temp_outputs_path, exist_ok=True)
 

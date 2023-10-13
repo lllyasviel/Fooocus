@@ -4,6 +4,7 @@ import fcbh.cli_args as fcbh_cli
 
 
 fcbh_cli.parser.add_argument("--share", action='store_true', help="Set whether to share on Gradio.")
+fcbh_cli.parser.add_argument("--preset", type=str, default=None, help="Apply specified UI preset.")
 
 fcbh_cli.args = fcbh_cli.parser.parse_args()
 fcbh_cli.args.disable_cuda_malloc = True
