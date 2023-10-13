@@ -459,6 +459,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         last_step, last_clean_latent, last_noisy_latent = sample_hijack.history_record[-1]
         last_clean_latent = final_unet.model.process_latent_out(last_clean_latent.cpu().to(torch.float32))
         last_noisy_latent = final_unet.model.process_latent_out(last_noisy_latent.cpu().to(torch.float32))
+        last_noise = last_noisy_latent - last_clean_latent
 
         sampled_latent = {'samples': last_clean_latent}
         sampled_latent = vae_parse(sampled_latent)
@@ -472,7 +473,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             negative=clip_separate(negative_cond, target_model=target_model.model, target_clip=final_clip),
             latent=sampled_latent,
             steps=switch, start_step=0, last_step=switch, disable_noise=False, force_full_denoise=True,
-            seed=image_seed,
+            seed=image_seed+1, # Avoid artifacts
             denoise=denoise,
             callback_function=callback,
             cfg=cfg_scale,
@@ -480,7 +481,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             scheduler=scheduler_name,
             previewer_start=switch,
             previewer_end=steps,
-            sigmas=sigmas
+            sigmas=sigmas,
+            noise=last_noise
         )
 
         if modules.inpaint_worker.current_task is not None:
