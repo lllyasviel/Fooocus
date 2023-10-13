@@ -19,7 +19,7 @@ except Exception as e:
 
 preset = args_manager.args.preset
 
-if preset is not None:
+if isinstance(preset, str):
     preset = os.path.abspath(f'./presets/{preset}.json')
     try:
         if os.path.exists(preset):
