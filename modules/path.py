@@ -5,10 +5,8 @@ import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
 
-
 config_path = "user_path_config.txt"
 config_dict = {}
-
 
 try:
     if os.path.exists(config_path):
@@ -38,7 +36,8 @@ upscale_models_path = get_dir_or_set_default('upscale_models_path', '../models/u
 inpaint_models_path = get_dir_or_set_default('inpaint_models_path', '../models/inpaint/')
 controlnet_models_path = get_dir_or_set_default('controlnet_models_path', '../models/controlnet/')
 clip_vision_models_path = get_dir_or_set_default('clip_vision_models_path', '../models/clip_vision/')
-fooocus_expansion_path = get_dir_or_set_default('fooocus_expansion_path', '../models/prompt_expansion/fooocus_expansion')
+fooocus_expansion_path = get_dir_or_set_default('fooocus_expansion_path',
+                                                '../models/prompt_expansion/fooocus_expansion')
 temp_outputs_path = get_dir_or_set_default('temp_outputs_path', '../outputs/')
 
 
@@ -103,10 +102,24 @@ default_negative_prompt = get_config_item_or_set_default(
     default_value='low quality, bad hands, bad eyes, cropped, missing fingers, extra digit',
     validator=lambda x: isinstance(x, str)
 )
+default_positive_prompt = get_config_item_or_set_default(
+    key='default_positive_prompt',
+    default_value='',
+    validator=lambda x: isinstance(x, str)
+)
+checkpoint_downloads = get_config_item_or_set_default(
+    key='checkpoint_downloads',
+    default_value={
+        'sd_xl_base_1.0_0.9vae.safetensors':
+            'https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors',
+        'sd_xl_refiner_1.0_0.9vae.safetensors':
+            'https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors'
+    },
+    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
+)
 
 with open(config_path, "w", encoding="utf-8") as json_file:
     json.dump(config_dict, json_file, indent=4)
-
 
 os.makedirs(temp_outputs_path, exist_ok=True)
 
@@ -151,7 +164,8 @@ def downloading_inpaint_models(v):
             model_dir=inpaint_models_path,
             file_name='inpaint.fooocus.patch'
         )
-        return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path, 'inpaint.fooocus.patch')
+        return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path,
+                                                                                           'inpaint.fooocus.patch')
 
     if v == 'v2.5':
         load_file_from_url(
@@ -159,7 +173,8 @@ def downloading_inpaint_models(v):
             model_dir=inpaint_models_path,
             file_name='inpaint_v25.fooocus.patch'
         )
-        return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path, 'inpaint_v25.fooocus.patch')
+        return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path,
+                                                                                           'inpaint_v25.fooocus.patch')
 
 
 def downloading_controlnet_canny():

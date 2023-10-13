@@ -56,7 +56,9 @@ with shared.gradio_root:
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=720, visible=True, elem_classes='resizable_area')
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=0.85):
-                    prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", container=False, autofocus=True, elem_classes='type_row', lines=1024)
+                    prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.",
+                                        value=modules.path.default_positive_prompt,
+                                        container=False, autofocus=True, elem_classes='type_row', lines=1024)
                 with gr.Column(scale=0.15, min_width=0):
                     run_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', visible=True)
                     skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', visible=False)
