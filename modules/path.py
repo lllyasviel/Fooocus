@@ -119,6 +119,11 @@ checkpoint_downloads = get_config_item_or_set_default(
     },
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
+default_aspect_ratio = get_config_item_or_set_default(
+    key='default_aspect_ratio',
+    default_value='1152*896',
+    validator=lambda x: x.replace('*', '×') in modules.sdxl_styles.aspect_ratios
+).replace('*', '×')
 
 with open(config_path, "w", encoding="utf-8") as json_file:
     json.dump(config_dict, json_file, indent=4)
