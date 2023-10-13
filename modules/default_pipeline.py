@@ -457,7 +457,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             sigmas = sigmas * k
 
         last_step, last_clean_latent, last_noisy_latent = sample_hijack.history_record[-1]
-        
+
         sampled_latent = {'samples': last_clean_latent}
         sampled_latent = vae_parse(sampled_latent)
 
