@@ -314,12 +314,20 @@ def calculate_sigmas(sampler, model, scheduler, steps, denoise):
 @torch.no_grad()
 @torch.inference_mode()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, refiner_swap_method='joint'):
+    global final_unet, final_refiner_unet
+
     assert refiner_swap_method in ['joint', 'separate', 'vae', 'upscale']
 
     if final_refiner_unet is not None:
         if isinstance(final_refiner_unet.model.latent_format, fcbh.latent_formats.SD15) \
                 and refiner_swap_method != 'upscale':
             refiner_swap_method = 'vae'
+
+    if refiner_swap_method == 'vae' and denoise < 0.95:
+        # VAE swap only support full denoise
+        refiner_swap_method = 'joint'
+        # Disable refiner to avoid SD15 in joint swap
+        final_refiner_unet = None
 
     print(f'[Sampler] refiner_swap_method = {refiner_swap_method}')
 
