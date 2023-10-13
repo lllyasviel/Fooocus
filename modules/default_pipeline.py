@@ -422,12 +422,12 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     if refiner_swap_method == 'vae':
         sample_hijack.history_record = []
-        core.ksampler(
+        sampled_latent = core.ksampler(
             model=final_unet,
             positive=positive_cond,
             negative=negative_cond,
             latent=empty_latent,
-            steps=steps, start_step=0, last_step=switch, disable_noise=False, force_full_denoise=False,
+            steps=steps, start_step=0, last_step=switch, disable_noise=False, force_full_denoise=True,
             seed=image_seed,
             denoise=denoise,
             callback_function=callback,
