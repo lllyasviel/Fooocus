@@ -11,6 +11,7 @@ from fcbh.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_st
 
 current_refiner = None
 refiner_switch_step = -1
+history_record = None
 
 
 @torch.no_grad()
