@@ -49,6 +49,7 @@ def get_dir_or_set_default(key, default_value):
 
 modelfile_path = get_dir_or_set_default('modelfile_path', '../models/checkpoints/')
 lorafile_path = get_dir_or_set_default('lorafile_path', '../models/loras/')
+embeddings_path = get_dir_or_set_default('embeddings_path', '../models/embeddings/')
 vae_approx_path = get_dir_or_set_default('vae_approx_path', '../models/vae_approx/')
 upscale_models_path = get_dir_or_set_default('upscale_models_path', '../models/upscale_models/')
 inpaint_models_path = get_dir_or_set_default('inpaint_models_path', '../models/inpaint/')

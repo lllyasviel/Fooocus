@@ -24,6 +24,7 @@ from fcbh_extras.nodes_freelunch import FreeU
 from fcbh.sample import prepare_mask
 from modules.patch import patched_sampler_cfg_function, patched_model_function_wrapper
 from fcbh.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
+from modules.path import embeddings_path
 
 
 opEmptyLatentImage = EmptyLatentImage()
@@ -66,7 +67,7 @@ def apply_controlnet(positive, negative, control_net, image, strength, start_per
 @torch.no_grad()
 @torch.inference_mode()
 def load_model(ckpt_filename):
-    unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename)
+    unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename, embedding_directory=embeddings_path)
     unet.model_options['sampler_cfg_function'] = patched_sampler_cfg_function
     unet.model_options['model_function_wrapper'] = patched_model_function_wrapper
     return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision)
