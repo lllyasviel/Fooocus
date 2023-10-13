@@ -7,6 +7,11 @@ styles = [
         "negative_prompt": "anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured"
     },
     {
+        "name": "Fooocus Anime",
+        "prompt": "(masterpiece:1.1), (best quality:1.1), (ultra-detailed:1.1), illustration, disheveled hair",
+        "negative_prompt": "longbody, lowres, bad anatomy, bad hands, missing fingers, pubic hair,extra digit, fewer digits, cropped, worst quality, low quality"
+    },
+    {
         "name": "sai-3d-model",
         "prompt": "professional 3d model {prompt} . octane render, highly detailed, volumetric, dramatic lighting",
         "negative_prompt": "ugly, deformed, noisy, low poly, blurry, painting"
