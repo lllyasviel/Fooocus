@@ -4,6 +4,7 @@ import sys
 import platform
 import fooocus_version
 
+from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
 from modules.path import modelfile_path, lorafile_path, vae_approx_path, fooocus_expansion_path, checkpoint_downloads
@@ -82,6 +83,7 @@ def ini_cbh_args():
 
 
 prepare_environment()
+build_launcher()
 ini_cbh_args()
 download_models()
 
