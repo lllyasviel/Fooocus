@@ -1,5 +1,5 @@
 {
-    "default_model": "sd_xl_base_1.0_0.9vae.safetensors",
+    "default_model": "bluePencilXL_v050.safetensors",
     "default_refiner": "DreamShaper_8_pruned.safetensors",
     "default_lora": "sd_xl_offset_example-lora_1.0.safetensors",
     "default_lora_weight": 0.5,
@@ -17,7 +17,7 @@
     "default_negative_prompt": "(embedding:unaestheticXLv31:0.8), low quality, watermark",
     "default_positive_prompt": "1girl, ",
     "checkpoint_downloads": {
-        "sd_xl_base_1.0_0.9vae.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors",
+        "bluePencilXL_v050.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors",
         "DreamShaper_8_pruned.safetensors": "https://huggingface.co/Lykon/DreamShaper/resolve/main/DreamShaper_8_pruned.safetensors"
     },
     "embeddings_downloads": {
