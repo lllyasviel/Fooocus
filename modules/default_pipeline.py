@@ -422,7 +422,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     if refiner_swap_method == 'vae':
         sample_hijack.history_record = []
-        sampled_latent = core.ksampler(
+        core.ksampler(
             model=final_unet,
             positive=positive_cond,
             negative=negative_cond,
@@ -457,6 +457,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             sigmas = sigmas * k
 
         last_step, last_clean_latent, last_noisy_latent = sample_hijack.history_record[-1]
+        last_clean_latent = final_unet.model.process_latent_out(last_clean_latent.cpu().to(torch.float32))
+        last_noisy_latent = final_unet.model.process_latent_out(last_noisy_latent.cpu().to(torch.float32))
 
         sampled_latent = {'samples': last_clean_latent}
         sampled_latent = vae_parse(sampled_latent)
