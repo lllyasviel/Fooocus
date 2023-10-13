@@ -20,9 +20,6 @@
         "sd_xl_base_1.0_0.9vae.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors",
         "DreamShaper_8_pruned.safetensors": "https://huggingface.co/Lykon/DreamShaper/resolve/main/DreamShaper_8_pruned.safetensors"
     },
-    "embeddings_downloads": {
-        "FastNegativeEmbedding.pt": "https://huggingface.co/Lykon/DreamShaper/resolve/main/FastNegativeEmbedding.pt",
-        "UnrealisticDream.pt": "https://huggingface.co/Lykon/DreamShaper/resolve/main/UnrealisticDream.pt"
-    },
+    "embeddings_downloads": {},
     "default_aspect_ratio": "896*1152"
 }
