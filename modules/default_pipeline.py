@@ -5,6 +5,7 @@ import modules.path
 import fcbh.model_management
 import fcbh.latent_formats
 import modules.inpaint_worker
+import modules.sample_hijack as sample_hijack
 
 from fcbh.model_base import SDXL, SDXLRefiner
 from modules.expansion import FooocusExpansion
@@ -322,10 +323,12 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     print(f'[Sampler] refiner_swap_method = {refiner_swap_method}')
 
-    if latent is None:
-        empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
-    else:
-        empty_latent = latent
+    empty_latent = latent if latent is not None else core.generate_empty_latent(
+        width=width,
+        height=height,
+        batch_size=1)
+
+    decoded_latent = None
 
     if refiner_swap_method == 'joint':
         sampled_latent = core.ksampler(
@@ -346,8 +349,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             previewer_end=steps,
         )
         decoded_latent = core.decode_vae(vae=final_vae, latent_image=sampled_latent, tiled=tiled)
-        images = core.pytorch_to_numpy(decoded_latent)
-        return images
 
     if refiner_swap_method == 'upscale':
         target_model = final_refiner_unet
@@ -374,8 +375,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         if target_model is None:
             target_model = final_vae
         decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
-        images = core.pytorch_to_numpy(decoded_latent)
-        return images
 
     if refiner_swap_method == 'separate':
         sampled_latent = core.ksampler(
@@ -420,8 +419,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         if target_model is None:
             target_model = final_vae
         decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
-        images = core.pytorch_to_numpy(decoded_latent)
-        return images
 
     if refiner_swap_method == 'vae':
         sigmas = calculate_sigmas(sampler=sampler_name, scheduler=scheduler_name, model=final_unet.model, steps=steps, denoise=denoise)
@@ -488,5 +485,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         if target_model is None:
             target_model = final_vae
         decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
-        images = core.pytorch_to_numpy(decoded_latent)
-        return images
+
+    images = core.pytorch_to_numpy(decoded_latent)
+    sample_hijack.history_record = None
+    return images
