@@ -422,12 +422,12 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     if refiner_swap_method == 'vae':
         sample_hijack.history_record = []
-        sampled_latent = core.ksampler(
+        core.ksampler(
             model=final_unet,
             positive=positive_cond,
             negative=negative_cond,
             latent=empty_latent,
-            steps=steps, start_step=0, last_step=switch, disable_noise=False, force_full_denoise=True,
+            steps=steps, start_step=0, last_step=switch, disable_noise=False, force_full_denoise=False,
             seed=image_seed,
             denoise=denoise,
             callback_function=callback,
@@ -444,8 +444,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             target_model = final_unet
             print('Use base model to refine itself - this may because of developer mode.')
 
-        sampled_latent = vae_parse(sampled_latent)
-
         sigmas = None
         if final_refiner_unet is not None:
             sigmas = calculate_sigmas(sampler=sampler_name,
@@ -457,6 +455,11 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             k2 = final_unet.model.latent_format.scale_factor
             k = float(k1) / float(k2)
             sigmas = sigmas * k
+
+        last_step, last_clean_latent, last_noisy_latent = sample_hijack.history_record[-1]
+        
+        sampled_latent = {'samples': last_clean_latent}
+        sampled_latent = vae_parse(sampled_latent)
 
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.swap()
