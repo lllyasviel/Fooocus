@@ -138,6 +138,14 @@ checkpoint_downloads = get_config_item_or_set_default(
     },
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
+lora_downloads = get_config_item_or_set_default(
+    key='lora_downloads',
+    default_value={
+        'sd_xl_offset_example-lora_1.0.safetensors':
+            'https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors'
+    },
+    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
+)
 embeddings_downloads = get_config_item_or_set_default(
     key='embeddings_downloads',
     default_value={},
