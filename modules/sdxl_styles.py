@@ -8,7 +8,7 @@ styles = [
     },
     {
         "name": "Fooocus Anime",
-        "prompt": "(masterpiece:1.1), (best quality:1.1), (ultra-detailed:1.1), illustration, disheveled hair",
+        "prompt": "(masterpiece:1.1), (best quality:1.1), (ultra-detailed:1.1), illustration, disheveled hair, detailed eyes, perfect composition, moist skin, intricate details, earrings, by wlop",
         "negative_prompt": "longbody, lowres, bad anatomy, bad hands, missing fingers, pubic hair,extra digit, fewer digits, cropped, worst quality, low quality"
     },
     {
