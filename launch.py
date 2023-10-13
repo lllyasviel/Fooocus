@@ -7,7 +7,8 @@ import fooocus_version
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
-from modules.path import modelfile_path, lorafile_path, vae_approx_path, fooocus_expansion_path, checkpoint_downloads
+from modules.path import modelfile_path, lorafile_path, vae_approx_path, fooocus_expansion_path, \
+    checkpoint_downloads, embeddings_path, embeddings_downloads
 
 
 REINSTALL_ALL = False
@@ -63,6 +64,8 @@ vae_approx_filenames = [
 def download_models():
     for file_name, url in checkpoint_downloads.items():
         load_file_from_url(url=url, model_dir=modelfile_path, file_name=file_name)
+    for file_name, url in embeddings_downloads.items():
+        load_file_from_url(url=url, model_dir=embeddings_path, file_name=file_name)
     for file_name, url in lora_filenames:
         load_file_from_url(url=url, model_dir=lorafile_path, file_name=file_name)
     for file_name, url in vae_approx_filenames:

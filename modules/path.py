@@ -138,6 +138,11 @@ checkpoint_downloads = get_config_item_or_set_default(
     },
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
+embeddings_downloads = get_config_item_or_set_default(
+    key='embeddings_downloads',
+    default_value={},
+    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
+)
 default_aspect_ratio = get_config_item_or_set_default(
     key='default_aspect_ratio',
     default_value='1152*896',
