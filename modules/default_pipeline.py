@@ -445,6 +445,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             print('Use base model to refine itself - this may because of developer mode.')
 
         sigmas = None
+        len_sigmas = steps - switch
+
         if final_refiner_unet is not None:
             sigmas = calculate_sigmas(sampler=sampler_name,
                                       scheduler=scheduler_name,
@@ -455,6 +457,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             k2 = final_unet.model.latent_format.scale_factor
             k = float(k1) / float(k2)
             sigmas = sigmas * k
+            len_sigmas = len(sigmas) - 1
 
         last_step, last_clean_latent, last_noisy_latent = sample_hijack.history_record[-1]
         last_clean_latent = final_unet.model.process_latent_out(last_clean_latent.cpu().to(torch.float32))
@@ -473,7 +476,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             positive=clip_separate(positive_cond, target_model=target_model.model, target_clip=final_clip),
             negative=clip_separate(negative_cond, target_model=target_model.model, target_clip=final_clip),
             latent=sampled_latent,
-            steps=len(sigmas), start_step=0, last_step=len(sigmas), disable_noise=False, force_full_denoise=True,
+            steps=len_sigmas, start_step=0, last_step=len_sigmas, disable_noise=False, force_full_denoise=True,
             seed=image_seed+1,  # Avoid artifacts
             denoise=denoise,
             callback_function=callback,
