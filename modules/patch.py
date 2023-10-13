@@ -1,4 +1,5 @@
 import torch
+import time
 import fcbh.model_base
 import fcbh.ldm.modules.diffusionmodules.openaimodel
 import fcbh.samplers
@@ -469,6 +470,15 @@ def patched_get_autocast_device(dev):
         return 'cpu'
 
 
+def patched_load_models_gpu(*args, **kwargs):
+    execution_start_time = time.perf_counter()
+    y = fcbh.model_management.load_models_gpu_origin(*args, **kwargs)
+    moving_time = time.perf_counter() - execution_start_time
+    if moving_time > 0.1:
+        print(f'[Fooocus Model Management] Moving model(s) has taken {moving_time:.2f} seconds')
+    return y
+
+
 def patch_all():
     if not fcbh.model_management.DISABLE_SMART_MEMORY:
         vram_inadequate = fcbh.model_management.total_vram < 20 * 1024
@@ -481,6 +491,10 @@ def patch_all():
             args_manager.args.disable_smart_memory = True
             fcbh.cli_args.args.disable_smart_memory = True
 
+    if not hasattr(fcbh.model_management, 'load_models_gpu_origin'):
+        fcbh.model_management.load_models_gpu_origin = fcbh.model_management.load_models_gpu
+
+    fcbh.model_management.load_models_gpu = patched_load_models_gpu
     fcbh.model_management.get_autocast_device = patched_get_autocast_device
     fcbh.samplers.SAMPLER_NAMES += ['dpmpp_fooocus_2m_sde_inpaint_seamless']
     fcbh.model_management.text_encoder_device = text_encoder_device_patched
