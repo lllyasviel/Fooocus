@@ -448,6 +448,13 @@ def unet_inital_load_device(parameters, dtype):
     else:
         return cpu_dev
 
+def unet_dtype(device=None, model_params=0):
+    if args.bf16_unet:
+        return torch.bfloat16
+    if should_use_fp16(device=device, model_params=model_params):
+        return torch.float16
+    return torch.float32
+
 def text_encoder_offload_device():
     if args.gpu_only:
         return get_torch_device()
