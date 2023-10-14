@@ -274,12 +274,15 @@ def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
     return torch.cat(output, dim=-2).cpu(), first_pooled.cpu()
 
 
+sigma_min = 0.029167539
+sigma_max = 14.614643
+
+
 @torch.no_grad()
 def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=None, callback=None, disable=None, eta=1., s_noise=1., noise_sampler=None, **kwargs):
-    print('[Sampler] Inpaint sampler is activated.')
+    global sigma_min, sigma_max
 
-    sigma_min, sigma_max = sigmas[sigmas > 0].min(), sigmas.max()
-    noise_sampler = BrownianTreeNoiseSampler(x, sigma_min, sigma_max, seed=extra_args.get("seed", None), cpu=False) if noise_sampler is None else noise_sampler
+    print('[Sampler] Fooocus sampler is activated.')
 
     seed = extra_args.get("seed", None)
     assert isinstance(seed, int)
@@ -290,8 +293,9 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
     def get_energy():
         return torch.randn(x.size(), dtype=x.dtype, generator=energy_generator, device="cpu").to(x)
 
-    sigma_min, sigma_max = sigmas[sigmas > 0].min(), sigmas.max()
-    noise_sampler = BrownianTreeNoiseSampler(x, sigma_min, sigma_max, seed=seed, cpu=True) if noise_sampler is None else noise_sampler
+    noise_sampler = BrownianTreeNoiseSampler(x, sigma_min, sigma_max, seed=extra_args.get("seed", None),
+                                             cpu=False) if noise_sampler is None else noise_sampler
+
     extra_args = {} if extra_args is None else extra_args
     s_in = x.new_ones([x.shape[0]])
 
@@ -502,7 +506,7 @@ def patch_all():
     fcbh.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
     fcbh.cldm.cldm.ControlNet.forward = patched_cldm_forward
     fcbh.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
-    fcbh.k_diffusion.sampling.sample_dpmpp_fooocus_2m_sde_inpaint_seamless = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
+    fcbh.k_diffusion.sampling.sample_dpmpp_2m_sde_gpu = sample_dpmpp_fooocus_2m_sde_inpaint_seamless
     fcbh.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     fcbh.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
     fcbh.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method

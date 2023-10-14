@@ -1,6 +1,7 @@
 import modules.core as core
 import os
 import torch
+import modules.patch
 import modules.path
 import fcbh.model_management
 import fcbh.latent_formats
@@ -330,6 +331,15 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         final_refiner_unet = None
 
     print(f'[Sampler] refiner_swap_method = {refiner_swap_method}')
+
+    minmax_sigmas = calculate_sigmas(sampler=sampler_name, scheduler=scheduler_name, model=final_unet.model, steps=steps, denoise=denoise)
+    sigma_min, sigma_max = minmax_sigmas[minmax_sigmas > 0].min(), minmax_sigmas.max()
+    sigma_min = float(sigma_min.cpu().numpy())
+    sigma_max = float(sigma_max.cpu().numpy())
+    print(f'[Sampler] sigma_min = {sigma_min}, sigma_max = {sigma_max}')
+
+    modules.patch.sigma_min = sigma_min
+    modules.patch.sigma_max = sigma_max
 
     if latent is None:
         empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
