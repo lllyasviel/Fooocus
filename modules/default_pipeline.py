@@ -348,9 +348,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         empty_latent['samples'].to(fcbh.model_management.get_torch_device()),
         sigma_min, sigma_max, seed=image_seed, cpu=False)
 
-    modules.patch.sigma_min = sigma_min
-    modules.patch.sigma_max = sigma_max
-
     decoded_latent = None
 
     if refiner_swap_method == 'joint':
