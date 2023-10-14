@@ -1,3 +1,7 @@
+# 2.1.62
+
+* Preset system. Added anime and realistic support.
+
 # 2.1.52
 
 * removed pygit2 dependency (expect auto update) so that people will never have permission denied problems.
