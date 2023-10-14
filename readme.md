@@ -106,7 +106,7 @@ Note that this Colab will disable refiner by default because Colab free's resour
 
 Thanks to [camenduru](https://github.com/camenduru)!
 
-In Colab, you can modify the last line to `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+In Colab, you can modify the last line to `!python entry_with_update.py --preset anime --share` or `!python entry_with_update.py --preset realistic --share` for Fooocus Anime/Realistic Edition.
 
 ### Linux (Using Anaconda)
 
