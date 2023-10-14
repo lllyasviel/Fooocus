@@ -19,6 +19,7 @@ import fcbh.samplers
 import fcbh.cli_args
 import args_manager
 import modules.advanced_parameters as advanced_parameters
+import warnings
 
 from fcbh.k_diffusion import utils
 from fcbh.k_diffusion.sampling import BrownianTreeNoiseSampler, trange
@@ -505,4 +506,7 @@ def patch_all():
     fcbh.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     fcbh.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
     fcbh.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
+
+    warnings.filterwarnings(action='ignore', module='torchsde')
+
     return
