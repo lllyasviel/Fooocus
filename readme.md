@@ -55,7 +55,7 @@ We also have a few things borrowed from the best parts of LeonardoAI:
 
 You can directly download Fooocus with:
 
-**[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_2-1-25.7z)**
+**[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_2-1-60.7z)**
 
 After you download the file, please uncompress it, and then run the "run.bat".
 
