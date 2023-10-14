@@ -106,6 +106,8 @@ Note that this Colab will disable refiner by default because Colab free's resour
 
 Thanks to [camenduru](https://github.com/camenduru)!
 
+In Colab, you can modify the last line to `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+
 ### Linux (Using Anaconda)
 
 If you want to use Anaconda/Miniconda, you can
@@ -125,6 +127,8 @@ Or if you want to open a remote port, use
 
     conda activate fooocus
     python entry_with_update.py --listen
+
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Linux (Using Python Venv)
 
@@ -146,6 +150,8 @@ Or if you want to open a remote port, use
     source fooocus_env/bin/activate
     python entry_with_update.py --listen
 
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+
 ### Linux (Using native system Python)
 
 If you know what you are doing, and your Linux already has **Python 3.10** installed, and your Python can be called with command **python3** (and Pip with **pip3**), you can
@@ -161,6 +167,8 @@ See the above sections for model downloads. You can launch the software with:
 Or if you want to open a remote port, use
 
     python3 entry_with_update.py --listen
+
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Linux (AMD GPUs)
 
