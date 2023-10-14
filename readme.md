@@ -33,7 +33,7 @@ Using Fooocus is as easy as (probably easier than) Midjourney – but this does 
 | Image Prompt | Input Image -> Image Prompt <br> (Fooocus uses its own image prompt algorithm so that result quality and prompt understanding are more satisfying than all other software that uses standard SDXL methods like standard IP-Adapters or Revisions) |
 | --style | Advanced -> Style |
 | --stylize | Advanced -> Advanced -> Guidance |
-| --niji | Fooocus support SDXL models on Civitai <br> (You can google search “Civitai” if you do not know about it) |
+| --niji | Multiple launchers: "run.bat", "run_anime.bat", and "run_realistic.bat". <br> Fooocus support SDXL models on Civitai <br> (You can google search “Civitai” if you do not know about it) |
 | --quality | Advanced -> Quality |
 | --repeat | Advanced -> Image Number |
 | Multi Prompts (::) | Just use multiple lines of prompts |
