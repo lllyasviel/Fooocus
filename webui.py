@@ -47,7 +47,10 @@ def generate_clicked(*args):
     return
 
 
-shared.gradio_root = gr.Blocks(title='Fooocus ' + fooocus_version.version, css=modules.html.css).queue()
+shared.gradio_root = gr.Blocks(
+    title=f'Fooocus {fooocus_version.version} ' + ('' if args_manager.args.preset is None else args_manager.args.preset),
+    css=modules.html.css).queue()
+
 with shared.gradio_root:
     with gr.Row():
         with gr.Column():
