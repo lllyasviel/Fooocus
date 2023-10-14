@@ -21,6 +21,6 @@ def build_launcher():
         win32_cmd_preset = win32_cmd.replace('{cmds}', '' if preset is None else f'--preset {preset}')
         bat_path = os.path.join(win32_root, 'run.bat' if preset is None else f'run_{preset}.bat')
         if not os.path.exists(bat_path):
-            with open(os.path.join(win32_root, f'run_{preset}.bat'), "w", encoding="utf-8") as f:
+            with open(bat_path, "w", encoding="utf-8") as f:
                 f.write(win32_cmd_preset)
     return
