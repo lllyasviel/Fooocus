@@ -80,17 +80,17 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
 default_base_model_name = get_config_item_or_set_default(
     key='default_model',
     default_value='sd_xl_base_1.0_0.9vae.safetensors',
-    validator=lambda x: isinstance(x, str) and os.path.exists(os.path.join(modelfile_path, x))
+    validator=lambda x: isinstance(x, str)
 )
 default_refiner_model_name = get_config_item_or_set_default(
     key='default_refiner',
     default_value='sd_xl_refiner_1.0_0.9vae.safetensors',
-    validator=lambda x: x == 'None' or (isinstance(x, str) and os.path.exists(os.path.join(modelfile_path, x)))
+    validator=lambda x: isinstance(x, str)
 )
 default_lora_name = get_config_item_or_set_default(
     key='default_lora',
     default_value='sd_xl_offset_example-lora_1.0.safetensors',
-    validator=lambda x: x == 'None' or (isinstance(x, str) and os.path.exists(os.path.join(lorafile_path, x)))
+    validator=lambda x: isinstance(x, str)
 )
 default_lora_weight = get_config_item_or_set_default(
     key='default_lora_weight',
@@ -135,6 +135,14 @@ checkpoint_downloads = get_config_item_or_set_default(
             'https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors',
         'sd_xl_refiner_1.0_0.9vae.safetensors':
             'https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors'
+    },
+    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
+)
+lora_downloads = get_config_item_or_set_default(
+    key='lora_downloads',
+    default_value={
+        'sd_xl_offset_example-lora_1.0.safetensors':
+            'https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors'
     },
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )

@@ -1,6 +1,6 @@
 {
-    "default_model": "sd_xl_base_1.0_0.9vae.safetensors",
-    "default_refiner": "sd_xl_refiner_1.0_0.9vae.safetensors",
+    "default_model": "bluePencilXL_v050.safetensors",
+    "default_refiner": "DreamShaper_8_pruned.safetensors",
     "default_lora": "sd_xl_offset_example-lora_1.0.safetensors",
     "default_lora_weight": 0.5,
     "default_cfg_scale": 7.0,
@@ -8,14 +8,23 @@
     "default_scheduler": "karras",
     "default_styles": [
         "Fooocus V2",
-        "Default (Slightly Cinematic)"
+        "Fooocus Anime",
+        "SAI Anime",
+        "SAI Digital Art",
+        "SAI Enhance",
+        "SAI Fantasy Art"
     ],
-    "default_negative_prompt": "low quality, bad hands, bad eyes, cropped, missing fingers, extra digit",
-    "default_positive_prompt": "",
+    "default_negative_prompt": "(embedding:unaestheticXLv31:0.8), low quality, watermark",
+    "default_positive_prompt": "1girl, ",
     "checkpoint_downloads": {
-        "sd_xl_base_1.0_0.9vae.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors",
-        "sd_xl_refiner_1.0_0.9vae.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors"
+        "bluePencilXL_v050.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/bluePencilXL_v050.safetensors",
+        "DreamShaper_8_pruned.safetensors": "https://huggingface.co/Lykon/DreamShaper/resolve/main/DreamShaper_8_pruned.safetensors"
     },
-    "embeddings_downloads": {},
-    "default_aspect_ratio": "1152*896"
+    "embeddings_downloads": {
+        "unaestheticXLv31.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/unaestheticXLv31.safetensors"
+    },
+    "default_aspect_ratio": "896*1152",
+    "lora_downloads": {
+        "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors"
+    }
 }

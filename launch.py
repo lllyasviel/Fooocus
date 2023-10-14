@@ -8,7 +8,7 @@ from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
 from modules.path import modelfile_path, lorafile_path, vae_approx_path, fooocus_expansion_path, \
-    checkpoint_downloads, embeddings_path, embeddings_downloads
+    checkpoint_downloads, embeddings_path, embeddings_downloads, lora_downloads
 
 
 REINSTALL_ALL = False
@@ -48,11 +48,6 @@ def prepare_environment():
     return
 
 
-lora_filenames = [
-    ('sd_xl_offset_example-lora_1.0.safetensors',
-     'https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors')
-]
-
 vae_approx_filenames = [
     ('xlvaeapp.pth', 'https://huggingface.co/lllyasviel/misc/resolve/main/xlvaeapp.pth'),
     ('vaeapp_sd15.pth', 'https://huggingface.co/lllyasviel/misc/resolve/main/vaeapp_sd15.pt'),
@@ -66,7 +61,7 @@ def download_models():
         load_file_from_url(url=url, model_dir=modelfile_path, file_name=file_name)
     for file_name, url in embeddings_downloads.items():
         load_file_from_url(url=url, model_dir=embeddings_path, file_name=file_name)
-    for file_name, url in lora_filenames:
+    for file_name, url in lora_downloads.items():
         load_file_from_url(url=url, model_dir=lorafile_path, file_name=file_name)
     for file_name, url in vae_approx_filenames:
         load_file_from_url(url=url, model_dir=vae_approx_path, file_name=file_name)
