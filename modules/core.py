@@ -202,7 +202,7 @@ def get_previewer(model):
 
 @torch.no_grad()
 @torch.inference_mode()
-def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_fooocus_2m_sde_inpaint_seamless',
+def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1,
              previewer_start=None, previewer_end=None, sigmas=None, noise=None):

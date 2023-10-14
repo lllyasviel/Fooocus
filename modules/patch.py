@@ -501,7 +501,6 @@ def patch_all():
 
     fcbh.model_management.load_models_gpu = patched_load_models_gpu
     fcbh.model_management.get_autocast_device = patched_get_autocast_device
-    fcbh.samplers.SAMPLER_NAMES += ['dpmpp_fooocus_2m_sde_inpaint_seamless']
     fcbh.model_management.text_encoder_device = text_encoder_device_patched
     fcbh.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
     fcbh.cldm.cldm.ControlNet.forward = patched_cldm_forward
