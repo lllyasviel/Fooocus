@@ -274,12 +274,12 @@ def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
     return torch.cat(output, dim=-2).cpu(), first_pooled.cpu()
 
 
-sigma_min = 0.029167539
-sigma_max = 14.614643
+globalBrownianTreeNoiseSampler = None
 
 
 @torch.no_grad()
-def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=None, callback=None, disable=None, eta=1., s_noise=1., noise_sampler=None, **kwargs):
+def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=None, callback=None,
+                                                 disable=None, eta=1., s_noise=1., **kwargs):
     global sigma_min, sigma_max
 
     print('[Sampler] Fooocus sampler is activated.')
@@ -292,9 +292,6 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
 
     def get_energy():
         return torch.randn(x.size(), dtype=x.dtype, generator=energy_generator, device="cpu").to(x)
-
-    noise_sampler = BrownianTreeNoiseSampler(x, sigma_min, sigma_max, seed=extra_args.get("seed", None),
-                                             cpu=False) if noise_sampler is None else noise_sampler
 
     extra_args = {} if extra_args is None else extra_args
     s_in = x.new_ones([x.shape[0]])
@@ -334,7 +331,7 @@ def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=No
                 r = h_last / h
                 x = x + 0.5 * (-h - eta_h).expm1().neg() * (1 / r) * (denoised - old_denoised)
 
-            x = x + noise_sampler(sigmas[i], sigmas[i + 1]) * sigmas[i + 1] * (
+            x = x + globalBrownianTreeNoiseSampler(sigmas[i], sigmas[i + 1]) * sigmas[i + 1] * (
                         -2 * eta_h).expm1().neg().sqrt() * s_noise
 
         old_denoised = denoised

@@ -11,6 +11,7 @@ import modules.sample_hijack as sample_hijack
 from fcbh.model_base import SDXL, SDXLRefiner
 from modules.expansion import FooocusExpansion
 from modules.sample_hijack import clip_separate
+from fcbh.k_diffusion.sampling import BrownianTreeNoiseSampler
 
 
 xl_base: core.StableDiffusionModel = None
@@ -332,19 +333,23 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
 
     print(f'[Sampler] refiner_swap_method = {refiner_swap_method}')
 
+    if latent is None:
+        empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
+    else:
+        empty_latent = latent
+
     minmax_sigmas = calculate_sigmas(sampler=sampler_name, scheduler=scheduler_name, model=final_unet.model, steps=steps, denoise=denoise)
     sigma_min, sigma_max = minmax_sigmas[minmax_sigmas > 0].min(), minmax_sigmas.max()
     sigma_min = float(sigma_min.cpu().numpy())
     sigma_max = float(sigma_max.cpu().numpy())
     print(f'[Sampler] sigma_min = {sigma_min}, sigma_max = {sigma_max}')
 
+    modules.patch.globalBrownianTreeNoiseSampler = BrownianTreeNoiseSampler(
+        empty_latent['samples'].to(fcbh.model_management.get_torch_device()),
+        sigma_min, sigma_max, seed=image_seed, cpu=False)
+
     modules.patch.sigma_min = sigma_min
     modules.patch.sigma_max = sigma_max
-
-    if latent is None:
-        empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
-    else:
-        empty_latent = latent
 
     decoded_latent = None
 
