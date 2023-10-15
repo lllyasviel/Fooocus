@@ -471,8 +471,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
                                   denoise=denoise)[switch:]
         k1 = target_model.model.latent_format.scale_factor
         k2 = final_unet.model.latent_format.scale_factor
-        k = float(k1) / float(k2)
-        sigmas = sigmas * k
+        k_sigmas = float(k1) / float(k2)
+        sigmas = sigmas * k_sigmas
         len_sigmas = len(sigmas) - 1
 
         last_step, last_clean_latent, last_noisy_latent = sample_hijack.history_record[-1]
@@ -480,6 +480,14 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         last_noisy_latent = final_unet.model.process_latent_out(last_noisy_latent.cpu().to(torch.float32))
         last_noise = last_noisy_latent - last_clean_latent
         last_noise = last_noise / last_noise.std()
+
+        noise_mean = torch.mean(last_noise, dim=1, keepdim=True).repeat(1, 4, 1, 1) / k_sigmas
+
+        refiner_noise = torch.normal(
+            mean=noise_mean,
+            std=torch.ones_like(noise_mean),
+            generator=torch.manual_seed(image_seed+1)  # Avoid artifacts
+        ).to(last_noise)
 
         sampled_latent = {'samples': last_clean_latent}
         sampled_latent = vae_parse(sampled_latent)
@@ -493,7 +501,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             negative=clip_separate(negative_cond, target_model=target_model.model, target_clip=final_clip),
             latent=sampled_latent,
             steps=len_sigmas, start_step=0, last_step=len_sigmas, disable_noise=False, force_full_denoise=True,
-            seed=image_seed+1,  # Avoid artifacts
+            seed=image_seed+2,  # Avoid artifacts
             denoise=denoise,
             callback_function=callback,
             cfg=cfg_scale,
@@ -502,7 +510,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             previewer_start=switch,
             previewer_end=steps,
             sigmas=sigmas,
-            noise=last_noise
+            noise=refiner_noise
         )
 
         if modules.inpaint_worker.current_task is not None:
