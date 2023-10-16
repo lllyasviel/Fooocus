@@ -1,5 +1,4 @@
-import os.path
-
+import os
 import torch
 import time
 import fcbh.model_base
