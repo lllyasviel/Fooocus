@@ -24,7 +24,7 @@ import warnings
 import safetensors.torch
 
 from fcbh.k_diffusion import utils
-from fcbh.k_diffusion.sampling import BrownianTreeNoiseSampler, trange
+from fcbh.k_diffusion.sampling import trange
 from fcbh.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, forward_timestep_embed
 
 
