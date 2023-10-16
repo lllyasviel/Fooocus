@@ -313,6 +313,8 @@ See also [About Forking and Promotion of Forks](https://github.com/lllyasviel/Fo
 
 Fooocus is powered by [FCBH backend](https://github.com/lllyasviel/Fooocus/tree/main/backend), which starts from an odd mixture of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) and [ComfyUI](https://github.com/comfyanonymous/ComfyUI).
 
+Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com/3Diva) for creating additional SDXL styles available in Fooocus.
+
 ## Update Log
 
 The log is [here](update_log.md).
