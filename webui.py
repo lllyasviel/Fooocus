@@ -83,7 +83,7 @@ with shared.gradio_root:
                         model_management.interrupt_current_processing()
                         return
 
-                    stop_button.click(stop_clicked, outputs=[skip_button, stop_button], queue=False)
+                    stop_button.click(stop_clicked, outputs=[skip_button, stop_button], queue=False, _js='cancelGenerateForever')
                     skip_button.click(skip_clicked, queue=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
