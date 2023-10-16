@@ -179,6 +179,8 @@ Same with the above instructions. You need to change torch to AMD version
 
 AMD is not intensively tested, however. The AMD support is in beta.
 
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+
 ### Windows(AMD GPUs)
 
 Same with Windows. Download the software, edit the content of `run.bat` as:
@@ -191,6 +193,8 @@ Same with Windows. Download the software, edit the content of `run.bat` as:
 Then run the `run.bat`.
 
 AMD is not intensively tested, however. The AMD support is in beta.
+
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Mac
 
@@ -206,6 +210,8 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 1. Install the pygit2, `pip install pygit2==1.12.2`.
 1. Install the packages required by Fooocus, `pip install -r requirements_versions.txt`.
 1. Launch Fooocus by running `python entry_with_update.py`. The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
+
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>
