@@ -15,6 +15,8 @@ import args_manager
 
 from modules.sdxl_styles import legal_style_names, aspect_ratios
 from modules.private_logger import get_current_html_path
+from modules.ui_gradio_extensions import reload_javascript
+from os.path import exists
 
 
 def generate_clicked(*args):
@@ -47,6 +49,8 @@ def generate_clicked(*args):
     return
 
 
+reload_javascript()
+
 shared.gradio_root = gr.Blocks(
     title=f'Fooocus {fooocus_version.version} ' + ('' if args_manager.args.preset is None else args_manager.args.preset),
     css=modules.html.css).queue()
@@ -63,9 +67,9 @@ with shared.gradio_root:
                                         value=modules.path.default_positive_prompt,
                                         container=False, autofocus=True, elem_classes='type_row', lines=1024)
                 with gr.Column(scale=0.15, min_width=0):
-                    run_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', visible=True)
+                    generate_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', elem_id='generate_button', visible=True)
                     skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', visible=False)
-                    stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', visible=False)
+                    stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
 
                     def stop_clicked():
                         import fcbh.model_management as model_management
@@ -337,12 +341,16 @@ with shared.gradio_root:
         ctrls += [outpaint_selections, inpaint_input_image]
         ctrls += ip_ctrls
 
-        run_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, run_button, gallery])\
-            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)\
-            .then(advanced_parameters.set_all_advanced_parameters, inputs=adps)\
-            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, gallery])\
-            .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[run_button, stop_button, skip_button])
+        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, generate_button, gallery]) \
+            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
+            .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
+            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, gallery]) \
+            .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
+            .then(fn=None, _js='playNotification')
 
+        notification_file = 'notification.ogg' if exists('notification.ogg') else 'notification.mp3' if exists('notification.mp3') else None
+        if notification_file != None:
+            gr.Audio(interactive=False, value=notification_file, elem_id='audio_notification', visible=False)
 
 shared.gradio_root.launch(
     inbrowser=args_manager.args.auto_launch,

@@ -30,7 +30,8 @@ build_chb.py
 /interrogate
 /user.css
 /.idea
-notification.mp3
+/notification.ogg
+/notification.mp3
 /SwinIR
 /textual_inversion
 .vscode
