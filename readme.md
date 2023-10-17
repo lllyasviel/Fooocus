@@ -35,7 +35,7 @@ Using Fooocus is as easy as (probably easier than) Midjourney – but this does 
 | --quality | Advanced -> Quality |
 | --repeat | Advanced -> Image Number |
 | Multi Prompts (::) | Just use multiple lines of prompts |
-| Prompt Weights | You can use " I am (happy:1.5)". <br> Fooocus uses A1111's reweighting algorithm so that results are better than ComfyUI if users directly copy prompts from Civitai. (Because if prompts are written in ComfyUI's reweighting, users are less likely to copy prompt texts as they prefer dragging files) |
+| Prompt Weights | You can use " I am (happy:1.5)". <br> Fooocus uses A1111's reweighting algorithm so that results are better than ComfyUI if users directly copy prompts from Civitai. (Because if prompts are written in ComfyUI's reweighting, users are less likely to copy prompt texts as they prefer dragging files) <br> To use embedding, you can use "(embedding:file_name:1.1)" |
 | --no | Advanced -> Negative Prompt |
 | --ar | Advanced -> Aspect Ratios |
 
