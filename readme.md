@@ -267,35 +267,9 @@ For example ["realisticStockPhoto_v10" is a pretty good model from CivitAI](http
 }
 ```
 
-Then you will get this special Fooocus software for you
+Consider twice before you really change the config. If you find yourself breaking things, just delete `Fooocus\user_path_config.txt`. Fooocus will go back to default.
 
-<details>
-
-<summary>Click here to the see the image. </summary>
-
-![image](https://github.com/lllyasviel/misc/assets/19834515/002b0fd1-2cf3-4cd7-8a73-cde573729c07)
-
-("girl in garden, holding flowers, freckles", seed 12345)
-
-</details>
-
-Below, for comparison, is the default Fooocus without config customization:
-
-<details>
-
-<summary>Click here to the see the image. </summary>
-
-![image](https://github.com/lllyasviel/misc/assets/19834515/1a9fa48b-37af-48bc-bc7e-1cb03bb38b59)
-
-("girl in garden, holding flowers, freckles", seed 12345)
-
-</details>
-
-You can see that default Fooocus is also strong though "realisticStockPhoto_v10" may understand "freckles" better. 
-
-Consider twice before you really change the config because in many cases results are worse than default official Fooocus. You are warned, and you need to know exactly what you are doing.
-
-If you find yourself breaking things, just delete `Fooocus\user_path_config.txt`. Fooocus will go back to default.
+A safter way is just to try "run_anime.bat" or "run_realistic.bat" - they should be already good enough for different tasks.
 
 ## Advanced Features
 
