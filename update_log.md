@@ -1,3 +1,17 @@
+# 2.1.687
+
+* Added support for wildcards (using files from wildcards folder - try prompts like `__color__ sports car` with different seeds).
+
+# 2.1.682
+
+* Added support for custom styles (loaded from JSON files placed in sdxl_styles folder).
+
+# 2.1.681
+
+* Added support for generate hotkey (CTRL+ENTER).
+* Added support for generate forever (RMB on Generate button).
+* Added support for playing sound when generation is finished ('notification.ogg' or 'notification.mp3').
+
 # 2.1.62
 
 * Preset system. Added anime and realistic support.
