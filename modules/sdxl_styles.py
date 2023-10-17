@@ -10,9 +10,6 @@ styles_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sdxl_s
 wildcards_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../wildcards/'))
 
 
-default_styles_files = ['sdxl_styles_fooocus.json', 'sdxl_styles_sai.json', 'sdxl_styles_mre.json', 'sdxl_styles_twri.json', 'sdxl_styles_diva.json']
-
-
 def normalize_key(k):
     k = k.replace('-', ' ')
     words = k.split(' ')
@@ -27,41 +24,27 @@ def normalize_key(k):
 
 styles = {}
 
+styles_files = [
+    'sdxl_styles_fooocus.json',
+    'sdxl_styles_sai.json',
+    'sdxl_styles_mre.json',
+    'sdxl_styles_twri.json',
+    'sdxl_styles_diva.json'
+]
 
-def styles_list_to_styles_dict(styles_list=None, base_dict=None):
-    styles_dict = {} if base_dict == None else base_dict
-    if isinstance(styles_list, list) and len(styles_list) > 0:
-        for entry in styles_list:
-            name, prompt, negative_prompt = normalize_key(entry['name']), entry['prompt'], entry['negative_prompt']
-            if name not in styles_dict:
-                styles_dict |=  {name: (prompt, negative_prompt)}
-    return styles_dict
+for x in get_files_from_folder(styles_path, ['.json']):
+    if x not in styles_files:
+        styles_files.append(x)
 
-
-def load_styles(filename=None, base_dict=None):
-    styles_dict = {} if base_dict == None else base_dict
-    full_path = os.path.join(styles_path, filename) if filename != None else None
-    if full_path != None and os.path.exists(full_path):
-        with open(full_path, encoding='utf-8') as styles_file:
-            try:
-                styles_obj = json.load(styles_file)
-                styles_list_to_styles_dict(styles_obj, styles_dict)
-            except Exception as e:
-                print('load_styles, e: ' + str(e))
-            finally:
-                styles_file.close()
-    return styles_dict
-
-
-for styles_file in default_styles_files:
-    styles = load_styles(styles_file, styles)
-
-
-all_styles_files = get_files_from_folder(styles_path, ['.json'])
-for styles_file in all_styles_files:
-    if styles_file not in default_styles_files:
-        styles = load_styles(styles_file, styles)
-
+for styles_file in styles_files:
+    try:
+        with open(os.path.join(styles_path, styles_file), encoding='utf-8') as f:
+            for entry in json.load(f):
+                name, prompt, negative_prompt = normalize_key(entry['name']), entry['prompt'], entry['negative_prompt']
+                styles[name] = (prompt, negative_prompt)
+    except Exception as e:
+        print(str(e))
+        print(f'Failed to load style file {styles_file}')
 
 style_keys = list(styles.keys())
 fooocus_expansion = "Fooocus V2"
@@ -120,6 +103,7 @@ def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
     for placeholder in placeholders:
         try:
             words = open(os.path.join(directory, f'{placeholder}.txt'), encoding='utf-8').read().splitlines()
+            words = [x for x in words if x != '']
             wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[int(seed) % len(words)])
         except IOError:
             print(f'Error: could not open wildcard file {placeholder}.txt, using as normal word.')
