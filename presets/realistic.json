@@ -8,8 +8,8 @@
     "default_scheduler": "karras",
     "default_styles": [
         "Fooocus V2",
-        "Fooocus Realistic",
-        "Fooocus Strong Negative"
+        "Fooocus Photograph",
+        "Fooocus Negative"
     ],
     "default_negative_prompt": "unrealistic, saturated, high contrast, big nose, painting, drawing, sketch, cartoon, anime, manga, render, CG, 3d, watermark, signature, label",
     "default_positive_prompt": "",
