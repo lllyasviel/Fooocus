@@ -102,7 +102,7 @@ Please open an issue if you use similar devices but still cannot achieve accepta
 | --- | --- |
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lllyasviel/Fooocus/blob/main/fooocus_colab.ipynb) | Fooocus Official
 
-In Colab, you can modify the last line to `!python entry_with_update.py --preset anime --share` or `!python entry_with_update.py --preset realistic --share` for Fooocus Masterpiece/Realistic Edition.
+In Colab, you can modify the last line to `!python entry_with_update.py --preset anime --share` or `!python entry_with_update.py --preset realistic --share` for Fooocus Anime/Realistic Edition.
 
 Note that this Colab will disable refiner by default because Colab free's resource is relatively limited. 
 
@@ -128,7 +128,7 @@ Or if you want to open a remote port, use
     conda activate fooocus
     python entry_with_update.py --listen
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Masterpiece/Realistic Edition.
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Linux (Using Python Venv)
 
@@ -150,7 +150,7 @@ Or if you want to open a remote port, use
     source fooocus_env/bin/activate
     python entry_with_update.py --listen
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Masterpiece/Realistic Edition.
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Linux (Using native system Python)
 
@@ -168,7 +168,7 @@ Or if you want to open a remote port, use
 
     python3 entry_with_update.py --listen
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Masterpiece/Realistic Edition.
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Linux (AMD GPUs)
 
@@ -179,7 +179,7 @@ Same with the above instructions. You need to change torch to AMD version
 
 AMD is not intensively tested, however. The AMD support is in beta.
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Masterpiece/Realistic Edition.
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Windows(AMD GPUs)
 
@@ -194,7 +194,7 @@ Then run the `run.bat`.
 
 AMD is not intensively tested, however. The AMD support is in beta.
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Masterpiece/Realistic Edition.
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Mac
 
@@ -211,7 +211,7 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 1. Install the packages required by Fooocus, `pip install -r requirements_versions.txt`.
 1. Launch Fooocus by running `python entry_with_update.py`. The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Masterpiece/Realistic Edition.
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>
@@ -237,7 +237,7 @@ Below things are already inside the software, and **users do not need to do anyt
 
 After the first time you run Fooocus, a config file will be generated at `Fooocus\user_path_config.txt`. This file can be edited for changing the model path. You can also change some parameters to turn Fooocus into "your Fooocus".
 
-For example ["realisticStockPhoto_v10" is a pretty good model from CivitAI](https://civitai.com/models/139565/realistic-stock-photo). This model needs a special `CFG=3.0` and probably works better with some specific styles. Below is an example config to turn Fooocus into a **"Fooocus Photograph Stock Photo Software"**:
+For example ["realisticStockPhoto_v10" is a pretty good model from CivitAI](https://civitai.com/models/139565/realistic-stock-photo). This model needs a special `CFG=3.0` and probably works better with some specific styles. Below is an example config to turn Fooocus into a **"Fooocus Realistic Stock Photo Software"**:
 
 `Fooocus\user_path_config.txt`:
 
