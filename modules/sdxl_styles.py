@@ -1,11 +1,15 @@
 import os
 import json
+import re
+import random
+
 
 from modules.util import get_files_from_folder
 
 
 # cannot use modules.path - validators causing circular imports
 styles_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sdxl_styles/'))
+wildcards_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../wildcards/'))
 
 
 default_styles_files = ['sdxl_styles_fooocus.json', 'sdxl_styles_sai.json', 'sdxl_styles_mre.json', 'sdxl_styles_twri.json', 'sdxl_styles_diva.json']
@@ -111,3 +115,18 @@ for k, (w, h) in SD_XL_BASE_RATIOS.items():
 def apply_style(style, positive):
     p, n = styles[style]
     return p.replace('{prompt}', positive), n
+
+
+def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
+    placeholders = re.findall(r'__(\w+)__', wildcard_text)
+    for placeholder in placeholders:
+        try:
+            with open(os.path.join(directory, f'{placeholder}.txt')) as f:
+                words = f.read().splitlines()
+                f.close()
+                rng = random.Random(seed)
+                wildcard_text = re.sub(rf'__{placeholder}__', rng.choice(words), wildcard_text)
+        except IOError:
+            print(f'Error: could not open wildcard file {placeholder}.txt, using as normal word.')
+            wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
+    return wildcard_text

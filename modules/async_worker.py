@@ -26,7 +26,7 @@ def worker():
     import modules.advanced_parameters as advanced_parameters
     import fooocus_extras.ip_adapter as ip_adapter
 
-    from modules.sdxl_styles import apply_style, aspect_ratios, fooocus_expansion
+    from modules.sdxl_styles import apply_style, apply_wildcards, aspect_ratios, fooocus_expansion
     from modules.private_logger import log
     from modules.expansion import safe_str
     from modules.util import join_prompts, remove_empty_str, HWC3, resize_image, image_is_generated_in_current_ui, make_sure_that_image_is_not_too_large
@@ -227,44 +227,50 @@ def worker():
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name, loras=loras)
 
             progressbar(3, 'Processing prompts ...')
-            positive_basic_workloads = []
-            negative_basic_workloads = []
+            tasks = []
+            for i in range(image_number):
+                task_seed = seed + i
+                task_prompt = apply_wildcards(prompt, task_seed)
 
-            if use_style:
-                for s in style_selections:
-                    p, n = apply_style(s, positive=prompt)
-                    positive_basic_workloads.append(p)
-                    negative_basic_workloads.append(n)
-            else:
-                positive_basic_workloads.append(prompt)
+                positive_basic_workloads = []
+                negative_basic_workloads = []
 
-            negative_basic_workloads.append(negative_prompt)  # Always use independent workload for negative.
+                if use_style:
+                    for s in style_selections:
+                        p, n = apply_style(s, positive=task_prompt)
+                        positive_basic_workloads.append(p)
+                        negative_basic_workloads.append(n)
+                else:
+                    positive_basic_workloads.append(task_prompt)
 
-            positive_basic_workloads = positive_basic_workloads + extra_positive_prompts
-            negative_basic_workloads = negative_basic_workloads + extra_negative_prompts
+                negative_basic_workloads.append(negative_prompt)  # Always use independent workload for negative.
 
-            positive_basic_workloads = remove_empty_str(positive_basic_workloads, default=prompt)
-            negative_basic_workloads = remove_empty_str(negative_basic_workloads, default=negative_prompt)
+                positive_basic_workloads = positive_basic_workloads + extra_positive_prompts
+                negative_basic_workloads = negative_basic_workloads + extra_negative_prompts
 
-            positive_top_k = len(positive_basic_workloads)
-            negative_top_k = len(negative_basic_workloads)
+                positive_basic_workloads = remove_empty_str(positive_basic_workloads, default=task_prompt)
+                negative_basic_workloads = remove_empty_str(negative_basic_workloads, default=negative_prompt)
 
-            tasks = [dict(
-                task_seed=seed + i,
-                positive=positive_basic_workloads,
-                negative=negative_basic_workloads,
-                expansion='',
-                c=None,
-                uc=None,
-            ) for i in range(image_number)]
+                positive_top_k = len(positive_basic_workloads)
+                negative_top_k = len(negative_basic_workloads)
+
+                tasks.append(dict(
+                    task_seed=task_seed,
+                    task_prompt=task_prompt,
+                    positive=positive_basic_workloads,
+                    negative=negative_basic_workloads,
+                    expansion='',
+                    c=None,
+                    uc=None
+                ))
 
             if use_expansion:
                 for i, t in enumerate(tasks):
                     progressbar(5, f'Preparing Fooocus text #{i + 1} ...')
-                    expansion = pipeline.final_expansion(prompt, t['task_seed'])
+                    expansion = pipeline.final_expansion(t['task_prompt'], t['task_seed'])
                     print(f'[Prompt Expansion] New suffix: {expansion}')
                     t['expansion'] = expansion
-                    t['positive'] = copy.deepcopy(t['positive']) + [join_prompts(prompt, expansion)]  # Deep copy.
+                    t['positive'] = copy.deepcopy(t['positive']) + [join_prompts(t['task_prompt'], expansion)]  # Deep copy.
 
             for i, t in enumerate(tasks):
                 progressbar(7, f'Encoding positive #{i + 1} ...')
