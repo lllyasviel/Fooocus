@@ -6,7 +6,7 @@
     },
     {
         "name": "Fooocus Anime",
-        "prompt": "{prompt}, (masterpiece, best quality, ultra-detailed:1.1), illustration, disheveled hair, detailed eyes, perfect composition, moist skin, intricate details, earrings, by wlop",
+        "prompt": "(masterpiece:1.1), (best quality, ultra-detailed:1.2), {prompt}, illustration, disheveled hair, detailed eyes, perfect composition, moist skin, intricate details, earrings, by wlop",
         "negative_prompt": "longbody, lowres, bad anatomy, bad hands, missing fingers, pubic hair,extra digit, fewer digits, cropped, worst quality, low quality"
     },
     {

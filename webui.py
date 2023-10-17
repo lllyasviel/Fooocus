@@ -2,6 +2,7 @@ from python_hijack import *
 
 import gradio as gr
 import random
+import os
 import time
 import shared
 import modules.path
@@ -16,7 +17,6 @@ import args_manager
 from modules.sdxl_styles import legal_style_names, aspect_ratios
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
-from os.path import exists
 
 
 def generate_clicked(*args):
@@ -348,9 +348,11 @@ with shared.gradio_root:
             .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
             .then(fn=None, _js='playNotification')
 
-        notification_file = 'notification.ogg' if exists('notification.ogg') else 'notification.mp3' if exists('notification.mp3') else None
-        if notification_file != None:
-            gr.Audio(interactive=False, value=notification_file, elem_id='audio_notification', visible=False)
+        for notification_file in ['notification.ogg', 'notification.mp3']:
+            if os.path.exists(notification_file):
+                gr.Audio(interactive=False, value=notification_file, elem_id='audio_notification', visible=False)
+                break
+
 
 shared.gradio_root.launch(
     inbrowser=args_manager.args.auto_launch,
