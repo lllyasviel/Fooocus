@@ -121,11 +121,11 @@ def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
     placeholders = re.findall(r'__(\w+)__', wildcard_text)
     for placeholder in placeholders:
         try:
-            with open(os.path.join(directory, f'{placeholder}.txt')) as f:
+            with open(os.path.join(directory, f'{placeholder}.txt'), encoding='utf-8') as f:
                 words = f.read().splitlines()
-                f.close()
-                rng = random.Random(seed)
-                wildcard_text = re.sub(rf'__{placeholder}__', rng.choice(words), wildcard_text)
+
+            rng = random.Random(seed)
+            wildcard_text = re.sub(rf'__{placeholder}__', rng.choice(words), wildcard_text)
         except IOError:
             print(f'Error: could not open wildcard file {placeholder}.txt, using as normal word.')
             wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
