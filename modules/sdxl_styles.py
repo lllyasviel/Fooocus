@@ -1,8 +1,6 @@
 import os
 import json
 import re
-import random
-
 
 from modules.util import get_files_from_folder
 
@@ -121,11 +119,8 @@ def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
     placeholders = re.findall(r'__(\w+)__', wildcard_text)
     for placeholder in placeholders:
         try:
-            with open(os.path.join(directory, f'{placeholder}.txt'), encoding='utf-8') as f:
-                words = f.read().splitlines()
-
-            rng = random.Random(seed)
-            wildcard_text = re.sub(rf'__{placeholder}__', rng.choice(words), wildcard_text)
+            words = open(os.path.join(directory, f'{placeholder}.txt'), encoding='utf-8').read().splitlines()
+            wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[int(seed) % len(words)])
         except IOError:
             print(f'Error: could not open wildcard file {placeholder}.txt, using as normal word.')
             wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
