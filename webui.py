@@ -60,7 +60,7 @@ with shared.gradio_root:
         with gr.Column():
             progress_window = grh.Image(label='Preview', show_label=True, height=640, visible=False)
             progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False, elem_id='progress-bar', elem_classes='progress-bar')
-            gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=720, visible=True, elem_classes='resizable_area')
+            gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=745, visible=True, elem_classes='resizable_area')
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=0.85):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.",
