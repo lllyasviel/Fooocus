@@ -1,3 +1,13 @@
+**(2023 Oct 17) Again, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads - we will come back in early or mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+
+# 2.1.693
+
+* Putting custom styles before pre-defined styles.
+* Avoided the consusion between Fooocus Anime preset and Fooocus Anime style (Fooocus Anime style is renamed to Fooocus Masterpiece because it does not make images Anime-looking if not using with Fooocus Anime preset).
+* Fixed some minor bugs in Fooocus Anime preset's prompt emphasizing of commas.
+* Supported and documented embedding grammar (and wildcards grammar). 
+* This release is a relative stable version and many features are determined now.
+
 # 2.1.687
 
 * Added support for wildcards (using files from wildcards folder - try prompts like `__color__ sports car` with different seeds).
