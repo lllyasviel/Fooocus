@@ -14,8 +14,6 @@ Fooocus has included and automated [lots of inner optimizations and quality impr
 
 Fooocus has simplified the installation. Between pressing "download" and generating the first image, the number of needed mouse clicks is strictly limited to less than 3. Minimal GPU memory requirement is 4GB (Nvidia).
 
-Fooocus also developed many "fooocus-only" features for advanced users to get perfect results. [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
-
 `[1]` David Holz, 2019.
 
 ## [Installing Fooocus](#download)
@@ -48,6 +46,8 @@ We also have a few things borrowed from the best parts of LeonardoAI:
 | Prompt Magic | Advanced -> Style -> Fooocus V2 |
 | Advanced Sampler Parameters (like Contrast/Sharpness/etc) | Advanced -> Advanced -> Sampling Sharpness / etc |
 | User-friendly ControlNets | Input Image -> Image Prompt -> Advanced |
+
+Fooocus also developed many "fooocus-only" features for advanced users to get perfect results. [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
 
 # Download
 
