@@ -231,6 +231,9 @@ def worker():
             for i in range(image_number):
                 task_seed = seed + i
                 task_prompt = apply_wildcards(prompt, task_seed)
+                task_negative_prompt = apply_wildcards(negative_prompt, task_seed)
+                task_extra_positive_prompts = [apply_wildcards(pmt, task_seed) for pmt in extra_positive_prompts]
+                task_extra_negative_prompts = [apply_wildcards(pmt, task_seed) for pmt in extra_negative_prompts]
 
                 positive_basic_workloads = []
                 negative_basic_workloads = []
@@ -243,16 +246,13 @@ def worker():
                 else:
                     positive_basic_workloads.append(task_prompt)
 
-                negative_basic_workloads.append(negative_prompt)  # Always use independent workload for negative.
+                negative_basic_workloads.append(task_negative_prompt)  # Always use independent workload for negative.
 
-                positive_basic_workloads = positive_basic_workloads + extra_positive_prompts
-                negative_basic_workloads = negative_basic_workloads + extra_negative_prompts
+                positive_basic_workloads = positive_basic_workloads + task_extra_positive_prompts
+                negative_basic_workloads = negative_basic_workloads + task_extra_negative_prompts
 
                 positive_basic_workloads = remove_empty_str(positive_basic_workloads, default=task_prompt)
-                negative_basic_workloads = remove_empty_str(negative_basic_workloads, default=negative_prompt)
-
-                positive_top_k = len(positive_basic_workloads)
-                negative_top_k = len(negative_basic_workloads)
+                negative_basic_workloads = remove_empty_str(negative_basic_workloads, default=task_negative_prompt)
 
                 tasks.append(dict(
                     task_seed=task_seed,
@@ -261,7 +261,9 @@ def worker():
                     negative=negative_basic_workloads,
                     expansion='',
                     c=None,
-                    uc=None
+                    uc=None,
+                    positive_top_k=len(positive_basic_workloads),
+                    negative_top_k=len(negative_basic_workloads)
                 ))
 
             if use_expansion:
@@ -274,11 +276,11 @@ def worker():
 
             for i, t in enumerate(tasks):
                 progressbar(7, f'Encoding positive #{i + 1} ...')
-                t['c'] = pipeline.clip_encode(texts=t['positive'], pool_top_k=positive_top_k)
+                t['c'] = pipeline.clip_encode(texts=t['positive'], pool_top_k=t['positive_top_k'])
 
             for i, t in enumerate(tasks):
                 progressbar(10, f'Encoding negative #{i + 1} ...')
-                t['uc'] = pipeline.clip_encode(texts=t['negative'], pool_top_k=negative_top_k)
+                t['uc'] = pipeline.clip_encode(texts=t['negative'], pool_top_k=t['negative_top_k'])
 
         if len(goals) > 0:
             progressbar(13, 'Image processing ...')
