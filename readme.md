@@ -259,6 +259,8 @@ For example ["realisticStockPhoto_v10" is a pretty good model from CivitAI](http
     "default_cfg_scale": 3.0,
     "default_sampler": "dpmpp_2m",
     "default_scheduler": "karras",
+    "default_negative_prompt": "low quality",
+    "default_positive_prompt": "",
     "default_styles": [
         "Fooocus V2",
         "Default (Slightly Cinematic)",
