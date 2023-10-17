@@ -1,6 +1,7 @@
 import os
-import json
 import re
+import random
+import json
 
 from modules.util import get_files_from_folder
 
@@ -24,16 +25,15 @@ def normalize_key(k):
 
 styles = {}
 
-styles_files = [
-    'sdxl_styles_fooocus.json',
-    'sdxl_styles_sai.json',
-    'sdxl_styles_mre.json',
-    'sdxl_styles_twri.json',
-    'sdxl_styles_diva.json'
-]
+styles_files = get_files_from_folder(styles_path, ['.json'])
 
-for x in get_files_from_folder(styles_path, ['.json']):
-    if x not in styles_files:
+for x in ['sdxl_styles_fooocus.json',
+          'sdxl_styles_sai.json',
+          'sdxl_styles_mre.json',
+          'sdxl_styles_twri.json',
+          'sdxl_styles_diva.json']:
+    if x in styles_files:
+        styles_files.remove(x)
         styles_files.append(x)
 
 for styles_file in styles_files:
@@ -104,7 +104,7 @@ def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
         try:
             words = open(os.path.join(directory, f'{placeholder}.txt'), encoding='utf-8').read().splitlines()
             words = [x for x in words if x != '']
-            wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[int(seed) % len(words)])
+            wildcard_text = wildcard_text.replace(f'__{placeholder}__', random.Random(seed).choice(words))
         except IOError:
             print(f'Error: could not open wildcard file {placeholder}.txt, using as normal word.')
             wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
