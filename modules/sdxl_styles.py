@@ -8,7 +8,7 @@ from modules.util import get_files_from_folder
 styles_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sdxl_styles/'))
 
 
-default_styles_files = ['sdxl_styles_fooocus.json', 'sdxl_styles_sai.json', 'sdxl_styles_twri.json', 'sdxl_styles_diva.json', 'sdxl_styles_mre.json']
+default_styles_files = ['sdxl_styles_fooocus.json', 'sdxl_styles_sai.json', 'sdxl_styles_mre.json', 'sdxl_styles_twri.json', 'sdxl_styles_diva.json']
 
 
 def normalize_key(k):
