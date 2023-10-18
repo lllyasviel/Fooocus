@@ -100,6 +100,9 @@ def apply_style(style, positive):
 
 def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
     placeholders = re.findall(r'__(\w+)__', wildcard_text)
+    if len(placeholders) == 0:
+        return wildcard_text
+
     rng = random.Random(seed)
     for placeholder in placeholders:
         try:
@@ -109,4 +112,5 @@ def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
         except IOError:
             print(f'Error: could not open wildcard file {placeholder}.txt, using as normal word.')
             wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
+
     return wildcard_text
