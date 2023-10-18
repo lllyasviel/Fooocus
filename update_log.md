@@ -1,4 +1,12 @@
-**(2023 Oct 17) Again, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads - we will come back in early or mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+**(2023 Oct 18) Again, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads - we will come back in early or mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+
+# 2.1.695 (requested emergency bug fix)
+
+* Reduced 3.4GB RAM use when swapping base model.
+* Reduced 372MB VRAM use in VAE decoding after using control model in image prompt.
+* Note that Official ComfyUI (d44a2de) will run out of VRAM when using sdxl and control-lora on 2060 GB that does not support float16 at resolution 1024. Fooocus 2.1.695 succeeded in outputting images without OOM using exactly same devices.
+
+(2023 Oct 17) Announcement of update being paused.
 
 # 2.1.693
 
