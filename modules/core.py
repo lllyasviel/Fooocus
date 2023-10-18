@@ -20,7 +20,7 @@ import fcbh.latent_formats
 from fcbh.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint, \
     ControlNetApplyAdvanced
-from fcbh_extras.nodes_freelunch import FreeU
+from fcbh_extras.nodes_freelunch import FreeU_V2
 from fcbh.sample import prepare_mask
 from modules.patch import patched_sampler_cfg_function, patched_model_function_wrapper
 from fcbh.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
@@ -34,7 +34,7 @@ opVAEDecodeTiled = VAEDecodeTiled()
 opVAEEncodeTiled = VAEEncodeTiled()
 opVAEEncodeForInpaint = VAEEncodeForInpaint()
 opControlNetApplyAdvanced = ControlNetApplyAdvanced()
-opFreeU = FreeU()
+opFreeU = FreeU_V2()
 
 
 class StableDiffusionModel:
