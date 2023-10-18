@@ -3,7 +3,7 @@ import fcbh.samplers
 import fcbh.model_management
 
 from fcbh.model_base import SDXLRefiner, SDXL
-from fcbh.sample import get_additional_models
+from fcbh.sample import get_additional_models, get_models_from_cond
 from fcbh.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
     create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_adm, \
     blank_inpaint_image_like
@@ -47,6 +47,22 @@ def clip_separate(cond, target_model=None, target_clip=None):
 
         p = {}
     return [[c, p]]
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def force_unload_all_control(positive, negative):
+    control_nets = set(get_models_from_cond(positive, "control") + get_models_from_cond(negative, "control"))
+
+    cleaned_any_model = False
+    for m in control_nets:
+        if hasattr(m, 'cleanup'):
+            m.cleanup()
+            cleaned_any_model = True
+
+    if cleaned_any_model:
+        fcbh.model_management.soft_empty_cache()
+    return
 
 
 @torch.no_grad()
@@ -113,6 +129,8 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
         extra_args["cond_concat"] = cond_concat
 
     def refiner_switch():
+        force_unload_all_control(positive, negative)
+
         extra_args["cond"] = positive_refiner
         extra_args["uncond"] = negative_refiner
 
