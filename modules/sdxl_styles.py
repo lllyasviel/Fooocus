@@ -100,11 +100,12 @@ def apply_style(style, positive):
 
 def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
     placeholders = re.findall(r'__(\w+)__', wildcard_text)
+    rng = random.Random(seed)
     for placeholder in placeholders:
         try:
             words = open(os.path.join(directory, f'{placeholder}.txt'), encoding='utf-8').read().splitlines()
             words = [x for x in words if x != '']
-            wildcard_text = wildcard_text.replace(f'__{placeholder}__', random.Random(seed).choice(words))
+            wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
         except IOError:
             print(f'Error: could not open wildcard file {placeholder}.txt, using as normal word.')
             wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)

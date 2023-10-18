@@ -1,3 +1,7 @@
+# 2.1.696
+
+* Improved wildcards implementation (using same wildcard multiple times will now return different values).
+
 **(2023 Oct 18) Again, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads - we will come back in early or mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
 
 # 2.1.695 (requested emergency bug fix)
