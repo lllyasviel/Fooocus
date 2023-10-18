@@ -3,6 +3,7 @@ from python_hijack import *
 import sys
 import platform
 import fooocus_version
+import argparse
 
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
@@ -85,4 +86,11 @@ build_launcher()
 ini_cbh_args()
 download_models()
 
-from webui import *
+parser = argparse.ArgumentParser()
+parser.add_argument("--headless", action='store_true', help="Set to run in headless mode.")
+args, unknown_args = parser.parse_known_args()
+
+if args.headless:
+    from headless import *
+else:
+    from webui import *
