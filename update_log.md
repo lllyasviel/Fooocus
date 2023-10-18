@@ -1,3 +1,11 @@
+# 2.1.701
+
+* Updated FreeU node to v2 (gives less overcooked results).
+
+# 2.1.699
+
+* Disabled smart memory management (solves some memory issues).
+
 # 2.1.698
 
 * Added support for loading model files from subfolders.
