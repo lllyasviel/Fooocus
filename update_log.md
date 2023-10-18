@@ -1,6 +1,7 @@
 # 2.1.702
 
 * Fixed many previous problems related to inpaint.
+* Corrected reading empty negative prompt from config (it shouldn't turn into None).
 
 # 2.1.701
 
