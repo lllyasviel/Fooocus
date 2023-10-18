@@ -400,43 +400,42 @@ def worker():
 
             pipeline.final_unet.model.diffusion_model.in_inpaint = True
 
-            # print(f'Inpaint task: {str((height, width))}')
             # outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
             # return
 
-            progressbar(13, 'VAE encoding ...')
-            inpaint_pixels = core.numpy_to_pytorch(inpaint_worker.current_task.image_ready)
-            initial_latent = core.encode_vae(vae=pipeline.final_vae, pixels=inpaint_pixels)
-            inpaint_latent = initial_latent['samples']
-            B, C, H, W = inpaint_latent.shape
-            inpaint_mask = core.numpy_to_pytorch(inpaint_worker.current_task.mask_ready[None])
-            inpaint_mask = torch.nn.functional.avg_pool2d(inpaint_mask, (8, 8))
-            inpaint_mask = torch.nn.functional.interpolate(inpaint_mask, (H, W), mode='bilinear')
+            progressbar(13, 'VAE Inpaint encoding ...')
 
-            latent_after_swap = None
+            inpaint_pixel_fill = core.numpy_to_pytorch(inpaint_worker.current_task.interested_fill)
+            inpaint_pixel_image = core.numpy_to_pytorch(inpaint_worker.current_task.interested_image)
+            inpaint_pixel_mask = core.numpy_to_pytorch(inpaint_worker.current_task.interested_mask)
+
+            latent_inpaint, latent_mask = core.encode_vae_inpaint(
+                mask=inpaint_pixel_mask,
+                vae=pipeline.final_vae,
+                pixels=inpaint_pixel_image)
+
+            latent_swap = None
             if pipeline.final_refiner_vae is not None:
-                progressbar(13, 'VAE SD15 encoding ...')
-                latent_after_swap = core.encode_vae(vae=pipeline.final_refiner_vae, pixels=inpaint_pixels)['samples']
+                progressbar(13, 'VAE Inpaint SD15 encoding ...')
+                latent_swap = core.encode_vae(
+                    vae=pipeline.final_refiner_vae,
+                    pixels=inpaint_pixel_fill)['samples']
 
-            inpaint_worker.current_task.load_latent(latent=inpaint_latent, mask=inpaint_mask,
-                                                    latent_after_swap=latent_after_swap)
+            progressbar(13, 'VAE encoding ...')
+            latent_fill = core.encode_vae(
+                vae=pipeline.final_vae,
+                pixels=inpaint_pixel_fill)['samples']
 
-            progressbar(13, 'VAE inpaint encoding ...')
+            inpaint_worker.current_task.load_latent(latent_fill=latent_fill,
+                                                    latent_inpaint=latent_inpaint,
+                                                    latent_mask=latent_mask,
+                                                    latent_swap=latent_swap,
+                                                    inpaint_head_model_path=inpaint_head_model_path)
 
-            inpaint_mask = (inpaint_worker.current_task.mask_ready > 0).astype(np.float32)
-            inpaint_mask = torch.tensor(inpaint_mask).float()
-
-            vae_dict = core.encode_vae_inpaint(
-                mask=inpaint_mask, vae=pipeline.final_vae, pixels=inpaint_pixels)
-
-            inpaint_latent = vae_dict['samples']
-            inpaint_mask = vae_dict['noise_mask']
-            inpaint_worker.current_task.load_inpaint_guidance(latent=inpaint_latent, mask=inpaint_mask,
-                                                              model_path=inpaint_head_model_path)
-
-            B, C, H, W = inpaint_latent.shape
-            final_height, final_width = inpaint_worker.current_task.image_raw.shape[:2]
+            B, C, H, W = latent_fill.shape
             height, width = H * 8, W * 8
+            final_height, final_width = inpaint_worker.current_task.image.shape[:2]
+            initial_latent = {'samples': latent_fill}
             print(f'Final resolution is {str((final_height, final_width))}, latent is {str((height, width))}.')
 
         if 'cn' in goals:
