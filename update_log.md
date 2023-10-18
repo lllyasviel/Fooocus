@@ -1,3 +1,7 @@
+# 2.1.698
+
+* Added support for loading model files from subfolders.
+
 # 2.1.696
 
 * Improved wildcards implementation (using same wildcard multiple times will now return different values).
