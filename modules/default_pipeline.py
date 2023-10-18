@@ -223,6 +223,12 @@ def prepare_text_encoder(async_call=True):
 def refresh_everything(refiner_model_name, base_model_name, loras):
     global final_unet, final_clip, final_vae, final_refiner_unet, final_refiner_vae, final_expansion
 
+    final_unet = None
+    final_clip = None
+    final_vae = None
+    final_refiner_unet = None
+    final_refiner_vae = None
+
     refresh_refiner_model(refiner_model_name)
     refresh_base_model(base_model_name)
     refresh_loras(loras)
@@ -234,14 +240,12 @@ def refresh_everything(refiner_model_name, base_model_name, loras):
 
     final_unet.model.diffusion_model.in_inpaint = False
 
-    if xl_refiner is None:
-        final_refiner_unet = None
-        final_refiner_vae = None
-    else:
+    if xl_refiner is not None:
         final_refiner_unet = xl_refiner.unet
-        final_refiner_unet.model.diffusion_model.in_inpaint = False
-
         final_refiner_vae = xl_refiner.vae
+
+        if final_refiner_unet is not None:
+            final_refiner_unet.model.diffusion_model.in_inpaint = False
 
     if final_expansion is None:
         final_expansion = FooocusExpansion()

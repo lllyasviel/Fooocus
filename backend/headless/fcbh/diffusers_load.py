@@ -31,6 +31,7 @@ def load_diffusers(model_path, output_vae=True, output_clip=True, embedding_dire
 
     vae = None
     if output_vae:
-        vae = fcbh.sd.VAE(ckpt_path=vae_path)
+        sd = fcbh.utils.load_torch_file(vae_path)
+        vae = fcbh.sd.VAE(sd=sd)
 
     return (unet, clip, vae)
