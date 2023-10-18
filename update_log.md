@@ -4,7 +4,7 @@
 
 * Reduced 3.4GB RAM use when swapping base model.
 * Reduced 372MB VRAM use in VAE decoding after using control model in image prompt.
-* Note that Official ComfyUI (d44a2de) will run out of VRAM when using sdxl and control-lora on 2060 GB that does not support float16 at resolution 1024. Fooocus 2.1.695 succeeded in outputting images without OOM using exactly same devices.
+* Note that Official ComfyUI (d44a2de) will run out of VRAM when using sdxl and control-lora on 2060 6GB that does not support float16 at resolution 1024. Fooocus 2.1.695 succeeded in outputting images without OOM using exactly same devices.
 
 (2023 Oct 17) Announcement of update being paused.
 
