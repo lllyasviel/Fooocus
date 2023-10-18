@@ -256,7 +256,6 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
     finally:
         modules.sample_hijack.current_refiner = None
 
-    modules.sample_hijack.force_unload_all_control(positive, negative)
     return out
 
 
