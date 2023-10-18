@@ -1,3 +1,7 @@
+# 2.1.702
+
+* Fixed many previous problems related to inpaint.
+
 # 2.1.701
 
 * Updated FreeU node to v2 (gives less overcooked results).
