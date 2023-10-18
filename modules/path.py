@@ -5,6 +5,7 @@ import modules.flags
 import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
+from modules.util import get_files_from_folder
 
 config_path = "user_path_config.txt"
 config_dict = {}
@@ -168,19 +169,8 @@ model_filenames = []
 lora_filenames = []
 
 
-def get_model_filenames(folder_path):
-    if not os.path.isdir(folder_path):
-        raise ValueError("Folder path is not a valid directory.")
-
-    filenames = []
-    for filename in os.listdir(folder_path):
-        if os.path.isfile(os.path.join(folder_path, filename)):
-            for ends in ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']:
-                if filename.lower().endswith(ends):
-                    filenames.append(filename)
-                    break
-
-    return filenames
+def get_model_filenames(folder_path, name_filter=None):
+    return get_files_from_folder(folder_path, ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch'], name_filter)
 
 
 def update_all_model_names():
