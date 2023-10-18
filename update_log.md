@@ -1,3 +1,7 @@
+# 2.1.702
+
+* Corrected reading empty negative prompt from config (it shouldn't turn into None).
+
 # 2.1.701
 
 * Updated FreeU node to v2 (gives less overcooked results).
