@@ -445,6 +445,9 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
 
     if refiner_swap_method == 'vae':
+        if modules.inpaint_worker.current_task is not None:
+            modules.inpaint_worker.current_task.unswap()
+
         sample_hijack.history_record = []
         core.ksampler(
             model=final_unet,
@@ -516,9 +519,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             sigmas=sigmas,
             noise=refiner_noise
         )
-
-        if modules.inpaint_worker.current_task is not None:
-            modules.inpaint_worker.current_task.swap()
 
         target_model = final_refiner_vae
         if target_model is None:

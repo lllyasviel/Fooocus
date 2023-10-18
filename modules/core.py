@@ -18,7 +18,7 @@ import fcbh.samplers
 import fcbh.latent_formats
 
 from fcbh.sd import load_checkpoint_guess_config
-from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, VAEEncodeForInpaint, \
+from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, \
     ControlNetApplyAdvanced
 from fcbh_extras.nodes_freelunch import FreeU_V2
 from fcbh.sample import prepare_mask
@@ -32,7 +32,6 @@ opVAEDecode = VAEDecode()
 opVAEEncode = VAEEncode()
 opVAEDecodeTiled = VAEDecodeTiled()
 opVAEEncodeTiled = VAEEncodeTiled()
-opVAEEncodeForInpaint = VAEEncodeForInpaint()
 opControlNetApplyAdvanced = ControlNetApplyAdvanced()
 opFreeU = FreeU_V2()
 
@@ -130,7 +129,21 @@ def encode_vae(vae, pixels, tiled=False):
 @torch.no_grad()
 @torch.inference_mode()
 def encode_vae_inpaint(vae, pixels, mask):
-    return opVAEEncodeForInpaint.encode(pixels=pixels, vae=vae, mask=mask)[0]
+    assert mask.ndim == 3 and pixels.ndim == 4
+    assert mask.shape[-1] == pixels.shape[-2]
+    assert mask.shape[-2] == pixels.shape[-3]
+
+    w = mask.round()[..., None]
+    pixels = pixels * (1 - w) + 0.5 * w
+
+    latent = vae.encode(pixels)
+    B, C, H, W = latent.shape
+
+    latent_mask = mask[:, None, :, :]
+    latent_mask = torch.nn.functional.interpolate(latent_mask, size=(H * 8, W * 8), mode="bilinear").round()
+    latent_mask = torch.nn.functional.max_pool2d(latent_mask, (8, 8)).round()
+
+    return latent, latent_mask
 
 
 class VAEApprox(torch.nn.Module):
