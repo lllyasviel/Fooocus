@@ -1,0 +1,22 @@
+armchair
+bookcase
+cabinet
+chair
+chest
+coffee table
+console table
+couch
+credenza
+desk
+dining table
+dresser
+end table
+futon
+headboard
+ottoman
+sofa
+stool
+storage bench
+table
+tv stand
+wardrobe

@@ -1,0 +1,40 @@
+airship
+ambulance ship
+cargo ship
+carrier
+colony ship
+command ship
+cruiser
+cruiser
+destroyer
+destroyer
+docking ship
+dreadnought
+dreadnought
+explorer
+fighter
+fighter
+freighter
+freighter
+habitat ship
+heavy carrier
+interceptor
+interceptor
+interplanetary ship
+interstellar ship
+lifepod
+light carrier
+liner
+liner
+mining ship
+observatory ship
+patrol ship
+rescue ship
+research ship
+scout ship
+shuttle
+shuttle
+spaceship
+transport
+transport
+transporter

@@ -1,0 +1,58 @@
+ammonite
+anemone
+anglerfish
+barnacle
+black mamba
+clam
+crab
+cthulhu
+cuttlefish
+dolphin
+eel
+electric eel
+fish
+giant clam
+giant octopus
+giant squid
+great white shark
+hippocampus
+hydra
+jellyfish
+killer whale
+komodo dragon
+kraken
+leatherback turtle
+leviathan
+lobster
+manta ray
+megalodon
+mermaid
+narwhal
+nessie
+octopus
+octopus beast
+octopus kraken
+orca
+otter
+oyster
+pufferfish
+rays
+sailfish
+sea horse
+sea serpent
+sea turtle
+sea urchin
+seal
+shrimp
+siren
+sperm whale
+sponge
+squid
+squid giant
+starfish
+stingray
+swordfish
+turtle sea
+walrus
+whale
+whale shark

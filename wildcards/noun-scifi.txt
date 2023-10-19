@@ -1,0 +1,106 @@
+alien
+android
+antimatter
+artifact
+artificial intelligence
+asteroid
+astronaut
+astronomy
+atmosphere
+base
+black hole
+clone
+colony
+computer
+continent
+craft
+cryogenic
+crystal
+crystalline
+cybernetics
+cyberspace
+cyberwarfare
+cyborg
+dark matter
+death ray
+dimension
+droid
+dyson sphere
+earth
+energy
+energy field
+engine
+exploration
+extraterrestrial
+force field
+fusion
+futurism
+galaxy
+genetic engineering
+gravity
+gravity drive
+holodeck
+hologram
+holographic
+human
+hyperdrive
+hyperspace
+interdimensional
+interstellar
+ion propulsion
+jet
+jupiter
+kryptonite
+laboratory
+laser
+life form
+light year
+machine
+magnetosphere
+mars
+martian
+mech
+mecha
+megastructure
+meteor
+microgravity
+mission
+moon
+mothership
+nanotechnology
+nebula
+neural network
+neurolink
+neuron
+orbital
+photon
+planet
+planetoid
+plasma
+quantum
+robot
+robotics
+rocket
+science fiction
+scientist
+singularity
+spaceship
+spacetime
+star
+subspace
+supercomputer
+superhuman
+superweapon
+telekinesis
+telepathic
+teleportation
+terraforming
+time travel
+transhumanism
+ufo
+universe
+wormhole
+wormhole drive
+xenobiology
+zephyr
+zygote

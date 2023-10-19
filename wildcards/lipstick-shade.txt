@@ -1,0 +1,34 @@
+beige
+berry
+black
+brown
+burgundy
+cherry
+coral
+cream
+fuchsia
+gloss
+golden
+grape
+green
+hot pink
+lavender
+light pink
+magenta
+mauve
+nude
+orange
+peach
+pink
+plum
+red
+rose
+rust
+shimmer
+silver
+soft pink
+teal
+terracotta
+violet
+watermelon
+wine

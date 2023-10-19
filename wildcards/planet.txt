@@ -1,0 +1,28 @@
+asteroid
+brown dwarf
+carbon planet
+desert planet
+dwarf planet
+gas giant
+hot Jupiter
+ice giant
+iron planet
+jovian planet
+jupiter-like planet
+kuiper belt object
+lava planet
+megastar
+megastructure
+mini-neptune
+neptune-like planet
+neptunian planet
+ocean planet
+planet
+pulsar planet
+rocky planet
+super-Earth
+super-earth
+terrestrial planet
+ultra-hot jupiter
+vapor-rich planet
+water world

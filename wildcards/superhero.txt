@@ -1,0 +1,144 @@
+ant-man
+aquaman
+astro boy
+banshee
+batgirl
+batman
+batwoman
+black canary
+black panther
+black widow
+blade
+bucky barnes
+cable
+cain marko
+captain america
+captain britain
+captain marvel
+carnage
+catwoman
+colossus
+conan the barbarian
+cyclone
+cyclops
+daredevil
+deadman
+deadpool
+deadshot
+doctor fate
+doctor octopus
+doctor strange
+donatello
+electra
+electro
+elektra
+emma frost
+fantastic four
+flash gordon
+galactus
+gambit
+gamora
+gorilla grodd
+green arrow
+green lantern
+groot
+harley quinn
+harvey dent
+harvey two-face
+havok
+hawkeye
+hawkgirl
+hawkman
+hellboy
+hulk
+human torch
+iceman
+invisible woman
+iron man
+j jonah jameson
+jean grey
+johnny blaze
+jubilee
+judge dredd
+juggernaut
+kamala khan
+kang the conqueror
+killer croc
+kilowog
+kingpin
+kitty pryde
+lady deathstrike
+larfleeze
+lex luthor
+loki
+luke cage
+mad hatter
+magneto
+malekith
+martian manhunter
+medusa
+mephisto
+mera
+mister fantastic
+mystique
+nick fury
+nightcrawler
+nightwing
+oracle
+poison ivy
+power girl
+professor x
+punisher
+raven
+red hood
+riddler
+rocket raccoon
+rogue
+roy harper
+sabretooth
+sandman
+scarecrow
+scarlet witch
+shatterstar
+she-hulk
+she-venom
+shredder
+silver surfer
+sinestro
+spider-man
+spider-woman
+starfire
+storm
+sue storm
+supergirl
+superman
+superwoman
+taskmaster
+teenage mutant ninja turtles
+the atom
+the black cat
+the crimson dynamo
+the defenders
+the falcon
+the flash
+the joker
+the kingpin
+the mandarin
+the phantom
+the riddler
+the rocketeer
+the thing
+the vision
+thor
+toad
+two-face
+ultron
+venom
+vixen
+vulture
+wasp
+white queen
+wolverine
+wonder woman
+zatanna
+zoom

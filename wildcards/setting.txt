@@ -1,0 +1,17 @@
+sci-fi
+fantasy
+grimdark
+cyberpunk
+steampunk
+dieselpunk
+atompunk
+world war 1
+world war 2
+ancient rome
+ancient greece
+aztec
+medieval europe
+feudal japan
+fairytale
+islamic golden age
+biopunk

@@ -1,0 +1,4 @@
+day
+night
+evening
+dusk

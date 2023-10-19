@@ -1,0 +1,268 @@
+airfield
+airplane interior
+airport
+alley
+alleyway
+amphitheater
+amusement park
+apartment
+aquarium
+aqueduct
+arcade
+arena
+armory
+art gallery
+asteroid
+autumn
+bakery
+bamboo forest
+bar
+barn
+bathroom
+bathtub
+beach
+bed room
+bedroom
+bell tower
+bookstore
+bouncy castle
+bowling alley
+bridge
+bunker
+bus interior
+bus stop
+cafe
+cafeteria
+camp
+canal
+canyon
+capitol building
+car interior
+carousel
+casino
+castle
+cave
+changing room
+chicken coop
+church
+city
+classroom
+cliff
+clock tower
+closet
+clubroom
+cockpit
+colosseum
+conservatory
+construction site
+control tower
+convenience store
+convention
+cooling tower
+corn maze
+cosmic
+court
+courtroom
+courtyard
+crosswalk
+cubicle
+cyberpunk city
+dam
+dark tunnel
+desert
+dining room
+dirt road
+dock
+dressing room
+drydock
+dungeon
+factory
+fall
+fantasy
+fantasy city
+farm
+ferris wheel
+field
+field of flowers
+field of wheat
+fire
+fitting room
+floating castle
+floating city
+floating island
+flower field
+flower garden
+flower shop
+forest
+fountain
+frozen lakeside
+garage
+garden
+gas station
+gazebo
+geyser
+glacier
+gothic
+gradient
+graveyard
+greenhouse
+guard tower
+gym
+gym storeroom
+hangar
+harbor
+haunted library
+hell
+hen house
+highway
+hill
+hospital
+hotel
+hotel room
+house
+hut
+industrial
+infernal palace
+infirmary
+island
+izakaya
+jetty
+jewish temple
+jungle
+kitchen
+laboratory
+lake
+library
+lighthouse
+living room
+locker room
+lunar base
+mall
+market
+market stall
+meadow
+medieval village
+megastructure
+messy room
+military base
+minaret
+moon
+mosque
+mountain
+movie theater
+museum
+mushroom forest
+nature
+night sky
+nightclub
+nuclear powerplant
+oasis
+observatory
+ocean
+ocean bottom
+office
+onsen
+orchard
+otaku room
+pagoda
+park
+parking lot
+path
+pharmacy
+phone booth
+pier
+plain
+planet
+planetarium
+playground
+pond
+pool
+poolside
+powerplant
+prison
+prison cell
+railroad crossing
+railroad tracks
+ramen shop
+refinery
+restaurant
+rice paddy
+river
+road
+roller coaster
+roman city
+rooftop
+rope bridge
+rose garden
+ruins
+running track
+runway
+rural
+salon
+savannah
+school
+sex shop
+shack
+ship
+shipyard
+shop
+shore
+shower
+shrine
+sidewalk
+simple
+skating rink
+skyscraper
+slums
+soccer field
+space
+space elevator
+space station
+spacecraft interior
+spring
+stadium
+staff room
+stage
+stilt house
+stone walkway
+storage room
+stream
+street
+summer
+sunset
+supermarket
+swimming pool
+tank interior
+tavern
+temple
+theater
+toilet stall
+tower
+town
+train interior
+train station
+treehouse
+trench
+tunnel
+underworld
+valley
+vatican city
+vehicle interior
+village
+volcano
+war
+warehouse
+wasteland
+water
+waterfall
+waterpark
+weapon shop
+well
+wetland
+wheat field
+windmill
+winter
+wooden bridge
+workshop
+wrestling ring
+zoo

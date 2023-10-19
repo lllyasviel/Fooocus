@@ -1,0 +1,15 @@
+android
+automaton
+autonomous robot
+bipedal robot
+cleaning robot
+combat robot
+cyborg
+drones
+exoskeleton
+humanoid robot
+microbot
+military robot
+nanobot
+personal robot
+quadruped robot

@@ -1,0 +1,18 @@
+3d rendering
+cell shading render
+cgi render
+flat design render
+gouache render
+hyper-realism render
+isometric render
+line art render
+matte painting render
+mosaic render
+painterly render
+pixel art render
+realism render
+sculpted render
+stylized render
+technical drawing render
+toon shading render
+vector art render

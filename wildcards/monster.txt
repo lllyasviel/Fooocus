@@ -1,0 +1,151 @@
+abaddon
+abominable snowman
+alien
+ammit
+anansi
+angel
+angel of death
+anubis
+apollo
+arachne
+aswang
+atlas
+banshee
+basilisk
+behemoth
+bennu
+bigfoot
+blob
+bloodsucker
+bogeyman
+boggart
+bronze dragon
+brownie
+calydonian boar
+centaur
+cerberus
+changeling
+charybdis
+cherub
+chimaera
+chimera
+chupacabra
+clown
+cobra
+cockatrice
+crocotta
+cryptid
+cyclops
+dagon
+daimon
+deity
+demon
+devil
+direwolf
+divine being
+djinn
+dragon
+drakon
+drow
+drowned ghost
+dwarf
+eclipse dragon
+efreet
+elder thing
+elemental
+elf
+endbringer
+ent
+erinyes
+fairy
+fallen angel
+fangtooth
+fates
+fenrir
+fire dragon
+flicker
+gargoyle
+genie
+ghost
+ghoul
+giant
+goblin
+god
+goddess
+godzilla
+gorgon
+griffin
+hag
+half-demon
+harpy
+hatchling
+hecatoncheires
+hellhound
+hobgoblin
+homunculus
+horla
+hydra
+ice dragon
+imp
+incubus
+jackalope
+jinn
+kelpie
+kraken
+kudzu
+labrador retriever
+lamashtu
+lamia
+leprechaun
+leviathan
+lich
+loch ness monster
+manticore
+medusa
+mermaid
+mimic
+minotaur
+monster
+mothman
+mummy
+naga
+necromancer
+nymph
+ogre
+oni
+orc
+ork
+phoenix
+pooka
+quasit
+rakshasa
+rat king
+reaper
+roc
+sasquatch
+satyr
+selkie
+shaman
+siren
+skeleton
+sorcerer
+specter
+sphinx
+succubus
+tentacle monster
+titan
+treant
+troll
+valkyrie
+vampire
+warlock
+wendigo
+werewolf
+witch
+wizard
+wraith
+wyrm
+yeti
+yowie
+yuki-onna
+zombie

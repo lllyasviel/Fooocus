@@ -1,0 +1,37 @@
+assembled
+bas-relief
+bust
+bustrine
+busts
+carved
+carving
+cast
+chiseled
+column
+engraving
+etched
+figurine
+fountains
+glyph
+headstone
+hieroglyph
+high relief
+inscription
+intaglio
+low relief
+modelled
+molded
+monument
+obelisk
+petroglyph
+pictogram
+plaques
+relief
+runestone
+scrimshaw
+sculpted
+sculpture
+stamped
+statuary
+statue
+tombstone

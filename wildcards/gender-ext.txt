@@ -1,0 +1,54 @@
+girl
+boy
+female
+male
+agender
+androgyne
+androgynous
+bigender
+cis
+cisgender
+cis female
+cis male
+cis man
+cis woman
+cisgender female
+cisgender male
+cisgender man
+cisgender woman
+female to male
+ftm
+gender fluid
+gender nonconforming
+gender questioning
+gender variant
+genderqueer
+intersex
+male to female
+mtf
+neither
+neutrois
+non-binary
+other
+pangender
+trans
+trans female
+trans male
+trans man
+trans person
+trans woman
+transfeminine
+transgender
+transgender female
+transgender male
+transgender man
+transgender person
+transgender woman
+transmasculine
+transsexual
+transsexual female
+transsexual male
+transsexual man
+transsexual person
+transsexual woman
+two-spirit

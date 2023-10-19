@@ -1,0 +1,56 @@
+american suit
+black tie
+british suit
+business suit
+casual suit
+classic-fit suit
+cotton suit
+custom-made suit
+dinner suit
+double-breasted suit
+fall suit
+formal suit
+french suit
+funeral suit
+graduation suit
+italian suit
+leisure suit
+linen suit
+morning suit
+nylon suit
+party suit
+polyester suit
+prom suit
+rayon suit
+regular-fit suit
+silk suit
+single-breasted suit
+slim-fit suit
+spring suit
+suit with boutonniere
+suit with bow tie
+suit with breast pocket
+suit with buttonhole
+suit with collar pin
+suit with cufflinks
+suit with handkerchief
+suit with lapel chain
+suit with lapel flower
+suit with lapel pin
+suit with pocket square
+suit with pocket watch
+suit with suspenders
+suit with tie
+suit with tie clip
+suit with vest
+summer suit
+tailored-fit suit
+three-piece suit
+tuxedo
+tweed suit
+two-piece suit
+wedding suit
+white tie
+winter suit
+wool suit
+work suit

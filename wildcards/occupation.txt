@@ -1,0 +1,130 @@
+able-bodied seaman
+activist
+air force intelligence
+air force security forces
+air force weather
+air traffic controllers
+aircraft maintenance technicians
+aircrew
+airman,annalist
+anarchist
+artillery
+artilleryman
+artist
+athlete
+barber
+bicyclist
+bus driver
+businessmen
+calvary
+carpenter
+cashier
+cavalryman
+chef
+client
+colonel
+commander
+communications
+communications specialist
+communist
+commuter
+consumer
+corporal
+customer service representative
+democrat
+department manager
+diplomat
+doctor
+driver
+electrician
+employer
+engineer
+firefighter
+garbage collector
+general
+gunner's mate
+housekeeper
+infantry
+infantryman
+intelligence
+intelligence analyst
+janitor
+judge
+landscaper
+lawyer
+lawyers
+leader
+liaison officer
+libertarian
+lieutenant
+listener
+lobbyist
+logisticics
+mail carrier
+maintenance
+marine
+mechanic
+medic
+merchandiser
+musician
+nanny
+navigator
+officer
+ordnance
+pararescuemen
+passenger
+patient
+pedestrian
+pilot
+plitician
+plumber
+police officer
+private
+progressive
+protester
+psychic
+quartermaster
+radarman
+recon
+reconnaissance specialist
+registered nurse
+republican
+retail associate
+retail clerk
+retail sales associate
+retail stocker
+retail supervisor
+sailor
+seaman
+sergeant
+shopper
+sniper
+socialist
+software engineer
+soldier
+sonarman
+speaker
+specialist
+specops
+spy
+store manager
+storekeeper
+strategist
+student
+supply
+tactician
+tank crewman
+tanker
+taxi driver
+teacher
+terrorist
+traditionalist
+trooper
+uber driver
+waiter
+waitress
+web developer
+wingman
+worker
+writer
+yeoman

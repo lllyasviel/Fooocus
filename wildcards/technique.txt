@@ -1,0 +1,33 @@
+backlighting
+blending
+bloom
+bokeh
+caustics
+chiaroscuro
+chromatic aberration
+chromatic aberration abuse
+diffraction spikes
+depth of field
+dithering
+drop shadow
+emphasis lines
+film grain
+foreshortening
+gradient
+halftone
+image_fill
+lens flare
+lens flare abuse
+motion blur
+motion lines
+multiple monochrome
+optical illusion
+anaglyph
+exif thumbnail surprise
+open in internet explorer
+open in winamp
+stereogram
+scanlines
+silhouette
+speed lines
+vignetting
