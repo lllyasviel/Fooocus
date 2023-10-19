@@ -57,16 +57,16 @@ shared.gradio_root = gr.Blocks(
 
 with shared.gradio_root:
     with gr.Row():
-        with gr.Column(scale=2):
+        with gr.Column():
             progress_window = grh.Image(label='Preview', show_label=True, height=640, visible=False)
             progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False, elem_id='progress-bar', elem_classes='progress-bar')
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=745, visible=True, elem_classes='resizable_area')
             with gr.Row(elem_classes='type_row'):
-                with gr.Column(scale=17):
+                with gr.Column(scale=0.85):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.",
                                         value=modules.path.default_positive_prompt,
                                         container=False, autofocus=True, elem_classes='type_row', lines=1024)
-                with gr.Column(scale=3, min_width=0):
+                with gr.Column(scale=0.15, min_width=0):
                     generate_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', elem_id='generate_button', visible=True)
                     skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', visible=False)
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
@@ -179,7 +179,7 @@ with shared.gradio_root:
             inpaint_tab.select(lambda: ['inpaint', default_image], outputs=[current_tab, inpaint_input_image], queue=False, _js=down_js)
             ip_tab.select(lambda: 'ip', outputs=[current_tab], queue=False, _js=down_js)
 
-        with gr.Column(scale=1, visible=False) as advanced_column:
+        with gr.Column(scale=0.5, visible=False) as right_col:
             with gr.Tab(label='Setting'):
                 performance_selection = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=list(aspect_ratios.keys()),
@@ -328,7 +328,7 @@ with shared.gradio_root:
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls, queue=False)
 
-        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column, queue=False)
+        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, right_col, queue=False)
 
         ctrls = [
             prompt, negative_prompt, style_selections,
