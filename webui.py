@@ -64,8 +64,12 @@ with shared.gradio_root:
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=17):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.",
-                                        value=modules.path.default_positive_prompt,
                                         container=False, autofocus=True, elem_classes='type_row', lines=1024)
+
+                    if isinstance(modules.path.default_positive_prompt, str) \
+                            and modules.path.default_positive_prompt != '':
+                        shared.gradio_root.load(lambda: modules.path.default_positive_prompt, outputs=prompt)
+
                 with gr.Column(scale=3, min_width=0):
                     generate_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', elem_id='generate_button', visible=True)
                     skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', visible=False)
