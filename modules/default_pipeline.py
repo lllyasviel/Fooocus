@@ -320,20 +320,26 @@ def calculate_sigmas(sampler, model, scheduler, steps, denoise):
 @torch.no_grad()
 @torch.inference_mode()
 def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, refiner_swap_method='joint'):
-    global final_unet, final_refiner_unet
+    global final_unet, final_refiner_unet, final_vae, final_refiner_vae
 
     assert refiner_swap_method in ['joint', 'separate', 'vae', 'upscale']
 
-    if final_refiner_unet is not None:
-        if isinstance(final_refiner_unet.model.latent_format, fcbh.latent_formats.SD15) \
-                and refiner_swap_method != 'upscale':
-            refiner_swap_method = 'vae'
+    refiner_use_different_vae = final_refiner_vae is not None and final_refiner_unet is not None
 
-    if refiner_swap_method == 'vae' and denoise < 0.95:
-        # VAE swap only support full denoise
-        refiner_swap_method = 'joint'
-        # Disable refiner to avoid SD15 in joint swap
-        final_refiner_unet = None
+    if refiner_swap_method == 'upscale':
+        if not refiner_use_different_vae:
+            refiner_swap_method = 'joint'
+    else:
+        if refiner_use_different_vae:
+            if denoise > 0.95:
+                refiner_swap_method = 'vae'
+            else:
+                # VAE swap only support full denoise
+                # Disable refiner to avoid SD15 in joint/separate swap
+                final_refiner_unet = None
+                final_refiner_vae = None
+
+    print(f'[Sampler] refiner_swap_method = {refiner_swap_method}')
 
     if latent is None:
         empty_latent = core.generate_empty_latent(width=width, height=height, batch_size=1)
@@ -351,12 +357,6 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         sigma_min, sigma_max, seed=image_seed, cpu=False)
 
     decoded_latent = None
-    refiner_use_different_vae = final_refiner_vae is not None and final_refiner_unet is not None
-
-    if refiner_swap_method == 'upscale' and not refiner_use_different_vae:
-        refiner_swap_method = 'joint'
-
-    print(f'[Sampler] refiner_swap_method = {refiner_swap_method}')
 
     if refiner_swap_method == 'joint':
         sampled_latent = core.ksampler(
