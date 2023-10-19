@@ -189,6 +189,15 @@ def downloading_inpaint_models(v):
         model_dir=inpaint_models_path,
         file_name='fooocus_inpaint_head.pth'
     )
+    head_file = os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth')
+    patch_file = None
+
+    # load_file_from_url(
+    #     url='https://huggingface.co/lllyasviel/Annotators/resolve/main/ControlNetLama.pth',
+    #     model_dir=inpaint_models_path,
+    #     file_name='ControlNetLama.pth'
+    # )
+    # lama_file = os.path.join(inpaint_models_path, 'ControlNetLama.pth')
 
     if v == 'v1':
         load_file_from_url(
@@ -196,8 +205,7 @@ def downloading_inpaint_models(v):
             model_dir=inpaint_models_path,
             file_name='inpaint.fooocus.patch'
         )
-        return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path,
-                                                                                           'inpaint.fooocus.patch')
+        patch_file = os.path.join(inpaint_models_path, 'inpaint.fooocus.patch')
 
     if v == 'v2.5':
         load_file_from_url(
@@ -205,8 +213,9 @@ def downloading_inpaint_models(v):
             model_dir=inpaint_models_path,
             file_name='inpaint_v25.fooocus.patch'
         )
-        return os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth'), os.path.join(inpaint_models_path,
-                                                                                           'inpaint_v25.fooocus.patch')
+        patch_file = os.path.join(inpaint_models_path, 'inpaint_v25.fooocus.patch')
+
+    return head_file, patch_file
 
 
 def downloading_controlnet_canny():

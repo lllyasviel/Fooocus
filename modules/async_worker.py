@@ -400,8 +400,9 @@ def worker():
 
             pipeline.final_unet.model.diffusion_model.in_inpaint = True
 
-            # outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
-            # return
+            if advanced_parameters.debugging_cn_preprocessor:
+                outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
+                return
 
             progressbar(13, 'VAE Inpaint encoding ...')
 

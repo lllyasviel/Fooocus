@@ -279,7 +279,7 @@ with shared.gradio_root:
                                                      info='Version of Fooocus inpaint model')
 
                     with gr.Tab(label='Control Debug'):
-                        debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessor of ControlNets', value=False)
+                        debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessors', value=False)
 
                         mixing_image_prompt_and_vary_upscale = gr.Checkbox(label='Mixing Image Prompt and Vary/Upscale',
                                                                            value=False)
