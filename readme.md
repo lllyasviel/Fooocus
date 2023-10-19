@@ -1,6 +1,8 @@
-# Fooocus
+<div align=center>
+<img src="https://github.com/lllyasviel/Fooocus/assets/19834515/9ad8ae87-1dc2-4acc-9a44-a5fa4ae2aad6" width=80%>
+</div>
 
-<img src="https://github.com/lllyasviel/Fooocus/assets/19834515/f79c5981-cf80-4ee3-b06b-3fef3f8bfbc7" width=100%>
+# Fooocus
 
 Fooocus is an image generating software (based on [Gradio](https://www.gradio.app/)).
 
