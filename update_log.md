@@ -1,3 +1,11 @@
+# 2.1.709
+
+* Allowed changing default values of advanced checkbox and image number.
+
+# 2.1.707
+
+* Updated Gradio to v3.41.2.
+
 # 2.1.703
 
 * Fixed many previous problems related to inpaint.
