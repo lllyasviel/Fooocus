@@ -1,0 +1,237 @@
+Greater White-fronted Goose
+Snow Goose
+Cackling Goose
+Brant
+Canada Goose
+Mute Swan
+Trumpeter Swan
+Tundra Swan
+Wood Duck
+Gadwall
+American Wigeon
+American Black Duck
+Mallard
+Blue-winged Teal
+Northern Shoveler
+Northern Pintail
+Green-winged Teal
+Canvasback
+Redhead
+Ring-necked Duck
+Greater Scaup
+Lesser Scaup
+Long-tailed Duck
+Bufflehead
+Common Goldeneye
+Hooded Merganser
+Common Merganser
+Red-breasted Merganser
+Ruddy Duck
+(Ring-necked Pheasant)
+Ruffed Grouse
+Wild Turkey
+(Northern Bobwhite)
+Common Loon
+Pied-billed Grebe
+Horned Grebe
+Red-neck Grebe
+Double-crested Cormorant
+American Bittern
+Great Blue Heron
+Great Egret
+Little Blue Heron
+Green Heron
+Black-crowned Night-Heron
+Turkey Vulture
+Osprey
+Bald Eagle
+Northern Harrier
+Sharp-shinned Hawk
+Cooper’s Hawk
+Northern Goshawk
+Red-shouldered Hawk
+Broad-winged Hawk
+Red-tailed Hawk
+Rough-legged Hawk
+Golden Eagle
+American Kestrel
+Merlin
+Peregrine Falcon
+Virginia Rail
+Sora
+American Coot
+Sandhill Crane
+Semipalmated Plover
+Killdeer
+Spotted Sandpiper
+Solitary Sandpiper
+Greater Yellowlegs
+Lesser Yellowlegs
+White-rumped Sandpiper
+Upland Sandpiper
+Ruddy Turnstone
+Short-billed Dowitcher
+Semipalmated Sandpiper
+Least Sandpiper
+Baird’s Sandpiper
+Pectoral Sandpiper
+Dunlin
+Wilson’s Snipe
+American Woodcock
+Bonaparte’s Gull
+Laughing Gull
+Ring-billed Gull
+Herring Gull
+Thayer’s Gull
+Iceland Gull
+Lesser Black-backed Gull
+Glaucous Gull
+Great Black-backed Gull
+Caspian Tern
+Black Tern
+Common Tern
+Rock Pigeon
+Mourning Dove
+Yellow-billed Cuckoo
+Black-billed Cuckoo
+Eastern Screech-Owl
+Great Horned Owl
+Barred Owl
+Short-eared Owl
+Long-eared Owl
+Northern Saw-whet Owl
+Common Nighthawk
+Eastern Whip-poor-will
+Chimney Swift
+Ruby-throated Hummingbird
+Belted Kingfisher
+Red-headed Woodpecker
+Red-bellied Woodpecker
+Yellow-bellied Sapsucker
+Downy Woodpecker
+Hairy Woodpecker
+Black-backed Woodpecker
+Northern Flicker
+Pileated Woodpecker
+Olive-sided Flycatcher
+Eastern Wood-Pewee
+Yellow-bellied Flycatcher
+Alder Flycatcher
+Willow Flycatcher
+Least Flycatcher
+Eastern Phoebe
+Great Crested Flycatcher
+Eastern Kingbird
+Northern Shrike
+White-eyed Vireo
+Yellow-throated Vireo
+Blue-headed Vireo
+Warbling Vireo
+Philadelphia Vireo
+Red-eyed Vireo
+Blue Jay
+American Crow
+Common Raven
+Horned Lark
+Northern Rough-winged Swallow
+Tree Swallow
+Bank Swallow
+Barn Swallow
+Cliff Swallow
+Purple Martin
+Black-capped Chickadee
+Red-breasted Nuthatch
+White-breasted Nuthatch
+Brown Creeper
+Carolina Wren
+House Wren
+Winter Wren
+Marsh Wren
+Blue-gray Gnatcatcher
+Golden-crowned Kinglet
+Ruby-crowned Kinglet
+Eastern Bluebird
+Veery
+Gray-cheeked Thrush
+Swainson’s Thrush
+Hermit Thrush
+Wood Thrush
+American Robin
+Gray Catbird
+Northern Mockingbird
+Brown Thrasher
+European Starling
+American Pipit
+Cedar Waxwing
+Lapland Longspur
+Snow Bunting
+Ovenbird
+Northern Waterthrush
+Blue-winged Warbler
+Golden-winged Warbler
+Black-and-white Warbler
+Tennessee Warbler
+Orange-crowned Warbler
+Nashville Warbler
+Connecticut Warbler
+Mourning Warbler
+Common Yellowthroat
+Hooded Warbler
+American Redstart
+Cape May Warbler
+Northern Parula
+Magnolia Warbler
+Bay-breasted Warbler
+Blackburnian Warbler
+Yellow Warbler
+Chestnut-sided Warbler
+Blackpoll Warbler
+Black-throated Blue Warbler
+Palm Warbler
+Pine Warbler
+Yellow-rumped Warbler
+Prairie Warbler
+Black-throated Green Warbler
+Canada Warbler
+Wilson’s Warbler
+Yellow-breasted Chat
+Spotted Towhee
+Eastern Towhee
+American Tree Sparrow
+Chipping Sparrow
+Clay-coloured Sparrow
+Field Sparrow
+Vesper Sparrow
+Savannah Sparrow
+Grasshopper Sparrow
+LeConte’s Sparrow
+Nelson’s Sparrow
+Fox Sparrow
+Song Sparrow
+Lincoln’s Sparrow
+Swamp Sparrow
+White-throated Sparrow
+White-crowned Sparrow
+Dark-eyed Junco
+Scarlet Tanager
+Northern Cardinal
+Rose-breasted Grosbeak
+Indigo Bunting
+Bobolink
+Red-winged Blackbird
+Eastern Meadowlark
+Yellow-headed Blackbird
+Rusty Blackbird
+Common Grackle
+Brown-headed Cowbird
+Orchard Oriole
+Baltimore Oriole
+Purple Finch
+House Finch
+Red Crossbill
+White-winged Crossbill
+Common Redpoll
+Pine Siskin
+American Goldfinch
+Evening Grosbeak
+House Sparrow

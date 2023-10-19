@@ -1,0 +1,19 @@
+action
+adventure
+animation
+comedy
+crime
+documentary
+drama
+family
+fantasy
+film noir
+historical
+horror
+musical
+mystery
+romance
+science fiction
+thriller
+war
+western

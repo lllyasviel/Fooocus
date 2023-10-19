@@ -1,0 +1,372 @@
+abiu
+acai
+acerola
+ackee
+african cherry orange
+alligator apple
+amazon grape
+ambarella
+american mayapple
+apple
+apricot
+araza
+arhat
+avocado
+babaco
+bael
+banana
+barbadine
+barbados cherry
+barberry
+bayberry
+beach plum
+bearberry
+beechnut
+berry
+betel nut
+bignay
+bilberry
+bilimbi
+bitter gourd
+black apple
+black cherry
+black mulberry
+black raspberry
+black sapote
+blackberry
+blackcurrant
+blood orange
+blue tongue
+blueberry
+bolwarra
+bottle gourd
+boysenberry
+bramble
+brazil nut
+breadfruit
+broadleaf bramble
+buffaloberry
+burdekin plum
+burmese grape
+cacao
+caimito
+cajamanga
+calabashtree
+camucamu
+canistel
+cantaloupe
+cape gooseberry
+carambola
+cardon
+carob
+cashew
+cedar bay cherry
+cempedak
+ceylon gooseberry
+che
+chenet
+cherimoya
+cherry
+chinese bayberry
+chinese mulberry
+chokeberry
+citron
+clementine
+cloudberry
+cluster fig
+coconut
+cocoplum
+coffee
+common apple-berry
+conkerberry
+cornelian cherry
+crabapple
+cranberry
+crowberry
+cudrang
+cudrania
+cupuacu
+currant
+custard apple
+damson
+date
+date palm
+date-plum
+davidson's plum
+desert fig
+desert lime
+dewberry
+doubah
+dragonfruit
+durain
+eastern may hawthorn
+eggfruit
+eggplant
+elderberry
+elephant apple
+emblic
+emu apple
+entawak
+etrog
+feijoa
+fibrous satinash
+fig
+fiji longan
+finger lime
+galendar
+galia
+gandaria
+genip
+genipap
+giant granadilla
+golden apple
+gooseberry
+goumi
+gourds
+grape
+grapefruit
+grapple
+greengage
+grenadilla
+guanabana
+guarana
+guava
+guavaberry
+hackberry
+hardy kiwi
+hawthorn
+hog plum
+honeycrisp apple
+honeydew melon
+honeysuckle
+horned melon
+huckleberry
+huito
+illawarra plum
+indian almond
+indian fig
+indian jujube
+indian prune
+indian strawberry
+ita palm
+jaboticaba
+jackfruit
+jagua
+jamaica cherry
+jambul
+japanese bayberry
+japanese raisin
+jasmine
+jatoba
+jenipapo
+jocote
+jujube
+june plum
+kaffir lime
+kahikatea
+kakadu lime
+kakadu plum
+kandis fruit
+karkalla
+keppel fruit
+key lime
+kiwi
+kumquat
+kundong
+kutjera
+lablab
+lady apple
+langsat
+lanzones
+lapsi
+legume
+lemon
+lemon aspen
+leucaena
+lillipilli
+lilly pilly
+lime
+lingonberry
+loganberry
+longan
+loquat
+lucuma
+lulo
+lychee
+mabolo
+macadamia
+malay apple
+mamey sapote
+mamoncillo
+mandarin
+mango
+mangosteen
+manila tamarind
+manoao
+marang
+marion berry
+mayapple
+mayhaw
+maypop
+medlar
+melinjo
+melon
+melon pear
+midyim
+mock buckthorn
+mock strawberry
+monkey apple
+monstera
+morinda
+mountain soursop
+mulberry
+mundu
+muntries
+muskmelons
+myrtle
+nageia
+nance
+nannyberry
+naranja
+naranjilla
+native cherry
+native currant
+native gooseberry
+nectarine
+neem
+nungu
+nutmeg
+oil palm
+olallieberry
+old world sycomore
+olive
+orange
+orangelo
+oregon grape
+otaheite apple
+papaya
+passion fruit
+pawpaw
+peach
+peanut
+pear
+pequi
+persimmon
+pewa
+pigeon plum
+pigface
+pili nut
+pineapple
+pitaya
+pitomba
+plantain
+plum
+podocarpus
+poha
+pois doux
+pomcite
+pomegranate
+pomelo
+pommecythere
+pommerac
+pond apple
+prickly pear
+prumnopitys
+prune
+pulasan
+pummelo
+pumpkin
+pupunha
+purple apple-berry
+quandong
+quenepa
+quince
+raisin
+rambutan
+rangpur
+raspberry
+red bayberry
+red mombin
+red mulberry
+redcurrant
+rhubarb
+riberry
+ridged gourd
+rimu
+rose apple
+rose hip
+rose myrtle
+rose-leaf bramble
+rowan
+sageretia
+saguaro
+salak
+salal berry
+salmonberry
+sandpaper fig
+santol
+sapodilla
+sapote
+saskatoon
+saskatoonberry
+satsuma
+sea grape
+sea-buckthorn
+serviceberry
+shipova
+siberian kiwi
+silkworm thorn
+snow berry
+soncoya
+soursop
+star apple
+strawberry
+strawberry-guava
+strawberry-pear
+sugar apple
+surinam cherry
+sweet apple-berry
+sweet lemon
+sweetsop
+sycamore fig
+sycomore
+tamarillo
+tamarind
+tangelo
+tangerine
+tanjong
+taxus baccata
+texas persimmon
+thimbleberry
+tomato
+toyon
+ugli fruit
+ugn
+uva/grape
+vanilla
+velvet tamarind
+voavanga
+water apple
+watermelon
+wax apple
+wax gourd
+white aspen
+white mulberry
+white sapote
+wild orange
+wineberry
+winter melon
+wolfberry
+wongi
+wood apple
+xigua
+xylocarp
+yali pear
+yamamomo
+yangmei
+yellow plum
+yumberry
+zhe
+zigzag vine
+ziziphus
+zucchini

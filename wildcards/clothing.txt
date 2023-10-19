@@ -1,0 +1,286 @@
+abaya
+apron
+armor
+armored dress
+athleisure
+backless dress
+band uniform
+baseball jersey
+bathing suit
+bathrobe
+bell bottoms
+beret
+bermuda shorts
+bike shorts
+bikesuit
+bikini
+bikini armor
+blazer
+bloomers
+blouse
+body stocking
+bodystocking
+bodysuit
+bomber jacket
+boots
+boubou
+boxer shorts
+boyshorts
+bra
+braces
+bubble skirt
+budget sarashi
+buruma
+business suit
+bustier
+caftan
+camisole
+cape
+capes
+cardigan
+cargo shorts
+casuals
+cat suit
+chador
+chanchanko
+changpao
+chaps
+chausses
+cheerleader outfit
+chest sarashi
+china dress
+china dress (cheongsam/qipao)
+chinese clothes
+coat
+cocktail dress
+competition swimsuit
+corset
+cowboy outfit
+criss-cross halter
+croptop
+culottes
+denim jacket
+denim shorts
+dirndl
+dolman
+dotera
+dress
+dress flower
+duster
+fatigues
+fengguan
+flannel shirt
+flower trim
+football jersey
+frills
+frock
+fundoshi
+fur trim
+furisode
+gakuran
+gambeson
+garter
+gathers
+geta
+ghost costume
+gloves
+gold trim
+gown
+gym shorts
+gym uniform
+habit
+habit uniform
+haik
+hakama
+hakama pants
+hakama short skirt
+hakama skirt
+halter top
+hanbok
+hanfu
+hanten
+haori
+happi
+harem outfit
+hauberk
+hawaiian shirt
+high-low skirt
+high-waist skirt
+hoodie
+hoop skirt
+hose
+housecoat
+jacket
+jammers
+japanese clothes
+jeans
+jerkin
+jodhpurs
+jubbah
+jumper
+jumpsuit
+jupon
+kameez
+kanzu
+kaross
+kasaya
+kesa
+kilt
+kimono
+kimono skirt
+kittel
+korean clothes
+lab coat
+lace trim
+layered kimono
+leaf bikini
+leather jacket
+lederhosen
+leggings
+legskin
+leotard
+letter jacket
+loincloth
+long coat
+long skirt
+longpao
+lowleg bikini
+lowleg shorts
+lowleg skirt
+maid uniform
+maillot
+mandarin collar shirt
+manteau
+mantle
+meiji schoolgirl uniform
+micro bikini
+micro shorts
+microskirt
+midriff sarashi
+miko
+miko uniform
+military uniform
+miniskirt
+mino boushi
+muslin
+naked
+navy uniform
+negligee
+nehru jacket
+night gown
+nightdress
+nightshirt
+nontraditional miko
+open robe
+overall skirt
+overalls
+overcoat
+overskirt
+pajamas
+palazzo pants
+paletot
+pallium
+pant suit
+panties
+parachute pants
+parka
+pelvic curtain
+pilot suit
+pinafore
+plaid
+plaid skirt
+playboy bunny
+pleated skirt
+plugsuit
+polo
+poncho
+prom dress
+pullover
+racing suit
+rash guard
+ribbon trim
+robe
+romper
+rompers
+sailor dress
+sarashi
+sari
+sari sarong
+sarong
+sash
+scarf
+school swimsuit
+school uniform
+scrubs
+see-through
+serafuku
+serape
+shalwar kameez
+shawl
+sherwani
+short jumpsuit
+short kimono
+short shorts
+shorts
+shorts under skirt
+shosei
+side-tie bikini bottom
+silver trim
+skating dress
+ski suit
+skirt
+skirt suit
+slacks
+slingshot swimsuit
+smock
+socks
+spandex
+sports bikini
+sports bra
+stockings
+strapless leotard
+straw cape (mino)
+string bikini
+suit
+sundress
+surcoat
+suspender skirt
+suspenders
+sweater
+swim briefs (speedo)
+swimming trunks
+swimsuit
+t-shirt
+tabi
+tallit
+tanga
+tangzhuang
+tankini
+tasuki
+taut shirt
+thobe
+thong
+thong bikini
+tie
+tights
+toga
+top hat
+torn clothes
+tracksuit
+trench coat
+tube top
+tunic
+turtleneck
+tutu
+tuxedo
+twinset
+uchikake (wedding kimono)
+undone sarashi
+unitard
+venus bikini
+vietnamese dress
+wedding dress
+wet suit
+yamakasa
+yoga pants
+yukata

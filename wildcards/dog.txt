@@ -1,0 +1,130 @@
+afghan hound
+akita
+alaskan malamute
+american bulldog
+american pit bull terrier
+american staffordshire terrier
+american water spaniel
+australian cattle dog
+australian shepherd
+basenji
+basset hound
+beagle
+bearded collie
+bedlington terrier
+bernese mountain dog
+bichon frise
+black and tan coonhound
+bloodhound
+border collie
+border terrier
+borzoi
+boston terrier
+boxer
+brittany spaniel
+bull terrier
+bulldog
+bullmastiff
+cairn terrier
+cavalier king charles spaniel
+chesapeake bay retriever
+chihuahua
+chinese shar-pei
+chow chow
+clumber spaniel
+cocker spaniel
+collie
+coton de tulear
+dachshund
+dalmatian
+doberman pinscher
+dogue de bordeaux
+english cocker spaniel
+english pointer
+english setter
+english springer spaniel
+english toy spaniel
+entlebucher mountain dog
+flat-coated retriever
+fox terrier
+french bulldog
+german pinscher
+german shepherd
+german shorthaired pointer
+german wirehaired pointer
+giant schnauzer
+golden retriever
+gordon setter
+great dane
+great pyrenees
+greater swiss mountain dog
+greyhound
+harrier
+havanese
+irish setter
+irish terrier
+irish water spaniel
+irish wolfhound
+italian greyhound
+japanese chin
+keeshond
+kelpie
+kerry blue terrier
+komondor
+kuvasz
+labrador retriever
+lakeland terrier
+leonberger
+lhasa apso
+löwchen
+maltese
+manchester terrier
+mastiff
+miniature bull terrier
+miniature pinscher
+miniature schnauzer
+newfoundland
+norfolk terrier
+norwegian buhund
+norwegian elkhound
+norwegian lundehund
+norwich terrier
+old english sheepdog
+otterhound
+papillon
+pekingese
+pharaoh hound
+pointer
+pomeranian
+poodle
+pug
+puli
+pyrenean mountain dog
+rat terrier
+retriever
+rhodesian ridgeback
+rottweiler
+saint bernard
+samoyed
+schipperke
+schnauzer
+scottish terrier
+shar pei
+sheepdog
+shepherd
+shih tzu
+siberian husky
+spaniel
+spinone italiano
+staffordshire bull terrier
+standard schnauzer
+sussex spaniel
+swedish vallhund
+terrier
+vizsla
+weimaraner
+whippet
+wirehaired pointing griffon
+working kelpie
+xoloitzcuintli
+yorkshire terrier

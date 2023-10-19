@@ -1,0 +1,13 @@
+4mm - 14mm  focal length
+Fisheye focal length
+14mm - 35mm  focal length
+Wide angle focal length
+35mm - 85mm  focal length
+Standard focal length
+85mm - 135mm
+Short telephoto focal length
+135mm+ focal length
+Medium telephoto focal length
+300mm+ focal length
+Macro
+Macro focal length

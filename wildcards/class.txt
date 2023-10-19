@@ -1,0 +1,281 @@
+abjurer
+acrobat
+alchemist
+anchorite
+apocalyptist
+arcane archer
+archmage
+armiger
+astromancer
+auspex
+avenger
+barbarian
+barbarian chieftain
+battle priest
+battlemage
+beast warrior
+beastlord
+berserker
+binder
+black belt
+black knight
+blackguard
+bladesinger
+blizzard mage
+blood magus
+bloodrager
+blue mage
+bounty hunter
+brawler
+brewmaster
+builder
+cannoneer
+cavalier
+chaplain
+chi monk
+child of the moon
+chosen of the spider queen
+chronomancer
+chrononaut
+cleric
+commando
+corsair
+courtier
+cryomancer
+cultist of the dark lady
+daemonhost
+dancer
+dawnstrider
+deadwalker
+death dealer
+death knight
+demon beast
+demon-in-flesh
+demonbinder
+demonologist
+devastator
+devotee of the goblin king
+diabolist
+divine born
+diviner
+doomseeker
+dragon knight
+dragon rider
+dragoon
+dreadnaught
+druid
+duelist
+dust walker
+eclipse
+edgewalker
+elementalist
+enchanter
+enforcer
+engineer
+evangelist
+executioner
+exorcist
+explorer
+far seer
+fencer
+firebrand
+flagellant
+forgeborn
+gambler
+geomancer
+ghoststrider
+gladiator
+grudge bearer
+gunner
+gunslinger
+halberdier
+harrower
+hellion
+herald of endings
+hexer
+high cleric
+highlander
+holy matron
+horned one
+horse archer
+hunter
+hydromancer
+ice apostle
+illusionist
+inquisitor
+investigator
+invoker
+jack-of-all-trades
+jester
+juggernaut
+justiciar
+keeper of the flame
+kineticist
+knight
+lawbreaker
+legalist
+librarian
+machinist
+mage knight
+mage of the tower
+mageblade
+magic knight
+magician
+magister
+magus
+maleficant
+marauder
+mariner
+martial artist
+mask
+mechanic
+medic
+mentalist
+mercenary
+mesmerist
+metallurgist
+mime
+mindwitch
+minstrel
+monk
+monster hunter
+mountebank
+musketeer
+myrmidon
+mystic knight
+mystic navigator
+necromancer
+nightmare
+nightstalker
+ninja
+occultist
+oracle
+orb master
+outlander
+paladin
+paragon
+phantasmist
+pharmacist
+phaseshifter
+pirate
+pit fighter
+preacher
+priest
+priest of father death
+priest of old man winter
+priest of revel
+priest of summer
+priest of the dark gods
+priest of the demon lord
+priest of the devil
+priest of the honored dead
+priest of the horned king
+priest of the maiden
+priest of the new god
+priest of the old faith
+priest of the radiant one
+priest of the seer
+priest of the spider queen
+priest of the world mother
+priest of witchcraft
+prince of darkness
+privateer
+psion
+psyblade
+psychic warrior
+psychokinetic
+puppetmaster
+pyroclast
+pyromancer
+pyromaniac
+raider
+ranger
+ravager
+reaver
+red cloak
+red mage
+road warrior
+rogue thief
+ruiner
+runecaster
+runepriest
+runewright
+saboteur
+saint
+samurai
+sapper
+satyr
+scholar
+scout
+sea captain
+seeker
+sentinel
+shadow
+shadowdancer
+shadowmancer
+shaman
+sharpshooter
+shroud
+silencer
+skindancer
+skirmisher
+skydancer
+slayer
+slayer of the dead
+sleuth
+sniper
+soldier
+sorcerer
+spellbinder
+spellguard
+spellmaster
+spellsinger
+spellsniper
+spellweaver
+spider rider
+spider savant
+spidermage
+spiritualist
+stormbringer
+summoner
+swashbuckler
+sword dancer
+swordmage
+sylvan ranger
+tactician
+taskmaster
+technomancer
+tempest
+templar
+tenebrist
+thaumaturge
+thief
+thrallbinder
+trapper
+tree shepherd
+trickster
+troll hunter
+trooper
+valkyrie
+vampire
+vampire hunter
+vancian magician
+vigilante
+void thrall
+warden
+wardscribe
+warlock
+warpriest
+warrior
+warrior spirit
+weapon master
+weather mage
+white mage
+winged warrior
+witch
+witch doctor
+witch hunter
+witchdoctor
+witchhunter
+wizard
+world-breaker

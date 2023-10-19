@@ -1,0 +1,13 @@
+4:3 aspect ratio
+5:4 aspect ratio
+2:1 aspect ratio
+1.33:1 aspect ratio
+16:9 aspect ratio
+1.85:1 aspect ratio
+2.39:1 anamorphic aspect ratio
+2.76:1 (70mm) aspect ratio
+1.37:1 (Academy) aspect ratio
+2.59:1 (Cinerama) aspect ratio
+2.65:1 (Cinerama) aspect ratio
+2.35:1 (Cinemascope) aspect ratio
+2.66:1 (Cinemascope) aspect ratio

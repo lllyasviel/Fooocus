@@ -1,0 +1,13 @@
+fat
+fit
+elegant
+slender
+burly
+bulky
+thin
+chubby
+lanky
+skinny
+buff
+ripped
+rough

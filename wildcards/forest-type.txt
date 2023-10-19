@@ -1,0 +1,89 @@
+boreal and alpine broadleaf forest
+boreal and alpine coniferous forest
+boreal and alpine forest
+boreal and alpine mixed forest
+boreal and alpine rainforest
+boreal and alpine taiga
+boreal and alpine tundra
+boreal broadleaf forest
+boreal coniferous forest
+boreal forest
+boreal mixed forest
+boreal needleleaf forest
+cliff forest
+cloud forest
+coastal broadleaf forest
+coastal coniferous forest
+coastal forest
+coastal mixed forest
+coastal redwood forest
+coniferous and broadleaf forest
+coniferous forest
+coral reef forest
+deciduous and broadleaf forest
+deciduous and coniferous forest
+deciduous forest
+dry conifer forest
+dry savanna forest
+evergreen and deciduous broadleaf forest
+evergreen and deciduous coniferous forest
+evergreen and deciduous forest
+evergreen and deciduous mixed forest
+evergreen and deciduous rainforest
+evergreen broadleaf forest
+evergreen coniferous forest
+evergreen forest
+evergreen rainforest
+grass forest
+island forest
+jungle
+littoral forest
+lowland coniferous forest
+lowland deciduous forest
+lowland forest
+lowland mixed forest
+lowland rainforest
+mangrove forest
+mangrove swamps
+mediterranean forest
+montane forest
+montane rainforest
+mossy broad-leaved forest
+mossy coniferous forest
+mossy mixed-leaved forst
+mossy subtropical forest
+mossy temperate forest
+rainforest
+rainforest (montane)
+rainforest (subtropical)
+rainforest (temperate)
+rainforest (tropical)
+rainy savana forest
+savanna forest
+savanna tropical forest
+scrub forest
+seasonal forest
+subalpine conifer forest
+subalpine forest
+subalpine meadows
+subarctic forest
+subtropical broad-leaved forest
+subtropical coniferous forest
+subtropical dry forest
+subtropical forest
+subtropical mixed-leaved forest
+subtropical moist forest
+taiga
+taiga forest
+temperate broad-leaved forest
+temperate broadleaf and mixed forest
+temperate coniferous forest
+temperate deciduous forest
+temperate mixed forest
+temperate mixed-leaved forest
+temperate needle forest
+temperate needleleaf forest
+temperate rainforest
+tropical forest
+tropical jungle
+tropical rainforest

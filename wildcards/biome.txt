@@ -1,0 +1,80 @@
+alpine
+alpine desert
+alpine mountain
+arctic
+arctic alpine tundra
+arctic desert
+arctic forest
+arctic grassland
+arctic mountain
+arctic ocean
+arctic tundra
+arid desert
+boreal
+boreal desert
+boreal forest
+boreal jungle
+boreal mountain
+boreal ocean
+boreal savanna
+boreal steppe
+boreal swamp
+coastal desert
+cold desert
+desert
+desert mountain
+forest
+grassland
+hot desert
+jungle
+mountain
+mountain desert
+ocean
+ocean desert
+polar
+polar alpine tundra
+polar desert
+polar forest
+polar grassland
+polar ice cap
+polar mountain
+polar ocean
+polar tundra
+rainforest
+savanna
+semi-arid desert
+steppe
+subtropical desert
+swamp
+temperate
+temperate alpine tundra
+temperate coniferous forest
+temperate deciduous forest
+temperate desert
+temperate forest
+temperate grassland
+temperate jungle
+temperate mixed forest
+temperate mountain
+temperate ocean
+temperate rainforest
+temperate savanna
+temperate steppe
+temperate swamp
+tropical
+tropical desert
+tropical dry forest
+tropical forest
+tropical grassland
+tropical jungle
+tropical moist forest
+tropical mountain
+tropical ocean
+tropical rain forest
+tropical rainforest
+tropical savanna
+tropical seasonal forest
+tropical steppe
+tropical swamp
+tundra
+volcanic
