@@ -1,3 +1,7 @@
+# 2.1.706
+
+* Updated requirements (Gradio, Pillow).
+
 # 2.1.703
 
 * Fixed many previous problems related to inpaint.
