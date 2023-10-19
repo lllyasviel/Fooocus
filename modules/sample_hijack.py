@@ -6,7 +6,7 @@ from fcbh.model_base import SDXLRefiner, SDXL
 from fcbh.sample import get_additional_models, get_models_from_cond, cleanup_additional_models
 from fcbh.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
     create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_adm, \
-    blank_inpaint_image_like
+    encode_cond
 
 
 current_refiner = None
@@ -77,9 +77,18 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
     apply_empty_x_to_equal_area(list(filter(lambda c: c[1].get('control_apply_to_uncond', False) == True, positive)), negative, 'control', lambda cond_cnets, x: cond_cnets[x])
     apply_empty_x_to_equal_area(positive, negative, 'gligen', lambda cond_cnets, x: cond_cnets[x])
 
+    if latent_image is not None:
+        latent_image = model.process_latent_in(latent_image)
+
     if model.is_adm():
         positive = encode_adm(model, positive, noise.shape[0], noise.shape[3], noise.shape[2], device, "positive")
         negative = encode_adm(model, negative, noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")
+
+    if hasattr(model, 'cond_concat'):
+        positive = encode_cond(model.cond_concat, "concat", positive, device, noise=noise, latent_image=latent_image, denoise_mask=denoise_mask)
+        negative = encode_cond(model.cond_concat, "concat", negative, device, noise=noise, latent_image=latent_image, denoise_mask=denoise_mask)
+
+    extra_args = {"cond":positive, "uncond":negative, "cond_scale": cfg, "model_options": model_options, "seed":seed}
 
     if current_refiner is not None and current_refiner.model.is_adm():
         positive_refiner = clip_separate(positive, target_model=current_refiner.model)
@@ -90,27 +99,6 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
 
         positive_refiner[0][1]['adm_encoded'].to(positive[0][1]['adm_encoded'])
         negative_refiner[0][1]['adm_encoded'].to(negative[0][1]['adm_encoded'])
-
-    if latent_image is not None:
-        latent_image = model.process_latent_in(latent_image)
-
-    extra_args = {"cond": positive, "uncond": negative, "cond_scale": cfg, "model_options": model_options, "seed": seed}
-
-    cond_concat = None
-    if hasattr(model, 'concat_keys'):  # inpaint
-        cond_concat = []
-        for ck in model.concat_keys:
-            if denoise_mask is not None:
-                if ck == "mask":
-                    cond_concat.append(denoise_mask[:,:1])
-                elif ck == "masked_image":
-                    cond_concat.append(latent_image) #NOTE: the latent_image should be masked by the mask in pixel space
-            else:
-                if ck == "mask":
-                    cond_concat.append(torch.ones_like(noise)[:, :1])
-                elif ck == "masked_image":
-                    cond_concat.append(blank_inpaint_image_like(noise))
-        extra_args["cond_concat"] = cond_concat
 
     def refiner_switch():
         cleanup_additional_models(set(get_models_from_cond(positive, "control") + get_models_from_cond(negative, "control")))
