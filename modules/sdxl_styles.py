@@ -103,6 +103,7 @@ def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
     if len(placeholders) == 0:
         return wildcard_text
 
+    print(f'[Fooocus Wildcards] input: {wildcard_text}')
     rng = random.Random(seed)
     for placeholder in placeholders:
         try:
@@ -112,5 +113,6 @@ def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
         except IOError:
             print(f'Error: could not open wildcard file {placeholder}.txt, using as normal word.')
             wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
+    print(f'[Fooocus Wildcards] output: {wildcard_text}')
 
     return wildcard_text

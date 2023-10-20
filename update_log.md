@@ -1,3 +1,7 @@
+# 2.1.710
+
+* Added information about wildcards usage in console log.
+
 # 2.1.709
 
 * Allowed changing default values of advanced checkbox and image number.
