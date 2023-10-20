@@ -116,3 +116,6 @@ def apply_wildcards(wildcard_text, rng, directory=wildcards_path):
                       f'Using "{placeholder}" as a normal word.')
                 wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
             print(f'[Wildcards] {wildcard_text}')
+
+    print(f'[Wildcards] BFS stack overflow. Current text: {wildcard_text}')
+    return wildcard_text
