@@ -296,3 +296,36 @@ Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com
 ## Update Log
 
 The log is [here](update_log.md).
+
+# Localization/Translation/I18N
+
+**We need your help!** Please help with translating Fooocus to international languages.
+
+You can put json files in the `language` folder to translate the user interface.
+
+For example, below is the content of `Fooocus/language/example.json`:
+
+```json
+{
+  "Generate": "生成",
+  "Input Image": "入力画像",
+  "Advanced": "고급",
+  "SAI 3D Model": "SAI 3D Modèle"
+}
+```
+
+If you add `--language example` arg, Fooocus will read `Fooocus/language/example.json` to translate the UI.
+
+For example, you can edit the ending line of Windows `run.bat` as
+
+    .\python_embeded\python.exe -s Fooocus\entry_with_update.py --language example
+
+Or `run_anime.bat` as
+
+    .\python_embeded\python.exe -s Fooocus\entry_with_update.py --language example --preset anime
+
+Or `run_realistic.bat` as
+
+    .\python_embeded\python.exe -s Fooocus\entry_with_update.py --language example --preset realistic
+
+For practical translation, you may create your own file like `Fooocus/language/jp.json` or `Fooocus/language/cn.json` and then use flag `--language jp` or `--language cn`. Apparently, these files do not exist now. **We need your help to create these files!**

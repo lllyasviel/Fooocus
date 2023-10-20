@@ -1,3 +1,7 @@
+# 2.1.719
+
+* I18N
+
 # 2.1.718
 
 * Corrected handling dash in wildcard names, more wildcards (extended-color).
