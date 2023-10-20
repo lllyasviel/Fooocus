@@ -105,7 +105,7 @@ var executedOnLoaded = false;
 
 document.addEventListener("DOMContentLoaded", function() {
     var mutationObserver = new MutationObserver(function(m) {
-        if (!executedOnLoaded && gradioApp().querySelector('#txt2img_prompt')) {
+        if (!executedOnLoaded && gradioApp().querySelector('#generate_button')) {
             executedOnLoaded = true;
             executeCallbacks(uiLoadedCallbacks);
         }
@@ -125,20 +125,16 @@ document.addEventListener("DOMContentLoaded", function() {
  * Add a ctrl+enter as a shortcut to start a generation
  */
 document.addEventListener('keydown', function(e) {
-    const isEnter = e.key === 'Enter' || e.keyCode === 13;
-    const isModifierKey = e.metaKey || e.ctrlKey || e.altKey;
-
-    const interruptButton = get_uiCurrentTabContent().querySelector('button[id$=_interrupt]');
-    const generateButton = get_uiCurrentTabContent().querySelector('button[id$=_generate]');
-
-    if (isEnter && isModifierKey) {
-        if (interruptButton.style.display === 'block') {
-            interruptButton.click();
-            setTimeout(function() {
-                generateButton.click();
-            }, 500);
-        } else {
-            generateButton.click();
+    var handled = false;
+    if (e.key !== undefined) {
+        if ((e.key == "Enter" && (e.metaKey || e.ctrlKey || e.altKey))) handled = true;
+    } else if (e.keyCode !== undefined) {
+        if ((e.keyCode == 13 && (e.metaKey || e.ctrlKey || e.altKey))) handled = true;
+    }
+    if (handled) {
+        var button = gradioApp().querySelector('button[id=generate_button]');
+        if (button) {
+            button.click();
         }
         e.preventDefault();
     }

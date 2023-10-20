@@ -26,10 +26,12 @@ def javascript_html():
     script_js_path = webpath('javascript/script.js')
     context_menus_js_path = webpath('javascript/contextMenus.js')
     localization_js_path = webpath('javascript/localization.js')
+    zoom_js_path = webpath('javascript/zoom.js')
     head = f'<script type="text/javascript">{localization_js(args_manager.args.language)}</script>\n'
     head += f'<script type="text/javascript" src="{script_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{context_menus_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{localization_js_path}"></script>\n'
+    head += f'<script type="text/javascript" src="{zoom_js_path}"></script>\n'
     return head
 
 

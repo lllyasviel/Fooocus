@@ -1,3 +1,8 @@
+# 2.1.720
+
+* Added Canvas Zoom to inpaint canvas
+* Fixed the problem that image will be cropped in UI when the uploaded image is too wide.
+
 # 2.1.719
 
 * I18N
