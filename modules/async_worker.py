@@ -264,7 +264,9 @@ def worker():
                     c=None,
                     uc=None,
                     positive_top_k=len(positive_basic_workloads),
-                    negative_top_k=len(negative_basic_workloads)
+                    negative_top_k=len(negative_basic_workloads),
+                    log_positive_prompt='\n'.join([task_prompt] + task_extra_positive_prompts),
+                    log_negative_prompt='\n'.join([task_negative_prompt] + task_extra_negative_prompts),
                 ))
 
             if use_expansion:
@@ -538,8 +540,8 @@ def worker():
 
                 for x in imgs:
                     d = [
-                        ('Prompt', task['task_prompt']),
-                        ('Negative Prompt', task['task_negative_prompt']),
+                        ('Prompt', task['log_positive_prompt']),
+                        ('Negative Prompt', task['log_negative_prompt']),
                         ('Fooocus V2 Expansion', task['expansion']),
                         ('Styles', str(raw_style_selections)),
                         ('Performance', performance_selection),
