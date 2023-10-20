@@ -1,3 +1,19 @@
+# 2.1.718
+
+* Corrected handling dash in wildcard names, more wildcards (extended-color).
+
+# 2.1.717
+
+* Corrected displaying multi-line prompts in Private Log.
+
+# 2.1.716
+
+* Added support for nested wildcards, more wildcards (flower, color_flower).
+
+# 2.1.714
+
+* Fixed resolution problems.
+
 # 2.1.712
 
 * Cleaned up Private Log (most users won't need information about raw prompts).

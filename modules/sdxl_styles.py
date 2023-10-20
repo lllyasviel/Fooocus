@@ -100,7 +100,7 @@ def apply_style(style, positive):
 
 def apply_wildcards(wildcard_text, rng, directory=wildcards_path):
     for _ in range(wildcards_max_bfs_depth):
-        placeholders = re.findall(r'__(\w+)__', wildcard_text)
+        placeholders = re.findall(r'__([\w-]+)__', wildcard_text)
         if len(placeholders) == 0:
             return wildcard_text
 
