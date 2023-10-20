@@ -329,3 +329,5 @@ Or `run_realistic.bat` as
     .\python_embeded\python.exe -s Fooocus\entry_with_update.py --language example --preset realistic
 
 For practical translation, you may create your own file like `Fooocus/language/jp.json` or `Fooocus/language/cn.json` and then use flag `--language jp` or `--language cn`. Apparently, these files do not exist now. **We need your help to create these files!**
+
+Note that if no `--language` is given and at the same time `Fooocus/language/default.json` exists, Fooocus will always load `Fooocus/language/default.json` for translation. By default, the file `Fooocus/language/default.json` does not exist.
