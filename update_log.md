@@ -1,3 +1,8 @@
+# 2.1.711
+
+* Added more information about prompts in Private Log.
+* Made wildcards in negative prompt use different seed.
+
 # 2.1.710
 
 * Added information about wildcards usage in console log.

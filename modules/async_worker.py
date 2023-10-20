@@ -231,7 +231,7 @@ def worker():
             for i in range(image_number):
                 task_seed = seed + i
                 task_prompt = apply_wildcards(prompt, task_seed)
-                task_negative_prompt = apply_wildcards(negative_prompt, task_seed)
+                task_negative_prompt = apply_wildcards(negative_prompt, task_seed + 1)
                 task_extra_positive_prompts = [apply_wildcards(pmt, task_seed) for pmt in extra_positive_prompts]
                 task_extra_negative_prompts = [apply_wildcards(pmt, task_seed) for pmt in extra_negative_prompts]
 
@@ -257,6 +257,7 @@ def worker():
                 tasks.append(dict(
                     task_seed=task_seed,
                     task_prompt=task_prompt,
+                    task_negative_prompt=task_negative_prompt,
                     positive=positive_basic_workloads,
                     negative=negative_basic_workloads,
                     expansion='',
@@ -539,8 +540,10 @@ def worker():
 
                 for x in imgs:
                     d = [
-                        ('Prompt', raw_prompt),
-                        ('Negative Prompt', raw_negative_prompt),
+                        ('Prompt', task['task_prompt']),
+                        ('Prompt (raw)', raw_prompt),
+                        ('Negative Prompt', task['task_negative_prompt']),
+                        ('Negative Prompt (raw)', raw_negative_prompt),
                         ('Fooocus V2 Expansion', task['expansion']),
                         ('Styles', str(raw_style_selections)),
                         ('Performance', performance_selection),
