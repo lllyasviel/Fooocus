@@ -297,7 +297,7 @@ Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com
 
 The log is [here](update_log.md).
 
-# Localization/Translation/I18N
+## Localization/Translation/I18N
 
 **We need your help!** Please help with translating Fooocus to international languages.
 
