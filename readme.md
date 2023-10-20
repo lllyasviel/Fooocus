@@ -1,5 +1,7 @@
 <div align=center>
 <img src="https://github.com/lllyasviel/Fooocus/assets/19834515/9ad8ae87-1dc2-4acc-9a44-a5fa4ae2aad6" width=80%>
+
+*(Screenshot of Fooocus Realistic "run_realistic.bat" using default parameters without any manual tweaking)*
 </div>
 
 # Fooocus
