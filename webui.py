@@ -358,6 +358,13 @@ with shared.gradio_root:
                 break
 
 
+def dump_default_english_config():
+    from modules.localization import dump_english_config
+    dump_english_config(grh.all_components)
+
+
+# dump_default_english_config()
+
 shared.gradio_root.launch(
     inbrowser=args_manager.args.auto_launch,
     server_name=args_manager.args.listen,

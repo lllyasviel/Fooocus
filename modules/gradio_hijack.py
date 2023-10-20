@@ -446,3 +446,18 @@ class Image(
         ):  # If an externally hosted image, don't convert to absolute path
             return input_data
         return str(utils.abspath(input_data))
+
+
+all_components = []
+
+if not hasattr(IOComponent, 'original__init__'):
+    IOComponent.original_init = IOComponent.__init__
+
+
+def ioc_ini(self, *args, **kwargs):
+    all_components.append(self)
+    return IOComponent.original_init(self, *args, **kwargs)
+
+
+IOComponent.__init__ = ioc_ini
+

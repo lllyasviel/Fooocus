@@ -1,3 +1,7 @@
+# 2.1.721
+
+* Added language/en.json to make translation easier.
+
 # 2.1.720
 
 * Added Canvas Zoom to inpaint canvas
