@@ -1,3 +1,7 @@
+# 2.1.712
+
+* Cleaned up Private Log (most users won't need information about raw prompts).
+
 # 2.1.711
 
 * Added more information about prompts in Private Log.
