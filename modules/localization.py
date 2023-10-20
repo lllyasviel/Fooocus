@@ -29,14 +29,14 @@ def dump_english_config(components):
     all_texts = []
     for c in components:
         label = getattr(c, 'label', None)
-        # value = getattr(c, 'value', None)
+        value = getattr(c, 'value', None)
         choices = getattr(c, 'choices', None)
         info = getattr(c, 'info', None)
 
         if isinstance(label, str):
             all_texts.append(label)
-        # if isinstance(value, str):
-        #     all_texts.append(value)
+        if isinstance(value, str):
+            all_texts.append(value)
         if isinstance(info, str):
             all_texts.append(info)
         if isinstance(choices, list):
