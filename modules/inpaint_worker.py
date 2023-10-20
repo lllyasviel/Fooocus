@@ -3,7 +3,7 @@ import numpy as np
 import modules.default_pipeline as pipeline
 
 from PIL import Image, ImageFilter
-from modules.util import resample_image
+from modules.util import resample_image, set_image_shape_ceil
 
 
 inpaint_head = None
@@ -148,12 +148,10 @@ class InpaintWorker:
         self.interested_image = image[a:b, c:d]
 
         # resize to make images ready for diffusion
+        self.interested_image = set_image_shape_ceil(self.interested_image, 1024)
         H, W, C = self.interested_image.shape
-        k = ((1024.0 ** 2.0) / float(H * W)) ** 0.5
-        H = int(np.ceil(float(H) * k / 16.0)) * 16
-        W = int(np.ceil(float(W) * k / 16.0)) * 16
+
         self.interested_mask = up255(resample_image(self.interested_mask, W, H), t=127)
-        self.interested_image = resample_image(self.interested_image, W, H)
         self.interested_fill = fooocus_fill(self.interested_image, self.interested_mask)
 
         # soft pixels

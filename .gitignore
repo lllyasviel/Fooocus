@@ -12,6 +12,7 @@ lena_result.png
 lena_test.py
 user_path_config.txt
 build_chb.py
+experiment.py
 /modules/*.png
 /repositories
 /venv

@@ -1,28 +1,10 @@
 import numpy as np
 import datetime
 import random
+import math
 import os
 
 from PIL import Image
-
-
-def image_is_generated_in_current_ui(image, ui_width, ui_height):
-    H, W, C = image.shape
-    
-    if H < ui_height:
-        return False
-
-    if W < ui_width:
-        return False
-
-    # k1 = float(H) / float(W)
-    # k2 = float(ui_height) / float(ui_width)
-    # d = abs(k1 - k2)
-    #
-    # if d > 0.01:
-    #     return False
-
-    return True
 
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
@@ -92,16 +74,22 @@ def resize_image(im, width, height, resize_mode=1):
     return np.array(res)
 
 
-def make_sure_that_image_is_not_too_large(x):
-    H, W, C = x.shape
-    k = float(2048 * 2048) / float(H * W)
-    k = k ** 0.5
-    if k < 1:
-        H_new = int(H * k)
-        W_new = int(W * k)
-        print(f'Image is too large - resizing from ({H}, {W}) to ({H_new}, {W_new}).')
-        x = resize_image(x, width=W_new, height=H_new, resize_mode=0)
-    return x
+def get_shape_ceil(h, w):
+    return math.ceil(((h * w) ** 0.5) / 64.0) * 64.0
+
+
+def get_image_shape_ceil(im):
+    H, W, _ = im.shape
+    return get_shape_ceil(H, W)
+
+
+def set_image_shape_ceil(im, shape_ceil):
+    H, W, _ = im.shape
+    shape_ceil_before = get_shape_ceil(H, W)
+    k = float(shape_ceil) / shape_ceil_before
+    H = int(round(float(H) * k / 64.0) * 64)
+    W = int(round(float(W) * k / 64.0) * 64)
+    return resample_image(im, width=W, height=H)
 
 
 def HWC3(x):
