@@ -541,9 +541,7 @@ def worker():
                 for x in imgs:
                     d = [
                         ('Prompt', task['task_prompt']),
-                        ('Prompt (raw)', raw_prompt),
                         ('Negative Prompt', task['task_negative_prompt']),
-                        ('Negative Prompt (raw)', raw_negative_prompt),
                         ('Fooocus V2 Expansion', task['expansion']),
                         ('Styles', str(raw_style_selections)),
                         ('Performance', performance_selection),
