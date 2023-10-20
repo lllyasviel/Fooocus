@@ -1,6 +1,5 @@
 import os
 import re
-import random
 import json
 
 from modules.util import get_files_from_folder
@@ -9,6 +8,7 @@ from modules.util import get_files_from_folder
 # cannot use modules.path - validators causing circular imports
 styles_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sdxl_styles/'))
 wildcards_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../wildcards/'))
+wildcards_max_bfs_depth = 64
 
 
 def normalize_key(k):
@@ -98,21 +98,21 @@ def apply_style(style, positive):
     return p.replace('{prompt}', positive), n
 
 
-def apply_wildcards(wildcard_text, seed=None, directory=wildcards_path):
-    placeholders = re.findall(r'__(\w+)__', wildcard_text)
-    if len(placeholders) == 0:
-        return wildcard_text
+def apply_wildcards(wildcard_text, rng, directory=wildcards_path):
+    for _ in range(wildcards_max_bfs_depth):
+        placeholders = re.findall(r'__(\w+)__', wildcard_text)
+        if len(placeholders) == 0:
+            return wildcard_text
 
-    print(f'[Fooocus Wildcards] input: {wildcard_text}')
-    rng = random.Random(seed)
-    for placeholder in placeholders:
-        try:
-            words = open(os.path.join(directory, f'{placeholder}.txt'), encoding='utf-8').read().splitlines()
-            words = [x for x in words if x != '']
-            wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
-        except IOError:
-            print(f'Error: could not open wildcard file {placeholder}.txt, using as normal word.')
-            wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
-    print(f'[Fooocus Wildcards] output: {wildcard_text}')
-
-    return wildcard_text
+        print(f'[Wildcards] processing: {wildcard_text}')
+        for placeholder in placeholders:
+            try:
+                words = open(os.path.join(directory, f'{placeholder}.txt'), encoding='utf-8').read().splitlines()
+                words = [x for x in words if x != '']
+                assert len(words) > 0
+                wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
+            except:
+                print(f'[Wildcards] Warning: {placeholder}.txt missing or empty. '
+                      f'Using "{placeholder}" as a normal word.')
+                wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
+            print(f'[Wildcards] {wildcard_text}')

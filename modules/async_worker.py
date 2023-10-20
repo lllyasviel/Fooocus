@@ -116,9 +116,6 @@ def worker():
         skip_prompt_processing = False
         refiner_swap_method = advanced_parameters.refiner_swap_method
 
-        raw_prompt = prompt
-        raw_negative_prompt = negative_prompt
-
         inpaint_image = None
         inpaint_mask = None
         inpaint_head_model_path = None
@@ -231,10 +228,12 @@ def worker():
             tasks = []
             for i in range(image_number):
                 task_seed = seed + i
-                task_prompt = apply_wildcards(prompt, task_seed)
-                task_negative_prompt = apply_wildcards(negative_prompt, task_seed + 1)
-                task_extra_positive_prompts = [apply_wildcards(pmt, task_seed) for pmt in extra_positive_prompts]
-                task_extra_negative_prompts = [apply_wildcards(pmt, task_seed) for pmt in extra_negative_prompts]
+                task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
+
+                task_prompt = apply_wildcards(prompt, task_rng)
+                task_negative_prompt = apply_wildcards(negative_prompt, task_rng)
+                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
+                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
 
                 positive_basic_workloads = []
                 negative_basic_workloads = []
