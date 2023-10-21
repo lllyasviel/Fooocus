@@ -1,3 +1,5 @@
+var re_num = /^[.\d]+$/;
+
 var original_lines = {};
 var translated_lines = {};
 
@@ -9,6 +11,15 @@ function textNodesUnder(el) {
     var n, a = [], walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
     while ((n = walk.nextNode())) a.push(n);
     return a;
+}
+
+function canBeTranslated(node, text) {
+    if (!text) return false;
+    if (!node.parentElement) return false;
+    var parentType = node.parentElement.nodeName;
+    if (parentType == 'SCRIPT' || parentType == 'STYLE' || parentType == 'TEXTAREA') return false;
+    if (re_num.test(text)) return false;
+    return true;
 }
 
 function getTranslation(text) {
@@ -28,6 +39,9 @@ function getTranslation(text) {
 
 function processTextNode(node) {
     var text = node.textContent.trim();
+
+    if (!canBeTranslated(node, text)) return;
+
     var tl = getTranslation(text);
     if (tl !== undefined) {
         node.textContent = tl;
