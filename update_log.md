@@ -1,3 +1,7 @@
+# 2.1.723
+
+* Improve Fooocus Anime a bit by using better SD1.5 refining formulation.
+
 # 2.1.722
 
 * Now it is possible to translate 100% all texts in the UI.
