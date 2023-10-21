@@ -1,3 +1,7 @@
+# 2.1.722
+
+* Now it is possible to translate 100% all texts in the UI.
+
 # 2.1.721
 
 * Added language/en.json to make translation easier.
