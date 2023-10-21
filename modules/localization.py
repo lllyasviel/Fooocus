@@ -22,6 +22,8 @@ def localization_js(filename):
                 print(str(e))
                 print(f'Failed to load localization file {full_name}')
 
+    # data = {k: 'XXX' for k in data.keys()}  # use this to see if all texts are covered
+
     return f"window.localization = {json.dumps(data)}"
 
 
@@ -29,11 +31,14 @@ def dump_english_config(components):
     all_texts = []
     for c in components:
         label = getattr(c, 'label', None)
+        value = getattr(c, 'value', None)
         choices = getattr(c, 'choices', None)
         info = getattr(c, 'info', None)
 
         if isinstance(label, str):
             all_texts.append(label)
+        if isinstance(value, str):
+            all_texts.append(value)
         if isinstance(info, str):
             all_texts.append(info)
         if isinstance(choices, list):
@@ -45,7 +50,7 @@ def dump_english_config(components):
                         if isinstance(y, str):
                             all_texts.append(y)
 
-    config_dict = {k: k for k in all_texts if k != ""}
+    config_dict = {k: k for k in all_texts if k != "" and 'progress-container' not in k}
     full_name = os.path.abspath(os.path.join(localization_root, 'en.json'))
 
     with open(full_name, "w", encoding="utf-8") as json_file:

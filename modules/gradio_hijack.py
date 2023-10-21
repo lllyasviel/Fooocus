@@ -15,7 +15,7 @@ from gradio_client.serializing import ImgSerializable
 from PIL import Image as _Image  # using _ to minimize namespace pollution
 
 from gradio import processing_utils, utils
-from gradio.components.base import IOComponent, _Keywords
+from gradio.components.base import IOComponent, _Keywords, Block
 from gradio.deprecation import warn_style_method_deprecation
 from gradio.events import (
     Changeable,
@@ -450,14 +450,14 @@ class Image(
 
 all_components = []
 
-if not hasattr(IOComponent, 'original__init__'):
-    IOComponent.original_init = IOComponent.__init__
+if not hasattr(Block, 'original__init__'):
+    Block.original_init = Block.__init__
 
 
-def ioc_ini(self, *args, **kwargs):
+def blk_ini(self, *args, **kwargs):
     all_components.append(self)
-    return IOComponent.original_init(self, *args, **kwargs)
+    return Block.original_init(self, *args, **kwargs)
 
 
-IOComponent.__init__ = ioc_ini
+Block.__init__ = blk_ini
 
