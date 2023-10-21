@@ -1,10 +1,11 @@
 import torch
 import numpy as np
 import modules.default_pipeline as pipeline
+import cv2
 
 from PIL import Image, ImageFilter
 from modules.util import resample_image, set_image_shape_ceil
-
+from skimage import exposure
 
 inpaint_head = None
 
@@ -227,7 +228,8 @@ class InpaintWorker:
         fg = img.astype(np.float32)
         bg = self.image.copy().astype(np.float32)
         w = self.mask[:, :, None].astype(np.float32) / 255.0
-        y = fg * w + bg * (1 - w)
+        corrected_fg = self.match_histograms(fg, bg)
+        y = corrected_fg * w + bg * (1 - w)
         return y.clip(0, 255).astype(np.uint8)
 
     def post_process(self, img):
@@ -241,3 +243,15 @@ class InpaintWorker:
     def visualize_mask_processing(self):
         return [self.interested_fill, self.interested_mask, self.image, self.mask]
 
+    # code modified from Automatic1111
+    def match_histograms( self, target_image, original_image):
+        correction_target = cv2.cvtColor(np.asarray(original_image.astype(np.uint8)), cv2.COLOR_RGB2LAB)
+        image = cv2.cvtColor(exposure.match_histograms(
+        cv2.cvtColor(
+            np.asarray(target_image.astype(np.uint8)),
+            cv2.COLOR_RGB2LAB
+        ),
+        correction_target,
+        channel_axis=-1
+        ), cv2.COLOR_LAB2RGB).astype(np.float32)
+        return image
