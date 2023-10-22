@@ -38,6 +38,7 @@ cfg_x0 = 0.0
 cfg_s = 1.0
 cfg_cin = 1.0
 adaptive_cfg = 0.7
+eps_record = None
 
 
 def calculate_weight_patched(self, patches, weight, key):
@@ -192,10 +193,12 @@ def patched_sampler_cfg_function(args):
 
 
 def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
-    global cfg_x0, cfg_s, cfg_cin
+    global cfg_x0, cfg_s, cfg_cin, eps_record
     c_out, c_in = [utils.append_dims(x, input.ndim) for x in self.get_scalings(sigma)]
     cfg_x0, cfg_s, cfg_cin = input, c_out, c_in
     eps = self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
+    if eps_record is not None:
+        eps_record = eps.clone().cpu()
     return input + eps * c_out
 
 
