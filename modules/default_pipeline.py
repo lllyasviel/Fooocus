@@ -281,10 +281,10 @@ def vae_parse(latent):
 
 @torch.no_grad()
 @torch.inference_mode()
-def noise_parse(latent: torch.Tensor, seed: int, noise_inds=None):
+def noise_parse(latent: torch.Tensor, seed: int, noise_inds=None, k=0.9):
     noise = fcbh.sample.prepare_noise(latent, seed=seed, noise_inds=noise_inds)
-    s, m = torch.std_mean(latent, dim=1, keepdim=True)
-    return m + s * noise
+    offset = torch.mean(latent, dim=1, keepdim=True)
+    return offset * k + noise
 
 
 @torch.no_grad()
