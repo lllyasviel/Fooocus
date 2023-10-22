@@ -459,8 +459,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             print('Use base model to refine itself - this may because of developer mode.')
 
         # Fooocus' vae parameters
-        k_data = 1.05
-        k_noise = 0.15
+        k_data = 1.015
+        k_noise = 0.115
         k_sigmas = 1.4
 
         sampled_latent = vae_parse(sampled_latent, k=k_data)
@@ -481,7 +481,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             negative=clip_separate(negative_cond, target_model=target_model.model, target_clip=final_clip),
             latent=sampled_latent,
             steps=len_sigmas, start_step=0, last_step=len_sigmas, disable_noise=False, force_full_denoise=True,
-            seed=image_seed,
+            seed=image_seed + 1,  # Avoid artifacts
             denoise=denoise,
             callback_function=callback,
             cfg=cfg_scale,
