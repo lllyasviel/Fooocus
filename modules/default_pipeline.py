@@ -468,8 +468,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
                                   denoise=denoise)[switch:] * k_sigmas
         len_sigmas = len(sigmas) - 1
 
-        assert isinstance(modules.patch.eps_record, torch.Tensor)
-        residual_noise = modules.patch.eps_record / modules.patch.eps_record.std()
+        residual_noise = modules.patch.eps_record
+        assert isinstance(residual_noise, torch.Tensor)
 
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.swap()
