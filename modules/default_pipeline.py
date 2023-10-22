@@ -468,7 +468,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
                                   denoise=denoise)[switch:] * k_sigmas
         len_sigmas = len(sigmas) - 1
 
-        noise_offset = torch.mean(modules.patch.eps_record, dim=1, keepdim=True) * 0.9
+        noise_mean = torch.mean(modules.patch.eps_record, dim=1, keepdim=True)
 
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.swap()
@@ -488,7 +488,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             previewer_start=switch,
             previewer_end=steps,
             sigmas=sigmas,
-            noise_offset=noise_offset
+            noise_mean=noise_mean
         )
 
         target_model = final_refiner_vae
