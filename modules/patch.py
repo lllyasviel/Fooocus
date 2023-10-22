@@ -285,8 +285,6 @@ globalBrownianTreeNoiseSampler = None
 @torch.no_grad()
 def sample_dpmpp_fooocus_2m_sde_inpaint_seamless(model, x, sigmas, extra_args=None, callback=None,
                                                  disable=None, eta=1., s_noise=1., **kwargs):
-    global sigma_min, sigma_max
-
     print('[Sampler] Fooocus sampler is activated.')
 
     seed = extra_args.get("seed", None)
