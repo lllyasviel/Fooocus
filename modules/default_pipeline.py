@@ -3,6 +3,7 @@ import os
 import torch
 import modules.patch
 import modules.path
+import fcbh.sample
 import fcbh.model_management
 import fcbh.latent_formats
 import modules.inpaint_worker
@@ -280,6 +281,14 @@ def vae_parse(latent):
 
 @torch.no_grad()
 @torch.inference_mode()
+def noise_parse(latent: torch.Tensor, seed: int, noise_inds=None):
+    noise = fcbh.sample.prepare_noise(latent, seed=seed, noise_inds=noise_inds)
+    s, m = torch.std_mean(latent, dim=1, keepdim=True)
+    return m + s * noise
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def calculate_sigmas_all(sampler, model, scheduler, steps):
     from fcbh.samplers import calculate_sigmas_scheduler
 
@@ -468,8 +477,10 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
                                   denoise=denoise)[switch:] * k_sigmas
         len_sigmas = len(sigmas) - 1
 
-        residual_noise = modules.patch.eps_record
-        assert isinstance(residual_noise, torch.Tensor)
+        residual_noise = noise_parse(
+            modules.patch.eps_record,
+            seed=image_seed+1,
+            noise_inds=sampled_latent["batch_index"] if "batch_index" in sampled_latent else None)
 
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.swap()
@@ -480,7 +491,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             negative=clip_separate(negative_cond, target_model=target_model.model, target_clip=final_clip),
             latent=sampled_latent,
             steps=len_sigmas, start_step=0, last_step=len_sigmas, disable_noise=False, force_full_denoise=True,
-            seed=image_seed,
+            seed=image_seed+1,
             denoise=denoise,
             callback_function=callback,
             cfg=cfg_scale,

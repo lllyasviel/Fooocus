@@ -1,3 +1,7 @@
+# 2.1.728
+
+* Fixed some potential numerical problems since 2.1.723
+
 # 2.1.723
 
 * Improve Fooocus Anime a bit by using better SD1.5 refining formulation.
