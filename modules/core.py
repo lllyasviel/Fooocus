@@ -215,24 +215,65 @@ def get_previewer(model):
 
 @torch.no_grad()
 @torch.inference_mode()
+def prepare_noise(latent_image, generator, noise_inds=None):
+    if noise_inds is None:
+        return torch.randn(latent_image.size(), dtype=latent_image.dtype, layout=latent_image.layout,
+                           generator=generator, device="cpu")
+
+    unique_inds, inverse = np.unique(noise_inds, return_inverse=True)
+    noises = []
+    for i in range(unique_inds[-1] + 1):
+        noise = torch.randn([1] + list(latent_image.size())[1:], dtype=latent_image.dtype, layout=latent_image.layout,
+                            generator=generator, device="cpu")
+        if i in unique_inds:
+            noises.append(noise)
+    noises = [noises[i] for i in inverse]
+    noises = torch.cat(noises, dim=0)
+    return noises
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def prepare_additive_noise(latent_image, generator, noise_inds=None):
+    B, C, H, W = latent_image.shape
+    if noise_inds is None:
+        return torch.rand([B, 1, H, W], dtype=latent_image.dtype, layout=latent_image.layout,
+                          generator=generator, device="cpu") * 2.0 - 1.0
+
+    unique_inds, inverse = np.unique(noise_inds, return_inverse=True)
+    noises = []
+    for i in range(unique_inds[-1] + 1):
+        noise = torch.rand([1, 1, H, W], dtype=latent_image.dtype, layout=latent_image.layout,
+                           generator=generator, device="cpu") * 2.0 - 1.0
+        if i in unique_inds:
+            noises.append(noise)
+    noises = [noises[i] for i in inverse]
+    noises = torch.cat(noises, dim=0)
+    return noises
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1,
-             previewer_start=None, previewer_end=None, sigmas=None, extra_noise=0.0):
+             previewer_start=None, previewer_end=None, sigmas=None, extra_noise=None):
 
     if sigmas is not None:
         sigmas = sigmas.clone().to(fcbh.model_management.get_torch_device())
 
     latent_image = latent["samples"]
+    batch_inds = latent["batch_index"] if "batch_index" in latent else None
+    rng = torch.manual_seed(seed)
 
     if disable_noise:
         noise = torch.zeros(latent_image.size(), dtype=latent_image.dtype, layout=latent_image.layout, device="cpu")
     else:
-        batch_inds = latent["batch_index"] if "batch_index" in latent else None
-        noise = fcbh.sample.prepare_noise(latent_image, seed, batch_inds)
+        noise = prepare_noise(latent_image, rng, batch_inds)
 
-    if extra_noise > 0.0:
-        noise = noise * (1.0 + extra_noise)
+    if isinstance(extra_noise, float):
+        additive_noise = prepare_additive_noise(latent_image, rng, batch_inds)
+        noise = noise + additive_noise * extra_noise
 
     noise_mask = None
     if "noise_mask" in latent:

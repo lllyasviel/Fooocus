@@ -459,8 +459,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             print('Use base model to refine itself - this may because of developer mode.')
 
         # Fooocus' vae parameters
-        k_data = 1.015
-        k_noise = 0.115
+        k_data = 1.025
+        k_noise = 0.25
         k_sigmas = 1.4
 
         sampled_latent = vae_parse(sampled_latent, k=k_data)
