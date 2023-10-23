@@ -459,11 +459,6 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
         return self.out(h)
 
 
-def text_encoder_device_patched():
-    # Fooocus's style system uses text encoder much more times than fcbh so this makes things much faster.
-    return fcbh.model_management.get_torch_device()
-
-
 def patched_autocast(device_type, dtype=None, enabled=True, cache_enabled=None):
     # https://github.com/lllyasviel/Fooocus/discussions/571
     # https://github.com/lllyasviel/Fooocus/issues/620
@@ -568,7 +563,6 @@ def patch_all():
     #     print(torch.ones(10))
 
     fcbh.model_management.load_models_gpu = patched_load_models_gpu
-    fcbh.model_management.text_encoder_device = text_encoder_device_patched
     fcbh.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
     fcbh.cldm.cldm.ControlNet.forward = patched_cldm_forward
     fcbh.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
