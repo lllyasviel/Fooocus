@@ -20,7 +20,7 @@ from modules.ui_gradio_extensions import reload_javascript
 
 # as in k-diffusion (sampling.py)
 MIN_SEED = 0
-MAX_SEED = 2**63 - 1
+MAX_SEED = 2**63 - 1024  # for image number increasing safety
 
 
 def generate_clicked(*args):
