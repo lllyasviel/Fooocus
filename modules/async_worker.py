@@ -123,13 +123,8 @@ def worker():
         controlnet_cpds_path = None
         clip_vision_path, ip_negative_path, ip_adapter_path = None, None, None
 
-        seed = image_seed
-        max_seed = int(1024 * 1024 * 1024)
-        if not isinstance(seed, int):
-            seed = random.randint(1, max_seed)
-        if seed < 0:
-            seed = - seed
-        seed = seed % max_seed
+        seed = int(image_seed)
+        print(f'[Parameters] Seed = {seed}')
 
         if performance_selection == 'Speed':
             steps = 30

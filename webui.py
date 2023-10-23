@@ -18,6 +18,10 @@ from modules.sdxl_styles import legal_style_names, aspect_ratios
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 
+# as in k-diffusion (sampling.py)
+MIN_SEED = 0
+MAX_SEED = 2**63 - 1
+
 
 def generate_clicked(*args):
     execution_start_time = time.perf_counter()
@@ -193,16 +197,22 @@ with shared.gradio_root:
                                              info='Describing what you do not want to see.', lines=2,
                                              value=modules.path.default_negative_prompt)
                 seed_random = gr.Checkbox(label='Random', value=True)
-                image_seed = gr.Number(label='Seed', value=0, precision=0, visible=False)
+                image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
 
                 def random_checked(r):
                     return gr.update(visible=not r)
 
-                def refresh_seed(r, s):
+                def refresh_seed(r, seed_string):
                     if r:
-                        return random.randint(1, 1024*1024*1024)
+                        return random.randint(MIN_SEED, MAX_SEED)
                     else:
-                        return s
+                        try:
+                            seed_value = int(seed_string)
+                            if MIN_SEED <= seed_value <= MAX_SEED:
+                                return seed_value
+                        except ValueError:
+                            pass
+                        return random.randint(MIN_SEED, MAX_SEED)
 
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed], queue=False)
 

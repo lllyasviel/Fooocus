@@ -6,6 +6,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, set_seed
 from modules.path import fooocus_expansion_path
 from fcbh.model_patcher import ModelPatcher
 
+# limitation of np.random.seed(), called from transformers.set_seed()
+SEED_LIMIT_NUMPY = 2**32
+
 
 fooocus_magic_split = [
     ', extremely',
@@ -54,7 +57,7 @@ class FooocusExpansion:
             print('Fooocus Expansion loaded by itself.')
             model_management.load_model_gpu(self.patcher)
 
-        seed = int(seed)
+        seed = int(seed) % SEED_LIMIT_NUMPY
         set_seed(seed)
         origin = safe_str(prompt)
         prompt = origin + fooocus_magic_split[seed % len(fooocus_magic_split)]

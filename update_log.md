@@ -1,3 +1,7 @@
+# 2.1.733
+
+* Increased allowed random seed range.
+
 # 2.1.728
 
 * Fixed some potential numerical problems since 2.1.723
