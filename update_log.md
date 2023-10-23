@@ -1,3 +1,7 @@
+# 2.1.735
+
+* Fixed many problems related to torch autocast.
+
 # 2.1.733
 
 * Increased allowed random seed range.
