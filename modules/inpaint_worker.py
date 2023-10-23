@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import modules.default_pipeline as pipeline
+import cv2
 
 from PIL import Image, ImageFilter
 from modules.util import resample_image, set_image_shape_ceil
@@ -227,7 +228,8 @@ class InpaintWorker:
         fg = img.astype(np.float32)
         bg = self.image.copy().astype(np.float32)
         w = self.mask[:, :, None].astype(np.float32) / 255.0
-        y = fg * w + bg * (1 - w)
+        corrected_fg = self.correct_contrast(fg, bg)
+        y = corrected_fg * w + bg * (1 - w)
         return y.clip(0, 255).astype(np.uint8)
 
     def post_process(self, img):
@@ -241,3 +243,41 @@ class InpaintWorker:
     def visualize_mask_processing(self):
         return [self.interested_fill, self.interested_mask, self.image, self.mask]
 
+    # code modified from Automatic1111 and skimage
+    def correct_contrast( self, target_image, original_image):
+        correction_target = cv2.cvtColor(np.asarray(original_image.astype(np.uint8)), cv2.COLOR_RGB2LAB)
+        image = cv2.cvtColor(self.match_histograms(
+        cv2.cvtColor(
+            np.asarray(target_image.astype(np.uint8)),
+            cv2.COLOR_RGB2LAB
+        ),
+        correction_target,
+        ), cv2.COLOR_LAB2RGB).astype(np.float32)
+        return image
+    
+    def _match_cumulative_cdf(self, source, template):
+    
+        src_lookup = source.reshape(-1)
+        src_counts = np.bincount(src_lookup)
+        tmpl_counts = np.bincount(template.reshape(-1))
+
+        # omit values where the count was 0
+        tmpl_values = np.nonzero(tmpl_counts)[0]
+        tmpl_counts = tmpl_counts[tmpl_values]
+
+        # calculate normalized quantiles for each array
+        src_quantiles = np.cumsum(src_counts) / source.size
+        tmpl_quantiles = np.cumsum(tmpl_counts) / template.size
+
+        interp_a_values = np.interp(src_quantiles, tmpl_quantiles, tmpl_values)
+        return interp_a_values[src_lookup].reshape(source.shape)
+
+    def match_histograms(self, image, reference):
+
+        matched = np.empty(image.shape, dtype=image.dtype)
+        for channel in range(image.shape[-1]):
+            matched_channel = self._match_cumulative_cdf(
+                image[..., channel], reference[..., channel]
+            )
+            matched[..., channel] = matched_channel
+        return matched
