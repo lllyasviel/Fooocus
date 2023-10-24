@@ -23,6 +23,7 @@ def worker():
     import fcbh.model_management
     import fooocus_extras.preprocessors as preprocessors
     import modules.inpaint_worker as inpaint_worker
+    import modules.constants as constants
     import modules.advanced_parameters as advanced_parameters
     import fooocus_extras.ip_adapter as ip_adapter
 
@@ -225,7 +226,7 @@ def worker():
             progressbar(3, 'Processing prompts ...')
             tasks = []
             for i in range(image_number):
-                task_seed = seed + i
+                task_seed = (seed + i) % (constants.MAX_SEED + 1) # randint is inclusive, % is not
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
 
                 task_prompt = apply_wildcards(prompt, task_rng)
