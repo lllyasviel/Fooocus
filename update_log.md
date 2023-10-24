@@ -1,3 +1,21 @@
+# 2.1.737
+
+* Allowed customizing resolutions in config. 
+
+Modifying this will make results worse if you do not understand how Positional Encoding works. 
+
+You have been warned.
+
+If you do not know why numbers must be transformed with many Sin and Cos functions (yes, those Trigonometric functions that you learn in junior high school) before they are fed to SDXL, we do not encourage you to change this - you will become a victim of Positional Encoding. You are likely to suffer from an easy-to-fail tool, rather than getting more control.
+
+Your knowledge gained from SD1.5 (for example, resolution numbers divided by 8 or 64 are good enough for UNet) does not work in SDXL. The SDXL uses Positional Encoding. The SD1.5 does not use Positional Encoding. They are completely different. 
+
+Your knowledge gained from other resources (for example, resolutions around 1024 are good enough for SDXL) is wrong. The SDXL uses Positional Encoding. People who say "all resolutions around 1024 are good" do not understand what is Positional Encoding. They are not intentionally misleading. They are just not aware of the fact that SDXL is using Positional Encoding. 
+
+The number 1152 must be exactly 1152, not 1152-1, not 1152+1, not 1152-8, not 1152+8. The number 1152 must be exactly 1152. Just Google what is a Positional Encoding.
+
+Again, if you do not understand how Positional Encoding works, just do not change the resolution numbers.
+
 # 2.1.735
 
 * Fixed many problems related to torch autocast.

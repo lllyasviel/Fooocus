@@ -26,7 +26,7 @@ def worker():
     import modules.advanced_parameters as advanced_parameters
     import fooocus_extras.ip_adapter as ip_adapter
 
-    from modules.sdxl_styles import apply_style, apply_wildcards, aspect_ratios, fooocus_expansion
+    from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
     from modules.private_logger import log
     from modules.expansion import safe_str
     from modules.util import join_prompts, remove_empty_str, HWC3, resize_image, \
@@ -112,7 +112,10 @@ def worker():
         denoising_strength = 1.0
         tiled = False
         inpaint_worker.current_task = None
-        width, height = aspect_ratios[aspect_ratios_selection]
+
+        width, height = aspect_ratios_selection.split('×')
+        width, height = int(width), int(height)
+
         skip_prompt_processing = False
         refiner_swap_method = advanced_parameters.refiner_swap_method
 

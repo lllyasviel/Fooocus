@@ -163,11 +163,16 @@ embeddings_downloads = get_config_item_or_set_default(
     default_value={},
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
+available_aspect_ratios = get_config_item_or_set_default(
+    key='available_aspect_ratios',
+    default_value=['704*1408', '704*1344', '768*1344', '768*1280', '832*1216', '832*1152', '896*1152', '896*1088', '960*1088', '960*1024', '1024*1024', '1024*960', '1088*960', '1088*896', '1152*896', '1152*832', '1216*832', '1280*768', '1344*768', '1344*704', '1408*704', '1472*704', '1536*640', '1600*640', '1664*576', '1728*576'],
+    validator=lambda x: isinstance(x, list) and all('*' in v for v in x) and len(x) > 1
+)
 default_aspect_ratio = get_config_item_or_set_default(
     key='default_aspect_ratio',
-    default_value='1152*896',
-    validator=lambda x: x.replace('*', '×') in modules.sdxl_styles.aspect_ratios
-).replace('*', '×')
+    default_value='1152*896' if '1152*896' in available_aspect_ratios else available_aspect_ratios[0],
+    validator=lambda x: x in available_aspect_ratios
+)
 
 if preset is None:
     # Do not overwrite user config if preset is applied.
@@ -178,6 +183,9 @@ os.makedirs(temp_outputs_path, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []
+
+available_aspect_ratios = [x.replace('*', '×') for x in available_aspect_ratios]
+default_aspect_ratio = default_aspect_ratio.replace('*', '×')
 
 
 def get_model_filenames(folder_path, name_filter=None):
