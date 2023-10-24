@@ -9,6 +9,7 @@ import modules.path
 import fooocus_version
 import modules.html
 import modules.async_worker as worker
+import modules.constants as constants
 import modules.flags as flags
 import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
@@ -17,10 +18,6 @@ import args_manager
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
-
-# as in k-diffusion (sampling.py)
-MIN_SEED = 0
-MAX_SEED = 2**63 - 1024  # for image number increasing safety
 
 
 def generate_clicked(*args):
@@ -204,15 +201,15 @@ with shared.gradio_root:
 
                 def refresh_seed(r, seed_string):
                     if r:
-                        return random.randint(MIN_SEED, MAX_SEED)
+                        return random.randint(constants.MIN_SEED, constants.MAX_SEED)
                     else:
                         try:
                             seed_value = int(seed_string)
-                            if MIN_SEED <= seed_value <= MAX_SEED:
+                            if constants.MIN_SEED <= seed_value <= constants.MAX_SEED:
                                 return seed_value
                         except ValueError:
                             pass
-                        return random.randint(MIN_SEED, MAX_SEED)
+                        return random.randint(constants.MIN_SEED, constants.MAX_SEED)
 
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed], queue=False)
 
