@@ -162,9 +162,11 @@ def preprocess(img):
         outputs = clip_vision.model(pixel_values=pixel_values, output_hidden_states=True)
 
     if ip_adapter.plus:
-        cond = outputs.hidden_states[-2].to(ip_adapter.dtype)
+        cond = outputs.hidden_states[-2]
     else:
-        cond = outputs.image_embeds.to(ip_adapter.dtype)
+        cond = outputs.image_embeds
+
+    cond = cond.to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
 
     fcbh.model_management.load_model_gpu(image_proj_model)
     cond = image_proj_model.model(cond).to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
