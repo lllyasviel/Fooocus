@@ -1,3 +1,7 @@
+# 2.1.739
+
+* Added support for authentication in --share mode (via auth.json).
+
 # 2.1.737
 
 * Allowed customizing resolutions in config. 
