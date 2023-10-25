@@ -1,3 +1,16 @@
+# 2.1.741
+
+Style Updates:
+
+* "Default (Slightly Cinematic)" as renamed to "Fooocus Cinematic".
+* "Default (Slightly Cinematic)" is canceled from default style selections. 
+* Added "Fooocus Sharp". This style combines many CivitAI prompts that reduces SDXL blurry and improves sharpness in a relatively natural way.
+* Added "Fooocus Enhance". This style mainly use the very popular [default negative prompts from JuggernautXL](https://civitai.com/models/133005) and some other enhancing words. JuggernautXL's negative prompt has been proved to be very effective in many recent image posts on CivitAI to improve JuggernautXL and many other models.
+* "Fooocus Sharp" and "Fooocus Enhance" and "Fooocus V2" becomes the new default set of styles.
+* Removed the default text in the "negative prompt" input area since it is not necessary now.
+* You can reproduce previous results by using "Fooocus Cinematic".
+* "Fooocus Sharp" and "Fooocus Enhance" may undergo minor revision in future updates.
+
 # 2.1.739
 
 * Added support for authentication in --share mode (via auth.json).

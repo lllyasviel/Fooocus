@@ -14,8 +14,8 @@
         "SAI Enhance",
         "SAI Fantasy Art"
     ],
-    "default_negative_prompt": "(embedding:unaestheticXLv31:0.8), low quality, watermark",
-    "default_positive_prompt": "1girl, ",
+    "default_prompt_negative": "(embedding:unaestheticXLv31:0.8), low quality, watermark",
+    "default_prompt": "1girl, ",
     "checkpoint_downloads": {
         "bluePencilXL_v050.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/bluePencilXL_v050.safetensors",
         "DreamShaper_8_pruned.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/DreamShaper_8_pruned.safetensors"

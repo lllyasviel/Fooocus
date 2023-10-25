@@ -9,6 +9,7 @@ from modules.util import get_files_from_folder
 
 config_path = "user_path_config.txt"
 config_dict = {}
+visited_keys = []
 
 try:
     if os.path.exists(config_path):
@@ -37,7 +38,8 @@ if preset is not None:
 
 
 def get_dir_or_set_default(key, default_value):
-    global config_dict
+    global config_dict, visited_keys
+    visited_keys.append(key)
     v = config_dict.get(key, None)
     if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
         return v
@@ -62,7 +64,8 @@ temp_outputs_path = get_dir_or_set_default('temp_outputs_path', '../outputs/')
 
 
 def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False):
-    global config_dict
+    global config_dict, visited_keys
+    visited_keys.append(key)
     if key not in config_dict:
         config_dict[key] = default_value
         return default_value
@@ -115,17 +118,17 @@ default_scheduler = get_config_item_or_set_default(
 )
 default_styles = get_config_item_or_set_default(
     key='default_styles',
-    default_value=['Fooocus V2', 'Default (Slightly Cinematic)'],
+    default_value=['Fooocus V2', 'Fooocus Enhance', 'Fooocus Sharp'],
     validator=lambda x: isinstance(x, list) and all(y in modules.sdxl_styles.legal_style_names for y in x)
 )
-default_negative_prompt = get_config_item_or_set_default(
-    key='default_negative_prompt',
-    default_value='low quality, bad hands, bad eyes, cropped, missing fingers, extra digit',
+default_prompt_negative = get_config_item_or_set_default(
+    key='default_prompt_negative',
+    default_value='',
     validator=lambda x: isinstance(x, str),
     disable_empty_as_none=True
 )
-default_positive_prompt = get_config_item_or_set_default(
-    key='default_positive_prompt',
+default_prompt = get_config_item_or_set_default(
+    key='default_prompt',
     default_value='',
     validator=lambda x: isinstance(x, str),
     disable_empty_as_none=True
@@ -177,7 +180,7 @@ default_aspect_ratio = get_config_item_or_set_default(
 if preset is None:
     # Do not overwrite user config if preset is applied.
     with open(config_path, "w", encoding="utf-8") as json_file:
-        json.dump(config_dict, json_file, indent=4)
+        json.dump({k: config_dict[k] for k in visited_keys}, json_file, indent=4)
 
 os.makedirs(temp_outputs_path, exist_ok=True)
 
