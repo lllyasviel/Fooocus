@@ -281,11 +281,11 @@ A safter way is just to try "run_anime.bat" or "run_realistic.bat" - they should
 
 [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
 
-Fooocus also has many community forks, just like SD-WebUI, for enthusiastic users who want to try!
+Fooocus also has many community forks, just like SD-WebUI's [vladmandic/automatic](https://github.com/vladmandic/automatic) and [anapnoe/stable-diffusion-webui-ux](https://github.com/anapnoe/stable-diffusion-webui-ux), for enthusiastic users who want to try!
 
-| SD-WebUI's forks | Fooocus' forks |
-| - | - |
-| [vladmandic/automatic](https://github.com/vladmandic/automatic) </br> [anapnoe/stable-diffusion-webui-ux](https://github.com/anapnoe/stable-diffusion-webui-ux) </br> and so on ... | [runew0lf/RuinedFooocus](https://github.com/runew0lf/RuinedFooocus) </br> [MoonRide303/Fooocus-MRE](https://github.com/MoonRide303/Fooocus-MRE) </br> and so on ... |
+| Fooocus' forks |
+| - |
+| [fenneishi/Fooocus-Control](https://github.com/fenneishi/Fooocus-Control) </br>[runew0lf/RuinedFooocus](https://github.com/runew0lf/RuinedFooocus) </br> [MoonRide303/Fooocus-MRE](https://github.com/MoonRide303/Fooocus-MRE) </br> and so on ... |
 
 See also [About Forking and Promotion of Forks](https://github.com/lllyasviel/Fooocus/discussions/699).
 
