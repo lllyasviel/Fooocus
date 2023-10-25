@@ -342,7 +342,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
     sigma_max = float(sigma_max.cpu().numpy())
     print(f'[Sampler] sigma_min = {sigma_min}, sigma_max = {sigma_max}')
 
-    modules.patch.globalBrownianTreeNoiseSampler = BrownianTreeNoiseSampler(
+    modules.patch.BrownianTreeNoiseSamplerPatched.global_init(
         empty_latent['samples'].to(fcbh.model_management.get_torch_device()),
         sigma_min, sigma_max, seed=image_seed, cpu=False)
 
