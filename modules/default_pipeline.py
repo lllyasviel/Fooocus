@@ -11,7 +11,6 @@ import fooocus_extras.vae_interpose as vae_interpose
 from fcbh.model_base import SDXL, SDXLRefiner
 from modules.expansion import FooocusExpansion
 from modules.sample_hijack import clip_separate
-from fcbh.k_diffusion.sampling import BrownianTreeNoiseSampler
 
 
 xl_base: core.StableDiffusionModel = None
