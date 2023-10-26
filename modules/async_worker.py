@@ -243,8 +243,8 @@ def worker():
                 if use_style:
                     for s in style_selections:
                         p, n = apply_style(s, positive=task_prompt)
-                        positive_basic_workloads += p
-                        negative_basic_workloads += n
+                        positive_basic_workloads = positive_basic_workloads + p
+                        negative_basic_workloads = negative_basic_workloads + n
                 else:
                     positive_basic_workloads.append(task_prompt)
 
