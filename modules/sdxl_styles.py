@@ -40,7 +40,9 @@ for styles_file in styles_files:
     try:
         with open(os.path.join(styles_path, styles_file), encoding='utf-8') as f:
             for entry in json.load(f):
-                name, prompt, negative_prompt = normalize_key(entry['name']), entry['prompt'], entry['negative_prompt']
+                name = normalize_key(entry['name'])
+                prompt = entry['prompt'] if 'prompt' in entry else ''
+                negative_prompt = entry['negative_prompt'] if 'negative_prompt' in entry else ''
                 styles[name] = (prompt, negative_prompt)
     except Exception as e:
         print(str(e))
@@ -53,7 +55,7 @@ legal_style_names = [fooocus_expansion] + style_keys
 
 def apply_style(style, positive):
     p, n = styles[style]
-    return p.replace('{prompt}', positive), n
+    return p.replace('{prompt}', positive).splitlines(), n.splitlines()
 
 
 def apply_wildcards(wildcard_text, rng, directory=wildcards_path):

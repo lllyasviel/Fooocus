@@ -210,8 +210,8 @@ def worker():
 
         if not skip_prompt_processing:
 
-            prompts = remove_empty_str([safe_str(p) for p in prompt.split('\n')], default='')
-            negative_prompts = remove_empty_str([safe_str(p) for p in negative_prompt.split('\n')], default='')
+            prompts = remove_empty_str([safe_str(p) for p in prompt.splitlines()], default='')
+            negative_prompts = remove_empty_str([safe_str(p) for p in negative_prompt.splitlines()], default='')
 
             prompt = prompts[0]
             negative_prompt = negative_prompts[0]
@@ -239,8 +239,8 @@ def worker():
                 if use_style:
                     for s in style_selections:
                         p, n = apply_style(s, positive=task_prompt)
-                        positive_basic_workloads.append(p)
-                        negative_basic_workloads.append(n)
+                        positive_basic_workloads += p
+                        negative_basic_workloads += n
                 else:
                     positive_basic_workloads.append(task_prompt)
 
