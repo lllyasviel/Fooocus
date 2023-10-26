@@ -1,3 +1,7 @@
+# 2.1.743
+
+* Improved GPT2 by removing some tokens that may corrupt styles.
+
 # 2.1.741
 
 Style Updates:
