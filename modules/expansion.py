@@ -74,6 +74,9 @@ class FooocusExpansion:
         return scores + self.logits_bias
 
     def __call__(self, prompt, seed):
+        if prompt == '':
+            return ''
+
         if self.patcher.current_device != self.patcher.load_device:
             print('Fooocus Expansion loaded by itself.')
             model_management.load_model_gpu(self.patcher)
