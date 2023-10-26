@@ -12,7 +12,7 @@ LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.L
 
 def resample_image(im, width, height):
     im = Image.fromarray(im)
-    im = im.resize((width, height), resample=LANCZOS)
+    im = im.resize((int(width), int(height)), resample=LANCZOS)
     return np.array(im)
 
 

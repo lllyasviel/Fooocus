@@ -31,7 +31,7 @@ def worker():
     from modules.private_logger import log
     from modules.expansion import safe_str
     from modules.util import join_prompts, remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil
+        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image
     from modules.upscaler import perform_upscale
 
     try:
@@ -329,10 +329,14 @@ def worker():
                 f = 1.0
 
             shape_ceil = get_shape_ceil(H * f, W * f)
+
             if shape_ceil < 1024:
                 print(f'[Upscale] Image is resized because it is too small.')
+                uov_input_image = set_image_shape_ceil(uov_input_image, 1024)
                 shape_ceil = 1024
-            uov_input_image = set_image_shape_ceil(uov_input_image, shape_ceil)
+            else:
+                uov_input_image = resample_image(uov_input_image, width=W * f, height=H * f)
+
             image_is_super_large = shape_ceil > 2800
 
             if 'fast' in uov_method:
