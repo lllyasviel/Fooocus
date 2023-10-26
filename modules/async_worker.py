@@ -216,6 +216,10 @@ def worker():
             prompt = prompts[0]
             negative_prompt = negative_prompts[0]
 
+            if prompt == '':
+                # disable expansion when empty since it is not meaningful and influences image prompt
+                use_expansion = False
+
             extra_positive_prompts = prompts[1:] if len(prompts) > 1 else []
             extra_negative_prompts = negative_prompts[1:] if len(negative_prompts) > 1 else []
 
