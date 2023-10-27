@@ -91,6 +91,11 @@ default_refiner_model_name = get_config_item_or_set_default(
     default_value='sd_xl_refiner_1.0_0.9vae.safetensors',
     validator=lambda x: isinstance(x, str)
 )
+default_refiner_switch = get_config_item_or_set_default(
+    key='default_refiner_switch',
+    default_value=0.8,
+    validator=lambda x: isinstance(x, float)
+)
 default_lora_name = get_config_item_or_set_default(
     key='default_lora',
     default_value='sd_xl_offset_example-lora_1.0.safetensors',

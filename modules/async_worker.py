@@ -80,6 +80,7 @@ def worker():
         guidance_scale = args.pop()
         base_model_name = args.pop()
         refiner_model_name = args.pop()
+        refiner_switch = args.pop()
         loras = [(args.pop(), args.pop()) for _ in range(5)]
         input_image_checkbox = args.pop()
         current_tab = args.pop()
@@ -147,10 +148,8 @@ def worker():
 
         if performance_selection == 'Speed':
             steps = 30
-            switch = 20
         else:
             steps = 60
-            switch = 40
 
         sampler_name = advanced_parameters.sampler_name
         scheduler_name = advanced_parameters.scheduler_name
@@ -171,10 +170,8 @@ def worker():
                     else:
                         if performance_selection == 'Speed':
                             steps = 18
-                            switch = 12
                         else:
                             steps = 36
-                            switch = 24
                     progressbar(1, 'Downloading upscale models ...')
                     modules.path.downloading_upscale_model()
             if (current_tab == 'inpaint' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint))\
@@ -205,6 +202,8 @@ def worker():
         # Load or unload CNs
         pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path])
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
+
+        switch = int(round(steps * refiner_switch))
 
         if advanced_parameters.overwrite_step > 0:
             steps = advanced_parameters.overwrite_step
