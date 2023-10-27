@@ -26,6 +26,8 @@ def generate_clicked(*args):
 
     execution_start_time = time.perf_counter()
 
+    worker.outputs = []
+
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Initializing ...')), \
         gr.update(visible=True, value=None), \
         gr.update(visible=False, value=None), \
