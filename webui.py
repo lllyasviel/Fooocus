@@ -22,10 +22,13 @@ from modules.auth import auth_enabled, check_auth
 
 
 def generate_clicked(*args):
+    # outputs=[progress_html, progress_window, progress_gallery, gallery]
+
     execution_start_time = time.perf_counter()
 
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Initializing ...')), \
         gr.update(visible=True, value=None), \
+        gr.update(visible=False, value=None), \
         gr.update(visible=False)
 
     worker.buffer.append(list(args))
@@ -39,9 +42,16 @@ def generate_clicked(*args):
                 percentage, title, image = product
                 yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
+                    gr.update(), \
                     gr.update(visible=False)
             if flag == 'results':
+                yield gr.update(visible=True), \
+                    gr.update(visible=True), \
+                    gr.update(visible=True, value=product), \
+                    gr.update(visible=False)
+            if flag == 'finish':
                 yield gr.update(visible=False), \
+                    gr.update(visible=False), \
                     gr.update(visible=False), \
                     gr.update(visible=True, value=product)
                 finished = True
@@ -60,7 +70,9 @@ shared.gradio_root = gr.Blocks(
 with shared.gradio_root:
     with gr.Row():
         with gr.Column(scale=2):
-            progress_window = grh.Image(label='Preview', show_label=True, height=640, visible=False)
+            with gr.Row():
+                progress_window = grh.Image(label='Preview', show_label=True, height=640, visible=False)
+                progress_gallery = gr.Gallery(label='Finished Images', show_label=True, object_fit='contain', height=640, visible=False)
             progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False, elem_id='progress-bar', elem_classes='progress-bar')
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=745, visible=True, elem_classes='resizable_area')
             with gr.Row(elem_classes='type_row'):
@@ -356,7 +368,7 @@ with shared.gradio_root:
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, generate_button, gallery]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
-            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, gallery]) \
+            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
             .then(fn=None, _js='playNotification')
 

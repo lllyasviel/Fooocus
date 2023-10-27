@@ -3,10 +3,11 @@ import threading
 
 buffer = []
 outputs = []
+global_results = []
 
 
 def worker():
-    global buffer, outputs
+    global buffer, outputs, global_results
 
     import traceback
     import numpy as np
@@ -46,6 +47,20 @@ def worker():
     def progressbar(number, text):
         print(f'[Fooocus] {text}')
         outputs.append(['preview', (number, text, None)])
+
+    def yield_result(imgs, do_not_show_finished_images=False):
+        global global_results
+
+        if not isinstance(imgs, list):
+            imgs = [imgs]
+
+        global_results = global_results + imgs
+
+        if do_not_show_finished_images:
+            return
+
+        outputs.append(['results', global_results])
+        return
 
     @torch.no_grad()
     @torch.inference_mode()
@@ -356,7 +371,7 @@ def worker():
             if direct_return:
                 d = [('Upscale (Fast)', '2x')]
                 log(uov_input_image, d, single_line_number=1)
-                outputs.append(['results', [uov_input_image]])
+                yield_result(uov_input_image, do_not_show_finished_images=True)
                 return
 
             tiled = True
@@ -408,7 +423,7 @@ def worker():
             pipeline.final_unet.model.diffusion_model.in_inpaint = True
 
             if advanced_parameters.debugging_cn_preprocessor:
-                outputs.append(['results', inpaint_worker.current_task.visualize_mask_processing()])
+                yield_result(inpaint_worker.current_task.visualize_mask_processing(), do_not_show_finished_images=True)
                 return
 
             progressbar(13, 'VAE Inpaint encoding ...')
@@ -454,7 +469,7 @@ def worker():
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
-                    outputs.append(['results', [cn_img]])
+                    yield_result(cn_img, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_cpds]:
                 cn_img, cn_stop, cn_weight = task
@@ -463,7 +478,7 @@ def worker():
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
-                    outputs.append(['results', [cn_img]])
+                    yield_result(cn_img, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_ip]:
                 cn_img, cn_stop, cn_weight = task
@@ -474,7 +489,7 @@ def worker():
 
                 task[0] = ip_adapter.preprocess(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
-                    outputs.append(['results', [cn_img]])
+                    yield_result(cn_img, do_not_show_finished_images=True)
                     return
 
             if len(cn_tasks[flags.cn_ip]) > 0:
@@ -490,7 +505,6 @@ def worker():
                 advanced_parameters.freeu_s2
             )
 
-        results = []
         all_steps = steps * image_number
 
         preparation_time = time.perf_counter() - execution_start_time
@@ -566,7 +580,7 @@ def worker():
                             d.append((f'LoRA [{n}] weight', w))
                     log(x, d, single_line_number=3)
 
-                results += imgs
+                yield_result(imgs, do_not_show_finished_images=len(tasks) == 1)
             except fcbh.model_management.InterruptProcessingException as e:
                 if shared.last_stop == 'skip':
                     print('User skipped')
@@ -577,8 +591,6 @@ def worker():
 
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
-
-        outputs.append(['results', results])
 
         pipeline.prepare_text_encoder(async_call=True)
         return
@@ -591,7 +603,9 @@ def worker():
                 handler(task)
             except:
                 traceback.print_exc()
-                outputs.append(['results', []])
+            if len(buffer) == 0:
+                outputs.append(['finish', global_results])
+                global_results = []
     pass
 
 

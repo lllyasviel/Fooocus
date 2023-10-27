@@ -1,3 +1,7 @@
+# 2.1.750
+
+* New UI: now you can get each image during generating.
+
 # 2.1.743
 
 * Improved GPT2 by removing some tokens that may corrupt styles.
