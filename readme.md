@@ -67,9 +67,8 @@ After you download the file, please uncompress it, and then run the "run.bat".
 
 In the first time you launch the software, it will automatically download models:
 
-1. It will download [sd_xl_base_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_base_1.0_0.9vae.safetensors".
-2. It will download [sd_xl_refiner_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_refiner_1.0_0.9vae.safetensors".
-3. Note that if you use inpaint, at the first time you inpaint an image, it will download [Fooocus's own inpaint control model from here](https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint.fooocus.patch) as the file "Fooocus\models\inpaint\inpaint.fooocus.patch" (the size of this file is 1.28GB).
+1. It will download [default models](#models) to the folder "Fooocus\models\checkpoints" given different presets. You can download them in advance if you do not want automatic download.
+2. Note that if you use inpaint, at the first time you inpaint an image, it will download [Fooocus's own inpaint control model from here](https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint.fooocus.patch) as the file "Fooocus\models\inpaint\inpaint.fooocus.patch" (the size of this file is 1.28GB).
 
 After Fooocus 2.1.60, you will also have `run_anime.bat` and `run_realistic.bat`. They are different model presets (and requires different models, but thet will be automatically downloaded). [Check here for more details](https://github.com/lllyasviel/Fooocus/discussions/679).
 
@@ -122,7 +121,7 @@ If you want to use Anaconda/Miniconda, you can
     conda activate fooocus
     pip install pygit2==1.12.2
 
-Then download the models: download [sd_xl_base_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_base_1.0_0.9vae.safetensors", and download [sd_xl_refiner_1.0_0.9vae.safetensors from here](https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors) as the file "Fooocus\models\checkpoints\sd_xl_refiner_1.0_0.9vae.safetensors". **Or let Fooocus automatically download the models** using the launcher:
+Then download the models: download [default models](#models) to the folder "Fooocus\models\checkpoints". **Or let Fooocus automatically download the models** using the launcher:
 
     conda activate fooocus
     python entry_with_update.py
@@ -216,6 +215,21 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 1. Launch Fooocus by running `python entry_with_update.py`. The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+
+## Default Models
+<a name="models"></a>
+
+Given different goals, the default models and configs of Fooocus is different:
+
+| Task | Windows | Linux args | Main Model | Refiner | Config |
+| - | - | - | - | - | - |
+| General | run.bat |  | [juggernautXL v6](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors) | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/modules/path.py) |
+| Realistic | run_realistic.bat | --preset realistic | [realistic_stock_photo](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/realisticStockPhoto_v10.safetensors) | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/realistic.json) |
+| Anime | run_realistic.bat | --preset anime | [bluepencil_v50](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/bluePencilXL_v050.safetensors) | [dreamsharper_v8](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/DreamShaper_8_pruned.safetensors) (SD1.5) | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/anime.json) |
+
+Note that the download is **automatic** - you do not need to do anything if the internet connection is okay. However, you can download them manually if you (or move them from somewhere else) have your own preparation.
+
+Note that if your local parameters are not same with this list, then it means your Fooocus is downloaded from a relatively old version and we do not force users to re-download models. If you want Fooocus to download new models for you, you can delete `Fooocus\user_path_config.txt` and your Fooocus' default model list and configs will be refreshed as the newest version, then all newer models will be downloaded for you.
 
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>

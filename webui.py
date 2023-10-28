@@ -249,7 +249,7 @@ with shared.gradio_root:
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
             with gr.Tab(label='Advanced'):
-                sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=30.0, step=0.001, value=2.0,
+                sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=30.0, step=0.001, value=modules.path.default_sample_sharpness,
                                       info='Higher value means image and texture are sharper.')
                 guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01, value=modules.path.default_cfg_scale,
                                       info='Higher value means style is cleaner, vivider, and more artistic.')
