@@ -1,8 +1,14 @@
 <div align=center>
-<img src="https://github.com/lllyasviel/Fooocus/assets/19834515/9ad8ae87-1dc2-4acc-9a44-a5fa4ae2aad6" width=80%>
+<img src="https://github.com/lllyasviel/Fooocus/assets/19834515/483fb86d-c9a2-4c20-997c-46dafc124f25">
 
-*(Screenshot of Fooocus Realistic "run_realistic.bat" using default parameters without any manual tweaking)*
+**Non-cherry-picked** random batch by just typing two words "forest elf" without tweaking any parameters or any strange prompt tags. 
+
+See also **non-cherry-picked** generalization and diversity tests [here](https://github.com/lllyasviel/Fooocus/discussions/808) and [here](https://github.com/lllyasviel/Fooocus/discussions/679) and [here](https://github.com/lllyasviel/Fooocus/discussions/679#realistic).
+
+In the entire open source community, only Fooocus can achieve this level of **non-cherry-picked** quality.
+
 </div>
+
 
 # Fooocus
 
