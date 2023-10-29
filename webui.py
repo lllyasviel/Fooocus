@@ -239,6 +239,15 @@ with shared.gradio_root:
                 with gr.Row():
                     base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.path.model_filenames, value=modules.path.default_base_model_name, show_label=True)
                     refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.path.model_filenames, value=modules.path.default_refiner_model_name, show_label=True)
+
+                refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.0, maximum=1.0, step=0.0001,
+                                           info='When to switch from the base model to refiner.',
+                                           value=modules.path.default_refiner_switch,
+                                           visible=modules.path.default_refiner_model_name != 'None')
+
+                refiner_model.change(lambda x: gr.update(visible=x != 'None'),
+                                     inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False)
+
                 with gr.Accordion(label='LoRAs', open=True):
                     lora_ctrls = []
                     for i in range(5):
@@ -253,10 +262,6 @@ with shared.gradio_root:
                                       info='Higher value means image and texture are sharper.')
                 guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01, value=modules.path.default_cfg_scale,
                                       info='Higher value means style is cleaner, vivider, and more artistic.')
-                refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.0, maximum=1.0, step=0.0001,
-                                           info='When to switch from base model to the refiner (if refiner is used).',
-                                           value=modules.path.default_refiner_switch)
-
                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117" target="_blank">\U0001F4D4 Document</a>')
                 dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
 
