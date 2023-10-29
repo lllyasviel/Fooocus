@@ -10,6 +10,7 @@ def worker():
     global buffer, outputs, global_results
 
     import traceback
+    import math
     import numpy as np
     import torch
     import time
@@ -60,6 +61,46 @@ def worker():
             return
 
         outputs.append(['results', global_results])
+        return
+
+    def build_image_wall():
+        global global_results
+
+        if len(global_results) < 2:
+            return
+
+        for img in global_results:
+            if not isinstance(img, np.ndarray):
+                return
+            if img.ndim != 3:
+                return
+
+        H, W, C = global_results[0].shape
+
+        for img in global_results:
+            Hn, Wn, Cn = img.shape
+            if H != Hn:
+                return
+            if W != Wn:
+                return
+            if C != Cn:
+                return
+
+        cols = float(len(global_results)) ** 0.5
+        cols = int(math.ceil(cols))
+        rows = float(len(global_results)) / float(cols)
+        rows = int(math.ceil(rows))
+
+        wall = np.zeros(shape=(H * rows, W * cols, C), dtype=np.uint8)
+
+        for y in range(rows):
+            for x in range(cols):
+                if y * cols + x < len(global_results):
+                    img = global_results[y * cols + x]
+                    wall[y * H:y * H + H, x * W:x * W + W, :] = img
+
+        # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
+        global_results = global_results + [wall]
         return
 
     @torch.no_grad()
@@ -591,7 +632,6 @@ def worker():
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
-        pipeline.prepare_text_encoder(async_call=True)
         return
 
     while True:
@@ -603,8 +643,10 @@ def worker():
             except:
                 traceback.print_exc()
             if len(buffer) == 0:
+                build_image_wall()
                 outputs.append(['finish', global_results])
                 global_results = []
+                pipeline.prepare_text_encoder(async_call=True)
     pass
 
 
