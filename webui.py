@@ -228,7 +228,10 @@ with shared.gradio_root:
                     refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.path.model_filenames, value=modules.path.default_refiner_model_name, show_label=True)
 
                 refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.1, maximum=1.0, step=0.0001,
-                                           info='When to switch from the base model to refiner.',
+                                           info='Use 0.4 for SD1.5 realistic models; '
+                                                'or 0.667 for SD1.5 anime models; '
+                                                'or 0.8 for XL-refiners; '
+                                                'or any value for switching two SDXL models.',
                                            value=modules.path.default_refiner_switch,
                                            visible=modules.path.default_refiner_model_name != 'None')
 
