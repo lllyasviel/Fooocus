@@ -1,7 +1,9 @@
 <div align=center>
 <img src="https://github.com/lllyasviel/Fooocus/assets/19834515/483fb86d-c9a2-4c20-997c-46dafc124f25">
 
-**Non-cherry-picked** random batch by just typing two words "forest elf" without tweaking any parameters or any strange prompt tags. 
+**Non-cherry-picked** random batch by just typing two words "forest elf", 
+
+without tweaking any parameters, without any strange prompt tags. 
 
 See also **non-cherry-picked** generalization and diversity tests [here](https://github.com/lllyasviel/Fooocus/discussions/808) and [here](https://github.com/lllyasviel/Fooocus/discussions/679) and [here](https://github.com/lllyasviel/Fooocus/discussions/679#realistic).
 
