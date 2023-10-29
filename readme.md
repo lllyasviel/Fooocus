@@ -3,7 +3,7 @@
 
 **Non-cherry-picked** random batch by just typing two words "forest elf", 
 
-without tweaking any parameters, without any strange prompt tags. 
+without any parameter tweaking, without any strange prompt tags. 
 
 See also **non-cherry-picked** generalization and diversity tests [here](https://github.com/lllyasviel/Fooocus/discussions/808) and [here](https://github.com/lllyasviel/Fooocus/discussions/679) and [here](https://github.com/lllyasviel/Fooocus/discussions/679#realistic).
 
