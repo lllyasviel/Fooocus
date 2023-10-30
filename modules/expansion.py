@@ -17,13 +17,13 @@ fooocus_magic_split = [
 ]
 dangrous_patterns = '[]【】()（）|:：'
 
-black_list = ['art', 'digital', 'paint', 'painting', 'drawing', 'draw', 'drawn',
+black_list = ['art', 'digital', 'paint', 'painting', 'painted', 'drawing', 'draw', 'drawn',
               'concept', 'illustration', 'illustrated', 'illustrate',
               'face', 'eye', 'eyes', 'hand', 'hands', 'head', 'heads', 'leg', 'legs', 'arm', 'arms',
-              'shoulder', 'shoulders',
+              'shoulder', 'shoulders', 'body', 'facial', 'skin', 'character', 'human', 'portrait', 'cloth'
               'monster', 'artistic', 'oil', 'brush',
               'artwork', 'artworks',
-              'skeletal', 'by', 'By', 'skeleton']
+              'skeletal', 'skeleton', 'a', 'the', 'background']
 
 black_list += ['Ġ' + k for k in black_list]
 black_list += [k.upper() for k in black_list]
@@ -51,8 +51,7 @@ class FooocusExpansion:
         self.vocab = self.tokenizer.vocab
         self.logits_bias = torch.zeros((1, len(self.vocab)), dtype=torch.float32)
         self.logits_bias[0, self.tokenizer.eos_token_id] = - 16.0
-        # test_198 = self.tokenizer('\n', return_tensors="pt")
-        self.logits_bias[0, 198] = - 1024.0
+        self.logits_bias[0, 198] = - 1024.0  # test_198 = self.tokenizer('\n', return_tensors="pt")
         for k, v in self.vocab.items():
             if k in black_list:
                 self.logits_bias[0, v] = - 1024.0
