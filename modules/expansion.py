@@ -17,7 +17,7 @@ fooocus_magic_split = [
 ]
 dangrous_patterns = '[]【】()（）|:：'
 
-black_list = ['art', 'digital', 'Ġpaint', 'painting', 'drawing', 'draw', 'drawn',
+black_list = ['art', 'digital', 'paint', 'painting', 'drawing', 'draw', 'drawn',
               'concept', 'illustration', 'illustrated', 'illustrate',
               'face', 'eye', 'eyes', 'hand', 'hands', 'head', 'heads', 'leg', 'legs', 'arm', 'arms',
               'shoulder', 'shoulders',
@@ -26,6 +26,10 @@ black_list = ['art', 'digital', 'Ġpaint', 'painting', 'drawing', 'draw', 'drawn
               'skeletal', 'by', 'By', 'skeleton']
 
 black_list += ['Ġ' + k for k in black_list]
+black_list += [k.upper() for k in black_list]
+black_list += [k.capitalize() for k in black_list]
+black_list += ['Ġ' + k.upper() for k in black_list]
+black_list += ['Ġ' + k.capitalize() for k in black_list]
 
 
 def safe_str(x):
