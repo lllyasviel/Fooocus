@@ -20,10 +20,10 @@ dangrous_patterns = '[]【】()（）|:：'
 black_list = ['art', 'digital', 'paint', 'painting', 'painted', 'drawing', 'draw', 'drawn',
               'concept', 'illustration', 'illustrated', 'illustrate',
               'face', 'eye', 'eyes', 'hand', 'hands', 'head', 'heads', 'leg', 'legs', 'arm', 'arms',
-              'shoulder', 'shoulders',
+              'shoulder', 'shoulders', 'body', 'facial'
               'monster', 'artistic', 'oil', 'brush',
               'artwork', 'artworks',
-              'skeletal', 'by', 'By', 'skeleton', 'a', 'the', '.']
+              'skeletal', 'by', 'By', 'skeleton', 'a', 'the', 'background']
 
 black_list += ['Ġ' + k for k in black_list]
 black_list += [k.upper() for k in black_list]
