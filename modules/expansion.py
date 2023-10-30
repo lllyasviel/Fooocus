@@ -21,7 +21,8 @@ black_list = ['art', 'digital', 'Ġpaint', 'painting', 'drawing', 'draw', 'drawn
               'concept', 'illustration', 'illustrated', 'illustrate',
               'face', 'eye', 'eyes', 'hand', 'hands',
               'monster', 'artistic', 'oil', 'brush',
-              'artwork', 'artworks']
+              'artwork', 'artworks',
+              'skeletal', 'by', 'By', 'skeleton']
 
 black_list += ['Ġ' + k for k in black_list]
 
