@@ -41,6 +41,13 @@ def generate_clicked(*args):
         if len(worker.outputs) > 0:
             flag, product = worker.outputs.pop(0)
             if flag == 'preview':
+
+                # help bad internet connection by skipping duplicated preview
+                if len(worker.outputs) > 0:  # if we have the next item
+                    if worker.outputs[0][0] == 'preview':   # if the next item is also a preview
+                        print('Skipped one preview for better internet connection.')
+                        continue
+
                 percentage, title, image = product
                 yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
