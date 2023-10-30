@@ -23,7 +23,7 @@ black_list = ['art', 'digital', 'paint', 'painting', 'painted', 'drawing', 'draw
               'shoulder', 'shoulders', 'body', 'facial', 'skin', 'character'
               'monster', 'artistic', 'oil', 'brush',
               'artwork', 'artworks',
-              'skeletal', 'skeleton', 'a', 'the', 'background', 'of']
+              'skeletal', 'skeleton', 'a', 'the', 'background']
 
 black_list += ['Ġ' + k for k in black_list]
 black_list += [k.upper() for k in black_list]
