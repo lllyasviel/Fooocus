@@ -17,7 +17,7 @@ fooocus_magic_split = [
 ]
 dangrous_patterns = '[]【】()（）|:：'
 
-black_list = ['art', 'digital', 'paint', 'painting', 'drawing', 'draw', 'drawn',
+black_list = ['art', 'digital', 'paint', 'painting', 'painted', 'drawing', 'draw', 'drawn',
               'concept', 'illustration', 'illustrated', 'illustrate',
               'face', 'eye', 'eyes', 'hand', 'hands', 'head', 'heads', 'leg', 'legs', 'arm', 'arms',
               'shoulder', 'shoulders',
