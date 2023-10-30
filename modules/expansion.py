@@ -20,7 +20,7 @@ dangrous_patterns = '[]【】()（）|:：'
 black_list = ['art', 'digital', 'paint', 'painting', 'painted', 'drawing', 'draw', 'drawn',
               'concept', 'illustration', 'illustrated', 'illustrate',
               'face', 'eye', 'eyes', 'hand', 'hands', 'head', 'heads', 'leg', 'legs', 'arm', 'arms',
-              'shoulder', 'shoulders', 'body', 'facial'
+              'shoulder', 'shoulders', 'body', 'facial', 'skin', 'character'
               'monster', 'artistic', 'oil', 'brush',
               'artwork', 'artworks',
               'skeletal', 'skeleton', 'a', 'the', 'background', 'of']
@@ -50,9 +50,8 @@ class FooocusExpansion:
         self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
         self.vocab = self.tokenizer.vocab
         self.logits_bias = torch.zeros((1, len(self.vocab)), dtype=torch.float32)
-        self.logits_bias[0, self.tokenizer.eos_token_id] = - 16.0
-        # test_198 = self.tokenizer('\n', return_tensors="pt")
-        self.logits_bias[0, 198] = - 1024.0
+        # self.logits_bias[0, self.tokenizer.eos_token_id] = - 16.0
+        self.logits_bias[0, 198] = - 1024.0  # test_198 = self.tokenizer('\n', return_tensors="pt")
         for k, v in self.vocab.items():
             if k in black_list:
                 self.logits_bias[0, v] = - 1024.0
