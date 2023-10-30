@@ -50,7 +50,7 @@ class FooocusExpansion:
         self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
         self.vocab = self.tokenizer.vocab
         self.logits_bias = torch.zeros((1, len(self.vocab)), dtype=torch.float32)
-        # self.logits_bias[0, self.tokenizer.eos_token_id] = - 16.0
+        self.logits_bias[0, self.tokenizer.eos_token_id] = - 16.0
         self.logits_bias[0, 198] = - 1024.0  # test_198 = self.tokenizer('\n', return_tensors="pt")
         for k, v in self.vocab.items():
             if k in black_list:
