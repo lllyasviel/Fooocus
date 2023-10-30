@@ -45,7 +45,7 @@ def generate_clicked(*args):
                 # help bad internet connection by skipping duplicated preview
                 if len(worker.outputs) > 0:  # if we have the next item
                     if worker.outputs[0][0] == 'preview':   # if the next item is also a preview
-                        print('Skipped one preview for better internet connection.')
+                        # print('Skipped one preview for better internet connection.')
                         continue
 
                 percentage, title, image = product
