@@ -9,27 +9,32 @@ from fcbh.model_patcher import ModelPatcher
 
 # limitation of np.random.seed(), called from transformers.set_seed()
 SEED_LIMIT_NUMPY = 2**32
+neg_inf = - 8192.0
 
 
-fooocus_magic_split = [
-    ', extremely',
-    ', intricate,',
+preparation_templates = [
+    '{prompt}, extremely detailed, ',
+    # '{prompt}, intricate, ',
 ]
+
 dangrous_patterns = '[]【】()（）|:：'
 
 black_list = ['art', 'digital', 'paint', 'painting', 'painted', 'drawing', 'draw', 'drawn',
               'concept', 'illustration', 'illustrated', 'illustrate',
-              'face', 'eye', 'eyes', 'hand', 'hands', 'head', 'heads', 'leg', 'legs', 'arm', 'arms',
-              'shoulder', 'shoulders', 'body', 'facial', 'skin', 'character', 'human', 'portrait', 'cloth'
-              'monster', 'artistic', 'oil', 'brush',
-              'artwork', 'artworks',
-              'skeletal', 'skeleton', 'a', 'the', 'background']
+              'face', 'faces', 'eye', 'eyes', 'hand', 'hands', 'head', 'heads', 'leg', 'legs', 'arm', 'arms',
+              'shoulder', 'shoulders', 'body', 'facial', 'skin', 'character', 'human',
+              'portrait', 'portraits', 'port', 'cloth',
+              'monster', 'artistic', 'oil', 'brush', 'ugly', 'ug',
+              'artwork', 'artworks', 'pencil', 'line', 'sketch', 'cartoon',
+              'skeletal', 'skeleton', 'a', 'the', 'background', 'blur', 'blurred', 'depth', 'no', 'of',
+              'mugshot', 'selfie',
+              '!', '!!', '!!!', '!!!!', '!!!!!', '!!!!!!', '!!!!!!!', '-', '(', ')', ':', '”', '"', '.']
 
-black_list += ['Ġ' + k for k in black_list]
-black_list += [k.upper() for k in black_list]
-black_list += [k.capitalize() for k in black_list]
-black_list += ['Ġ' + k.upper() for k in black_list]
-black_list += ['Ġ' + k.capitalize() for k in black_list]
+black_list = black_list + [k.upper() for k in black_list] + [k.capitalize() for k in black_list]
+black_list.remove('Art')
+black_list.remove('ART')
+
+black_list = black_list + ['Ġ' + k for k in black_list]
 
 
 def safe_str(x):
@@ -50,11 +55,9 @@ class FooocusExpansion:
         self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
         self.vocab = self.tokenizer.vocab
         self.logits_bias = torch.zeros((1, len(self.vocab)), dtype=torch.float32)
-        self.logits_bias[0, self.tokenizer.eos_token_id] = - 16.0
-        self.logits_bias[0, 198] = - 1024.0  # test_198 = self.tokenizer('\n', return_tensors="pt")
         for k, v in self.vocab.items():
             if k in black_list:
-                self.logits_bias[0, v] = - 1024.0
+                self.logits_bias[0, v] = neg_inf
 
         self.model = AutoModelForCausalLM.from_pretrained(fooocus_expansion_path)
         self.model.eval()
@@ -89,8 +92,8 @@ class FooocusExpansion:
 
         seed = int(seed) % SEED_LIMIT_NUMPY
         set_seed(seed)
-        origin = safe_str(prompt)
-        prompt = origin + fooocus_magic_split[seed % len(fooocus_magic_split)]
+        prompt = safe_str(prompt)
+        prompt = preparation_templates[seed % len(preparation_templates)].replace('{prompt}', prompt)
 
         tokenized_kwargs = self.tokenizer(prompt, return_tensors="pt")
         tokenized_kwargs.data['input_ids'] = tokenized_kwargs.data['input_ids'].to(self.patcher.load_device)
@@ -111,7 +114,8 @@ class FooocusExpansion:
                                        logits_processor=logits_processor)
 
         response = self.tokenizer.batch_decode(features, skip_special_tokens=True)
-        result = response[0][len(origin):]
+
+        result = response[0]
         result = safe_str(result)
         result = remove_pattern(result, dangrous_patterns)
         return result
