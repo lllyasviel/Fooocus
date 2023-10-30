@@ -27,7 +27,7 @@ black_list = ['art', 'digital', 'paint', 'painting', 'painted', 'drawing', 'draw
               'monster', 'artistic', 'oil', 'brush', 'ugly', 'ug',
               'artwork', 'artworks', 'pencil', 'line', 'sketch', 'cartoon', 'white', 'black', 'red',
               'skeletal', 'skeleton', 'a', 'the', 'background', 'blur', 'blurred', 'depth', 'no', 'of',
-              'catdog', 'cat',
+              'catdog', 'cat', 'fur', 
               'mugshot', 'selfie',
               '!', '!!', '!!!', '!!!!', '!!!!!', '!!!!!!', '!!!!!!!', '-', '(', ')', ':', '”', '"', '.']
 
