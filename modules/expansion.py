@@ -29,14 +29,14 @@ class FooocusExpansion:
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
 
-        positive_words = open(os.path.join(fooocus_expansion_path, 'positive.txt'), encoding='utf-8').read()
-        positive_words = positive_words.lower().replace(' ', '').replace('\n', '').split(',')
+        positive_words = open(os.path.join(fooocus_expansion_path, 'positive.txt'),
+                              encoding='utf-8').read().splitlines()
 
-        # print(', '.join(sorted(list(set(positive_words)))))
-
+        # new_content = '\n'.join(sorted(list(set(positive_words))))
         # t198 = self.tokenizer('\n', return_tensors="np")
         # t11 = self.tokenizer(',', return_tensors="np")
         # positive_ids = [11, 198, self.tokenizer.eos_token_id]
+
         positive_ids = [11]
 
         self.bad_words_ids = []
