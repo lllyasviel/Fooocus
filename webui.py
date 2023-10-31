@@ -37,7 +37,6 @@ def generate_clicked(*args):
         time.sleep(0.01)
         if len(worker_outputs.value) > 0:
             flag, product = worker_outputs.value.pop(0)
-            worker_outputs.value = []
             if flag == 'preview':
 
                 # help bad internet connection by skipping duplicated preview
