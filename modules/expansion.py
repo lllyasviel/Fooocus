@@ -31,18 +31,20 @@ class FooocusExpansion:
 
         positive_words = open(os.path.join(fooocus_expansion_path, 'positive.txt'),
                               encoding='utf-8').read().splitlines()
+        positive_words = [x.lower() for x in positive_words if x != '']
 
         # new_content = '\n'.join(sorted(list(set(positive_words))))
-        # t198 = self.tokenizer('\n', return_tensors="np")
-        # t11 = self.tokenizer(',', return_tensors="np")
-        # positive_ids = [11, 198, self.tokenizer.eos_token_id]
+        # eos = self.tokenizer.eos_token_id
 
-        positive_ids = [11]
+        symbols = '-+,.;?!!!'
 
         self.bad_words_ids = []
         for k, v in self.tokenizer.vocab.items():
-            if k.replace('Ġ', '') not in positive_words and v not in positive_ids:
+            if k.replace('Ġ', '').lower() not in positive_words and k not in symbols:
                 self.bad_words_ids.append([v])
+            else:
+                # print(k)
+                pass
 
         self.model = AutoModelForCausalLM.from_pretrained(fooocus_expansion_path)
         self.model.eval()

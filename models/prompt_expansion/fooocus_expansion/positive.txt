@@ -18,8 +18,6 @@ aesthetic
 affectionate
 affirmed
 affirming
-aged
-ageless
 agile
 aimed
 airy
@@ -654,7 +652,6 @@ outfitted
 outstanding
 overjoyed
 pacified
-painterly
 paired
 palpable
 panoramic
