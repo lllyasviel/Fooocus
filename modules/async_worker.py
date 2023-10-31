@@ -2,12 +2,10 @@ import threading
 
 
 buffer = []
-outputs = []
 global_results = []
 
-
 def worker():
-    global buffer, outputs, global_results
+    global buffer, global_results
 
     import traceback
     import math
@@ -45,11 +43,11 @@ def worker():
     except Exception as e:
         print(e)
 
-    def progressbar(number, text):
+    def progressbar(outputs, number, text):
         print(f'[Fooocus] {text}')
-        outputs.append(['preview', (number, text, None)])
+        outputs.value.append(['preview', (number, text, None)])
 
-    def yield_result(imgs, do_not_show_finished_images=False):
+    def yield_result(outputs, imgs, do_not_show_finished_images=False):
         global global_results
 
         if not isinstance(imgs, list):
@@ -60,7 +58,7 @@ def worker():
         if do_not_show_finished_images:
             return
 
-        outputs.append(['results', global_results])
+        outputs.value.append(['results', global_results])
         return
 
     def build_image_wall():
@@ -110,6 +108,7 @@ def worker():
 
         args.reverse()
 
+        outputs = args.pop()
         prompt = args.pop()
         negative_prompt = args.pop()
         style_selections = args.pop()
@@ -222,7 +221,7 @@ def worker():
                 inpaint_image = HWC3(inpaint_image)
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
-                    progressbar(1, 'Downloading inpainter ...')
+                    progressbar(outputs, 1, 'Downloading inpainter ...')
                     inpaint_head_model_path, inpaint_patch_model_path = modules.path.downloading_inpaint_models(advanced_parameters.inpaint_engine)
                     loras += [(inpaint_patch_model_path, 1.0)]
                     print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
@@ -231,14 +230,14 @@ def worker():
                     advanced_parameters.mixing_image_prompt_and_inpaint or \
                     advanced_parameters.mixing_image_prompt_and_vary_upscale:
                 goals.append('cn')
-                progressbar(1, 'Downloading control models ...')
+                progressbar(outputs, 1, 'Downloading control models ...')
                 if len(cn_tasks[flags.cn_canny]) > 0:
                     controlnet_canny_path = modules.path.downloading_controlnet_canny()
                 if len(cn_tasks[flags.cn_cpds]) > 0:
                     controlnet_cpds_path = modules.path.downloading_controlnet_cpds()
                 if len(cn_tasks[flags.cn_ip]) > 0:
                     clip_vision_path, ip_negative_path, ip_adapter_path = modules.path.downloading_ip_adapters()
-                progressbar(1, 'Loading control models ...')
+                progressbar(outputs, 1, 'Loading control models ...')
 
         # Load or unload CNs
         pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path])
@@ -261,7 +260,7 @@ def worker():
         print(f'[Parameters] Sampler = {sampler_name} - {scheduler_name}')
         print(f'[Parameters] Steps = {steps} - {switch}')
 
-        progressbar(1, 'Initializing ...')
+        progressbar(outputs, 1, 'Initializing ...')
 
         if not skip_prompt_processing:
 
@@ -278,10 +277,10 @@ def worker():
             extra_positive_prompts = prompts[1:] if len(prompts) > 1 else []
             extra_negative_prompts = negative_prompts[1:] if len(negative_prompts) > 1 else []
 
-            progressbar(3, 'Loading models ...')
+            progressbar(outputs, 3, 'Loading models ...')
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name, loras=loras)
 
-            progressbar(3, 'Processing prompts ...')
+            progressbar(outputs, 3, 'Processing prompts ...')
             tasks = []
             for i in range(image_number):
                 task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
@@ -328,22 +327,22 @@ def worker():
 
             if use_expansion:
                 for i, t in enumerate(tasks):
-                    progressbar(5, f'Preparing Fooocus text #{i + 1} ...')
+                    progressbar(outputs, 5, f'Preparing Fooocus text #{i + 1} ...')
                     expansion = pipeline.final_expansion(t['task_prompt'], t['task_seed'])
                     print(f'[Prompt Expansion] {expansion}')
                     t['expansion'] = expansion
                     t['positive'] = copy.deepcopy(t['positive']) + [expansion]  # Deep copy.
 
             for i, t in enumerate(tasks):
-                progressbar(7, f'Encoding positive #{i + 1} ...')
+                progressbar(outputs, 7, f'Encoding positive #{i + 1} ...')
                 t['c'] = pipeline.clip_encode(texts=t['positive'], pool_top_k=t['positive_top_k'])
 
             for i, t in enumerate(tasks):
-                progressbar(10, f'Encoding negative #{i + 1} ...')
+                progressbar(outputs, 10, f'Encoding negative #{i + 1} ...')
                 t['uc'] = pipeline.clip_encode(texts=t['negative'], pool_top_k=t['negative_top_k'])
 
         if len(goals) > 0:
-            progressbar(13, 'Image processing ...')
+            progressbar(outputs, 13, 'Image processing ...')
 
         if 'vary' in goals:
             if 'subtle' in uov_method:
@@ -364,7 +363,7 @@ def worker():
             uov_input_image = set_image_shape_ceil(uov_input_image, shape_ceil)
 
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
-            progressbar(13, 'VAE encoding ...')
+            progressbar(outputs, 13, 'VAE encoding ...')
             initial_latent = core.encode_vae(vae=pipeline.final_vae, pixels=initial_pixels)
             B, C, H, W = initial_latent['samples'].shape
             width = W * 8
@@ -373,7 +372,7 @@ def worker():
 
         if 'upscale' in goals:
             H, W, C = uov_input_image.shape
-            progressbar(13, f'Upscaling image from {str((H, W))} ...')
+            progressbar(outputs, 13, f'Upscaling image from {str((H, W))} ...')
 
             uov_input_image = core.numpy_to_pytorch(uov_input_image)
             uov_input_image = perform_upscale(uov_input_image)
@@ -411,7 +410,7 @@ def worker():
             if direct_return:
                 d = [('Upscale (Fast)', '2x')]
                 log(uov_input_image, d, single_line_number=1)
-                yield_result(uov_input_image, do_not_show_finished_images=True)
+                yield_result(outputs, uov_input_image, do_not_show_finished_images=True)
                 return
 
             tiled = True
@@ -421,7 +420,7 @@ def worker():
                 denoising_strength = advanced_parameters.overwrite_upscale_strength
 
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
-            progressbar(13, 'VAE encoding ...')
+            progressbar(outputs, 13, 'VAE encoding ...')
 
             initial_latent = core.encode_vae(
                 vae=pipeline.final_vae if pipeline.final_refiner_vae is None else pipeline.final_refiner_vae,
@@ -463,10 +462,10 @@ def worker():
             pipeline.final_unet.model.diffusion_model.in_inpaint = True
 
             if advanced_parameters.debugging_cn_preprocessor:
-                yield_result(inpaint_worker.current_task.visualize_mask_processing(), do_not_show_finished_images=True)
+                yield_result(outputs, inpaint_worker.current_task.visualize_mask_processing(), do_not_show_finished_images=True)
                 return
 
-            progressbar(13, 'VAE Inpaint encoding ...')
+            progressbar(outputs, 13, 'VAE Inpaint encoding ...')
 
             inpaint_pixel_fill = core.numpy_to_pytorch(inpaint_worker.current_task.interested_fill)
             inpaint_pixel_image = core.numpy_to_pytorch(inpaint_worker.current_task.interested_image)
@@ -479,12 +478,12 @@ def worker():
 
             latent_swap = None
             if pipeline.final_refiner_vae is not None:
-                progressbar(13, 'VAE Inpaint SD15 encoding ...')
+                progressbar(outputs, 13, 'VAE Inpaint SD15 encoding ...')
                 latent_swap = core.encode_vae(
                     vae=pipeline.final_refiner_vae,
                     pixels=inpaint_pixel_fill)['samples']
 
-            progressbar(13, 'VAE encoding ...')
+            progressbar(outputs, 13, 'VAE encoding ...')
             latent_fill = core.encode_vae(
                 vae=pipeline.final_vae,
                 pixels=inpaint_pixel_fill)['samples']
@@ -509,7 +508,7 @@ def worker():
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
-                    yield_result(cn_img, do_not_show_finished_images=True)
+                    yield_result(outputs, cn_img, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_cpds]:
                 cn_img, cn_stop, cn_weight = task
@@ -518,7 +517,7 @@ def worker():
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
-                    yield_result(cn_img, do_not_show_finished_images=True)
+                    yield_result(outputs, cn_img, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_ip]:
                 cn_img, cn_stop, cn_weight = task
@@ -529,7 +528,7 @@ def worker():
 
                 task[0] = ip_adapter.preprocess(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
-                    yield_result(cn_img, do_not_show_finished_images=True)
+                    yield_result(outputs, cn_img, do_not_show_finished_images=True)
                     return
 
             if len(cn_tasks[flags.cn_ip]) > 0:
@@ -550,11 +549,11 @@ def worker():
         preparation_time = time.perf_counter() - execution_start_time
         print(f'Preparation time: {preparation_time:.2f} seconds')
 
-        outputs.append(['preview', (13, 'Moving model to GPU ...', None)])
+        outputs.value.append(['preview', (13, 'Moving model to GPU ...', None)])
 
         def callback(step, x0, x, total_steps, y):
             done_steps = current_task_id * steps + step
-            outputs.append(['preview', (
+            outputs.value.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
                 f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
                 y)])
@@ -620,7 +619,7 @@ def worker():
                             d.append((f'LoRA [{n}] weight', w))
                     log(x, d, single_line_number=3)
 
-                yield_result(imgs, do_not_show_finished_images=len(tasks) == 1)
+                yield_result(outputs, imgs, do_not_show_finished_images=len(tasks) == 1)
             except fcbh.model_management.InterruptProcessingException as e:
                 if shared.last_stop == 'skip':
                     print('User skipped')
@@ -638,13 +637,14 @@ def worker():
         time.sleep(0.01)
         if len(buffer) > 0:
             task = buffer.pop(0)
+            outputs = task[0]
             try:
                 handler(task)
             except:
                 traceback.print_exc()
             if len(buffer) == 0:
                 build_image_wall()
-                outputs.append(['finish', global_results])
+                outputs.value.append(['finish', global_results])
                 global_results = []
                 pipeline.prepare_text_encoder(async_call=True)
     pass

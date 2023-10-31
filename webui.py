@@ -20,31 +20,29 @@ from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 
-
 def generate_clicked(*args):
-    # outputs=[progress_html, progress_window, progress_gallery, gallery]
-
+    # worker_outputs=[progress_html, progress_window, progress_gallery, gallery]
     execution_start_time = time.perf_counter()
-
-    worker.outputs = []
+    worker_outputs = gr.State(value=[])
 
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Initializing ...')), \
         gr.update(visible=True, value=None), \
         gr.update(visible=False, value=None), \
         gr.update(visible=False)
 
-    worker.buffer.append(list(args))
+    worker.buffer.append([worker_outputs] + list(args))
     finished = False
 
     while not finished:
         time.sleep(0.01)
-        if len(worker.outputs) > 0:
-            flag, product = worker.outputs.pop(0)
+        if len(worker_outputs.value) > 0:
+            flag, product = worker_outputs.value.pop(0)
+            worker_outputs.value = []
             if flag == 'preview':
 
                 # help bad internet connection by skipping duplicated preview
-                if len(worker.outputs) > 0:  # if we have the next item
-                    if worker.outputs[0][0] == 'preview':   # if the next item is also a preview
+                if len(worker_outputs.value) > 0:  # if we have the next item
+                    if worker_outputs.value[0][0] == 'preview':   # if the next item is also a preview
                         # print('Skipped one preview for better internet connection.')
                         continue
 
