@@ -1,3 +1,4 @@
+import os
 import torch
 import math
 import fcbh.model_management as model_management
@@ -9,33 +10,6 @@ from fcbh.model_patcher import ModelPatcher
 
 # limitation of np.random.seed(), called from transformers.set_seed()
 SEED_LIMIT_NUMPY = 2**32
-neg_inf = - 8192.0
-
-
-preparation_templates = [
-    '{prompt}, extremely detailed, ',
-    # '{prompt}, intricate, ',
-]
-
-dangrous_patterns = '[]【】()（）|:：'
-
-black_list = ['art', 'digital', 'paint', 'painting', 'painted', 'drawing', 'draw', 'drawn',
-              'concept', 'illustration', 'illustrated', 'illustrate',
-              'face', 'faces', 'eye', 'eyes', 'hand', 'hands', 'head', 'heads', 'leg', 'legs', 'arm', 'arms',
-              'shoulder', 'shoulders', 'body', 'facial', 'skin', 'character', 'human',
-              'portrait', 'portraits', 'port', 'cloth',
-              'monster', 'artistic', 'oil', 'brush', 'ugly', 'ug',
-              'artwork', 'artworks', 'pencil', 'line', 'sketch', 'cartoon', 'white', 'black', 'red',
-              'skeletal', 'skeleton', 'a', 'the', 'background', 'blur', 'blurred', 'depth', 'no', 'of',
-              'catdog', 'cat', 'fur', 
-              'mugshot', 'selfie',
-              '!', '!!', '!!!', '!!!!', '!!!!!', '!!!!!!', '!!!!!!!', '-', '(', ')', ':', '”', '"', '.']
-
-black_list = black_list + [k.upper() for k in black_list] + [k.capitalize() for k in black_list]
-black_list.remove('Art')
-black_list.remove('ART')
-
-black_list = black_list + ['Ġ' + k for k in black_list]
 
 
 def safe_str(x):
@@ -54,11 +28,21 @@ def remove_pattern(x, pattern):
 class FooocusExpansion:
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
-        self.vocab = self.tokenizer.vocab
-        self.logits_bias = torch.zeros((1, len(self.vocab)), dtype=torch.float32)
-        for k, v in self.vocab.items():
-            if k in black_list:
-                self.logits_bias[0, v] = neg_inf
+
+        positive_words = open(os.path.join(fooocus_expansion_path, 'positive.txt'), encoding='utf-8').read()
+        positive_words = positive_words.lower().replace(' ', '').replace('\n', '').split(',')
+
+        # print(', '.join(sorted(list(set(positive_words)))))
+
+        # t198 = self.tokenizer('\n', return_tensors="np")
+        # t11 = self.tokenizer(',', return_tensors="np")
+        # positive_ids = [11, 198, self.tokenizer.eos_token_id]
+        positive_ids = [11]
+
+        self.bad_words_ids = []
+        for k, v in self.tokenizer.vocab.items():
+            if k.replace('Ġ', '') not in positive_words and v not in positive_ids:
+                self.bad_words_ids.append([v])
 
         self.model = AutoModelForCausalLM.from_pretrained(fooocus_expansion_path)
         self.model.eval()
@@ -79,10 +63,6 @@ class FooocusExpansion:
         self.patcher = ModelPatcher(self.model, load_device=load_device, offload_device=offload_device)
         print(f'Fooocus Expansion engine loaded for {load_device}, use_fp16 = {use_fp16}.')
 
-    def logits_processor(self, input_ids, scores):
-        self.logits_bias = self.logits_bias.to(scores)
-        return scores + self.logits_bias
-
     def __call__(self, prompt, seed):
         if prompt == '':
             return ''
@@ -93,8 +73,7 @@ class FooocusExpansion:
 
         seed = int(seed) % SEED_LIMIT_NUMPY
         set_seed(seed)
-        prompt = safe_str(prompt)
-        prompt = preparation_templates[seed % len(preparation_templates)].replace('{prompt}', prompt)
+        prompt = safe_str(prompt) + ','
 
         tokenized_kwargs = self.tokenizer(prompt, return_tensors="pt")
         tokenized_kwargs.data['input_ids'] = tokenized_kwargs.data['input_ids'].to(self.patcher.load_device)
@@ -104,19 +83,15 @@ class FooocusExpansion:
         max_token_length = 75 * int(math.ceil(float(current_token_length) / 75.0))
         max_new_tokens = max_token_length - current_token_length
 
-        logits_processor = LogitsProcessorList([self.logits_processor])
-
         # https://huggingface.co/blog/introducing-csearch
         # https://huggingface.co/docs/transformers/generation_strategies
         features = self.model.generate(**tokenized_kwargs,
-                                       num_beams=1,
+                                       top_k=100,
                                        max_new_tokens=max_new_tokens,
                                        do_sample=True,
-                                       logits_processor=logits_processor)
+                                       bad_words_ids=self.bad_words_ids)
 
         response = self.tokenizer.batch_decode(features, skip_special_tokens=True)
+        result = safe_str(response[0])
 
-        result = response[0]
-        result = safe_str(result)
-        result = remove_pattern(result, dangrous_patterns)
         return result
