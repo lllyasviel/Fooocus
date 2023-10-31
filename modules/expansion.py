@@ -86,7 +86,7 @@ class FooocusExpansion:
         # https://huggingface.co/blog/introducing-csearch
         # https://huggingface.co/docs/transformers/generation_strategies
         features = self.model.generate(**tokenized_kwargs,
-                                       num_beams=1,
+                                       top_k=100,
                                        max_new_tokens=max_new_tokens,
                                        do_sample=True,
                                        bad_words_ids=self.bad_words_ids)
