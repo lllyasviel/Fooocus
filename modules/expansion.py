@@ -75,9 +75,12 @@ class FooocusExpansion:
     @torch.inference_mode()
     def logits_processor(self, input_ids, scores):
         assert scores.ndim == 2 and scores.shape[0] == 1
-        bias = self.logits_bias.to(scores).clone()
+        self.logits_bias = self.logits_bias.to(scores)
+
+        bias = self.logits_bias.clone()
         bias[0, input_ids[0].to(bias.device).long()] = neg_inf
         bias[0, 11] = 0
+
         return scores + bias
 
     @torch.no_grad()
