@@ -212,7 +212,7 @@ def worker():
                             steps = 18
                         else:
                             steps = 36
-                    progressbar(1, 'Downloading upscale models ...')
+                    progressbar(outputs, 1, 'Downloading upscale models ...')
                     modules.path.downloading_upscale_model()
             if (current_tab == 'inpaint' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint))\
                     and isinstance(inpaint_input_image, dict):
