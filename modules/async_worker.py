@@ -3,9 +3,10 @@ import threading
 
 buffer = []
 global_results = []
+image_number = 0
 
 def worker():
-    global buffer, global_results
+    global buffer, global_results, image_number
 
     import traceback
     import math
@@ -104,6 +105,7 @@ def worker():
     @torch.no_grad()
     @torch.inference_mode()
     def handler(args):
+        global image_number
         execution_start_time = time.perf_counter()
 
         args.reverse()
@@ -624,6 +626,9 @@ def worker():
                 if shared.last_stop == 'skip':
                     print('User skipped')
                     continue
+                elif shared.last_stop == 'stop_previous':
+                    print('Previous task stopped')
+                    break
                 else:
                     print('User stopped')
                     break
@@ -643,6 +648,8 @@ def worker():
                 handler(task)
             except:
                 traceback.print_exc()
+            finally:
+                image_number = 0
             if len(buffer) == 0:
                 build_image_wall()
                 outputs.value.append(['finish', global_results])

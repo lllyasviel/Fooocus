@@ -14,6 +14,7 @@ import modules.flags as flags
 import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import args_manager
+import fcbh.model_management as model_management
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -29,6 +30,11 @@ def generate_clicked(*args):
         gr.update(visible=True, value=None), \
         gr.update(visible=False, value=None), \
         gr.update(visible=False)
+
+    if worker.image_number > 0:
+        shared.last_stop = 'stop_previous'
+        model_management.interrupt_current_processing()
+        print(f'\nStopping handler for previous task')
 
     worker.buffer.append([worker_outputs] + list(args))
     finished = False
@@ -96,13 +102,11 @@ with shared.gradio_root:
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
 
                     def stop_clicked():
-                        import fcbh.model_management as model_management
                         shared.last_stop = 'stop'
                         model_management.interrupt_current_processing()
                         return [gr.update(interactive=False)] * 2
 
                     def skip_clicked():
-                        import fcbh.model_management as model_management
                         shared.last_stop = 'skip'
                         model_management.interrupt_current_processing()
                         return
