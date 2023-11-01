@@ -33,13 +33,20 @@ class FooocusExpansion:
 
         positive_words = open(os.path.join(fooocus_expansion_path, 'positive.txt'),
                               encoding='utf-8').read().splitlines()
-        positive_words = ['Ġ' + x for x in positive_words if x != '']
+        positive_words = ['Ġ' + x.lower() for x in positive_words if x != '']
 
         self.logits_bias = torch.zeros((1, len(self.tokenizer.vocab)), dtype=torch.float32) + neg_inf
 
+        debug_list = []
         for k, v in self.tokenizer.vocab.items():
             if k in positive_words:
                 self.logits_bias[0, v] = 0
+                debug_list.append(k[1:])
+
+        print(f'Fooocus V2 Expansion: Vocab with {len(debug_list)} words.')
+
+        # debug_list = '\n'.join(sorted(debug_list))
+        # print(debug_list)
 
         # t11 = self.tokenizer(',', return_tensors="np")
         # t198 = self.tokenizer('\n', return_tensors="np")
