@@ -32,9 +32,9 @@ def generate_clicked(*args):
         gr.update(visible=False)
 
     if worker.image_number > 0:
+        print(f'\nStopping handler for previous task')
         shared.last_stop = 'stop_previous'
         model_management.interrupt_current_processing()
-        print(f'\nStopping handler for previous task')
 
     worker.buffer.append([worker_outputs] + list(args))
     finished = False
