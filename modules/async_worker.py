@@ -10,6 +10,7 @@ def worker():
     global buffer, outputs, global_results
 
     import traceback
+    import math
     import numpy as np
     import torch
     import time
@@ -60,6 +61,46 @@ def worker():
             return
 
         outputs.append(['results', global_results])
+        return
+
+    def build_image_wall():
+        global global_results
+
+        if len(global_results) < 2:
+            return
+
+        for img in global_results:
+            if not isinstance(img, np.ndarray):
+                return
+            if img.ndim != 3:
+                return
+
+        H, W, C = global_results[0].shape
+
+        for img in global_results:
+            Hn, Wn, Cn = img.shape
+            if H != Hn:
+                return
+            if W != Wn:
+                return
+            if C != Cn:
+                return
+
+        cols = float(len(global_results)) ** 0.5
+        cols = int(math.ceil(cols))
+        rows = float(len(global_results)) / float(cols)
+        rows = int(math.ceil(rows))
+
+        wall = np.zeros(shape=(H * rows, W * cols, C), dtype=np.uint8)
+
+        for y in range(rows):
+            for x in range(cols):
+                if y * cols + x < len(global_results):
+                    img = global_results[y * cols + x]
+                    wall[y * H:y * H + H, x * W:x * W + W, :] = img
+
+        # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
+        global_results = global_results + [wall]
         return
 
     @torch.no_grad()
@@ -243,7 +284,7 @@ def worker():
             progressbar(3, 'Processing prompts ...')
             tasks = []
             for i in range(image_number):
-                task_seed = (seed + i) % (constants.MAX_SEED + 1) # randint is inclusive, % is not
+                task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
 
                 task_prompt = apply_wildcards(prompt, task_rng)
@@ -289,9 +330,9 @@ def worker():
                 for i, t in enumerate(tasks):
                     progressbar(5, f'Preparing Fooocus text #{i + 1} ...')
                     expansion = pipeline.final_expansion(t['task_prompt'], t['task_seed'])
-                    print(f'[Prompt Expansion] New suffix: {expansion}')
+                    print(f'[Prompt Expansion] {expansion}')
                     t['expansion'] = expansion
-                    t['positive'] = copy.deepcopy(t['positive']) + [join_prompts(t['task_prompt'], expansion)]  # Deep copy.
+                    t['positive'] = copy.deepcopy(t['positive']) + [expansion]  # Deep copy.
 
             for i, t in enumerate(tasks):
                 progressbar(7, f'Encoding positive #{i + 1} ...')
@@ -591,7 +632,6 @@ def worker():
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
-        pipeline.prepare_text_encoder(async_call=True)
         return
 
     while True:
@@ -603,8 +643,10 @@ def worker():
             except:
                 traceback.print_exc()
             if len(buffer) == 0:
+                build_image_wall()
                 outputs.append(['finish', global_results])
                 global_results = []
+                pipeline.prepare_text_encoder(async_call=True)
     pass
 
 

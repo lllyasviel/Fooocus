@@ -83,12 +83,12 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
 
 default_base_model_name = get_config_item_or_set_default(
     key='default_model',
-    default_value='sd_xl_base_1.0_0.9vae.safetensors',
+    default_value='juggernautXL_version6Rundiffusion.safetensors',
     validator=lambda x: isinstance(x, str)
 )
 default_refiner_model_name = get_config_item_or_set_default(
     key='default_refiner',
-    default_value='sd_xl_refiner_1.0_0.9vae.safetensors',
+    default_value='None',
     validator=lambda x: isinstance(x, str)
 )
 default_refiner_switch = get_config_item_or_set_default(
@@ -103,12 +103,17 @@ default_lora_name = get_config_item_or_set_default(
 )
 default_lora_weight = get_config_item_or_set_default(
     key='default_lora_weight',
-    default_value=0.5,
+    default_value=0.1,
     validator=lambda x: isinstance(x, float)
 )
 default_cfg_scale = get_config_item_or_set_default(
     key='default_cfg_scale',
-    default_value=7.0,
+    default_value=4.0,
+    validator=lambda x: isinstance(x, float)
+)
+default_sample_sharpness = get_config_item_or_set_default(
+    key='default_sample_sharpness',
+    default_value=2,
     validator=lambda x: isinstance(x, float)
 )
 default_sampler = get_config_item_or_set_default(
@@ -151,10 +156,8 @@ default_image_number = get_config_item_or_set_default(
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
     default_value={
-        'sd_xl_base_1.0_0.9vae.safetensors':
-            'https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors',
-        'sd_xl_refiner_1.0_0.9vae.safetensors':
-            'https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors'
+        'juggernautXL_version6Rundiffusion.safetensors':
+            'https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors'
     },
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
