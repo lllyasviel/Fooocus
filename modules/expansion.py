@@ -1,3 +1,10 @@
+# Fooocus GPT2 Expansion
+# Algorithm created by Lvmin Zhang at 2023, Stanford
+# If used inside Fooocus, any use is permitted.
+# If used outside Fooocus, only non-commercial use is permitted (CC-By NC 4.0).
+# This applies to the word list, vocab, model, and algorithm.
+
+
 import os
 import torch
 import math
