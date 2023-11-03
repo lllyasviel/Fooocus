@@ -153,6 +153,11 @@ default_image_number = get_config_item_or_set_default(
     default_value=2,
     validator=lambda x: isinstance(x, int) and x >= 1 and x <= 32
 )
+default_performance_selection = get_config_item_or_set_default(
+    key='default_performance_selection',
+    default_value='Speed',
+    validator=lambda x: x in ['Speed', 'Quality']
+)
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
     default_value={

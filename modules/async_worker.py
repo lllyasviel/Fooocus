@@ -556,7 +556,7 @@ def worker():
             done_steps = current_task_id * steps + step
             outputs.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
+                f'Step {step}/{total_steps} in the {(lambda n: "%d-%s" % (n, "tsnrhtdd"[(n // 10 % 10 != 1) * (n % 10 < 4) * n % 10::4]))(current_task_id + 1)} Sampling',
                 y)])
 
         for current_task_id, task in enumerate(tasks):

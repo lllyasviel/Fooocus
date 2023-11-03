@@ -195,7 +195,7 @@ with shared.gradio_root:
 
         with gr.Column(scale=1, visible=modules.path.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
-                performance_selection = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
+                performance_selection = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value=modules.path.default_performance_selection)
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.path.available_aspect_ratios,
                                                    value=modules.path.default_aspect_ratio, info='width × height')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=modules.path.default_image_number)
