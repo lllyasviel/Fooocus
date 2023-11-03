@@ -9,6 +9,9 @@ from typing import Any, Literal
 import numpy as np
 import PIL
 import PIL.ImageOps
+import gradio.routes
+import importlib
+
 from gradio_client import utils as client_utils
 from gradio_client.documentation import document, set_documentation_group
 from gradio_client.serializing import ImgSerializable
@@ -460,4 +463,18 @@ def blk_ini(self, *args, **kwargs):
 
 
 Block.__init__ = blk_ini
+
+
+gradio.routes.asyncio = importlib.reload(gradio.routes.asyncio)
+
+if not hasattr(gradio.routes.asyncio, 'original_wait_for'):
+    gradio.routes.asyncio.original_wait_for = gradio.routes.asyncio.wait_for
+
+
+def patched_wait_for(fut, timeout):
+    del timeout
+    return gradio.routes.asyncio.original_wait_for(fut, timeout=65535)
+
+
+gradio.routes.asyncio.wait_for = patched_wait_for
 

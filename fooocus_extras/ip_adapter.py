@@ -7,6 +7,7 @@ import fcbh.ldm.modules.attention as attention
 
 from fooocus_extras.resampler import Resampler
 from fcbh.model_patcher import ModelPatcher
+from modules.core import numpy_to_pytorch
 
 
 SD_V12_CHANNELS = [320] * 4 + [640] * 4 + [1280] * 4 + [1280] * 6 + [640] * 6 + [320] * 6 + [1280] * 2
@@ -146,12 +147,25 @@ def load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path):
 
 @torch.no_grad()
 @torch.inference_mode()
+def clip_preprocess(image):
+    mean = torch.tensor([0.48145466, 0.4578275, 0.40821073], device=image.device, dtype=image.dtype).view([1, 3, 1, 1])
+    std = torch.tensor([0.26862954, 0.26130258, 0.27577711], device=image.device, dtype=image.dtype).view([1, 3, 1, 1])
+    image = image.movedim(-1, 1)
+
+    # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
+    B, C, H, W = image.shape
+    assert H == 224 and W == 224
+
+    return (image - mean) / std
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def preprocess(img):
     global ip_unconds
 
-    inputs = clip_vision.processor(images=img, return_tensors="pt")
     fcbh.model_management.load_model_gpu(clip_vision.patcher)
-    pixel_values = inputs['pixel_values'].to(clip_vision.load_device)
+    pixel_values = clip_preprocess(numpy_to_pytorch(img).to(clip_vision.load_device))
 
     if clip_vision.dtype != torch.float32:
         precision_scope = torch.autocast
@@ -162,9 +176,11 @@ def preprocess(img):
         outputs = clip_vision.model(pixel_values=pixel_values, output_hidden_states=True)
 
     if ip_adapter.plus:
-        cond = outputs.hidden_states[-2].to(ip_adapter.dtype)
+        cond = outputs.hidden_states[-2]
     else:
-        cond = outputs.image_embeds.to(ip_adapter.dtype)
+        cond = outputs.image_embeds
+
+    cond = cond.to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
 
     fcbh.model_management.load_model_gpu(image_proj_model)
     cond = image_proj_model.model(cond).to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)

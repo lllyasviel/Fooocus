@@ -12,7 +12,7 @@ LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.L
 
 def resample_image(im, width, height):
     im = Image.fromarray(im)
-    im = im.resize((width, height), resample=LANCZOS)
+    im = im.resize((int(width), int(height)), resample=LANCZOS)
     return np.array(im)
 
 
@@ -84,11 +84,22 @@ def get_image_shape_ceil(im):
 
 
 def set_image_shape_ceil(im, shape_ceil):
-    H, W, _ = im.shape
-    shape_ceil_before = get_shape_ceil(H, W)
-    k = float(shape_ceil) / shape_ceil_before
-    H = int(round(float(H) * k / 64.0) * 64)
-    W = int(round(float(W) * k / 64.0) * 64)
+    shape_ceil = float(shape_ceil)
+
+    H_origin, W_origin, _ = im.shape
+    H, W = H_origin, W_origin
+    
+    for _ in range(256):
+        current_shape_ceil = get_shape_ceil(H, W)
+        if abs(current_shape_ceil - shape_ceil) < 0.1:
+            break
+        k = shape_ceil / current_shape_ceil
+        H = int(round(float(H) * k / 64.0) * 64)
+        W = int(round(float(W) * k / 64.0) * 64)
+
+    if H == H_origin and W == W_origin:
+        return im
+
     return resample_image(im, width=W, height=H)
 
 

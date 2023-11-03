@@ -45,3 +45,4 @@ experiment.py
 /node_modules
 /package-lock.json
 /.coverage*
+/auth.json
