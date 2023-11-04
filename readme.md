@@ -28,6 +28,12 @@ Fooocus has simplified the installation. Between pressing "download" and generat
 
 `[1]` David Holz, 2019.
 
+## Tutorial
+
+[**Fooocus Stable Diffusion Web UI - Use SDXL Like You Are Using Midjourney - Easy To Use High Quality**](https://youtu.be/jHTkVm2mcfs)
+
+[![image](https://cdn-uploads.huggingface.co/production/uploads/6345bd89fe134dfd7a0dba40/zuJst_wZ7_qs_2e3KV33W.png)](https://youtu.be/jHTkVm2mcfs)
+
 ## [Installing Fooocus](#download)
 
 # Moving from Midjourney to Fooocus
