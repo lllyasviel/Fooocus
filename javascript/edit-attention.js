@@ -1,3 +1,9 @@
+function updateInput(target) {
+    let e = new Event("input", {bubbles: true});
+    Object.defineProperty(e, "target", {value: target});
+    target.dispatchEvent(e);
+}
+
 function keyupEditAttention(event) {
     let target = event.originalTarget || event.composedPath()[0];
     if (!target.matches("*:is([id*='_prompt'], .prompt) textarea")) return;
@@ -112,6 +118,8 @@ function keyupEditAttention(event) {
     target.value = text;
     target.selectionStart = selectionStart;
     target.selectionEnd = selectionEnd;
+
+    updateInput(target);
 
 }
 
