@@ -179,19 +179,10 @@ with shared.gradio_root:
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False, _js=switch_js)
             ip_advanced.change(lambda: None, queue=False, _js=down_js)
 
-            current_tab = gr.State(value='uov')
-            default_image = gr.State(value=None)
-
-            lambda_img = lambda x: x['image'] if isinstance(x, dict) else x
-            uov_input_image.upload(lambda_img, inputs=uov_input_image, outputs=default_image, queue=False)
-            inpaint_input_image.upload(lambda_img, inputs=inpaint_input_image, outputs=default_image, queue=False)
-
-            uov_input_image.clear(lambda: None, outputs=default_image, queue=False)
-            inpaint_input_image.clear(lambda: None, outputs=default_image, queue=False)
-
-            uov_tab.select(lambda x: ['uov', x], inputs=default_image, outputs=[current_tab, uov_input_image], queue=False, _js=down_js)
-            inpaint_tab.select(lambda x: ['inpaint', x], inputs=default_image, outputs=[current_tab, inpaint_input_image], queue=False, _js=down_js)
-            ip_tab.select(lambda: 'ip', outputs=[current_tab], queue=False, _js=down_js)
+            current_tab = gr.Textbox(value='uov', visible=False)
+            uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+            inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+            ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
         with gr.Column(scale=1, visible=modules.path.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
