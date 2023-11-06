@@ -277,6 +277,10 @@ with shared.gradio_root:
                                                      value=modules.path.default_scheduler,
                                                      info='Scheduler of Sampler.')
 
+                        generate_image_grid = gr.Checkbox(label='Generate Image Grid for Each Batch',
+                                                          info='(Experimental) This may cause performance problems on some computers and certain internet conditions.',
+                                                          value=False)
+
                         overwrite_step = gr.Slider(label='Forced Overwrite of Sampling Step',
                                                    minimum=-1, maximum=200, step=1, value=-1,
                                                    info='Set as -1 to disable. For developer debugging.')
@@ -328,7 +332,7 @@ with shared.gradio_root:
                         freeu_ctrls = [freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2]
 
                 adps = [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name,
-                        scheduler_name, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
+                        scheduler_name, generate_image_grid, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
                         overwrite_vary_strength, overwrite_upscale_strength,
                         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
                         debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold,
