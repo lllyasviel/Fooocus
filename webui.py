@@ -1,5 +1,3 @@
-from python_hijack import *
-
 import gradio as gr
 import random
 import os
@@ -89,7 +87,7 @@ with shared.gradio_root:
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=745, visible=True, elem_classes='resizable_area')
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=17):
-                    prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.",
+                    prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", elem_id='positive_prompt',
                                         container=False, autofocus=True, elem_classes='type_row', lines=1024)
 
                     default_prompt = modules.path.default_prompt
@@ -180,19 +178,10 @@ with shared.gradio_root:
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False, _js=switch_js)
             ip_advanced.change(lambda: None, queue=False, _js=down_js)
 
-            current_tab = gr.State(value='uov')
-            default_image = gr.State(value=None)
-
-            lambda_img = lambda x: x['image'] if isinstance(x, dict) else x
-            uov_input_image.upload(lambda_img, inputs=uov_input_image, outputs=default_image, queue=False)
-            inpaint_input_image.upload(lambda_img, inputs=inpaint_input_image, outputs=default_image, queue=False)
-
-            uov_input_image.clear(lambda: None, outputs=default_image, queue=False)
-            inpaint_input_image.clear(lambda: None, outputs=default_image, queue=False)
-
-            uov_tab.select(lambda x: ['uov', x], inputs=default_image, outputs=[current_tab, uov_input_image], queue=False, _js=down_js)
-            inpaint_tab.select(lambda x: ['inpaint', x], inputs=default_image, outputs=[current_tab, inpaint_input_image], queue=False, _js=down_js)
-            ip_tab.select(lambda: 'ip', outputs=[current_tab], queue=False, _js=down_js)
+            current_tab = gr.Textbox(value='uov', visible=False)
+            uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+            inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+            ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
         with gr.Column(scale=1, visible=modules.path.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
@@ -202,6 +191,7 @@ with shared.gradio_root:
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=modules.path.default_image_number)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
+                                             elem_id='negative_prompt',
                                              value=modules.path.default_prompt_negative)
                 seed_random = gr.Checkbox(label='Random', value=True)
                 image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
@@ -286,6 +276,10 @@ with shared.gradio_root:
                                                      value=modules.path.default_scheduler,
                                                      info='Scheduler of Sampler.')
 
+                        generate_image_grid = gr.Checkbox(label='Generate Image Grid for Each Batch',
+                                                          info='(Experimental) This may cause performance problems on some computers and certain internet conditions.',
+                                                          value=False)
+
                         overwrite_step = gr.Slider(label='Forced Overwrite of Sampling Step',
                                                    minimum=-1, maximum=200, step=1, value=-1,
                                                    info='Set as -1 to disable. For developer debugging.')
@@ -337,7 +331,7 @@ with shared.gradio_root:
                         freeu_ctrls = [freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2]
 
                 adps = [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name,
-                        scheduler_name, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
+                        scheduler_name, generate_image_grid, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
                         overwrite_vary_strength, overwrite_upscale_strength,
                         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
                         debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold,

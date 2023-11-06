@@ -493,20 +493,7 @@ def build_loaded(module, loader_name):
     return
 
 
-def disable_smart_memory():
-    print(f'[Fooocus] Disabling smart memory')
-    fcbh.model_management.DISABLE_SMART_MEMORY = True
-    args_manager.args.disable_smart_memory = True
-    fcbh.cli_args.args.disable_smart_memory = True
-    return
-
-
 def patch_all():
-    # Many recent reports show that Comfyanonymous's method is still not robust enough and many 4090s are broken
-    # We will not use it until this method is really usable
-    # For example https://github.com/lllyasviel/Fooocus/issues/724
-    disable_smart_memory()
-
     if not hasattr(fcbh.model_management, 'load_models_gpu_origin'):
         fcbh.model_management.load_models_gpu_origin = fcbh.model_management.load_models_gpu
 

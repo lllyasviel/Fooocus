@@ -127,7 +127,7 @@ If you want to use Anaconda/Miniconda, you can
     cd Fooocus
     conda env create -f environment.yaml
     conda activate fooocus
-    pip install pygit2==1.12.2
+    pip install -r requirements_versions.txt
 
 Then download the models: download [default models](#models) to the folder "Fooocus\models\checkpoints". **Or let Fooocus automatically download the models** using the launcher:
 
@@ -149,7 +149,7 @@ Your Linux needs to have **Python 3.10** installed, and lets say your Python can
     cd Fooocus
     python3 -m venv fooocus_env
     source fooocus_env/bin/activate
-    pip install pygit2==1.12.2
+    pip install -r requirements_versions.txt
 
 See the above sections for model downloads. You can launch the software with:
 
@@ -169,7 +169,7 @@ If you know what you are doing, and your Linux already has **Python 3.10** insta
 
     git clone https://github.com/lllyasviel/Fooocus.git
     cd Fooocus
-    pip3 install pygit2==1.12.2
+    pip3 install -r requirements_versions.txt
 
 See the above sections for model downloads. You can launch the software with:
 
@@ -218,9 +218,8 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 1. Change to the new Fooocus directory, `cd Fooocus`.
 1. Create a new conda environment, `conda env create -f environment.yaml`.
 1. Activate your new conda environment, `conda activate fooocus`.
-1. Install the pygit2, `pip install pygit2==1.12.2`.
 1. Install the packages required by Fooocus, `pip install -r requirements_versions.txt`.
-1. Launch Fooocus by running `python entry_with_update.py`. The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
+1. Launch Fooocus by running `python entry_with_update.py`. (Some Mac M2 users may need `python entry_with_update.py --enable-smart-memory` to speed up model loading/unloading.) The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 

@@ -63,6 +63,9 @@ def worker():
         return
 
     def build_image_wall():
+        if not advanced_parameters.generate_image_grid:
+            return
+
         global global_results
 
         if len(global_results) < 2:

@@ -1,5 +1,13 @@
 **(2023 Oct 26) Hi all, the feature updating of Fooocus will (really, really, this time) be paused for about two or three weeks because we really have some other workloads. Thanks for the passion of you all (and we in fact have kept updating even after last pausing announcement a week ago, because of many great feedbacks)  - see you soon and we will come back in mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
 
+# 2.1.779
+
+* Disable image grid by default because many users reports performance issues. For example, https://github.com/lllyasviel/Fooocus/issues/829 and so on. The image grid will cause problem when user hard drive is not super fast, or when user internet connection is not very good (eg, run in remote). The option is moved to dev tools if users want to use it. We will take a look at it later.
+
+# 2.1.776
+
+* Support Ctrl+Up/Down Arrow to change prompt emphasizing weights.
+
 # 2.1.750
 
 * New UI: now you can get each image during generating.

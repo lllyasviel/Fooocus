@@ -1,3 +1,10 @@
+# Fooocus GPT2 Expansion
+# Algorithm created by Lvmin Zhang at 2023, Stanford
+# If used inside Fooocus, any use is permitted.
+# If used outside Fooocus, only non-commercial use is permitted (CC-By NC 4.0).
+# This applies to the word list, vocab, model, and algorithm.
+
+
 import os
 import torch
 import math
@@ -8,8 +15,10 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, set_seed
 from modules.path import fooocus_expansion_path
 from fcbh.model_patcher import ModelPatcher
 
+
 # limitation of np.random.seed(), called from transformers.set_seed()
 SEED_LIMIT_NUMPY = 2**32
+neg_inf = - 8192.0
 
 
 def safe_str(x):
@@ -29,20 +38,26 @@ class FooocusExpansion:
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
 
-        positive_words = open(os.path.join(fooocus_expansion_path, 'positive.txt'), encoding='utf-8').read()
-        positive_words = positive_words.lower().replace(' ', '').replace('\n', '').split(',')
+        positive_words = open(os.path.join(fooocus_expansion_path, 'positive.txt'),
+                              encoding='utf-8').read().splitlines()
+        positive_words = ['Ġ' + x.lower() for x in positive_words if x != '']
 
-        # print(', '.join(sorted(list(set(positive_words)))))
+        self.logits_bias = torch.zeros((1, len(self.tokenizer.vocab)), dtype=torch.float32) + neg_inf
 
-        # t198 = self.tokenizer('\n', return_tensors="np")
-        # t11 = self.tokenizer(',', return_tensors="np")
-        # positive_ids = [11, 198, self.tokenizer.eos_token_id]
-        positive_ids = [11]
-
-        self.bad_words_ids = []
+        debug_list = []
         for k, v in self.tokenizer.vocab.items():
-            if k.replace('Ġ', '') not in positive_words and v not in positive_ids:
-                self.bad_words_ids.append([v])
+            if k in positive_words:
+                self.logits_bias[0, v] = 0
+                debug_list.append(k[1:])
+
+        print(f'Fooocus V2 Expansion: Vocab with {len(debug_list)} words.')
+
+        # debug_list = '\n'.join(sorted(debug_list))
+        # print(debug_list)
+
+        # t11 = self.tokenizer(',', return_tensors="np")
+        # t198 = self.tokenizer('\n', return_tensors="np")
+        # eos = self.tokenizer.eos_token_id
 
         self.model = AutoModelForCausalLM.from_pretrained(fooocus_expansion_path)
         self.model.eval()
@@ -63,6 +78,20 @@ class FooocusExpansion:
         self.patcher = ModelPatcher(self.model, load_device=load_device, offload_device=offload_device)
         print(f'Fooocus Expansion engine loaded for {load_device}, use_fp16 = {use_fp16}.')
 
+    @torch.no_grad()
+    @torch.inference_mode()
+    def logits_processor(self, input_ids, scores):
+        assert scores.ndim == 2 and scores.shape[0] == 1
+        self.logits_bias = self.logits_bias.to(scores)
+
+        bias = self.logits_bias.clone()
+        bias[0, input_ids[0].to(bias.device).long()] = neg_inf
+        bias[0, 11] = 0
+
+        return scores + bias
+
+    @torch.no_grad()
+    @torch.inference_mode()
     def __call__(self, prompt, seed):
         if prompt == '':
             return ''
@@ -89,7 +118,7 @@ class FooocusExpansion:
                                        top_k=100,
                                        max_new_tokens=max_new_tokens,
                                        do_sample=True,
-                                       bad_words_ids=self.bad_words_ids)
+                                       logits_processor=LogitsProcessorList([self.logits_processor]))
 
         response = self.tokenizer.batch_decode(features, skip_special_tokens=True)
         result = safe_str(response[0])

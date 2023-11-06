@@ -1,6 +1,17 @@
-from python_hijack import *
-
+import os
 import sys
+
+
+print('[System ARGV] ' + str(sys.argv))
+
+root = os.path.dirname(os.path.abspath(__file__))
+backend_path = os.path.join(root, 'backend', 'headless')
+sys.path += [root, backend_path]
+
+os.chdir(root)
+os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
+
+
 import platform
 import fooocus_version
 
@@ -75,14 +86,21 @@ def download_models():
     return
 
 
-def ini_cbh_args():
+def ini_fcbh_args():
     from args_manager import args
     return args
 
 
 prepare_environment()
 build_launcher()
-ini_cbh_args()
+args = ini_fcbh_args()
+
+
+if args.cuda_device is not None:
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.cuda_device)
+    print("Set device to:", args.cuda_device)
+
+
 download_models()
 
 from webui import *
