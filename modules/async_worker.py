@@ -155,6 +155,10 @@ def worker():
 
         use_style = len(style_selections) > 0
 
+        if base_model_name == refiner_model_name:
+            print(f'Refiner disabled because base model and refiner are same.')
+            refiner_model_name = 'None'
+
         modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
 
