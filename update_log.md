@@ -1,3 +1,10 @@
+# 2.1.785
+
+* The `user_path_config.txt` is deprecated since 2.1.785. If you are using it right now, please use the new `config.txt` instead. See also the new documentation in the Readme.
+* The paths in `user_path_config.txt` will still be loaded in recent versions, but it will be removed soon.
+* We use very user-friendly method to automatically transfer your path settings from `user_path_config.txt` to `config.txt` and usually you do not need to do anything.
+* The new `config.txt` will never save default values so the default value changes in scripts will not be prevented by old config files.
+
 # 2.1.782
 
 2.1.782 is mainly an update for a new LoRA system that supports both SDXL loras and SD1.5 loras.
