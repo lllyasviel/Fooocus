@@ -15,3 +15,4 @@ gradio==3.41.2
 pygit2==1.12.2
 opencv-contrib-python==4.8.0.74
 httpx==0.24.1
+diffusers==0.23.0
