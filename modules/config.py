@@ -280,7 +280,7 @@ def update_all_model_names():
 
 
 def downloading_inpaint_models(v):
-    assert v in ['v1', 'v2.5']
+    assert v in ['v1', 'v2.5', 'v2.6']
 
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/fooocus_inpaint_head.pth',
@@ -305,6 +305,14 @@ def downloading_inpaint_models(v):
             file_name='inpaint_v25.fooocus.patch'
         )
         patch_file = os.path.join(path_inpaint, 'inpaint_v25.fooocus.patch')
+
+    if v == 'v2.6':
+        load_file_from_url(
+            url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint_v26.fooocus.patch',
+            model_dir=path_inpaint,
+            file_name='inpaint_v26.fooocus.patch'
+        )
+        patch_file = os.path.join(path_inpaint, 'inpaint_v26.fooocus.patch')
 
     return head_file, patch_file
 

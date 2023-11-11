@@ -1,3 +1,8 @@
+# 2.1.788
+
+* Fixed some math problems in previous versions.
+* Inpaint engine v2.6 join the beta test of Fooocus inpaint models. Use it in dev tools -> inpaint engine -> v2.6 .
+
 # 2.1.785
 
 * The `user_path_config.txt` is deprecated since 2.1.785. If you are using it right now, please use the new `config.txt` instead. See also the new documentation in the Readme.
