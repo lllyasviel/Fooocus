@@ -20,7 +20,7 @@ def worker():
     import modules.default_pipeline as pipeline
     import modules.core as core
     import modules.flags as flags
-    import modules.path
+    import modules.config
     import modules.patch
     import fcbh.model_management
     import fooocus_extras.preprocessors as preprocessors
@@ -143,7 +143,7 @@ def worker():
                 cn_tasks[cn_type].append([cn_img, cn_stop, cn_weight])
 
         outpaint_selections = [o.lower() for o in outpaint_selections]
-        loras_raw = copy.deepcopy(loras)
+        base_model_additional_loras = []
         raw_style_selections = copy.deepcopy(style_selections)
         uov_method = uov_method.lower()
 
@@ -221,7 +221,7 @@ def worker():
                         else:
                             steps = 36
                     progressbar(1, 'Downloading upscale models ...')
-                    modules.path.downloading_upscale_model()
+                    modules.config.downloading_upscale_model()
             if (current_tab == 'inpaint' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint))\
                     and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
@@ -230,8 +230,8 @@ def worker():
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
                     progressbar(1, 'Downloading inpainter ...')
-                    inpaint_head_model_path, inpaint_patch_model_path = modules.path.downloading_inpaint_models(advanced_parameters.inpaint_engine)
-                    loras += [(inpaint_patch_model_path, 1.0)]
+                    inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(advanced_parameters.inpaint_engine)
+                    base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
                     print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
                     goals.append('inpaint')
             if current_tab == 'ip' or \
@@ -240,11 +240,11 @@ def worker():
                 goals.append('cn')
                 progressbar(1, 'Downloading control models ...')
                 if len(cn_tasks[flags.cn_canny]) > 0:
-                    controlnet_canny_path = modules.path.downloading_controlnet_canny()
+                    controlnet_canny_path = modules.config.downloading_controlnet_canny()
                 if len(cn_tasks[flags.cn_cpds]) > 0:
-                    controlnet_cpds_path = modules.path.downloading_controlnet_cpds()
+                    controlnet_cpds_path = modules.config.downloading_controlnet_cpds()
                 if len(cn_tasks[flags.cn_ip]) > 0:
-                    clip_vision_path, ip_negative_path, ip_adapter_path = modules.path.downloading_ip_adapters()
+                    clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters()
                 progressbar(1, 'Loading control models ...')
 
         # Load or unload CNs
@@ -286,7 +286,8 @@ def worker():
             extra_negative_prompts = negative_prompts[1:] if len(negative_prompts) > 1 else []
 
             progressbar(3, 'Loading models ...')
-            pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name, loras=loras)
+            pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
+                                        loras=loras, base_model_additional_loras=base_model_additional_loras)
 
             progressbar(3, 'Processing prompts ...')
             tasks = []
@@ -618,11 +619,12 @@ def worker():
                         ('ADM Guidance', str((modules.patch.positive_adm_scale, modules.patch.negative_adm_scale))),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
+                        ('Refiner Switch', refiner_switch),
                         ('Sampler', sampler_name),
                         ('Scheduler', scheduler_name),
                         ('Seed', task['task_seed'])
                     ]
-                    for n, w in loras_raw:
+                    for n, w in loras:
                         if n != 'None':
                             d.append((f'LoRA [{n}] weight', w))
                     log(x, d, single_line_number=3)

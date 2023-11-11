@@ -1,6 +1,19 @@
-**(2023 Oct 26) Hi all, the feature updating of Fooocus will (really, really, this time) be paused for about two or three weeks because we really have some other workloads. Thanks for the passion of you all (and we in fact have kept updating even after last pausing announcement a week ago, because of many great feedbacks)  - see you soon and we will come back in mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+# 2.1.782
+
+2.1.782 is mainly an update for a new LoRA system that supports both SDXL loras and SD1.5 loras.
+
+Now when you load a lora, the following things will happen:
+
+1. try to load the lora to the base model, if failed (model mismatch), then try to load the lora to refiner.
+2. try to load the lora to refiner, if failed (model mismatch) then do nothing.
+
+In this way, Fooocus 2.1.782 can benefit from all models and loras from CivitAI with both SDXL and SD1.5 ecosystem, using the unique Fooocus swap algorithm, to achieve extremely high quality results (although the default setting is already very high quality), especially in some anime use cases, if users really want to play with all these things.
+
+Recently the community also developed LCM loras. Users can use it by setting the scheduler as 'LCM' and setting the forced overwrite of step as 4 to 8 in dev tools. If LCM's feedback in the Artists community is good (not the feedback in the programmer community of Stable Diffusion), fooocus may add some other shortcuts in the future.
 
 # 2.1.781
+
+(2023 Oct 26) Hi all, the feature updating of Fooocus will (really, really, this time) be paused for about two or three weeks because we really have some other workloads. Thanks for the passion of you all (and we in fact have kept updating even after last pausing announcement a week ago, because of many great feedbacks)  - see you soon and we will come back in mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.
 
 * Disable refiner to speed up when new users mistakenly set same model to base and refiner.
 

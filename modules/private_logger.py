@@ -1,19 +1,19 @@
 import os
-import modules.path
+import modules.config
 
 from PIL import Image
 from modules.util import generate_temp_filename
 
 
 def get_current_html_path():
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.path.temp_outputs_path,
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs,
                                                                          extension='png')
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
     return html_name
 
 
 def log(img, dic, single_line_number=3):
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.path.temp_outputs_path, extension='png')
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
     Image.fromarray(img).save(local_temp_filename)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
