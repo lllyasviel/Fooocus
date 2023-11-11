@@ -6,6 +6,7 @@ root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(root)
 os.chdir(root)
 
+os.environ["USE_IPEX"] = "1"
 
 try:
     import pygit2

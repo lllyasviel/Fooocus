@@ -26,6 +26,11 @@ from modules.patch import patched_sampler_cfg_function, patched_model_function_w
 from fcbh.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
 from modules.path import embeddings_path
 
+if os.environ.get('USE_IPEX') is not None and os.environ.get('USE_IPEX') == "1":
+    from modules.ipex import hijacks, diffusers, attention
+    attention.attention_init()
+    hijacks.ipex_hijacks()
+    diffusers.ipex_diffusers()
 
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
