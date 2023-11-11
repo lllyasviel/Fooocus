@@ -33,6 +33,7 @@ positive_adm_scale = 1.5
 negative_adm_scale = 0.8
 
 adaptive_cfg = 7.0
+global_diffusion_progress = 0
 eps_record = None
 
 
@@ -204,17 +205,14 @@ def patched_sampler_cfg_function(args):
     negative_eps = args['uncond']
     cfg_scale = args['cond_scale']
     positive_x0 = args['input'] - positive_eps
-
     sigma = args['sigma']
 
-    t = 1.0 - (sigma / BrownianTreeNoiseSamplerPatched.global_sigma_max)[:, None, None, None]
-    t = t.clip(0, 1).to(sigma)
-    alpha = 0.001 * sharpness * t
-
+    alpha = 0.001 * sharpness * global_diffusion_progress
     positive_eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
     positive_eps_degraded_weighted = positive_eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
-    final_eps = compute_cfg(uncond=negative_eps, cond=positive_eps_degraded_weighted, cfg_scale=cfg_scale, t=t)
+    final_eps = compute_cfg(uncond=negative_eps, cond=positive_eps_degraded_weighted,
+                            cfg_scale=cfg_scale, t=global_diffusion_progress)
 
     if eps_record is not None:
         eps_record = (final_eps / sigma).cpu()
@@ -377,7 +375,10 @@ def patched_cldm_forward(self, x, hint, timesteps, context, y=None, **kwargs):
 
 
 def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=None, transformer_options={}, **kwargs):
+    global global_diffusion_progress
+
     self.current_step = 1.0 - timesteps.to(x) / 999.0
+    global_diffusion_progress = float(self.current_step.detach().cpu().numpy().tolist()[0])
 
     inpaint_fix = None
     if getattr(self, 'in_inpaint', False) and inpaint_worker.current_task is not None:
