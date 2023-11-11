@@ -35,7 +35,7 @@ def load_model_weights(model, sd):
             w = sd.pop(x)
             del w
     if len(m) > 0:
-        print("missing", m)
+        print("Visited extra keys:", m)
     return model
 
 def load_clip_weights(model, sd):
