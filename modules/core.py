@@ -60,8 +60,6 @@ class StableDiffusionModel:
     def refresh_loras(self, loras):
         assert isinstance(loras, list)
 
-        print(f'Request to load LoRAs {str(loras)} for model [{self.filename}].')
-
         if self.visited_loras == str(loras):
             return
 
@@ -70,6 +68,8 @@ class StableDiffusionModel:
 
         if self.unet is None:
             return
+
+        print(f'Request to load LoRAs {str(loras)} for model [{self.filename}].')
 
         for name, weight in loras:
             if name == 'None':
