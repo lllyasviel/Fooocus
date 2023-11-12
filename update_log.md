@@ -1,3 +1,7 @@
+# 2.1.793
+
+* Added many javascripts to improve user experience. Now users with small screen will always see full canvas without needing to scroll.
+
 # 2.1.790
 
 * Face swap (in line with Midjourney InsightFace): Input Image -> Image Prompt -> Advanced -> FaceSwap
