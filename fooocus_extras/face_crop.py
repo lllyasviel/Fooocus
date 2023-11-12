@@ -25,7 +25,7 @@ def crop_image(img_rgb):
     global faceRestoreHelper
     
     if faceRestoreHelper is None:
-        from facexlib.utils.face_restoration_helper import FaceRestoreHelper
+        from fooocus_extras.facexlib.utils.face_restoration_helper import FaceRestoreHelper
         faceRestoreHelper = FaceRestoreHelper(
             upscale_factor=1,
             model_rootpath=modules.config.path_controlnet,
