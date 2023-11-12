@@ -134,6 +134,25 @@ def clip_encode_single(clip, text, verbose=False):
 
 @torch.no_grad()
 @torch.inference_mode()
+def clone_cond(conds):
+    results = []
+
+    for c, p in conds:
+        p = p["pooled_output"]
+
+        if isinstance(c, torch.Tensor):
+            c = c.clone()
+
+        if isinstance(p, torch.Tensor):
+            p = p.clone()
+
+        results.append([c, {"pooled_output": p}])
+
+    return results
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def clip_encode(texts, pool_top_k=1):
     global final_clip
 

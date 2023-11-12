@@ -383,8 +383,12 @@ def worker():
                 t['c'] = pipeline.clip_encode(texts=t['positive'], pool_top_k=t['positive_top_k'])
 
             for i, t in enumerate(tasks):
-                progressbar(10, f'Encoding negative #{i + 1} ...')
-                t['uc'] = pipeline.clip_encode(texts=t['negative'], pool_top_k=t['negative_top_k'])
+                if abs(float(cfg_scale) - 1.0) < 1e-4:
+                    progressbar(10, f'Skipped negative #{i + 1} ...')
+                    t['uc'] = pipeline.clone_cond(t['c'])
+                else:
+                    progressbar(10, f'Encoding negative #{i + 1} ...')
+                    t['uc'] = pipeline.clip_encode(texts=t['negative'], pool_top_k=t['negative_top_k'])
 
         if len(goals) > 0:
             progressbar(13, 'Image processing ...')
