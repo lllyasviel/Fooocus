@@ -273,8 +273,7 @@ with shared.gradio_root:
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
                                                       '(effective when real CFG > mimicked CFG).')
                         sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list,
-                                                   value=modules.config.default_sampler,
-                                                   info='Only effective in non-inpaint mode.')
+                                                   value=modules.config.default_sampler)
                         scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list,
                                                      value=modules.config.default_scheduler,
                                                      info='Scheduler of Sampler.')
