@@ -1,3 +1,7 @@
+# 2.1.797
+
+* fixed some dependency problems with facexlib and filterpy.
+
 # 2.1.793
 
 * Added many javascripts to improve user experience. Now users with small screen will always see full canvas without needing to scroll.
