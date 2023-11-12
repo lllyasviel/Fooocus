@@ -7,7 +7,7 @@ import facexlib.utils.face_restoration_helper as face_restoration_helper
 faceRestoreHelper = None
 
 
-def align_warp_face(self, landmark, border_mode='reflect'):
+def align_warp_face(self, landmark, border_mode='constant'):
     affine_matrix = cv2.estimateAffinePartial2D(landmark, self.face_template, method=cv2.LMEDS)[0]
     self.affine_matrices.append(affine_matrix)
     if border_mode == 'constant':
