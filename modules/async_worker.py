@@ -28,6 +28,7 @@ def worker():
     import modules.constants as constants
     import modules.advanced_parameters as advanced_parameters
     import fooocus_extras.ip_adapter as ip_adapter
+    import fooocus_extras.face_crop
 
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
     from modules.private_logger import log
@@ -133,7 +134,7 @@ def worker():
         outpaint_selections = args.pop()
         inpaint_input_image = args.pop()
 
-        cn_tasks = {flags.cn_ip: [], flags.cn_canny: [], flags.cn_cpds: []}
+        cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
             cn_img = args.pop()
             cn_stop = args.pop()
@@ -189,7 +190,7 @@ def worker():
         inpaint_head_model_path = None
         controlnet_canny_path = None
         controlnet_cpds_path = None
-        clip_vision_path, ip_negative_path, ip_adapter_path = None, None, None
+        clip_vision_path, ip_negative_path, ip_adapter_path, ip_adapter_face_path = None, None, None, None
 
         seed = int(image_seed)
         print(f'[Parameters] Seed = {seed}')
@@ -244,12 +245,15 @@ def worker():
                 if len(cn_tasks[flags.cn_cpds]) > 0:
                     controlnet_cpds_path = modules.config.downloading_controlnet_cpds()
                 if len(cn_tasks[flags.cn_ip]) > 0:
-                    clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters()
+                    clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters('ip')
+                if len(cn_tasks[flags.cn_ip_face]) > 0:
+                    clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters('face')
                 progressbar(1, 'Loading control models ...')
 
         # Load or unload CNs
         pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path])
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
+        ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
 
         switch = int(round(steps * refiner_switch))
 
@@ -535,13 +539,26 @@ def worker():
                 # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
                 cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
 
-                task[0] = ip_adapter.preprocess(cn_img)
+                task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_path)
+                if advanced_parameters.debugging_cn_preprocessor:
+                    yield_result(cn_img, do_not_show_finished_images=True)
+                    return
+            for task in cn_tasks[flags.cn_ip_face]:
+                cn_img, cn_stop, cn_weight = task
+                cn_img = fooocus_extras.face_crop.crop_image(HWC3(cn_img))
+
+                # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
+                cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
+
+                task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_face_path)
                 if advanced_parameters.debugging_cn_preprocessor:
                     yield_result(cn_img, do_not_show_finished_images=True)
                     return
 
-            if len(cn_tasks[flags.cn_ip]) > 0:
-                pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, cn_tasks[flags.cn_ip])
+            all_ip_tasks = cn_tasks[flags.cn_ip] + cn_tasks[flags.cn_ip_face]
+
+            if len(all_ip_tasks) > 0:
+                pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, all_ip_tasks)
 
         if advanced_parameters.freeu_enabled:
             print(f'FreeU is enabled!')

@@ -1,3 +1,9 @@
+# 2.1.790
+
+* Face swap (in line with Midjourney InsightFace): Input Image -> Image Prompt -> Advanced -> FaceSwap
+* The performance is super high. Use it carefully and never use it in any illegal things!
+* This implementation will crop faces for you and you do NOT need to crop faces before feeding images into Fooocus. (If you previously manually crop faces from images for other software, you do not need to do that now in Fooocus.)
+
 # 2.1.788
 
 * Fixed some math problems in previous versions.

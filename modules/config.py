@@ -335,7 +335,9 @@ def downloading_controlnet_cpds():
     return os.path.join(path_controlnet, 'fooocus_xl_cpds_128.safetensors')
 
 
-def downloading_ip_adapters():
+def downloading_ip_adapters(v):
+    assert v in ['ip', 'face']
+
     results = []
 
     load_file_from_url(
@@ -352,12 +354,21 @@ def downloading_ip_adapters():
     )
     results += [os.path.join(path_controlnet, 'fooocus_ip_negative.safetensors')]
 
-    load_file_from_url(
-        url='https://huggingface.co/lllyasviel/misc/resolve/main/ip-adapter-plus_sdxl_vit-h.bin',
-        model_dir=path_controlnet,
-        file_name='ip-adapter-plus_sdxl_vit-h.bin'
-    )
-    results += [os.path.join(path_controlnet, 'ip-adapter-plus_sdxl_vit-h.bin')]
+    if v == 'ip':
+        load_file_from_url(
+            url='https://huggingface.co/lllyasviel/misc/resolve/main/ip-adapter-plus_sdxl_vit-h.bin',
+            model_dir=path_controlnet,
+            file_name='ip-adapter-plus_sdxl_vit-h.bin'
+        )
+        results += [os.path.join(path_controlnet, 'ip-adapter-plus_sdxl_vit-h.bin')]
+
+    if v == 'face':
+        load_file_from_url(
+            url='https://huggingface.co/lllyasviel/misc/resolve/main/ip-adapter-plus-face_sdxl_vit-h.bin',
+            model_dir=path_controlnet,
+            file_name='ip-adapter-plus-face_sdxl_vit-h.bin'
+        )
+        results += [os.path.join(path_controlnet, 'ip-adapter-plus-face_sdxl_vit-h.bin')]
 
     return results
 
