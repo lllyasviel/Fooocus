@@ -317,6 +317,15 @@ def downloading_inpaint_models(v):
     return head_file, patch_file
 
 
+def downloading_sdxl_lcm_lora():
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/misc/resolve/main/sdxl_lcm_lora.safetensors',
+        model_dir=path_loras,
+        file_name='sdxl_lcm_lora.safetensors'
+    )
+    return os.path.join(path_loras, 'sdxl_lcm_lora.safetensors')
+
+
 def downloading_controlnet_canny():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/control-lora-canny-rank128.safetensors',

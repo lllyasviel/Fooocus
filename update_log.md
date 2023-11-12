@@ -1,3 +1,7 @@
+# 2.1.799
+
+* Added 'Extreme Speed' performance mode (based on LCM). The previous complicated settings are not needed now.
+
 # 2.1.798
 
 * added lcm scheduler - LCM may need to set both sampler and scheduler to "lcm". Other than that, see the description in 2.1.782 logs.

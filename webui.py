@@ -188,7 +188,9 @@ with shared.gradio_root:
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
-                performance_selection = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
+                performance_selection = gr.Radio(label='Performance',
+                                                 choices=['Speed', 'Quality', 'Extreme Speed'],
+                                                 value='Speed')
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
                                                    value=modules.config.default_aspect_ratio, info='width × height')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=modules.config.default_image_number)
@@ -354,6 +356,14 @@ with shared.gradio_root:
                     return results
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls, queue=False)
+
+        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11,
+                                     inputs=performance_selection,
+                                     outputs=[
+                                         guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
+                                         adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
+                                         scheduler_name, adaptive_cfg, refiner_swap_method
+                                     ], queue=False, show_progress=False)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column, queue=False)
 

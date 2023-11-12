@@ -160,6 +160,36 @@ def worker():
             print(f'Refiner disabled because base model and refiner are same.')
             refiner_model_name = 'None'
 
+        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed']
+
+        steps = 30
+
+        if performance_selection == 'Speed':
+            steps = 30
+
+        if performance_selection == 'Quality':
+            steps = 60
+
+        if performance_selection == 'Extreme Speed':
+            print('Enter LCM mode.')
+            progressbar(1, 'Downloading LCM components ...')
+            base_model_additional_loras += [(modules.config.downloading_sdxl_lcm_lora(), 1.0)]
+
+            if refiner_model_name != 'None':
+                print(f'Refiner disabled in LCM mode.')
+
+            refiner_model_name = 'None'
+            sampler_name = advanced_parameters.sampler_name = 'lcm'
+            scheduler_name = advanced_parameters.scheduler_name = 'lcm'
+            modules.patch.sharpness = sharpness = 0.0
+            cfg_scale = guidance_scale = 1.0
+            modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg = 1.0
+            refiner_switch = 1.0
+            modules.patch.positive_adm_scale = advanced_parameters.adm_scaler_positive = 1.0
+            modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative = 1.0
+            modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
+            steps = 8
+
         modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
 
@@ -195,11 +225,6 @@ def worker():
         seed = int(image_seed)
         print(f'[Parameters] Seed = {seed}')
 
-        if performance_selection == 'Speed':
-            steps = 30
-        else:
-            steps = 60
-
         sampler_name = advanced_parameters.sampler_name
         scheduler_name = advanced_parameters.scheduler_name
 
@@ -217,10 +242,17 @@ def worker():
                     if 'fast' in uov_method:
                         skip_prompt_processing = True
                     else:
+                        steps = 18
+
                         if performance_selection == 'Speed':
                             steps = 18
-                        else:
+
+                        if performance_selection == 'Quality':
                             steps = 36
+
+                        if performance_selection == 'Extreme Speed':
+                            steps = 8
+
                     progressbar(1, 'Downloading upscale models ...')
                     modules.config.downloading_upscale_model()
             if (current_tab == 'inpaint' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint))\
@@ -650,7 +682,10 @@ def worker():
                         ('Resolution', str((width, height))),
                         ('Sharpness', sharpness),
                         ('Guidance Scale', guidance_scale),
-                        ('ADM Guidance', str((modules.patch.positive_adm_scale, modules.patch.negative_adm_scale))),
+                        ('ADM Guidance', str((
+                            modules.patch.positive_adm_scale,
+                            modules.patch.negative_adm_scale,
+                            modules.patch.adm_scaler_end))),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
                         ('Refiner Switch', refiner_switch),
