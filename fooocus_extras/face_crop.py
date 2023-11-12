@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import modules.config
-import facexlib.utils.face_restoration_helper as face_restoration_helper
 
 
 faceRestoreHelper = None
@@ -26,7 +25,8 @@ def crop_image(img_rgb):
     global faceRestoreHelper
     
     if faceRestoreHelper is None:
-        faceRestoreHelper = face_restoration_helper.FaceRestoreHelper(
+        from facexlib.utils.face_restoration_helper import FaceRestoreHelper
+        faceRestoreHelper = FaceRestoreHelper(
             upscale_factor=1,
             model_rootpath=modules.config.path_controlnet,
             device='cpu'  # use cpu is safer since we are out of fcbh management

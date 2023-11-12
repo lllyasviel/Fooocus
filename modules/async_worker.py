@@ -28,6 +28,7 @@ def worker():
     import modules.constants as constants
     import modules.advanced_parameters as advanced_parameters
     import fooocus_extras.ip_adapter as ip_adapter
+    import fooocus_extras.face_crop
 
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
     from modules.private_logger import log
@@ -544,8 +545,6 @@ def worker():
                     return
             for task in cn_tasks[flags.cn_ip_face]:
                 cn_img, cn_stop, cn_weight = task
-
-                import fooocus_extras.face_crop
                 cn_img = fooocus_extras.face_crop.crop_image(HWC3(cn_img))
 
                 # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
