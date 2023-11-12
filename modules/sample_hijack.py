@@ -133,8 +133,7 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
         extra_args['model_options'] = {k: {} if k == 'transformer_options' else v for k, v in extra_args['model_options'].items()}
 
         models, inference_memory = get_additional_models(positive_refiner, negative_refiner, current_refiner.model_dtype())
-        fcbh.model_management.load_models_gpu([current_refiner] + models, fcbh.model_management.batch_area_memory(
-            noise.shape[0] * noise.shape[2] * noise.shape[3]) + inference_memory)
+        fcbh.model_management.load_models_gpu([current_refiner] + models, current_refiner.memory_required(noise.shape) + inference_memory)
 
         model_wrap.inner_model = current_refiner.model
         print('Refiner Swapped')
