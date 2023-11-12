@@ -26,6 +26,7 @@ from modules.patch import patched_sampler_cfg_function
 from fcbh.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
 from modules.config import path_embeddings
 from modules.lora import load_dangerous_lora
+from fcbh_extras.nodes_model_advanced import ModelSamplingDiscrete
 
 
 opEmptyLatentImage = EmptyLatentImage()
@@ -35,6 +36,7 @@ opVAEDecodeTiled = VAEDecodeTiled()
 opVAEEncodeTiled = VAEEncodeTiled()
 opControlNetApplyAdvanced = ControlNetApplyAdvanced()
 opFreeU = FreeU_V2()
+opModelSamplingDiscrete = ModelSamplingDiscrete()
 
 
 class StableDiffusionModel:

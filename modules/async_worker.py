@@ -575,6 +575,23 @@ def worker():
         preparation_time = time.perf_counter() - execution_start_time
         print(f'Preparation time: {preparation_time:.2f} seconds')
 
+        final_sampler_name = sampler_name
+        final_scheduler_name = scheduler_name
+
+        if scheduler_name == 'lcm':
+            final_scheduler_name = 'sgm_uniform'
+            if pipeline.final_unet is not None:
+                pipeline.final_unet = core.opModelSamplingDiscrete.patch(
+                    pipeline.final_unet,
+                    sampling='lcm',
+                    zsnr=False)[0]
+            if pipeline.final_refiner_unet is not None:
+                pipeline.final_refiner_unet = core.opModelSamplingDiscrete.patch(
+                    pipeline.final_refiner_unet,
+                    sampling='lcm',
+                    zsnr=False)[0]
+            print('Using lcm scheduler.')
+
         outputs.append(['preview', (13, 'Moving model to GPU ...', None)])
 
         def callback(step, x0, x, total_steps, y):
@@ -609,8 +626,8 @@ def worker():
                     height=height,
                     image_seed=task['task_seed'],
                     callback=callback,
-                    sampler_name=sampler_name,
-                    scheduler_name=scheduler_name,
+                    sampler_name=final_sampler_name,
+                    scheduler_name=final_scheduler_name,
                     latent=initial_latent,
                     denoise=denoising_strength,
                     tiled=tiled,
