@@ -368,7 +368,8 @@ with shared.gradio_root:
                                          scheduler_name, adaptive_cfg, refiner_swap_method
                                      ], queue=False, show_progress=False)
 
-        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column, queue=False)
+        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column, queue=False) \
+            .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False)
 
         ctrls = [
             prompt, negative_prompt, style_selections,
