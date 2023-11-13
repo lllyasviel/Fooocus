@@ -85,7 +85,8 @@ with shared.gradio_root:
             progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False,
                                     elem_id='progress-bar', elem_classes='progress-bar')
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', visible=True, height=768,
-                                 elem_classes=['resizable_area', 'main_view'])
+                                 elem_classes=['resizable_area', 'main_view', 'final_gallery'],
+                                 elem_id='final_gallery')
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=17):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", elem_id='positive_prompt',
@@ -385,7 +386,7 @@ with shared.gradio_root:
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
             .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
-            .then(fn=None, _js='playNotification')
+            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):
