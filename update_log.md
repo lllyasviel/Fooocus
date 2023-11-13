@@ -1,3 +1,8 @@
+# 2.1.802
+
+* Default inpaint engine changed to v2.6. You can still use inpaint engine v1 in dev tools.
+* Fix some VRAM problems.
+
 # 2.1.799
 
 * Added 'Extreme Speed' performance mode (based on LCM). The previous complicated settings are not needed now.

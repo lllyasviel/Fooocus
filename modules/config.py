@@ -280,7 +280,7 @@ def update_all_model_names():
 
 
 def downloading_inpaint_models(v):
-    assert v in ['v1', 'v2.5', 'v2.6']
+    assert v in modules.flags.inpaint_engine_versions
 
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/fooocus_inpaint_head.pth',
