@@ -4,6 +4,7 @@
 
 import contextlib
 import torch
+import intel_extension_for_pytorch as ipex
 from modules.sd_hijack_utils import CondFunc
 
 
