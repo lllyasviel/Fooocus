@@ -13,6 +13,7 @@ function refresh_grid() {
 }
 
 function refresh_grid_delayed() {
+    refresh_grid();
     setTimeout(refresh_grid, 100);
     setTimeout(refresh_grid, 500);
     setTimeout(refresh_grid, 1000);
