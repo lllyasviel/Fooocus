@@ -311,7 +311,10 @@ with shared.gradio_root:
                                                      info='Version of Fooocus inpaint model')
 
                     with gr.Tab(label='Control Debug'):
-                        debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessors', value=False)
+                        debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessors', value=False,
+                                                                info='See the results from preprocessors.')
+                        skipping_cn_preprocessor = gr.Checkbox(label='Skip Preprocessors', value=False,
+                                                               info='Do not preprocess images. (Inputs are already canny/depth/cropped-face/etc.)')
 
                         mixing_image_prompt_and_vary_upscale = gr.Checkbox(label='Mixing Image Prompt and Vary/Upscale',
                                                                            value=False)
@@ -340,7 +343,7 @@ with shared.gradio_root:
                         scheduler_name, generate_image_grid, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
                         overwrite_vary_strength, overwrite_upscale_strength,
                         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
-                        debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold,
+                        debugging_cn_preprocessor, skipping_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold,
                         inpaint_engine, refiner_swap_method]
                 adps += freeu_ctrls
 

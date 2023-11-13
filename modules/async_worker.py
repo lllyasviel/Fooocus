@@ -553,7 +553,10 @@ def worker():
             for task in cn_tasks[flags.cn_canny]:
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
-                cn_img = preprocessors.canny_pyramid(cn_img)
+
+                if not advanced_parameters.skipping_cn_preprocessor:
+                    cn_img = preprocessors.canny_pyramid(cn_img)
+
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
@@ -562,7 +565,10 @@ def worker():
             for task in cn_tasks[flags.cn_cpds]:
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
-                cn_img = preprocessors.cpds(cn_img)
+
+                if not advanced_parameters.skipping_cn_preprocessor:
+                    cn_img = preprocessors.cpds(cn_img)
+
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
@@ -581,7 +587,10 @@ def worker():
                     return
             for task in cn_tasks[flags.cn_ip_face]:
                 cn_img, cn_stop, cn_weight = task
-                cn_img = fooocus_extras.face_crop.crop_image(HWC3(cn_img))
+                cn_img = HWC3(cn_img)
+
+                if not advanced_parameters.skipping_cn_preprocessor:
+                    cn_img = fooocus_extras.face_crop.crop_image(cn_img)
 
                 # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
                 cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
