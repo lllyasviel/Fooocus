@@ -1,3 +1,8 @@
+# 2.1.805
+
+* Responsive UI for small screens.
+* Added skip preprocessor in dev tools.
+
 # 2.1.802
 
 * Default inpaint engine changed to v2.6. You can still use inpaint engine v1 in dev tools.
