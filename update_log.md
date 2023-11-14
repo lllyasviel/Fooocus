@@ -1,6 +1,10 @@
+# 2.1.807
+
+* Click on image to see it in full screen.
+
 # 2.1.806
 
-* fix some lora problems related to clip.
+* Fix some lora problems related to clip.
 
 # 2.1.805
 
