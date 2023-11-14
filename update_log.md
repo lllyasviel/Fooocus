@@ -1,3 +1,9 @@
+# 2.1.808
+
+* Aspect ratios now show aspect ratios.
+* Added style search.
+* Added style sorting/ordering/favorites.
+
 # 2.1.807
 
 * Click on image to see it in full screen.
