@@ -1,3 +1,7 @@
+# 2.1.806
+
+* fix some lora problems related to clip.
+
 # 2.1.805
 
 * Responsive UI for small screens.
