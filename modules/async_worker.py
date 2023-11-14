@@ -209,7 +209,7 @@ def worker():
         tiled = False
         inpaint_worker.current_task = None
 
-        width, height = aspect_ratios_selection.split('×')
+        width, height = aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
         width, height = int(width), int(height)
 
         skip_prompt_processing = False

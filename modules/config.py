@@ -1,5 +1,6 @@
 import os
 import json
+import math
 import args_manager
 import modules.flags
 import modules.sdxl_styles
@@ -247,6 +248,17 @@ default_aspect_ratio = get_config_item_or_set_default(
     validator=lambda x: x in available_aspect_ratios
 )
 
+
+def add_ratio(x):
+    a, b = x.replace('*', ' ').split(' ')[:2]
+    a, b = int(a), int(b)
+    g = math.gcd(a, b)
+    return f'{a}×{b} <span style="color: grey;"> \U00002223 {a // g}:{b // g}</span>'
+
+
+default_aspect_ratio = add_ratio(default_aspect_ratio)
+available_aspect_ratios = [add_ratio(x) for x in available_aspect_ratios]
+
 with open(config_path, "w", encoding="utf-8") as json_file:
     json.dump({k: config_dict[k] for k in always_save_keys}, json_file, indent=4)
 
@@ -263,9 +275,6 @@ os.makedirs(path_outputs, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []
-
-available_aspect_ratios = [x.replace('*', '×') for x in available_aspect_ratios]
-default_aspect_ratio = default_aspect_ratio.replace('*', '×')
 
 
 def get_model_filenames(folder_path, name_filter=None):

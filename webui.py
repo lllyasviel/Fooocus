@@ -11,7 +11,9 @@ import modules.constants as constants
 import modules.flags as flags
 import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
+import modules.style_sorter as style_sorter
 import args_manager
+import copy
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -193,7 +195,8 @@ with shared.gradio_root:
                                                  choices=['Speed', 'Quality', 'Extreme Speed'],
                                                  value='Speed')
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
-                                                   value=modules.config.default_aspect_ratio, info='width × height')
+                                                   value=modules.config.default_aspect_ratio, info='width × height',
+                                                   elem_classes='aspect_ratios')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=modules.config.default_image_number)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
@@ -222,10 +225,34 @@ with shared.gradio_root:
                 gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
 
             with gr.Tab(label='Style'):
+                initial_style_sorting = style_sorter.try_load_sorted_styles(
+                    style_names=legal_style_names, default_selected=modules.config.default_styles)
+
+                style_search_bar = gr.Textbox(show_label=False, container=False,
+                                              placeholder="\U0001F50E Type here to search styles ...",
+                                              value="",
+                                              label='Search Styles')
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
-                                                    choices=legal_style_names,
-                                                    value=modules.config.default_styles,
-                                                    label='Image Style')
+                                                    choices=initial_style_sorting,
+                                                    value=copy.deepcopy(modules.config.default_styles),
+                                                    label='Selected Styles',
+                                                    elem_classes=['style_selections'])
+                gradio_receiver_style_selections = gr.Textbox(elem_id='gradio_receiver_style_selections', visible=False)
+
+                style_search_bar.change(style_sorter.search_styles,
+                                        inputs=[style_selections, style_search_bar],
+                                        outputs=style_selections,
+                                        queue=False,
+                                        show_progress=False).then(
+                    lambda: None, _js='()=>{refresh_style_localization();}')
+
+                gradio_receiver_style_selections.input(style_sorter.sort_styles,
+                                                       inputs=style_selections,
+                                                       outputs=style_selections,
+                                                       queue=False,
+                                                       show_progress=False).then(
+                    lambda: None, _js='()=>{refresh_style_localization();}')
+
             with gr.Tab(label='Model'):
                 with gr.Row():
                     base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True)
