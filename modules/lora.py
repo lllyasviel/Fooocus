@@ -141,8 +141,8 @@ def load_dangerous_lora(lora, to_load):
     if len(remaining_keys) == 0:
         return patch_dict
 
-    if len(remaining_keys) < 8:
-        print(f'LoRA loaded with extra keys: {remaining_keys}')
-        return patch_dict
+    if len(remaining_keys) > 12:
+        return {}
 
-    return {}
+    print(f'LoRA loaded with extra keys: {remaining_keys}')
+    return patch_dict
