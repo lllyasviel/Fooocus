@@ -7,17 +7,71 @@ import modules.sdxl_styles
 from modules.model_loader import load_file_from_url
 from modules.util import get_files_from_folder
 
-config_path = "user_path_config.txt"
+
+config_path = os.path.abspath("./config.txt")
+config_example_path = os.path.abspath("config_modification_tutorial.txt")
 config_dict = {}
+always_save_keys = []
 visited_keys = []
 
 try:
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as json_file:
             config_dict = json.load(json_file)
+            always_save_keys = list(config_dict.keys())
 except Exception as e:
     print('Load path config failed')
     print(e)
+
+
+def try_load_deprecated_user_path_config():
+    global config_dict
+
+    if not os.path.exists('user_path_config.txt'):
+        return
+
+    try:
+        deprecated_config_dict = json.load(open('user_path_config.txt', "r", encoding="utf-8"))
+
+        def replace_config(old_key, new_key):
+            if old_key in deprecated_config_dict:
+                config_dict[new_key] = deprecated_config_dict[old_key]
+                del deprecated_config_dict[old_key]
+
+        replace_config('modelfile_path', 'path_checkpoints')
+        replace_config('lorafile_path', 'path_loras')
+        replace_config('embeddings_path', 'path_embeddings')
+        replace_config('vae_approx_path', 'path_vae_approx')
+        replace_config('upscale_models_path', 'path_upscale_models')
+        replace_config('inpaint_models_path', 'path_inpaint')
+        replace_config('controlnet_models_path', 'path_controlnet')
+        replace_config('clip_vision_models_path', 'path_clip_vision')
+        replace_config('fooocus_expansion_path', 'path_fooocus_expansion')
+        replace_config('temp_outputs_path', 'path_outputs')
+
+        if deprecated_config_dict.get("default_model", None) == 'juggernautXL_version6Rundiffusion.safetensors':
+            os.replace('user_path_config.txt', 'user_path_config-deprecated.txt')
+            print('Config updated successfully in silence. '
+                  'A backup of previous config is written to "user_path_config-deprecated.txt".')
+            return
+
+        if input("Newer models and configs are available. "
+                 "Download and update files? [Y/n]:") in ['n', 'N', 'No', 'no', 'NO']:
+            config_dict.update(deprecated_config_dict)
+            print('Loading using deprecated old models and deprecated old configs.')
+            return
+        else:
+            os.replace('user_path_config.txt', 'user_path_config-deprecated.txt')
+            print('Config updated successfully by user. '
+                  'A backup of previous config is written to "user_path_config-deprecated.txt".')
+            return
+    except Exception as e:
+        print('Processing deprecated config failed')
+        print(e)
+    return
+
+
+try_load_deprecated_user_path_config()
 
 preset = args_manager.args.preset
 
@@ -38,8 +92,14 @@ if preset is not None:
 
 
 def get_dir_or_set_default(key, default_value):
-    global config_dict, visited_keys
-    visited_keys.append(key)
+    global config_dict, visited_keys, always_save_keys
+
+    if key not in visited_keys:
+        visited_keys.append(key)
+
+    if key not in always_save_keys:
+        always_save_keys.append(key)
+
     v = config_dict.get(key, None)
     if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
         return v
@@ -50,22 +110,24 @@ def get_dir_or_set_default(key, default_value):
         return dp
 
 
-modelfile_path = get_dir_or_set_default('modelfile_path', '../models/checkpoints/')
-lorafile_path = get_dir_or_set_default('lorafile_path', '../models/loras/')
-embeddings_path = get_dir_or_set_default('embeddings_path', '../models/embeddings/')
-vae_approx_path = get_dir_or_set_default('vae_approx_path', '../models/vae_approx/')
-upscale_models_path = get_dir_or_set_default('upscale_models_path', '../models/upscale_models/')
-inpaint_models_path = get_dir_or_set_default('inpaint_models_path', '../models/inpaint/')
-controlnet_models_path = get_dir_or_set_default('controlnet_models_path', '../models/controlnet/')
-clip_vision_models_path = get_dir_or_set_default('clip_vision_models_path', '../models/clip_vision/')
-fooocus_expansion_path = get_dir_or_set_default('fooocus_expansion_path',
-                                                '../models/prompt_expansion/fooocus_expansion')
-temp_outputs_path = get_dir_or_set_default('temp_outputs_path', '../outputs/')
+path_checkpoints = get_dir_or_set_default('path_checkpoints', '../models/checkpoints/')
+path_loras = get_dir_or_set_default('path_loras', '../models/loras/')
+path_embeddings = get_dir_or_set_default('path_embeddings', '../models/embeddings/')
+path_vae_approx = get_dir_or_set_default('path_vae_approx', '../models/vae_approx/')
+path_upscale_models = get_dir_or_set_default('path_upscale_models', '../models/upscale_models/')
+path_inpaint = get_dir_or_set_default('path_inpaint', '../models/inpaint/')
+path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlnet/')
+path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vision/')
+path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
+path_outputs = get_dir_or_set_default('path_outputs', '../outputs/')
 
 
 def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False):
     global config_dict, visited_keys
-    visited_keys.append(key)
+
+    if key not in visited_keys:
+        visited_keys.append(key)
+    
     if key not in config_dict:
         config_dict[key] = default_value
         return default_value
@@ -93,7 +155,7 @@ default_refiner_model_name = get_config_item_or_set_default(
 )
 default_refiner_switch = get_config_item_or_set_default(
     key='default_refiner_switch',
-    default_value=0.8,
+    default_value=0.5,
     validator=lambda x: isinstance(x, float)
 )
 default_lora_name = get_config_item_or_set_default(
@@ -185,12 +247,19 @@ default_aspect_ratio = get_config_item_or_set_default(
     validator=lambda x: x in available_aspect_ratios
 )
 
-if preset is None:
-    # Do not overwrite user config if preset is applied.
-    with open(config_path, "w", encoding="utf-8") as json_file:
-        json.dump({k: config_dict[k] for k in visited_keys}, json_file, indent=4)
+with open(config_path, "w", encoding="utf-8") as json_file:
+    json.dump({k: config_dict[k] for k in always_save_keys}, json_file, indent=4)
 
-os.makedirs(temp_outputs_path, exist_ok=True)
+with open(config_example_path, "w", encoding="utf-8") as json_file:
+    cpa = config_path.replace("\\", "\\\\")
+    json_file.write(f'You can modify your "{cpa}" using the below keys, formats, and examples.\n'
+                    f'Do not modify this file. Modifications in this file will not take effect.\n'
+                    f'This file is a tutorial and example. Please edit "{cpa}" to really change any settings.\n'
+                    f'Remember to split the paths with "\\\\" rather than "\\".\n\n\n')
+    json.dump({k: config_dict[k] for k in visited_keys}, json_file, indent=4)
+
+
+os.makedirs(path_outputs, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []
@@ -205,89 +274,110 @@ def get_model_filenames(folder_path, name_filter=None):
 
 def update_all_model_names():
     global model_filenames, lora_filenames
-    model_filenames = get_model_filenames(modelfile_path)
-    lora_filenames = get_model_filenames(lorafile_path)
+    model_filenames = get_model_filenames(path_checkpoints)
+    lora_filenames = get_model_filenames(path_loras)
     return
 
 
 def downloading_inpaint_models(v):
-    assert v in ['v1', 'v2.5']
+    assert v in modules.flags.inpaint_engine_versions
 
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/fooocus_inpaint_head.pth',
-        model_dir=inpaint_models_path,
+        model_dir=path_inpaint,
         file_name='fooocus_inpaint_head.pth'
     )
-    head_file = os.path.join(inpaint_models_path, 'fooocus_inpaint_head.pth')
+    head_file = os.path.join(path_inpaint, 'fooocus_inpaint_head.pth')
     patch_file = None
-
-    # load_file_from_url(
-    #     url='https://huggingface.co/lllyasviel/Annotators/resolve/main/ControlNetLama.pth',
-    #     model_dir=inpaint_models_path,
-    #     file_name='ControlNetLama.pth'
-    # )
-    # lama_file = os.path.join(inpaint_models_path, 'ControlNetLama.pth')
 
     if v == 'v1':
         load_file_from_url(
             url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint.fooocus.patch',
-            model_dir=inpaint_models_path,
+            model_dir=path_inpaint,
             file_name='inpaint.fooocus.patch'
         )
-        patch_file = os.path.join(inpaint_models_path, 'inpaint.fooocus.patch')
+        patch_file = os.path.join(path_inpaint, 'inpaint.fooocus.patch')
 
     if v == 'v2.5':
         load_file_from_url(
             url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint_v25.fooocus.patch',
-            model_dir=inpaint_models_path,
+            model_dir=path_inpaint,
             file_name='inpaint_v25.fooocus.patch'
         )
-        patch_file = os.path.join(inpaint_models_path, 'inpaint_v25.fooocus.patch')
+        patch_file = os.path.join(path_inpaint, 'inpaint_v25.fooocus.patch')
+
+    if v == 'v2.6':
+        load_file_from_url(
+            url='https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint_v26.fooocus.patch',
+            model_dir=path_inpaint,
+            file_name='inpaint_v26.fooocus.patch'
+        )
+        patch_file = os.path.join(path_inpaint, 'inpaint_v26.fooocus.patch')
 
     return head_file, patch_file
+
+
+def downloading_sdxl_lcm_lora():
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/misc/resolve/main/sdxl_lcm_lora.safetensors',
+        model_dir=path_loras,
+        file_name='sdxl_lcm_lora.safetensors'
+    )
+    return os.path.join(path_loras, 'sdxl_lcm_lora.safetensors')
 
 
 def downloading_controlnet_canny():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/control-lora-canny-rank128.safetensors',
-        model_dir=controlnet_models_path,
+        model_dir=path_controlnet,
         file_name='control-lora-canny-rank128.safetensors'
     )
-    return os.path.join(controlnet_models_path, 'control-lora-canny-rank128.safetensors')
+    return os.path.join(path_controlnet, 'control-lora-canny-rank128.safetensors')
 
 
 def downloading_controlnet_cpds():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_xl_cpds_128.safetensors',
-        model_dir=controlnet_models_path,
+        model_dir=path_controlnet,
         file_name='fooocus_xl_cpds_128.safetensors'
     )
-    return os.path.join(controlnet_models_path, 'fooocus_xl_cpds_128.safetensors')
+    return os.path.join(path_controlnet, 'fooocus_xl_cpds_128.safetensors')
 
 
-def downloading_ip_adapters():
+def downloading_ip_adapters(v):
+    assert v in ['ip', 'face']
+
     results = []
 
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/clip_vision_vit_h.safetensors',
-        model_dir=clip_vision_models_path,
+        model_dir=path_clip_vision,
         file_name='clip_vision_vit_h.safetensors'
     )
-    results += [os.path.join(clip_vision_models_path, 'clip_vision_vit_h.safetensors')]
+    results += [os.path.join(path_clip_vision, 'clip_vision_vit_h.safetensors')]
 
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_ip_negative.safetensors',
-        model_dir=controlnet_models_path,
+        model_dir=path_controlnet,
         file_name='fooocus_ip_negative.safetensors'
     )
-    results += [os.path.join(controlnet_models_path, 'fooocus_ip_negative.safetensors')]
+    results += [os.path.join(path_controlnet, 'fooocus_ip_negative.safetensors')]
 
-    load_file_from_url(
-        url='https://huggingface.co/lllyasviel/misc/resolve/main/ip-adapter-plus_sdxl_vit-h.bin',
-        model_dir=controlnet_models_path,
-        file_name='ip-adapter-plus_sdxl_vit-h.bin'
-    )
-    results += [os.path.join(controlnet_models_path, 'ip-adapter-plus_sdxl_vit-h.bin')]
+    if v == 'ip':
+        load_file_from_url(
+            url='https://huggingface.co/lllyasviel/misc/resolve/main/ip-adapter-plus_sdxl_vit-h.bin',
+            model_dir=path_controlnet,
+            file_name='ip-adapter-plus_sdxl_vit-h.bin'
+        )
+        results += [os.path.join(path_controlnet, 'ip-adapter-plus_sdxl_vit-h.bin')]
+
+    if v == 'face':
+        load_file_from_url(
+            url='https://huggingface.co/lllyasviel/misc/resolve/main/ip-adapter-plus-face_sdxl_vit-h.bin',
+            model_dir=path_controlnet,
+            file_name='ip-adapter-plus-face_sdxl_vit-h.bin'
+        )
+        results += [os.path.join(path_controlnet, 'ip-adapter-plus-face_sdxl_vit-h.bin')]
 
     return results
 
@@ -295,10 +385,10 @@ def downloading_ip_adapters():
 def downloading_upscale_model():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_upscaler_s409985e5.bin',
-        model_dir=upscale_models_path,
+        model_dir=path_upscale_models,
         file_name='fooocus_upscaler_s409985e5.bin'
     )
-    return os.path.join(upscale_models_path, 'fooocus_upscaler_s409985e5.bin')
+    return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
 
 
 update_all_model_names()

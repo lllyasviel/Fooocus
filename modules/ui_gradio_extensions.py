@@ -28,12 +28,16 @@ def javascript_html():
     localization_js_path = webpath('javascript/localization.js')
     zoom_js_path = webpath('javascript/zoom.js')
     edit_attention_js_path = webpath('javascript/edit-attention.js')
+    viewer_js_path = webpath('javascript/viewer.js')
+    image_viewer_js_path = webpath('javascript/imageviewer.js')
     head = f'<script type="text/javascript">{localization_js(args_manager.args.language)}</script>\n'
     head += f'<script type="text/javascript" src="{script_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{context_menus_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{localization_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{zoom_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{edit_attention_js_path}"></script>\n'
+    head += f'<script type="text/javascript" src="{viewer_js_path}"></script>\n'
+    head += f'<script type="text/javascript" src="{image_viewer_js_path}"></script>\n'
     return head
 
 

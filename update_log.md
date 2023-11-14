@@ -1,4 +1,73 @@
-**(2023 Oct 26) Hi all, the feature updating of Fooocus will (really, really, this time) be paused for about two or three weeks because we really have some other workloads. Thanks for the passion of you all (and we in fact have kept updating even after last pausing announcement a week ago, because of many great feedbacks)  - see you soon and we will come back in mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+# 2.1.807
+
+* Click on image to see it in full screen.
+
+# 2.1.806
+
+* Fix some lora problems related to clip.
+
+# 2.1.805
+
+* Responsive UI for small screens.
+* Added skip preprocessor in dev tools.
+
+# 2.1.802
+
+* Default inpaint engine changed to v2.6. You can still use inpaint engine v1 in dev tools.
+* Fix some VRAM problems.
+
+# 2.1.799
+
+* Added 'Extreme Speed' performance mode (based on LCM). The previous complicated settings are not needed now.
+
+# 2.1.798
+
+* added lcm scheduler - LCM may need to set both sampler and scheduler to "lcm". Other than that, see the description in 2.1.782 logs.
+
+# 2.1.797
+
+* fixed some dependency problems with facexlib and filterpy.
+
+# 2.1.793
+
+* Added many javascripts to improve user experience. Now users with small screen will always see full canvas without needing to scroll.
+
+# 2.1.790
+
+* Face swap (in line with Midjourney InsightFace): Input Image -> Image Prompt -> Advanced -> FaceSwap
+* The performance is super high. Use it carefully and never use it in any illegal things!
+* This implementation will crop faces for you and you do NOT need to crop faces before feeding images into Fooocus. (If you previously manually crop faces from images for other software, you do not need to do that now in Fooocus.)
+
+# 2.1.788
+
+* Fixed some math problems in previous versions.
+* Inpaint engine v2.6 join the beta test of Fooocus inpaint models. Use it in dev tools -> inpaint engine -> v2.6 .
+
+# 2.1.785
+
+* The `user_path_config.txt` is deprecated since 2.1.785. If you are using it right now, please use the new `config.txt` instead. See also the new documentation in the Readme.
+* The paths in `user_path_config.txt` will still be loaded in recent versions, but it will be removed soon.
+* We use very user-friendly method to automatically transfer your path settings from `user_path_config.txt` to `config.txt` and usually you do not need to do anything.
+* The new `config.txt` will never save default values so the default value changes in scripts will not be prevented by old config files.
+
+# 2.1.782
+
+2.1.782 is mainly an update for a new LoRA system that supports both SDXL loras and SD1.5 loras.
+
+Now when you load a lora, the following things will happen:
+
+1. try to load the lora to the base model, if failed (model mismatch), then try to load the lora to refiner.
+2. try to load the lora to refiner, if failed (model mismatch) then do nothing.
+
+In this way, Fooocus 2.1.782 can benefit from all models and loras from CivitAI with both SDXL and SD1.5 ecosystem, using the unique Fooocus swap algorithm, to achieve extremely high quality results (although the default setting is already very high quality), especially in some anime use cases, if users really want to play with all these things.
+
+Recently the community also developed LCM loras. Users can use it by setting the sampler as 'LCM', scheduler as 'sgm_uniform' (Update in 2.1.798: scheduler should also be "lcm"), the forced overwrite of sampling step as 4 to 8, and CFG guidance as 1.0, in dev tools. Do not forget to change the LCM lora weight to 1.0 (many people forget this and report failure cases). Also, set refiner to None. If LCM's feedback in the artists community is good (not the feedback in the programmer community of Stable Diffusion), Fooocus may add some other shortcuts in the future.
+
+# 2.1.781
+
+(2023 Oct 26) Hi all, the feature updating of Fooocus will (really, really, this time) be paused for about two or three weeks because we really have some other workloads. Thanks for the passion of you all (and we in fact have kept updating even after last pausing announcement a week ago, because of many great feedbacks)  - see you soon and we will come back in mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.
+
+* Disable refiner to speed up when new users mistakenly set same model to base and refiner.
 
 # 2.1.779
 

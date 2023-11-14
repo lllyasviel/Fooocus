@@ -23,7 +23,7 @@ fcbh_cli.parser.set_defaults(
 
 fcbh_cli.args = fcbh_cli.parser.parse_args()
 
-# Disable by default because of issues like https://github.com/lllyasviel/Fooocus/issues/724
+# (Disable by default because of issues like https://github.com/lllyasviel/Fooocus/issues/724)
 fcbh_cli.args.disable_smart_memory = not fcbh_cli.args.enable_smart_memory
 
 args = fcbh_cli.args

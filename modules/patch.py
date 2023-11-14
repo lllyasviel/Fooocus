@@ -1,11 +1,9 @@
-import contextlib
 import os
 import torch
 import time
 import fcbh.model_base
 import fcbh.ldm.modules.diffusionmodules.openaimodel
 import fcbh.samplers
-import fcbh.k_diffusion.external
 import fcbh.model_management
 import modules.anisotropic as anisotropic
 import fcbh.ldm.modules.attention
@@ -19,15 +17,13 @@ import fcbh.cldm.cldm
 import fcbh.model_patcher
 import fcbh.samplers
 import fcbh.cli_args
-import args_manager
 import modules.advanced_parameters as advanced_parameters
 import warnings
 import safetensors.torch
 import modules.constants as constants
 
-from fcbh.k_diffusion import utils
 from fcbh.k_diffusion.sampling import BatchedBrownianTree
-from fcbh.ldm.modules.diffusionmodules.openaimodel import timestep_embedding, forward_timestep_embed
+from fcbh.ldm.modules.diffusionmodules.openaimodel import forward_timestep_embed, apply_control, timestep_embedding
 
 
 sharpness = 2.0
@@ -36,10 +32,8 @@ adm_scaler_end = 0.3
 positive_adm_scale = 1.5
 negative_adm_scale = 0.8
 
-cfg_x0 = 0.0
-cfg_s = 1.0
-cfg_cin = 1.0
-adaptive_cfg = 0.7
+adaptive_cfg = 7.0
+global_diffusion_progress = 0
 eps_record = None
 
 
@@ -161,6 +155,34 @@ def calculate_weight_patched(self, patches, weight, key):
     return weight
 
 
+class BrownianTreeNoiseSamplerPatched:
+    transform = None
+    tree = None
+    global_sigma_min = 1.0
+    global_sigma_max = 1.0
+
+    @staticmethod
+    def global_init(x, sigma_min, sigma_max, seed=None, transform=lambda x: x, cpu=False):
+        t0, t1 = transform(torch.as_tensor(sigma_min)), transform(torch.as_tensor(sigma_max))
+
+        BrownianTreeNoiseSamplerPatched.transform = transform
+        BrownianTreeNoiseSamplerPatched.tree = BatchedBrownianTree(x, t0, t1, seed, cpu=cpu)
+
+        BrownianTreeNoiseSamplerPatched.global_sigma_min = sigma_min
+        BrownianTreeNoiseSamplerPatched.global_sigma_max = sigma_max
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    @staticmethod
+    def __call__(sigma, sigma_next):
+        transform = BrownianTreeNoiseSamplerPatched.transform
+        tree = BrownianTreeNoiseSamplerPatched.tree
+
+        t0, t1 = transform(torch.as_tensor(sigma)), transform(torch.as_tensor(sigma_next))
+        return tree(t0, t1) / (t1 - t0).abs().sqrt()
+
+
 def compute_cfg(uncond, cond, cfg_scale, t):
     global adaptive_cfg
 
@@ -169,46 +191,33 @@ def compute_cfg(uncond, cond, cfg_scale, t):
 
     real_eps = uncond + real_cfg * (cond - uncond)
 
-    if cfg_scale < adaptive_cfg:
+    if cfg_scale > adaptive_cfg:
+        mimicked_eps = uncond + mimic_cfg * (cond - uncond)
+        return real_eps * t + mimicked_eps * (1 - t)
+    else:
         return real_eps
-
-    mimicked_eps = uncond + mimic_cfg * (cond - uncond)
-
-    return real_eps * t + mimicked_eps * (1 - t)
 
 
 def patched_sampler_cfg_function(args):
-    global cfg_x0, cfg_s
+    global eps_record
 
     positive_eps = args['cond']
     negative_eps = args['uncond']
     cfg_scale = args['cond_scale']
+    positive_x0 = args['input'] - positive_eps
+    sigma = args['sigma']
 
-    positive_x0 = args['cond'] * cfg_s + cfg_x0
-    t = 1.0 - (args['timestep'] / 999.0)[:, None, None, None].clone()
-    alpha = 0.001 * sharpness * t
-
+    alpha = 0.001 * sharpness * global_diffusion_progress
     positive_eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
     positive_eps_degraded_weighted = positive_eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
-    return compute_cfg(uncond=negative_eps, cond=positive_eps_degraded_weighted, cfg_scale=cfg_scale, t=t)
+    final_eps = compute_cfg(uncond=negative_eps, cond=positive_eps_degraded_weighted,
+                            cfg_scale=cfg_scale, t=global_diffusion_progress)
 
-
-def patched_discrete_eps_ddpm_denoiser_forward(self, input, sigma, **kwargs):
-    global cfg_x0, cfg_s, cfg_cin, eps_record
-    c_out, c_in = [utils.append_dims(x, input.ndim) for x in self.get_scalings(sigma)]
-    cfg_x0, cfg_s, cfg_cin = input, c_out, c_in
-    eps = self.get_eps(input * c_in, self.sigma_to_t(sigma), **kwargs)
     if eps_record is not None:
-        eps_record = eps.clone().cpu()
-    return input + eps * c_out
+        eps_record = (final_eps / sigma).cpu()
 
-
-def patched_model_function_wrapper(func, args):
-    x = args['input']
-    t = args['timestep']
-    c = args['c']
-    return func(x, t, **c)
+    return final_eps
 
 
 def sdxl_encode_adm_patched(self, **kwargs):
@@ -249,36 +258,44 @@ def sdxl_encode_adm_patched(self, **kwargs):
 
 
 def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
-    to_encode = list(self.empty_tokens)
+    to_encode = list()
+    max_token_len = 0
+    has_weights = False
     for x in token_weight_pairs:
         tokens = list(map(lambda a: a[0], x))
+        max_token_len = max(len(tokens), max_token_len)
+        has_weights = has_weights or not all(map(lambda a: a[1] == 1.0, x))
         to_encode.append(tokens)
 
-    out, pooled = self.encode(to_encode)
+    sections = len(to_encode)
+    if has_weights or sections == 0:
+        to_encode.append(fcbh.sd1_clip.gen_empty_tokens(self.special_tokens, max_token_len))
 
-    z_empty = out[0:1]
-    if pooled.shape[0] > 1:
-        first_pooled = pooled[1:2]
+    out, pooled = self.encode(to_encode)
+    if pooled is not None:
+        first_pooled = pooled[0:1].cpu()
     else:
-        first_pooled = pooled[0:1]
+        first_pooled = pooled
 
     output = []
-    for k in range(1, out.shape[0]):
+    for k in range(0, sections):
         z = out[k:k + 1]
-        original_mean = z.mean()
-
-        for i in range(len(z)):
-            for j in range(len(z[i])):
-                weight = token_weight_pairs[k - 1][j][1]
-                z[i][j] = (z[i][j] - z_empty[0][j]) * weight + z_empty[0][j]
-
-        new_mean = z.mean()
-        z = z * (original_mean / new_mean)
+        if has_weights:
+            original_mean = z.mean()
+            z_empty = out[-1]
+            for i in range(len(z)):
+                for j in range(len(z[i])):
+                    weight = token_weight_pairs[k][j][1]
+                    if weight != 1.0:
+                        z[i][j] = (z[i][j] - z_empty[j]) * weight + z_empty[j]
+            new_mean = z.mean()
+            z = z * (original_mean / new_mean)
         output.append(z)
 
     if len(output) == 0:
-        return z_empty.cpu(), first_pooled.cpu()
-    return torch.cat(output, dim=-2).cpu(), first_pooled.cpu()
+        return out[-1:].cpu(), first_pooled
+
+    return torch.cat(output, dim=-2).cpu(), first_pooled
 
 
 def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, denoise_mask, model_options={}, seed=None):
@@ -287,7 +304,7 @@ def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, 
             # avoid bad results by using different seeds.
             self.energy_generator = torch.Generator(device='cpu').manual_seed((seed + 1) % constants.MAX_SEED)
 
-        latent_processor = self.inner_model.inner_model.inner_model.process_latent_in
+        latent_processor = self.inner_model.inner_model.process_latent_in
         inpaint_latent = latent_processor(inpaint_worker.current_task.latent).to(x)
         inpaint_mask = inpaint_worker.current_task.latent_mask.to(x)
         energy_sigma = sigma.reshape([sigma.shape[0]] + [1] * (len(x.shape) - 1))
@@ -310,29 +327,6 @@ def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, 
                                model_options=model_options,
                                seed=seed)
     return out
-
-
-class BrownianTreeNoiseSamplerPatched:
-    transform = None
-    tree = None
-
-    @staticmethod
-    def global_init(x, sigma_min, sigma_max, seed=None, transform=lambda x: x, cpu=False):
-        t0, t1 = transform(torch.as_tensor(sigma_min)), transform(torch.as_tensor(sigma_max))
-
-        BrownianTreeNoiseSamplerPatched.transform = transform
-        BrownianTreeNoiseSamplerPatched.tree = BatchedBrownianTree(x, t0, t1, seed, cpu=cpu)
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-    @staticmethod
-    def __call__(sigma, sigma_next):
-        transform = BrownianTreeNoiseSamplerPatched.transform
-        tree = BrownianTreeNoiseSamplerPatched.tree
-
-        t0, t1 = transform(torch.as_tensor(sigma)), transform(torch.as_tensor(sigma_next))
-        return tree(t0, t1) / (t1 - t0).abs().sqrt()
 
 
 def timed_adm(y, timesteps):
@@ -381,7 +375,10 @@ def patched_cldm_forward(self, x, hint, timesteps, context, y=None, **kwargs):
 
 
 def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=None, transformer_options={}, **kwargs):
+    global global_diffusion_progress
+
     self.current_step = 1.0 - timesteps.to(x) / 999.0
+    global_diffusion_progress = float(self.current_step.detach().cpu().numpy().tolist()[0])
 
     inpaint_fix = None
     if getattr(self, 'in_inpaint', False) and inpaint_worker.current_task is not None:
@@ -411,25 +408,17 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
                 h = h + inpaint_fix.to(h)
                 inpaint_fix = None
 
-        if control is not None and 'input' in control and len(control['input']) > 0:
-            ctrl = control['input'].pop()
-            if ctrl is not None:
-                h += ctrl
+        h = apply_control(h, control, 'input')
         hs.append(h)
+
     transformer_options["block"] = ("middle", 0)
     h = forward_timestep_embed(self.middle_block, h, emb, context, transformer_options)
-    if control is not None and 'middle' in control and len(control['middle']) > 0:
-        ctrl = control['middle'].pop()
-        if ctrl is not None:
-            h += ctrl
+    h = apply_control(h, control, 'middle')
 
     for id, module in enumerate(self.output_blocks):
         transformer_options["block"] = ("output", id)
         hsp = hs.pop()
-        if control is not None and 'output' in control and len(control['output']) > 0:
-            ctrl = control['output'].pop()
-            if ctrl is not None:
-                hsp += ctrl
+        hsp = apply_control(hsp, control, 'output')
 
         if "output_block_patch" in transformer_patches:
             patch = transformer_patches["output_block_patch"]
@@ -501,7 +490,6 @@ def patch_all():
     fcbh.model_patcher.ModelPatcher.calculate_weight = calculate_weight_patched
     fcbh.cldm.cldm.ControlNet.forward = patched_cldm_forward
     fcbh.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
-    fcbh.k_diffusion.external.DiscreteEpsDDPMDenoiser.forward = patched_discrete_eps_ddpm_denoiser_forward
     fcbh.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
     fcbh.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
     fcbh.samplers.KSamplerX0Inpaint.forward = patched_KSamplerX0Inpaint_forward

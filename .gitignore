@@ -11,7 +11,10 @@ __pycache__
 lena.png
 lena_result.png
 lena_test.py
+config.txt
+config_modification_tutorial.txt
 user_path_config.txt
+user_path_config-deprecated.txt
 build_chb.py
 experiment.py
 /modules/*.png

@@ -19,7 +19,7 @@ def worker():
     import modules.default_pipeline as pipeline
     import modules.core as core
     import modules.flags as flags
-    import modules.path
+    import modules.config
     import modules.patch
     import fcbh.model_management
     import fooocus_extras.preprocessors as preprocessors
@@ -27,11 +27,12 @@ def worker():
     import modules.constants as constants
     import modules.advanced_parameters as advanced_parameters
     import fooocus_extras.ip_adapter as ip_adapter
+    import fooocus_extras.face_crop
 
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
     from modules.private_logger import log
     from modules.expansion import safe_str
-    from modules.util import join_prompts, remove_empty_str, HWC3, resize_image, \
+    from modules.util import remove_empty_str, HWC3, resize_image, \
         get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image
     from modules.upscaler import perform_upscale
 
@@ -134,7 +135,7 @@ def worker():
         outpaint_selections = args.pop()
         inpaint_input_image = args.pop()
 
-        cn_tasks = {flags.cn_ip: [], flags.cn_canny: [], flags.cn_cpds: []}
+        cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
             cn_img = args.pop()
             cn_stop = args.pop()
@@ -144,7 +145,7 @@ def worker():
                 cn_tasks[cn_type].append([cn_img, cn_stop, cn_weight])
 
         outpaint_selections = [o.lower() for o in outpaint_selections]
-        loras_raw = copy.deepcopy(loras)
+        base_model_additional_loras = []
         raw_style_selections = copy.deepcopy(style_selections)
         uov_method = uov_method.lower()
 
@@ -155,6 +156,40 @@ def worker():
             use_expansion = False
 
         use_style = len(style_selections) > 0
+
+        if base_model_name == refiner_model_name:
+            print(f'Refiner disabled because base model and refiner are same.')
+            refiner_model_name = 'None'
+
+        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed']
+
+        steps = 30
+
+        if performance_selection == 'Speed':
+            steps = 30
+
+        if performance_selection == 'Quality':
+            steps = 60
+
+        if performance_selection == 'Extreme Speed':
+            print('Enter LCM mode.')
+            progressbar(outputs, 1, 'Downloading LCM components ...')
+            base_model_additional_loras += [(modules.config.downloading_sdxl_lcm_lora(), 1.0)]
+
+            if refiner_model_name != 'None':
+                print(f'Refiner disabled in LCM mode.')
+
+            refiner_model_name = 'None'
+            sampler_name = advanced_parameters.sampler_name = 'lcm'
+            scheduler_name = advanced_parameters.scheduler_name = 'lcm'
+            modules.patch.sharpness = sharpness = 0.0
+            cfg_scale = guidance_scale = 1.0
+            modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg = 1.0
+            refiner_switch = 1.0
+            modules.patch.positive_adm_scale = advanced_parameters.adm_scaler_positive = 1.0
+            modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative = 1.0
+            modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
+            steps = 8
 
         modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
@@ -186,15 +221,10 @@ def worker():
         inpaint_head_model_path = None
         controlnet_canny_path = None
         controlnet_cpds_path = None
-        clip_vision_path, ip_negative_path, ip_adapter_path = None, None, None
+        clip_vision_path, ip_negative_path, ip_adapter_path, ip_adapter_face_path = None, None, None, None
 
         seed = int(image_seed)
         print(f'[Parameters] Seed = {seed}')
-
-        if performance_selection == 'Speed':
-            steps = 30
-        else:
-            steps = 60
 
         sampler_name = advanced_parameters.sampler_name
         scheduler_name = advanced_parameters.scheduler_name
@@ -213,12 +243,20 @@ def worker():
                     if 'fast' in uov_method:
                         skip_prompt_processing = True
                     else:
+                        steps = 18
+
                         if performance_selection == 'Speed':
                             steps = 18
-                        else:
+
+                        if performance_selection == 'Quality':
                             steps = 36
+
+                        if performance_selection == 'Extreme Speed':
+                            steps = 8
+
                     progressbar(outputs, 1, 'Downloading upscale models ...')
-                    modules.path.downloading_upscale_model()
+                    modules.config.downloading_upscale_model()
+
             if (current_tab == 'inpaint' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint))\
                     and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
@@ -227,8 +265,8 @@ def worker():
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
                     progressbar(outputs, 1, 'Downloading inpainter ...')
-                    inpaint_head_model_path, inpaint_patch_model_path = modules.path.downloading_inpaint_models(advanced_parameters.inpaint_engine)
-                    loras += [(inpaint_patch_model_path, 1.0)]
+                    inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(advanced_parameters.inpaint_engine)
+                    base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
                     print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
                     goals.append('inpaint')
             if current_tab == 'ip' or \
@@ -237,16 +275,19 @@ def worker():
                 goals.append('cn')
                 progressbar(outputs, 1, 'Downloading control models ...')
                 if len(cn_tasks[flags.cn_canny]) > 0:
-                    controlnet_canny_path = modules.path.downloading_controlnet_canny()
+                    controlnet_canny_path = modules.config.downloading_controlnet_canny()
                 if len(cn_tasks[flags.cn_cpds]) > 0:
-                    controlnet_cpds_path = modules.path.downloading_controlnet_cpds()
+                    controlnet_cpds_path = modules.config.downloading_controlnet_cpds()
                 if len(cn_tasks[flags.cn_ip]) > 0:
-                    clip_vision_path, ip_negative_path, ip_adapter_path = modules.path.downloading_ip_adapters()
+                    clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters('ip')
+                if len(cn_tasks[flags.cn_ip_face]) > 0:
+                    clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters('face')
                 progressbar(outputs, 1, 'Loading control models ...')
 
         # Load or unload CNs
         pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path])
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
+        ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
 
         switch = int(round(steps * refiner_switch))
 
@@ -283,7 +324,8 @@ def worker():
             extra_negative_prompts = negative_prompts[1:] if len(negative_prompts) > 1 else []
 
             progressbar(outputs, 3, 'Loading models ...')
-            pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name, loras=loras)
+            pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
+                                        loras=loras, base_model_additional_loras=base_model_additional_loras)
 
             progressbar(outputs, 3, 'Processing prompts ...')
             tasks = []
@@ -343,8 +385,12 @@ def worker():
                 t['c'] = pipeline.clip_encode(texts=t['positive'], pool_top_k=t['positive_top_k'])
 
             for i, t in enumerate(tasks):
-                progressbar(outputs, 10, f'Encoding negative #{i + 1} ...')
-                t['uc'] = pipeline.clip_encode(texts=t['negative'], pool_top_k=t['negative_top_k'])
+                if abs(float(cfg_scale) - 1.0) < 1e-4:
+                    progressbar(outputs, 10, f'Skipped negative #{i + 1} ...')
+                    t['uc'] = pipeline.clone_cond(t['c'])
+                else:
+                    progressbar(outputs, 10, f'Encoding negative #{i + 1} ...')
+                    t['uc'] = pipeline.clip_encode(texts=t['negative'], pool_top_k=t['negative_top_k'])
 
         if len(goals) > 0:
             progressbar(outputs, 13, 'Image processing ...')
@@ -509,7 +555,10 @@ def worker():
             for task in cn_tasks[flags.cn_canny]:
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
-                cn_img = preprocessors.canny_pyramid(cn_img)
+
+                if not advanced_parameters.skipping_cn_preprocessor:
+                    cn_img = preprocessors.canny_pyramid(cn_img)
+
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
@@ -518,7 +567,10 @@ def worker():
             for task in cn_tasks[flags.cn_cpds]:
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
-                cn_img = preprocessors.cpds(cn_img)
+
+                if not advanced_parameters.skipping_cn_preprocessor:
+                    cn_img = preprocessors.cpds(cn_img)
+
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if advanced_parameters.debugging_cn_preprocessor:
@@ -531,13 +583,29 @@ def worker():
                 # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
                 cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
 
-                task[0] = ip_adapter.preprocess(cn_img)
+                task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_path)
+                if advanced_parameters.debugging_cn_preprocessor:
+                    yield_result(cn_img, do_not_show_finished_images=True)
+                    return
+            for task in cn_tasks[flags.cn_ip_face]:
+                cn_img, cn_stop, cn_weight = task
+                cn_img = HWC3(cn_img)
+
+                if not advanced_parameters.skipping_cn_preprocessor:
+                    cn_img = fooocus_extras.face_crop.crop_image(cn_img)
+
+                # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
+                cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
+
+                task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_face_path)
                 if advanced_parameters.debugging_cn_preprocessor:
                     yield_result(outputs, cn_img, do_not_show_finished_images=True)
                     return
 
-            if len(cn_tasks[flags.cn_ip]) > 0:
-                pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, cn_tasks[flags.cn_ip])
+            all_ip_tasks = cn_tasks[flags.cn_ip] + cn_tasks[flags.cn_ip_face]
+
+            if len(all_ip_tasks) > 0:
+                pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, all_ip_tasks)
 
         if advanced_parameters.freeu_enabled:
             print(f'FreeU is enabled!')
@@ -553,6 +621,23 @@ def worker():
 
         preparation_time = time.perf_counter() - execution_start_time
         print(f'Preparation time: {preparation_time:.2f} seconds')
+
+        final_sampler_name = sampler_name
+        final_scheduler_name = scheduler_name
+
+        if scheduler_name == 'lcm':
+            final_scheduler_name = 'sgm_uniform'
+            if pipeline.final_unet is not None:
+                pipeline.final_unet = core.opModelSamplingDiscrete.patch(
+                    pipeline.final_unet,
+                    sampling='lcm',
+                    zsnr=False)[0]
+            if pipeline.final_refiner_unet is not None:
+                pipeline.final_refiner_unet = core.opModelSamplingDiscrete.patch(
+                    pipeline.final_refiner_unet,
+                    sampling='lcm',
+                    zsnr=False)[0]
+            print('Using lcm scheduler.')
 
         outputs.value.append(['preview', (13, 'Moving model to GPU ...', None)])
 
@@ -588,8 +673,8 @@ def worker():
                     height=height,
                     image_seed=task['task_seed'],
                     callback=callback,
-                    sampler_name=sampler_name,
-                    scheduler_name=scheduler_name,
+                    sampler_name=final_sampler_name,
+                    scheduler_name=final_scheduler_name,
                     latent=initial_latent,
                     denoise=denoising_strength,
                     tiled=tiled,
@@ -612,14 +697,18 @@ def worker():
                         ('Resolution', str((width, height))),
                         ('Sharpness', sharpness),
                         ('Guidance Scale', guidance_scale),
-                        ('ADM Guidance', str((modules.patch.positive_adm_scale, modules.patch.negative_adm_scale))),
+                        ('ADM Guidance', str((
+                            modules.patch.positive_adm_scale,
+                            modules.patch.negative_adm_scale,
+                            modules.patch.adm_scaler_end))),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
+                        ('Refiner Switch', refiner_switch),
                         ('Sampler', sampler_name),
                         ('Scheduler', scheduler_name),
                         ('Seed', task['task_seed'])
                     ]
-                    for n, w in loras_raw:
+                    for n, w in loras:
                         if n != 'None':
                             d.append((f'LoRA [{n}] weight', w))
                     log(x, d, single_line_number=3)

@@ -22,9 +22,11 @@ from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDec
     ControlNetApplyAdvanced
 from fcbh_extras.nodes_freelunch import FreeU_V2
 from fcbh.sample import prepare_mask
-from modules.patch import patched_sampler_cfg_function, patched_model_function_wrapper
+from modules.patch import patched_sampler_cfg_function
 from fcbh.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
-from modules.path import embeddings_path
+from modules.config import path_embeddings
+from modules.lora import load_dangerous_lora
+from fcbh_extras.nodes_model_advanced import ModelSamplingDiscrete
 
 
 opEmptyLatentImage = EmptyLatentImage()
@@ -34,14 +36,83 @@ opVAEDecodeTiled = VAEDecodeTiled()
 opVAEEncodeTiled = VAEEncodeTiled()
 opControlNetApplyAdvanced = ControlNetApplyAdvanced()
 opFreeU = FreeU_V2()
+opModelSamplingDiscrete = ModelSamplingDiscrete()
 
 
 class StableDiffusionModel:
-    def __init__(self, unet, vae, clip, clip_vision):
+    def __init__(self, unet=None, vae=None, clip=None, clip_vision=None, filename=None):
         self.unet = unet
         self.vae = vae
         self.clip = clip
         self.clip_vision = clip_vision
+        self.filename = filename
+        self.unet_with_lora = unet
+        self.clip_with_lora = clip
+        self.visited_loras = ''
+        self.lora_key_map = {}
+
+        if self.unet is not None and self.clip is not None:
+            self.lora_key_map = model_lora_keys_unet(self.unet.model, self.lora_key_map)
+            self.lora_key_map = model_lora_keys_clip(self.clip.cond_stage_model, self.lora_key_map)
+            self.lora_key_map.update({x: x for x in self.unet.model.state_dict().keys()})
+            self.lora_key_map.update({x: x for x in self.clip.cond_stage_model.state_dict().keys()})
+
+    @torch.no_grad()
+    @torch.inference_mode()
+    def refresh_loras(self, loras):
+        assert isinstance(loras, list)
+
+        if self.visited_loras == str(loras):
+            return
+
+        self.visited_loras = str(loras)
+        loras_to_load = []
+
+        if self.unet is None:
+            return
+
+        print(f'Request to load LoRAs {str(loras)} for model [{self.filename}].')
+
+        for name, weight in loras:
+            if name == 'None':
+                continue
+
+            if os.path.exists(name):
+                lora_filename = name
+            else:
+                lora_filename = os.path.join(modules.config.path_loras, name)
+
+            if not os.path.exists(lora_filename):
+                print(f'Lora file not found: {lora_filename}')
+                continue
+
+            loras_to_load.append((lora_filename, weight))
+
+        self.unet_with_lora = self.unet.clone() if self.unet is not None else None
+        self.clip_with_lora = self.clip.clone() if self.clip is not None else None
+
+        for lora_filename, weight in loras_to_load:
+            lora = fcbh.utils.load_torch_file(lora_filename, safe_load=False)
+            lora_items = load_dangerous_lora(lora, self.lora_key_map)
+
+            if len(lora_items) == 0:
+                continue
+            
+            print(f'Loaded LoRA [{lora_filename}] for model [{self.filename}] with {len(lora_items)} keys at weight {weight}.')
+
+            if self.unet_with_lora is not None:
+                loaded_unet_keys = self.unet_with_lora.add_patches(lora_items, weight)
+            else:
+                loaded_unet_keys = []
+
+            if self.clip_with_lora is not None:
+                loaded_clip_keys = self.clip_with_lora.add_patches(lora_items, weight)
+            else:
+                loaded_clip_keys = []
+
+            for item in lora_items:
+                if item not in set(list(loaded_unet_keys) + list(loaded_clip_keys)):
+                    print("LoRA key skipped: ", item)
 
 
 @torch.no_grad()
@@ -66,10 +137,9 @@ def apply_controlnet(positive, negative, control_net, image, strength, start_per
 @torch.no_grad()
 @torch.inference_mode()
 def load_model(ckpt_filename):
-    unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename, embedding_directory=embeddings_path)
+    unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename, embedding_directory=path_embeddings)
     unet.model_options['sampler_cfg_function'] = patched_sampler_cfg_function
-    unet.model_options['model_function_wrapper'] = patched_model_function_wrapper
-    return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision)
+    return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision, filename=ckpt_filename)
 
 
 @torch.no_grad()
@@ -177,9 +247,9 @@ VAE_approx_models = {}
 def get_previewer(model):
     global VAE_approx_models
 
-    from modules.path import vae_approx_path
+    from modules.config import path_vae_approx
     is_sdxl = isinstance(model.model.latent_format, fcbh.latent_formats.SDXL)
-    vae_approx_filename = os.path.join(vae_approx_path, 'xlvaeapp.pth' if is_sdxl else 'vaeapp_sd15.pth')
+    vae_approx_filename = os.path.join(path_vae_approx, 'xlvaeapp.pth' if is_sdxl else 'vaeapp_sd15.pth')
 
     if vae_approx_filename in VAE_approx_models:
         VAE_approx_model = VAE_approx_models[vae_approx_filename]

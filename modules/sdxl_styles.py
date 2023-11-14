@@ -5,7 +5,7 @@ import json
 from modules.util import get_files_from_folder
 
 
-# cannot use modules.path - validators causing circular imports
+# cannot use modules.config - validators causing circular imports
 styles_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sdxl_styles/'))
 wildcards_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../wildcards/'))
 wildcards_max_bfs_depth = 64

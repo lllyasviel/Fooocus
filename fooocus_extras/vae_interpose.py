@@ -7,7 +7,7 @@ import torch.nn as nn
 import fcbh.model_management
 
 from fcbh.model_patcher import ModelPatcher
-from modules.path import vae_approx_path
+from modules.config import path_vae_approx
 
 
 class Block(nn.Module):
@@ -63,7 +63,7 @@ class Interposer(nn.Module):
 
 
 vae_approx_model = None
-vae_approx_filename = os.path.join(vae_approx_path, 'xl-to-v1_interposer-v3.1.safetensors')
+vae_approx_filename = os.path.join(path_vae_approx, 'xl-to-v1_interposer-v3.1.safetensors')
 
 
 def parse(x):

@@ -2,7 +2,7 @@ import modules.core as core
 import os
 import torch
 import modules.patch
-import modules.path
+import modules.config
 import fcbh.model_management
 import fcbh.latent_formats
 import modules.inpaint_worker
@@ -13,14 +13,8 @@ from modules.expansion import FooocusExpansion
 from modules.sample_hijack import clip_separate
 
 
-xl_base: core.StableDiffusionModel = None
-xl_base_hash = ''
-
-xl_base_patched: core.StableDiffusionModel = None
-xl_base_patched_hash = ''
-
-xl_refiner: core.StableDiffusionModel = None
-xl_refiner_hash = ''
+model_base = core.StableDiffusionModel()
+model_refiner = core.StableDiffusionModel()
 
 final_expansion = None
 final_unet = None
@@ -52,23 +46,8 @@ def refresh_controlnets(model_paths):
 def assert_model_integrity():
     error_message = None
 
-    if xl_base is None:
-        error_message = 'You have not selected SDXL base model.'
-
-    if xl_base_patched is None:
-        error_message = 'You have not selected SDXL base model.'
-
-    if not isinstance(xl_base.unet.model, SDXL):
+    if not isinstance(model_base.unet_with_lora.model, SDXL):
         error_message = 'You have selected base model other than SDXL. This is not supported yet.'
-
-    if not isinstance(xl_base_patched.unet.model, SDXL):
-        error_message = 'You have selected base model other than SDXL. This is not supported yet.'
-
-    if xl_refiner is not None:
-        if xl_refiner.unet is None or xl_refiner.unet.model is None:
-            error_message = 'You have selected an invalid refiner!'
-        # elif not isinstance(xl_refiner.unet.model, SDXL) and not isinstance(xl_refiner.unet.model, SDXLRefiner):
-        #     error_message = 'SD1.5 or 2.1 as refiner is not supported!'
 
     if error_message is not None:
         raise NotImplementedError(error_message)
@@ -79,82 +58,60 @@ def assert_model_integrity():
 @torch.no_grad()
 @torch.inference_mode()
 def refresh_base_model(name):
-    global xl_base, xl_base_hash, xl_base_patched, xl_base_patched_hash
+    global model_base
 
-    filename = os.path.abspath(os.path.realpath(os.path.join(modules.path.modelfile_path, name)))
-    model_hash = filename
+    filename = os.path.abspath(os.path.realpath(os.path.join(modules.config.path_checkpoints, name)))
 
-    if xl_base_hash == model_hash:
+    if model_base.filename == filename:
         return
 
-    xl_base = None
-    xl_base_hash = ''
-    xl_base_patched = None
-    xl_base_patched_hash = ''
-
-    xl_base = core.load_model(filename)
-    xl_base_hash = model_hash
-    print(f'Base model loaded: {model_hash}')
+    model_base = core.StableDiffusionModel()
+    model_base = core.load_model(filename)
+    print(f'Base model loaded: {model_base.filename}')
     return
 
 
 @torch.no_grad()
 @torch.inference_mode()
 def refresh_refiner_model(name):
-    global xl_refiner, xl_refiner_hash
+    global model_refiner
 
-    filename = os.path.abspath(os.path.realpath(os.path.join(modules.path.modelfile_path, name)))
-    model_hash = filename
+    filename = os.path.abspath(os.path.realpath(os.path.join(modules.config.path_checkpoints, name)))
 
-    if xl_refiner_hash == model_hash:
+    if model_refiner.filename == filename:
         return
 
-    xl_refiner = None
-    xl_refiner_hash = ''
+    model_refiner = core.StableDiffusionModel()
 
     if name == 'None':
         print(f'Refiner unloaded.')
         return
 
-    xl_refiner = core.load_model(filename)
-    xl_refiner_hash = model_hash
-    print(f'Refiner model loaded: {model_hash}')
+    model_refiner = core.load_model(filename)
+    print(f'Refiner model loaded: {model_refiner.filename}')
 
-    if isinstance(xl_refiner.unet.model, SDXL):
-        xl_refiner.clip = None
-        xl_refiner.vae = None
-    elif isinstance(xl_refiner.unet.model, SDXLRefiner):
-        xl_refiner.clip = None
-        xl_refiner.vae = None
+    if isinstance(model_refiner.unet.model, SDXL):
+        model_refiner.clip = None
+        model_refiner.vae = None
+    elif isinstance(model_refiner.unet.model, SDXLRefiner):
+        model_refiner.clip = None
+        model_refiner.vae = None
     else:
-        xl_refiner.clip = None
+        model_refiner.clip = None
 
     return
 
 
 @torch.no_grad()
 @torch.inference_mode()
-def refresh_loras(loras):
-    global xl_base, xl_base_patched, xl_base_patched_hash
-    if xl_base_patched_hash == str(loras):
-        return
+def refresh_loras(loras, base_model_additional_loras=None):
+    global model_base, model_refiner
 
-    model = xl_base
-    for name, weight in loras:
-        if name == 'None':
-            continue
+    if not isinstance(base_model_additional_loras, list):
+        base_model_additional_loras = []
 
-        if os.path.exists(name):
-            filename = name
-        else:
-            filename = os.path.join(modules.path.lorafile_path, name)
-
-        assert os.path.exists(filename), 'Lora file not found!'
-
-        model = core.load_sd_lora(model, filename, strength_model=weight, strength_clip=weight)
-    xl_base_patched = model
-    xl_base_patched_hash = str(loras)
-    print(f'LoRAs loaded: {xl_base_patched_hash}')
+    model_base.refresh_loras(loras + base_model_additional_loras)
+    model_refiner.refresh_loras(loras)
 
     return
 
@@ -173,6 +130,25 @@ def clip_encode_single(clip, text, verbose=False):
     if verbose:
         print(f'[CLIP Encoded] {text}')
     return result
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def clone_cond(conds):
+    results = []
+
+    for c, p in conds:
+        p = p["pooled_output"]
+
+        if isinstance(c, torch.Tensor):
+            c = c.clone()
+
+        if isinstance(p, torch.Tensor):
+            p = p.clone()
+
+        results.append([c, {"pooled_output": p}])
+
+    return results
 
 
 @torch.no_grad()
@@ -202,8 +178,7 @@ def clip_encode(texts, pool_top_k=1):
 @torch.no_grad()
 @torch.inference_mode()
 def clear_all_caches():
-    xl_base.clip.fcs_cond_cache = {}
-    xl_base_patched.clip.fcs_cond_cache = {}
+    final_clip.fcs_cond_cache = {}
 
 
 @torch.no_grad()
@@ -219,7 +194,7 @@ def prepare_text_encoder(async_call=True):
 
 @torch.no_grad()
 @torch.inference_mode()
-def refresh_everything(refiner_model_name, base_model_name, loras):
+def refresh_everything(refiner_model_name, base_model_name, loras, base_model_additional_loras=None):
     global final_unet, final_clip, final_vae, final_refiner_unet, final_refiner_vae, final_expansion
 
     final_unet = None
@@ -230,21 +205,20 @@ def refresh_everything(refiner_model_name, base_model_name, loras):
 
     refresh_refiner_model(refiner_model_name)
     refresh_base_model(base_model_name)
-    refresh_loras(loras)
+    refresh_loras(loras, base_model_additional_loras=base_model_additional_loras)
     assert_model_integrity()
 
-    final_unet = xl_base_patched.unet
-    final_clip = xl_base_patched.clip
-    final_vae = xl_base_patched.vae
+    final_unet = model_base.unet_with_lora
+    final_clip = model_base.clip_with_lora
+    final_vae = model_base.vae
 
     final_unet.model.diffusion_model.in_inpaint = False
 
-    if xl_refiner is not None:
-        final_refiner_unet = xl_refiner.unet
-        final_refiner_vae = xl_refiner.vae
+    final_refiner_unet = model_refiner.unet_with_lora
+    final_refiner_vae = model_refiner.vae
 
-        if final_refiner_unet is not None:
-            final_refiner_unet.model.diffusion_model.in_inpaint = False
+    if final_refiner_unet is not None:
+        final_refiner_unet.model.diffusion_model.in_inpaint = False
 
     if final_expansion is None:
         final_expansion = FooocusExpansion()
@@ -255,14 +229,14 @@ def refresh_everything(refiner_model_name, base_model_name, loras):
 
 
 refresh_everything(
-    refiner_model_name=modules.path.default_refiner_model_name,
-    base_model_name=modules.path.default_base_model_name,
+    refiner_model_name=modules.config.default_refiner_model_name,
+    base_model_name=modules.config.default_base_model_name,
     loras=[
-        (modules.path.default_lora_name, modules.path.default_lora_weight),
-        ('None', modules.path.default_lora_weight),
-        ('None', modules.path.default_lora_weight),
-        ('None', modules.path.default_lora_weight),
-        ('None', modules.path.default_lora_weight)
+        (modules.config.default_lora_name, modules.config.default_lora_weight),
+        ('None', modules.config.default_lora_weight),
+        ('None', modules.config.default_lora_weight),
+        ('None', modules.config.default_lora_weight),
+        ('None', modules.config.default_lora_weight)
     ]
 )
 

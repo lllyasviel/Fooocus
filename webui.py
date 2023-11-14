@@ -3,7 +3,7 @@ import random
 import os
 import time
 import shared
-import modules.path
+import modules.config
 import fooocus_version
 import modules.html
 import modules.async_worker as worker
@@ -81,16 +81,21 @@ with shared.gradio_root:
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Row():
-                progress_window = grh.Image(label='Preview', show_label=True, height=640, visible=False)
-                progress_gallery = gr.Gallery(label='Finished Images', show_label=True, object_fit='contain', height=640, visible=False)
-            progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False, elem_id='progress-bar', elem_classes='progress-bar')
-            gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', height=745, visible=True, elem_classes='resizable_area')
+                progress_window = grh.Image(label='Preview', show_label=True, visible=False, height=768,
+                                            elem_classes=['main_view'])
+                progress_gallery = gr.Gallery(label='Finished Images', show_label=True, object_fit='contain',
+                                              height=768, visible=False, elem_classes=['main_view', 'image_gallery'])
+            progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False,
+                                    elem_id='progress-bar', elem_classes='progress-bar')
+            gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', visible=True, height=768,
+                                 elem_classes=['resizable_area', 'main_view', 'final_gallery', 'image_gallery'],
+                                 elem_id='final_gallery')
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=17):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", elem_id='positive_prompt',
                                         container=False, autofocus=True, elem_classes='type_row', lines=1024)
 
-                    default_prompt = modules.path.default_prompt
+                    default_prompt = modules.config.default_prompt
                     if isinstance(default_prompt, str) and default_prompt != '':
                         shared.gradio_root.load(lambda: default_prompt, outputs=prompt)
 
@@ -113,7 +118,7 @@ with shared.gradio_root:
                     skip_button.click(skip_clicked, queue=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
-                advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.path.default_advanced_checkbox, container=False, elem_classes='min_check')
+                advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Tabs():
                     with gr.TabItem(label='Upscale or Variation') as uov_tab:
@@ -172,8 +177,8 @@ with shared.gradio_root:
                         outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint', show_label=False, container=False)
                         gr.HTML('* Powered by Fooocus Inpaint Engine (beta) <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
 
-            switch_js = "(x) => {if(x){setTimeout(() => window.scrollTo({ top: 850, behavior: 'smooth' }), 50);}else{setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);} return x}"
-            down_js = "() => {setTimeout(() => window.scrollTo({ top: 850, behavior: 'smooth' }), 50);}"
+            switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
+            down_js = "() => {viewer_to_bottom();}"
 
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False, _js=switch_js)
             ip_advanced.change(lambda: None, queue=False, _js=down_js)
@@ -183,16 +188,18 @@ with shared.gradio_root:
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
-        with gr.Column(scale=1, visible=modules.path.default_advanced_checkbox) as advanced_column:
+        with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
-                performance_selection = gr.Radio(label='Performance', choices=['Speed', 'Quality'], value='Speed')
-                aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.path.available_aspect_ratios,
-                                                   value=modules.path.default_aspect_ratio, info='width × height')
-                image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=modules.path.default_image_number)
+                performance_selection = gr.Radio(label='Performance',
+                                                 choices=['Speed', 'Quality', 'Extreme Speed'],
+                                                 value='Speed')
+                aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
+                                                   value=modules.config.default_aspect_ratio, info='width × height')
+                image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=modules.config.default_image_number)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
                                              elem_id='negative_prompt',
-                                             value=modules.path.default_prompt_negative)
+                                             value=modules.config.default_prompt_negative)
                 seed_random = gr.Checkbox(label='Random', value=True)
                 image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
 
@@ -218,37 +225,37 @@ with shared.gradio_root:
             with gr.Tab(label='Style'):
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
                                                     choices=legal_style_names,
-                                                    value=modules.path.default_styles,
+                                                    value=modules.config.default_styles,
                                                     label='Image Style')
             with gr.Tab(label='Model'):
                 with gr.Row():
-                    base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.path.model_filenames, value=modules.path.default_base_model_name, show_label=True)
-                    refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.path.model_filenames, value=modules.path.default_refiner_model_name, show_label=True)
+                    base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True)
+                    refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True)
 
                 refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.1, maximum=1.0, step=0.0001,
                                            info='Use 0.4 for SD1.5 realistic models; '
                                                 'or 0.667 for SD1.5 anime models; '
                                                 'or 0.8 for XL-refiners; '
                                                 'or any value for switching two SDXL models.',
-                                           value=modules.path.default_refiner_switch,
-                                           visible=modules.path.default_refiner_model_name != 'None')
+                                           value=modules.config.default_refiner_switch,
+                                           visible=modules.config.default_refiner_model_name != 'None')
 
                 refiner_model.change(lambda x: gr.update(visible=x != 'None'),
                                      inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False)
 
-                with gr.Accordion(label='LoRAs', open=True):
+                with gr.Accordion(label='LoRAs (SDXL or SD 1.5)', open=True):
                     lora_ctrls = []
                     for i in range(5):
                         with gr.Row():
-                            lora_model = gr.Dropdown(label=f'SDXL LoRA {i+1}', choices=['None'] + modules.path.lora_filenames, value=modules.path.default_lora_name if i == 0 else 'None')
-                            lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=modules.path.default_lora_weight)
+                            lora_model = gr.Dropdown(label=f'LoRA {i+1}', choices=['None'] + modules.config.lora_filenames, value=modules.config.default_lora_name if i == 0 else 'None')
+                            lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=modules.config.default_lora_weight)
                             lora_ctrls += [lora_model, lora_weight]
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
             with gr.Tab(label='Advanced'):
-                sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=30.0, step=0.001, value=modules.path.default_sample_sharpness,
+                sharpness = gr.Slider(label='Sampling Sharpness', minimum=0.0, maximum=30.0, step=0.001, value=modules.config.default_sample_sharpness,
                                       info='Higher value means image and texture are sharper.')
-                guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01, value=modules.path.default_cfg_scale,
+                guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01, value=modules.config.default_cfg_scale,
                                       info='Higher value means style is cleaner, vivider, and more artistic.')
                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117" target="_blank">\U0001F4D4 Document</a>')
                 dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
@@ -270,11 +277,9 @@ with shared.gradio_root:
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
                                                       '(effective when real CFG > mimicked CFG).')
                         sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list,
-                                                   value=modules.path.default_sampler,
-                                                   info='Only effective in non-inpaint mode.')
+                                                   value=modules.config.default_sampler)
                         scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list,
-                                                     value=modules.path.default_scheduler,
-                                                     info='Scheduler of Sampler.')
+                                                     value=modules.config.default_scheduler)
 
                         generate_image_grid = gr.Checkbox(label='Generate Image Grid for Each Batch',
                                                           info='(Experimental) This may cause performance problems on some computers and certain internet conditions.',
@@ -301,11 +306,16 @@ with shared.gradio_root:
                                                                minimum=-1, maximum=1.0, step=0.001, value=-1,
                                                                info='Set as negative number to disable. For developer debugging.')
 
-                        inpaint_engine = gr.Dropdown(label='Inpaint Engine', value='v1', choices=['v1', 'v2.5'],
+                        inpaint_engine = gr.Dropdown(label='Inpaint Engine',
+                                                     value=flags.default_inpaint_engine_version,
+                                                     choices=flags.inpaint_engine_versions,
                                                      info='Version of Fooocus inpaint model')
 
                     with gr.Tab(label='Control Debug'):
-                        debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessors', value=False)
+                        debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessors', value=False,
+                                                                info='See the results from preprocessors.')
+                        skipping_cn_preprocessor = gr.Checkbox(label='Skip Preprocessors', value=False,
+                                                               info='Do not preprocess images. (Inputs are already canny/depth/cropped-face/etc.)')
 
                         mixing_image_prompt_and_vary_upscale = gr.Checkbox(label='Mixing Image Prompt and Vary/Upscale',
                                                                            value=False)
@@ -334,7 +344,7 @@ with shared.gradio_root:
                         scheduler_name, generate_image_grid, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
                         overwrite_vary_strength, overwrite_upscale_strength,
                         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
-                        debugging_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold,
+                        debugging_cn_preprocessor, skipping_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold,
                         inpaint_engine, refiner_swap_method]
                 adps += freeu_ctrls
 
@@ -345,16 +355,25 @@ with shared.gradio_root:
                 dev_mode.change(dev_mode_checked, inputs=[dev_mode], outputs=[dev_tools], queue=False)
 
                 def model_refresh_clicked():
-                    modules.path.update_all_model_names()
+                    modules.config.update_all_model_names()
                     results = []
-                    results += [gr.update(choices=modules.path.model_filenames), gr.update(choices=['None'] + modules.path.model_filenames)]
+                    results += [gr.update(choices=modules.config.model_filenames), gr.update(choices=['None'] + modules.config.model_filenames)]
                     for i in range(5):
-                        results += [gr.update(choices=['None'] + modules.path.lora_filenames), gr.update()]
+                        results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
                     return results
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls, queue=False)
 
-        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column, queue=False)
+        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11,
+                                     inputs=performance_selection,
+                                     outputs=[
+                                         guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
+                                         adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
+                                         scheduler_name, adaptive_cfg, refiner_swap_method
+                                     ], queue=False, show_progress=False)
+
+        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column, queue=False) \
+            .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False)
 
         ctrls = [
             prompt, negative_prompt, style_selections,
@@ -372,7 +391,7 @@ with shared.gradio_root:
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
             .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
-            .then(fn=None, _js='playNotification')
+            .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):

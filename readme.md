@@ -50,6 +50,7 @@ Using Fooocus is as easy as (probably easier than) Midjourney – but this does 
 | Prompt Weights | You can use " I am (happy:1.5)". <br> Fooocus uses A1111's reweighting algorithm so that results are better than ComfyUI if users directly copy prompts from Civitai. (Because if prompts are written in ComfyUI's reweighting, users are less likely to copy prompt texts as they prefer dragging files) <br> To use embedding, you can use "(embedding:file_name:1.1)" |
 | --no | Advanced -> Negative Prompt |
 | --ar | Advanced -> Aspect Ratios |
+| InsightFace | Input Image -> Image Prompt -> Advanced -> FaceSwap |
 
 We also have a few things borrowed from the best parts of LeonardoAI:
 
@@ -67,7 +68,7 @@ Fooocus also developed many "fooocus-only" features for advanced users to get pe
 
 You can directly download Fooocus with:
 
-**[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_2-1-754.7z)**
+**[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_2-1-791.7z)**
 
 After you download the file, please uncompress it, and then run the "run.bat".
 
@@ -76,7 +77,7 @@ After you download the file, please uncompress it, and then run the "run.bat".
 In the first time you launch the software, it will automatically download models:
 
 1. It will download [default models](#models) to the folder "Fooocus\models\checkpoints" given different presets. You can download them in advance if you do not want automatic download.
-2. Note that if you use inpaint, at the first time you inpaint an image, it will download [Fooocus's own inpaint control model from here](https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint.fooocus.patch) as the file "Fooocus\models\inpaint\inpaint.fooocus.patch" (the size of this file is 1.28GB).
+2. Note that if you use inpaint, at the first time you inpaint an image, it will download [Fooocus's own inpaint control model from here](https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint_v26.fooocus.patch) as the file "Fooocus\models\inpaint\inpaint_v26.fooocus.patch" (the size of this file is 1.28GB).
 
 After Fooocus 2.1.60, you will also have `run_anime.bat` and `run_realistic.bat`. They are different model presets (and requires different models, but thet will be automatically downloaded). [Check here for more details](https://github.com/lllyasviel/Fooocus/discussions/679).
 
@@ -236,8 +237,6 @@ Given different goals, the default models and configs of Fooocus is different:
 
 Note that the download is **automatic** - you do not need to do anything if the internet connection is okay. However, you can download them manually if you (or move them from somewhere else) have your own preparation.
 
-Note that if your local parameters are not same with this list, then it means your Fooocus is downloaded from a relatively old version and we do not force users to re-download models. If you want Fooocus to download new models for you, you can delete `Fooocus\user_path_config.txt` and your Fooocus' default model list and configs will be refreshed as the newest version, then all newer models will be downloaded for you.
-
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>
 
@@ -260,23 +259,22 @@ Below things are already inside the software, and **users do not need to do anyt
 
 ## Customization
 
-After the first time you run Fooocus, a config file will be generated at `Fooocus\user_path_config.txt`. This file can be edited for changing the model path. You can also change some parameters to turn Fooocus into "your Fooocus".
+After the first time you run Fooocus, a config file will be generated at `Fooocus\config.txt`. This file can be edited for changing the model path or default parameters.
 
-For example ["realisticStockPhoto_v10" is a pretty good model from CivitAI](https://civitai.com/models/139565/realistic-stock-photo). This model needs a special `CFG=3.0` and probably works better with some specific styles. Below is an example config to turn Fooocus into a **"Fooocus Realistic Stock Photo Software"**:
-
-`Fooocus\user_path_config.txt`:
+For example, an edited `Fooocus\config.txt` (this file will be generated after the first launch) may look like this:
 
 ```json
 {
-    "modelfile_path": "D:\\Fooocus\\models\\checkpoints",
-    "lorafile_path": "D:\\Fooocus\\models\\loras",
-    "vae_approx_path": "D:\\Fooocus\\models\\vae_approx",
-    "upscale_models_path": "D:\\Fooocus\\models\\upscale_models",
-    "inpaint_models_path": "D:\\Fooocus\\models\\inpaint",
-    "controlnet_models_path": "D:\\Fooocus\\models\\controlnet",
-    "clip_vision_models_path": "D:\\Fooocus\\models\\clip_vision",
-    "fooocus_expansion_path": "D:\\Fooocus\\models\\prompt_expansion\\fooocus_expansion",
-    "temp_outputs_path": "D:\\Fooocus\\outputs",
+    "path_checkpoints": "D:\\Fooocus\\models\\checkpoints",
+    "path_loras": "D:\\Fooocus\\models\\loras",
+    "path_embeddings": "D:\\Fooocus\\models\\embeddings",
+    "path_vae_approx": "D:\\Fooocus\\models\\vae_approx",
+    "path_upscale_models": "D:\\Fooocus\\models\\upscale_models",
+    "path_inpaint": "D:\\Fooocus\\models\\inpaint",
+    "path_controlnet": "D:\\Fooocus\\models\\controlnet",
+    "path_clip_vision": "D:\\Fooocus\\models\\clip_vision",
+    "path_fooocus_expansion": "D:\\Fooocus\\models\\prompt_expansion\\fooocus_expansion",
+    "path_outputs": "D:\\Fooocus\\outputs",
     "default_model": "realisticStockPhoto_v10.safetensors",
     "default_refiner": "",
     "default_lora": "",
@@ -288,15 +286,19 @@ For example ["realisticStockPhoto_v10" is a pretty good model from CivitAI](http
     "default_positive_prompt": "",
     "default_styles": [
         "Fooocus V2",
-        "Default (Slightly Cinematic)",
-        "SAI Photographic"
+        "Fooocus Photograph",
+        "Fooocus Negative"
     ]
 }
 ```
 
-Consider twice before you really change the config. If you find yourself breaking things, just delete `Fooocus\user_path_config.txt`. Fooocus will go back to default.
+Many other keys, formats, and examples are in `Fooocus\config_modification_tutorial.txt` (this file will be generated after the first launch).
+
+Consider twice before you really change the config. If you find yourself breaking things, just delete `Fooocus\config.txt`. Fooocus will go back to default.
 
 A safter way is just to try "run_anime.bat" or "run_realistic.bat" - they should be already good enough for different tasks.
+
+Note that `user_path_config.txt` is deprecated and will be removed soon.
 
 ## Advanced Features
 
