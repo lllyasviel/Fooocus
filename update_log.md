@@ -1,3 +1,7 @@
+# 2.1.820
+
+* support "--disable-image-log" to prevent writing images and logs to hard drive.
+
 # 2.1.819
 
 * Allow disabling preview in dev tools.
