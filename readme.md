@@ -108,7 +108,7 @@ Please open an issue if you use similar devices but still cannot achieve accepta
 
 ### Colab
 
-(Last tested - 2023 Oct 10)
+(Last tested - 2023 Nov 15)
 
 | Colab | Info
 | --- | --- |
