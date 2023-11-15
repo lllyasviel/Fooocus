@@ -79,4 +79,10 @@ onUiLoaded(async () => {
             }
         }, 200);
     });
+
+    let inputs = document.querySelectorAll('.lora_weight input[type="range"]');
+
+    inputs.forEach(function (input) {
+        input.style.marginTop = '12px';
+    });
 });
