@@ -1,6 +1,7 @@
 # 2.1.817
 
 * support "--theme dark" and "--theme light".
+* added preset files "default" and "lcm", these presets exist but will not create launcher files (will not be exposed to users) to keep entry clean. The "--preset lcm" is equivalent to select "Extreme Speed" in UI, but will likely to make some online service deploying easier.
 
 # 2.1.815
 

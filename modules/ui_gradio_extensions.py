@@ -41,7 +41,7 @@ def javascript_html():
 
     if args_manager.args.theme:
         head += f'<script type="text/javascript">set_theme(\"{args_manager.args.theme}\");</script>\n'
-    
+
     return head
 
 
