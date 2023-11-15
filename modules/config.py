@@ -159,15 +159,10 @@ default_refiner_switch = get_config_item_or_set_default(
     default_value=0.5,
     validator=lambda x: isinstance(x, float)
 )
-default_lora_name = get_config_item_or_set_default(
-    key='default_lora',
-    default_value='sd_xl_offset_example-lora_1.0.safetensors',
-    validator=lambda x: isinstance(x, str)
-)
-default_lora_weight = get_config_item_or_set_default(
-    key='default_lora_weight',
-    default_value=0.1,
-    validator=lambda x: isinstance(x, float)
+default_loras = get_config_item_or_set_default(
+    key='default_loras',
+    default_value=['sd_xl_offset_example-lora_1.0.safetensors', 0.1],
+    validator=lambda x: isinstance(x, list) and all(len(y) == 2 and isinstance(y[0], str) and isinstance(y[1], float) for y in x)
 )
 default_cfg_scale = get_config_item_or_set_default(
     key='default_cfg_scale',
@@ -301,6 +296,7 @@ os.makedirs(path_outputs, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []
+default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
 
 
 def get_model_filenames(folder_path, name_filter=None):
