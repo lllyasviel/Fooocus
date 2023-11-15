@@ -1,6 +1,7 @@
 import os
 import json
 import math
+import numbers
 import args_manager
 import modules.flags
 import modules.sdxl_styles
@@ -162,7 +163,7 @@ default_refiner_switch = get_config_item_or_set_default(
 default_loras = get_config_item_or_set_default(
     key='default_loras',
     default_value=[['sd_xl_offset_example-lora_1.0.safetensors', 0.1]],
-    validator=lambda x: isinstance(x, list) and all(len(y) == 2 and isinstance(y[0], str) and isinstance(y[1], float) for y in x)
+    validator=lambda x: isinstance(x, list) and all(len(y) == 2 and isinstance(y[0], str) and isinstance(y[1], numbers.Number) for y in x)
 )
 default_cfg_scale = get_config_item_or_set_default(
     key='default_cfg_scale',

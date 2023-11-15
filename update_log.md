@@ -1,3 +1,7 @@
+# 2.1.818
+
+* Fix preset lora failed to load when the weight is exactly one.
+
 # 2.1.817
 
 * support "--theme dark" and "--theme light".
