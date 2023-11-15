@@ -206,6 +206,11 @@ default_prompt = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, str),
     disable_empty_as_none=True
 )
+default_performance = get_config_item_or_set_default(
+    key='default_performance',
+    default_value='Speed',
+    validator=lambda x: x in modules.flags.performance_selections
+)
 default_advanced_checkbox = get_config_item_or_set_default(
     key='default_advanced_checkbox',
     default_value=False,

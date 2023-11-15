@@ -1,3 +1,8 @@
+# 2.1.812
+
+* Allow preset to set default performance.
+* heunpp2 sampler.
+
 # 2.1.810
 
 * Added hints to config_modification_tutorial.txt

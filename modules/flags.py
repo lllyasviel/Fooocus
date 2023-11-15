@@ -34,3 +34,5 @@ default_parameters = {
 
 inpaint_engine_versions = ['v1', 'v2.5', 'v2.6']
 default_inpaint_engine_version = 'v2.6'
+
+performance_selections = ['Speed', 'Quality', 'Extreme Speed']
