@@ -38,6 +38,10 @@ def javascript_html():
     head += f'<script type="text/javascript" src="{edit_attention_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{viewer_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{image_viewer_js_path}"></script>\n'
+
+    if args_manager.args.theme:
+        head += f'<script type="text/javascript">set_theme(\"{args_manager.args.theme}\");</script>\n'
+
     return head
 
 

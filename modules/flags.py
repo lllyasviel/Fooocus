@@ -10,7 +10,7 @@ uov_list = [
     disabled, subtle_variation, strong_variation, upscale_15, upscale_2, upscale_fast
 ]
 
-KSAMPLER_NAMES = ["euler", "euler_ancestral", "heun", "dpm_2", "dpm_2_ancestral",
+KSAMPLER_NAMES = ["euler", "euler_ancestral", "heun", "heunpp2","dpm_2", "dpm_2_ancestral",
                   "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
                   "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "dpmpp_3m_sde", "dpmpp_3m_sde_gpu", "ddpm", "lcm"]
 
@@ -33,4 +33,4 @@ default_parameters = {
 }  # stop, weight
 
 inpaint_engine_versions = ['v1', 'v2.5', 'v2.6']
-default_inpaint_engine_version = 'v2.6'
+performance_selections = ['Speed', 'Quality', 'Extreme Speed']

@@ -11,8 +11,10 @@ import modules.constants as constants
 import modules.flags as flags
 import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
+import modules.style_sorter as style_sorter
 import args_manager
 import fcbh.model_management as model_management
+import copy
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -191,10 +193,11 @@ with shared.gradio_root:
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
                 performance_selection = gr.Radio(label='Performance',
-                                                 choices=['Speed', 'Quality', 'Extreme Speed'],
-                                                 value='Speed')
+                                                 choices=modules.flags.performance_selections,
+                                                 value=modules.config.default_performance)
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
-                                                   value=modules.config.default_aspect_ratio, info='width × height')
+                                                   value=modules.config.default_aspect_ratio, info='width × height',
+                                                   elem_classes='aspect_ratios')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=modules.config.default_image_number)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
@@ -223,10 +226,38 @@ with shared.gradio_root:
                 gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
 
             with gr.Tab(label='Style'):
+                style_sorter.try_load_sorted_styles(
+                    style_names=legal_style_names,
+                    default_selected=modules.config.default_styles)
+
+                style_search_bar = gr.Textbox(show_label=False, container=False,
+                                              placeholder="\U0001F50E Type here to search styles ...",
+                                              value="",
+                                              label='Search Styles')
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
-                                                    choices=legal_style_names,
-                                                    value=modules.config.default_styles,
-                                                    label='Image Style')
+                                                    choices=copy.deepcopy(style_sorter.all_styles),
+                                                    value=copy.deepcopy(modules.config.default_styles),
+                                                    label='Selected Styles',
+                                                    elem_classes=['style_selections'])
+                gradio_receiver_style_selections = gr.Textbox(elem_id='gradio_receiver_style_selections', visible=False)
+
+                shared.gradio_root.load(lambda: gr.update(choices=copy.deepcopy(style_sorter.all_styles)),
+                                        outputs=style_selections)
+
+                style_search_bar.change(style_sorter.search_styles,
+                                        inputs=[style_selections, style_search_bar],
+                                        outputs=style_selections,
+                                        queue=False,
+                                        show_progress=False).then(
+                    lambda: None, _js='()=>{refresh_style_localization();}')
+
+                gradio_receiver_style_selections.input(style_sorter.sort_styles,
+                                                       inputs=style_selections,
+                                                       outputs=style_selections,
+                                                       queue=False,
+                                                       show_progress=False).then(
+                    lambda: None, _js='()=>{refresh_style_localization();}')
+
             with gr.Tab(label='Model'):
                 with gr.Row():
                     base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True)
@@ -245,10 +276,12 @@ with shared.gradio_root:
 
                 with gr.Accordion(label='LoRAs (SDXL or SD 1.5)', open=True):
                     lora_ctrls = []
-                    for i in range(5):
+
+                    for i, (n, v) in enumerate(modules.config.default_loras):
                         with gr.Row():
-                            lora_model = gr.Dropdown(label=f'LoRA {i+1}', choices=['None'] + modules.config.lora_filenames, value=modules.config.default_lora_name if i == 0 else 'None')
-                            lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=modules.config.default_lora_weight)
+                            lora_model = gr.Dropdown(label=f'LoRA {i+1}', choices=['None'] + modules.config.lora_filenames, value=n)
+                            lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=v,
+                                                    elem_classes='lora_weight')
                             lora_ctrls += [lora_model, lora_weight]
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
@@ -273,7 +306,8 @@ with shared.gradio_root:
                         refiner_swap_method = gr.Dropdown(label='Refiner swap method', value='joint',
                                                           choices=['joint', 'separate', 'vae'])
 
-                        adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01, value=7.0,
+                        adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01,
+                                                 value=modules.config.default_cfg_tsnr,
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
                                                       '(effective when real CFG > mimicked CFG).')
                         sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list,
@@ -286,10 +320,12 @@ with shared.gradio_root:
                                                           value=False)
 
                         overwrite_step = gr.Slider(label='Forced Overwrite of Sampling Step',
-                                                   minimum=-1, maximum=200, step=1, value=-1,
+                                                   minimum=-1, maximum=200, step=1,
+                                                   value=modules.config.default_overwrite_step,
                                                    info='Set as -1 to disable. For developer debugging.')
                         overwrite_switch = gr.Slider(label='Forced Overwrite of Refiner Switch Step',
-                                                     minimum=-1, maximum=200, step=1, value=-1,
+                                                     minimum=-1, maximum=200, step=1,
+                                                     value=modules.config.default_overwrite_switch,
                                                      info='Set as -1 to disable. For developer debugging.')
                         overwrite_width = gr.Slider(label='Forced Overwrite of Generating Width',
                                                     minimum=-1, maximum=2048, step=1, value=-1,
@@ -305,11 +341,12 @@ with shared.gradio_root:
                         overwrite_upscale_strength = gr.Slider(label='Forced Overwrite of Denoising Strength of "Upscale"',
                                                                minimum=-1, maximum=1.0, step=0.001, value=-1,
                                                                info='Set as negative number to disable. For developer debugging.')
-
                         inpaint_engine = gr.Dropdown(label='Inpaint Engine',
-                                                     value=flags.default_inpaint_engine_version,
+                                                     value=modules.config.default_inpaint_engine_version,
                                                      choices=flags.inpaint_engine_versions,
                                                      info='Version of Fooocus inpaint model')
+                        disable_preview = gr.Checkbox(label='Disable Preview', value=False,
+                                                      info='Disable preview during generation.')
 
                     with gr.Tab(label='Control Debug'):
                         debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessors', value=False,
@@ -340,7 +377,7 @@ with shared.gradio_root:
                         freeu_s2 = gr.Slider(label='S2', minimum=0, maximum=4, step=0.01, value=0.95)
                         freeu_ctrls = [freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2]
 
-                adps = [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name,
+                adps = [disable_preview, adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name,
                         scheduler_name, generate_image_grid, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
                         overwrite_vary_strength, overwrite_upscale_strength,
                         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,

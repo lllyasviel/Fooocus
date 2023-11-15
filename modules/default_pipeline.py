@@ -231,13 +231,7 @@ def refresh_everything(refiner_model_name, base_model_name, loras, base_model_ad
 refresh_everything(
     refiner_model_name=modules.config.default_refiner_model_name,
     base_model_name=modules.config.default_base_model_name,
-    loras=[
-        (modules.config.default_lora_name, modules.config.default_lora_weight),
-        ('None', modules.config.default_lora_weight),
-        ('None', modules.config.default_lora_weight),
-        ('None', modules.config.default_lora_weight),
-        ('None', modules.config.default_lora_weight)
-    ]
+    loras=modules.config.default_loras
 )
 
 

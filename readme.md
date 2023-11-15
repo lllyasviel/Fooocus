@@ -108,7 +108,7 @@ Please open an issue if you use similar devices but still cannot achieve accepta
 
 ### Colab
 
-(Last tested - 2023 Oct 10)
+(Last tested - 2023 Nov 15)
 
 | Colab | Info
 | --- | --- |
@@ -277,8 +277,7 @@ For example, an edited `Fooocus\config.txt` (this file will be generated after t
     "path_outputs": "D:\\Fooocus\\outputs",
     "default_model": "realisticStockPhoto_v10.safetensors",
     "default_refiner": "",
-    "default_lora": "",
-    "default_lora_weight": 0.25,
+    "default_loras": [["lora_filename_1.safetensors", 0.5], ["lora_filename_2.safetensors", 0.5]],
     "default_cfg_scale": 3.0,
     "default_sampler": "dpmpp_2m",
     "default_scheduler": "karras",

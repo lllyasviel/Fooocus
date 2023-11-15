@@ -210,7 +210,7 @@ def worker():
         tiled = False
         inpaint_worker.current_task = None
 
-        width, height = aspect_ratios_selection.split('×')
+        width, height = aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
         width, height = int(width), int(height)
 
         skip_prompt_processing = False
@@ -386,7 +386,7 @@ def worker():
 
             for i, t in enumerate(tasks):
                 if abs(float(cfg_scale) - 1.0) < 1e-4:
-                    progressbar(outputs, 10, f'Skipped negative #{i + 1} ...')
+                    #progressbar(outputs, 10, f'Skipped negative #{i + 1} ...')
                     t['uc'] = pipeline.clone_cond(t['c'])
                 else:
                     progressbar(outputs, 10, f'Encoding negative #{i + 1} ...')

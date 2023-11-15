@@ -1,5 +1,7 @@
 import os
 import json
+import math
+import numbers
 import args_manager
 import modules.flags
 import modules.sdxl_styles
@@ -158,15 +160,10 @@ default_refiner_switch = get_config_item_or_set_default(
     default_value=0.5,
     validator=lambda x: isinstance(x, float)
 )
-default_lora_name = get_config_item_or_set_default(
-    key='default_lora',
-    default_value='sd_xl_offset_example-lora_1.0.safetensors',
-    validator=lambda x: isinstance(x, str)
-)
-default_lora_weight = get_config_item_or_set_default(
-    key='default_lora_weight',
-    default_value=0.1,
-    validator=lambda x: isinstance(x, float)
+default_loras = get_config_item_or_set_default(
+    key='default_loras',
+    default_value=[['sd_xl_offset_example-lora_1.0.safetensors', 0.1]],
+    validator=lambda x: isinstance(x, list) and all(len(y) == 2 and isinstance(y[0], str) and isinstance(y[1], numbers.Number) for y in x)
 )
 default_cfg_scale = get_config_item_or_set_default(
     key='default_cfg_scale',
@@ -204,6 +201,11 @@ default_prompt = get_config_item_or_set_default(
     default_value='',
     validator=lambda x: isinstance(x, str),
     disable_empty_as_none=True
+)
+default_performance = get_config_item_or_set_default(
+    key='default_performance',
+    default_value='Speed',
+    validator=lambda x: x in modules.flags.performance_selections
 )
 default_advanced_checkbox = get_config_item_or_set_default(
     key='default_advanced_checkbox',
@@ -246,6 +248,37 @@ default_aspect_ratio = get_config_item_or_set_default(
     default_value='1152*896' if '1152*896' in available_aspect_ratios else available_aspect_ratios[0],
     validator=lambda x: x in available_aspect_ratios
 )
+default_inpaint_engine_version = get_config_item_or_set_default(
+    key='default_inpaint_engine_version',
+    default_value='v2.6',
+    validator=lambda x: x in modules.flags.inpaint_engine_versions
+)
+default_cfg_tsnr = get_config_item_or_set_default(
+    key='default_cfg_tsnr',
+    default_value=7.0,
+    validator=lambda x: isinstance(x, float)
+)
+default_overwrite_step = get_config_item_or_set_default(
+    key='default_overwrite_step',
+    default_value=-1,
+    validator=lambda x: isinstance(x, int)
+)
+default_overwrite_switch = get_config_item_or_set_default(
+    key='default_overwrite_switch',
+    default_value=-1,
+    validator=lambda x: isinstance(x, int)
+)
+
+
+def add_ratio(x):
+    a, b = x.replace('*', ' ').split(' ')[:2]
+    a, b = int(a), int(b)
+    g = math.gcd(a, b)
+    return f'{a}×{b} <span style="color: grey;"> \U00002223 {a // g}:{b // g}</span>'
+
+
+default_aspect_ratio = add_ratio(default_aspect_ratio)
+available_aspect_ratios = [add_ratio(x) for x in available_aspect_ratios]
 
 with open(config_path, "w", encoding="utf-8") as json_file:
     json.dump({k: config_dict[k] for k in always_save_keys}, json_file, indent=4)
@@ -255,7 +288,8 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
     json_file.write(f'You can modify your "{cpa}" using the below keys, formats, and examples.\n'
                     f'Do not modify this file. Modifications in this file will not take effect.\n'
                     f'This file is a tutorial and example. Please edit "{cpa}" to really change any settings.\n'
-                    f'Remember to split the paths with "\\\\" rather than "\\".\n\n\n')
+                    + 'Remember to split the paths with "\\\\" rather than "\\", '
+                      'and there is no "," before the last "}". \n\n\n')
     json.dump({k: config_dict[k] for k in visited_keys}, json_file, indent=4)
 
 
@@ -263,9 +297,7 @@ os.makedirs(path_outputs, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []
-
-available_aspect_ratios = [x.replace('*', '×') for x in available_aspect_ratios]
-default_aspect_ratio = default_aspect_ratio.replace('*', '×')
+default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
 
 
 def get_model_filenames(folder_path, name_filter=None):

@@ -7,7 +7,7 @@ function refresh_grid() {
     if (gridContainer) if (final_gallery) {
         let rect = final_gallery.getBoundingClientRect();
         let cols = Math.ceil((rect.width - 16.0) / rect.height);
-        if(cols < 2) cols = 2;
+        if (cols < 2) cols = 2;
         gridContainer.style.setProperty('--grid-cols', cols);
     }
 }
@@ -55,4 +55,34 @@ window.addEventListener('resize', (e) => {
 
 onUiLoaded(async () => {
     resized();
+});
+
+function on_style_selection_blur() {
+    let target = document.querySelector("#gradio_receiver_style_selections textarea");
+    target.value = "on_style_selection_blur " + Math.random();
+    let e = new Event("input", {bubbles: true})
+    Object.defineProperty(e, "target", {value: target})
+    target.dispatchEvent(e);
+}
+
+onUiLoaded(async () => {
+    let spans = document.querySelectorAll('.aspect_ratios span');
+
+    spans.forEach(function (span) {
+        span.innerHTML = span.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    });
+
+    document.querySelector('.style_selections').addEventListener('focusout', function (event) {
+        setTimeout(() => {
+            if (!this.contains(document.activeElement)) {
+                on_style_selection_blur();
+            }
+        }, 200);
+    });
+
+    let inputs = document.querySelectorAll('.lora_weight input[type="range"]');
+
+    inputs.forEach(function (input) {
+        input.style.marginTop = '12px';
+    });
 });

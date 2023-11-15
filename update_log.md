@@ -1,3 +1,50 @@
+# 2.1.819
+
+* Allow disabling preview in dev tools.
+
+# 2.1.818
+
+* Fix preset lora failed to load when the weight is exactly one.
+
+# 2.1.817
+
+* support "--theme dark" and "--theme light".
+* added preset files "default" and "lcm", these presets exist but will not create launcher files (will not be exposed to users) to keep entry clean. The "--preset lcm" is equivalent to select "Extreme Speed" in UI, but will likely to make some online service deploying easier.
+
+# 2.1.815
+
+* Multiple loras in preset.
+
+# 2.1.814
+
+* Allow using previous preset of official SAI SDXL by modify the args to '--preset sai_sdxl'. Note that this preset will set inpaint engine back to previous v1 to get same results like before. To change the inpaint engine to v2.6, use the dev tools -> inpaint engine -> v2.6.
+
+# 2.1.813
+
+* Allow preset to set default inpaint engine.
+
+# 2.1.812
+
+* Allow preset to set default performance.
+* heunpp2 sampler.
+
+# 2.1.810
+
+* Added hints to config_modification_tutorial.txt
+* Removed user hacked aspect ratios in I18N english templates, but it will still be read like before.
+* fix some style sorting problem again (perhaps should try Gradio 4.0 later).
+* Refreshed I18N english templates with more keys.
+
+# 2.1.809
+
+* fix some sorting problem.
+
+# 2.1.808
+
+* Aspect ratios now show aspect ratios.
+* Added style search.
+* Added style sorting/ordering/favorites.
+
 # 2.1.807
 
 * Click on image to see it in full screen.

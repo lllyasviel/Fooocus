@@ -1,8 +1,7 @@
 {
     "default_model": "realisticStockPhoto_v10.safetensors",
     "default_refiner": "",
-    "default_lora": "SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors",
-    "default_lora_weight": 0.25,
+    "default_loras": [["SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors", 0.25]],
     "default_cfg_scale": 3.0,
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
@@ -20,5 +19,6 @@
     "default_aspect_ratio": "896*1152",
     "lora_downloads": {
         "SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors"
-    }
+    },
+    "default_performance": "Speed"
 }

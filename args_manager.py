@@ -15,6 +15,8 @@ fcbh_cli.parser.add_argument("--enable-smart-memory", action="store_true",
                              help="Force loading models to vram when the unload can be avoided. "
                                   "Some Mac users may need this.")
 
+fcbh_cli.parser.add_argument("--theme", type=str, help="launches the UI with light or dark theme", default=None)
+
 fcbh_cli.parser.set_defaults(
     disable_cuda_malloc=True,
     auto_launch=True,

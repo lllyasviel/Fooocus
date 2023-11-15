@@ -1,9 +1,8 @@
 {
     "default_model": "bluePencilXL_v050.safetensors",
     "default_refiner": "DreamShaper_8_pruned.safetensors",
-    "default_lora": "sd_xl_offset_example-lora_1.0.safetensors",
+    "default_loras": [["sd_xl_offset_example-lora_1.0.safetensors", 0.5]],
     "default_refiner_switch": 0.667,
-    "default_lora_weight": 0.5,
     "default_cfg_scale": 7.0,
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
@@ -27,5 +26,6 @@
     "default_aspect_ratio": "896*1152",
     "lora_downloads": {
         "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors"
-    }
+    },
+    "default_performance": "Speed"
 }
