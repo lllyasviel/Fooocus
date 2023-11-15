@@ -19,38 +19,39 @@ def webpath(fn):
     else:
         web_path = os.path.abspath(fn)
 
-    return f'file={web_path}?{os.path.getmtime(fn)}'
+    return f'file={web_path}?{os.path.getmtime(fn)}', web_path
 
 
 def javascript_html():
-    script_js_path = webpath('javascript/script.js')
-    context_menus_js_path = webpath('javascript/contextMenus.js')
-    localization_js_path = webpath('javascript/localization.js')
-    zoom_js_path = webpath('javascript/zoom.js')
-    edit_attention_js_path = webpath('javascript/edit-attention.js')
-    viewer_js_path = webpath('javascript/viewer.js')
-    image_viewer_js_path = webpath('javascript/imageviewer.js')
     head = f'<script type="text/javascript">{localization_js(args_manager.args.language)}</script>\n'
-    head += f'<script type="text/javascript" src="{script_js_path}"></script>\n'
-    head += f'<script type="text/javascript" src="{context_menus_js_path}"></script>\n'
-    head += f'<script type="text/javascript" src="{localization_js_path}"></script>\n'
-    head += f'<script type="text/javascript" src="{zoom_js_path}"></script>\n'
-    head += f'<script type="text/javascript" src="{edit_attention_js_path}"></script>\n'
-    head += f'<script type="text/javascript" src="{viewer_js_path}"></script>\n'
-    head += f'<script type="text/javascript" src="{image_viewer_js_path}"></script>\n'
-    return head
+    allowed_paths = []
+    
+    for path in ['javascript/script.js', 'javascript/contextMenus.js', 'javascript/localization.js', \
+            'javascript/zoom.js', 'javascript/edit-attention.js', 'javascript/viewer.js', \
+                'javascript/imageviewer.js']:
+        web_path, allowed_path = webpath(path)
+        head += f'<script type="text/javascript" src="{web_path}"></script>\n'
+        allowed_paths.append(allowed_path)
+
+    return head, allowed_paths
 
 
 def css_html():
-    style_css_path = webpath('css/style.css')
-    head = f'<link rel="stylesheet" property="stylesheet" href="{style_css_path}">'
-    return head
+    head = ''
+    allowed_paths = []
+
+    for path in ['css/style.css']:
+        web_path, allowed_path = webpath(path)
+        head += f'<link rel="stylesheet" property="stylesheet" href="{web_path}">'
+        allowed_paths.append(allowed_path)
+    
+    return head, allowed_paths
 
 
 def reload_javascript():
-    js = javascript_html()
-    css = css_html()
-
+    js, js_allowed_paths = javascript_html()
+    css, css_allowed_paths = css_html()
+    
     def template_response(*args, **kwargs):
         res = GradioTemplateResponseOriginal(*args, **kwargs)
         res.body = res.body.replace(b'</head>', f'{js}</head>'.encode("utf8"))
@@ -59,3 +60,5 @@ def reload_javascript():
         return res
 
     gr.routes.templates.TemplateResponse = template_response
+    
+    return js_allowed_paths + css_allowed_paths

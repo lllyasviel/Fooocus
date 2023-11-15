@@ -234,7 +234,7 @@ def worker():
         if input_image_checkbox:
             if (current_tab == 'uov' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_vary_upscale)) \
                     and uov_method != flags.disabled and uov_input_image is not None:
-                uov_input_image = HWC3(uov_input_image)
+                uov_input_image = HWC3(uov_input_image['back'])
                 if 'vary' in uov_method:
                     goals.append('vary')
                 elif 'upscale' in uov_method:
@@ -255,11 +255,10 @@ def worker():
 
                     progressbar(1, 'Downloading upscale models ...')
                     modules.config.downloading_upscale_model()
-            if (current_tab == 'inpaint' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint))\
-                    and isinstance(inpaint_input_image, dict):
-                inpaint_image = inpaint_input_image['image']
+            if (current_tab == 'inpaint' or (current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint)) \
+                    and inpaint_input_image is not None:
+                inpaint_image = HWC3(inpaint_input_image['back'])  
                 inpaint_mask = inpaint_input_image['mask'][:, :, 0]
-                inpaint_image = HWC3(inpaint_image)
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
                     progressbar(1, 'Downloading inpainter ...')
@@ -552,7 +551,7 @@ def worker():
         if 'cn' in goals:
             for task in cn_tasks[flags.cn_canny]:
                 cn_img, cn_stop, cn_weight = task
-                cn_img = resize_image(HWC3(cn_img), width=width, height=height)
+                cn_img = resize_image(HWC3(cn_img['back']), width=width, height=height)
 
                 if not advanced_parameters.skipping_cn_preprocessor:
                     cn_img = preprocessors.canny_pyramid(cn_img)
@@ -564,7 +563,7 @@ def worker():
                     return
             for task in cn_tasks[flags.cn_cpds]:
                 cn_img, cn_stop, cn_weight = task
-                cn_img = resize_image(HWC3(cn_img), width=width, height=height)
+                cn_img = resize_image(HWC3(cn_img['back']), width=width, height=height)
 
                 if not advanced_parameters.skipping_cn_preprocessor:
                     cn_img = preprocessors.cpds(cn_img)
@@ -576,7 +575,7 @@ def worker():
                     return
             for task in cn_tasks[flags.cn_ip]:
                 cn_img, cn_stop, cn_weight = task
-                cn_img = HWC3(cn_img)
+                cn_img = HWC3(cn_img['back'])
 
                 # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
                 cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)

@@ -29,7 +29,7 @@
 
 .canvas-tooltip-info {
   position: absolute;
-  top: 10px;
+  top: 35px;
   left: 10px;
   cursor: help;
   background-color: rgba(0, 0, 0, 0.3);

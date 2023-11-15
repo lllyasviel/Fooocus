@@ -185,7 +185,7 @@ onUiLoaded(async() => {
 
         // Create tooltip
         function createTooltip() {
-            const toolTipElemnt =
+            const toolTipElement =
                 targetElement.querySelector(".image-container");
             const tooltip = document.createElement("div");
             tooltip.className = "canvas-tooltip";
@@ -248,7 +248,7 @@ onUiLoaded(async() => {
             tooltip.appendChild(tooltipContent);
 
             // Add a hint element to the target element
-            toolTipElemnt.appendChild(tooltip);
+            toolTipElement.appendChild(tooltip);
         }
 
         //Show tool tip if setting enable
@@ -357,7 +357,7 @@ onUiLoaded(async() => {
 
         // Reset zoom when uploading a new image
         const fileInput = gradioApp().querySelector(
-            `${elemId} input[type="file"][accept="image/*"].svelte-116rqfv`
+            `${elemId} input[type="file"][accept="image/*"].svelte-1h87ywf`
         );
         fileInput.addEventListener("click", resetZoom);
 
