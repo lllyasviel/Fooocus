@@ -384,7 +384,7 @@ def worker():
 
             for i, t in enumerate(tasks):
                 if abs(float(cfg_scale) - 1.0) < 1e-4:
-                    progressbar(10, f'Skipped negative #{i + 1} ...')
+                    # progressbar(10, f'Skipped negative #{i + 1} ...')
                     t['uc'] = pipeline.clone_cond(t['c'])
                 else:
                     progressbar(10, f'Encoding negative #{i + 1} ...')
