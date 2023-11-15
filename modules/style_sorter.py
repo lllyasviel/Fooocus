@@ -50,7 +50,7 @@ def localization_key(x):
 
 def search_styles(selected, query):
     unselected = [y for y in all_styles if y not in selected]
-    matched = [y for y in unselected if query.lower() in localization_key(y).lower()] if len(query) > 0 else []
+    matched = [y for y in unselected if query.lower() in localization_key(y).lower()] if len(query.replace(' ', '')) > 0 else []
     unmatched = [y for y in unselected if y not in matched]
     sorted_styles = matched + selected + unmatched
     return gr.CheckboxGroup.update(choices=sorted_styles)
