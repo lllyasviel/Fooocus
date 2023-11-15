@@ -31,6 +31,7 @@ def try_load_sorted_styles(style_names, default_selected):
 
 
 def sort_styles(selected):
+    global all_styles
     unselected = [y for y in all_styles if y not in selected]
     sorted_styles = selected + unselected
     try:
@@ -39,6 +40,7 @@ def sort_styles(selected):
     except Exception as e:
         print('Write style sorting failed.')
         print(e)
+    all_styles = sorted_styles
     return gr.CheckboxGroup.update(choices=sorted_styles)
 
 
