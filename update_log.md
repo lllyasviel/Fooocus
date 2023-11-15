@@ -1,3 +1,7 @@
+# 2.1.817
+
+* support "--theme dark" and "--theme light".
+
 # 2.1.815
 
 * Multiple loras in preset.

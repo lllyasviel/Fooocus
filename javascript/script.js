@@ -166,3 +166,10 @@ function uiElementInSight(el) {
 function playNotification() {
     gradioApp().querySelector('#audio_notification audio')?.play();
 }
+
+function set_theme(theme) {
+    var gradioURL = window.location.href;
+    if (!gradioURL.includes('?__theme=')) {
+        window.location.replace(gradioURL + '?__theme=' + theme);
+    }
+}
