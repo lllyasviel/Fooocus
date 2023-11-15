@@ -1,3 +1,10 @@
+# 2.1.810
+
+* Added hints to config_modification_tutorial.txt
+* Removed user hacked aspect ratios in I18N english templates, but it will still be read like before.
+* fix some style sorting problem again (perhaps should try Gradio 4.0 later).
+* Refreshed I18N english templates with more keys.
+
 # 2.1.809
 
 * fix some sorting problem.

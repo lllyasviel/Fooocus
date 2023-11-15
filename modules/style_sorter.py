@@ -27,7 +27,7 @@ def try_load_sorted_styles(style_names, default_selected):
     unselected = [y for y in all_styles if y not in default_selected]
     all_styles = default_selected + unselected
 
-    return all_styles
+    return
 
 
 def sort_styles(selected):

@@ -267,7 +267,8 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
     json_file.write(f'You can modify your "{cpa}" using the below keys, formats, and examples.\n'
                     f'Do not modify this file. Modifications in this file will not take effect.\n'
                     f'This file is a tutorial and example. Please edit "{cpa}" to really change any settings.\n'
-                    f'Remember to split the paths with "\\\\" rather than "\\".\n\n\n')
+                    + 'Remember to split the paths with "\\\\" rather than "\\", '
+                      'and there is no "," before the last "}". \n\n\n')
     json.dump({k: config_dict[k] for k in visited_keys}, json_file, indent=4)
 
 

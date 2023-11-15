@@ -225,19 +225,23 @@ with shared.gradio_root:
                 gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
 
             with gr.Tab(label='Style'):
-                initial_style_sorting = style_sorter.try_load_sorted_styles(
-                    style_names=legal_style_names, default_selected=modules.config.default_styles)
+                style_sorter.try_load_sorted_styles(
+                    style_names=legal_style_names,
+                    default_selected=modules.config.default_styles)
 
                 style_search_bar = gr.Textbox(show_label=False, container=False,
                                               placeholder="\U0001F50E Type here to search styles ...",
                                               value="",
                                               label='Search Styles')
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
-                                                    choices=initial_style_sorting,
+                                                    choices=copy.deepcopy(style_sorter.all_styles),
                                                     value=copy.deepcopy(modules.config.default_styles),
                                                     label='Selected Styles',
                                                     elem_classes=['style_selections'])
                 gradio_receiver_style_selections = gr.Textbox(elem_id='gradio_receiver_style_selections', visible=False)
+
+                shared.gradio_root.load(lambda: gr.update(choices=copy.deepcopy(style_sorter.all_styles)),
+                                        outputs=style_selections)
 
                 style_search_bar.change(style_sorter.search_styles,
                                         inputs=[style_selections, style_search_bar],
