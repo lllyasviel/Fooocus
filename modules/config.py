@@ -257,6 +257,21 @@ default_inpaint_engine_version = get_config_item_or_set_default(
     default_value='v2.6',
     validator=lambda x: x in modules.flags.inpaint_engine_versions
 )
+default_cfg_tsnr = get_config_item_or_set_default(
+    key='default_cfg_tsnr',
+    default_value=7.0,
+    validator=lambda x: isinstance(x, float)
+)
+default_overwrite_step = get_config_item_or_set_default(
+    key='default_overwrite_step',
+    default_value=-1,
+    validator=lambda x: isinstance(x, int)
+)
+default_overwrite_switch = get_config_item_or_set_default(
+    key='default_overwrite_switch',
+    default_value=-1,
+    validator=lambda x: isinstance(x, int)
+)
 
 
 def add_ratio(x):

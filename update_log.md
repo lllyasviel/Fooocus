@@ -1,3 +1,7 @@
+# 2.1.814
+
+* Allow using previous preset of official SAI SDXL by modify the args to '--preset sdxl'. Note that this preset will set inpaint engine back to previous v1 to get same results like before. To change the inpaint engine to v2.6, use the dev tools -> inpaint engine -> v2.6.
+
 # 2.1.813
 
 * Allow preset to set default inpaint engine.
