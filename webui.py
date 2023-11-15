@@ -337,7 +337,7 @@ with shared.gradio_root:
                                                                info='Set as negative number to disable. For developer debugging.')
 
                         inpaint_engine = gr.Dropdown(label='Inpaint Engine',
-                                                     value=flags.default_inpaint_engine_version,
+                                                     value=modules.config.default_inpaint_engine_version,
                                                      choices=flags.inpaint_engine_versions,
                                                      info='Version of Fooocus inpaint model')
 

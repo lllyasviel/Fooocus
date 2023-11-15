@@ -252,6 +252,11 @@ default_aspect_ratio = get_config_item_or_set_default(
     default_value='1152*896' if '1152*896' in available_aspect_ratios else available_aspect_ratios[0],
     validator=lambda x: x in available_aspect_ratios
 )
+default_inpaint_engine_version = get_config_item_or_set_default(
+    key='default_inpaint_engine_version',
+    default_value='v2.6',
+    validator=lambda x: x in modules.flags.inpaint_engine_versions
+)
 
 
 def add_ratio(x):

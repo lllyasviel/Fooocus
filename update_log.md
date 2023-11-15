@@ -1,3 +1,7 @@
+# 2.1.813
+
+* Allow preset to set default inpaint engine.
+
 # 2.1.812
 
 * Allow preset to set default performance.
