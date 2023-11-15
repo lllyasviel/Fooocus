@@ -1,3 +1,7 @@
+# 2.1.819
+
+* Allow disabling preview in dev tools.
+
 # 2.1.818
 
 * Fix preset lora failed to load when the weight is exactly one.

@@ -16,6 +16,7 @@ import fcbh.controlnet
 import modules.sample_hijack
 import fcbh.samplers
 import fcbh.latent_formats
+import modules.advanced_parameters
 
 from fcbh.sd import load_checkpoint_guess_config
 from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, \
@@ -319,7 +320,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
     def callback(step, x0, x, total_steps):
         fcbh.model_management.throw_exception_if_processing_interrupted()
         y = None
-        if previewer is not None:
+        if previewer is not None and not modules.advanced_parameters.disable_preview:
             y = previewer(x0, previewer_start + step, previewer_end)
         if callback_function is not None:
             callback_function(previewer_start + step, x0, x, previewer_end, y)
