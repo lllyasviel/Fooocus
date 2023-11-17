@@ -25,26 +25,25 @@ def generate_clicked(*args):
     # outputs=[progress_html, progress_window, progress_gallery, gallery]
 
     execution_start_time = time.perf_counter()
+    task = worker.AsyncTask(args=list(args))
+    finished = False
 
-    worker.outputs = []
-
-    yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Initializing ...')), \
+    yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
         gr.update(visible=True, value=None), \
         gr.update(visible=False, value=None), \
         gr.update(visible=False)
 
-    worker.buffer.append(list(args))
-    finished = False
+    worker.async_tasks.append(task)
 
     while not finished:
         time.sleep(0.01)
-        if len(worker.outputs) > 0:
-            flag, product = worker.outputs.pop(0)
+        if len(task.yields) > 0:
+            flag, product = task.yields.pop(0)
             if flag == 'preview':
 
                 # help bad internet connection by skipping duplicated preview
-                if len(worker.outputs) > 0:  # if we have the next item
-                    if worker.outputs[0][0] == 'preview':   # if the next item is also a preview
+                if len(task.yields) > 0:  # if we have the next item
+                    if task.yields[0][0] == 'preview':   # if the next item is also a preview
                         # print('Skipped one preview for better internet connection.')
                         continue
 
@@ -72,8 +71,13 @@ def generate_clicked(*args):
 
 reload_javascript()
 
+title = f'Fooocus {fooocus_version.version}'
+
+if isinstance(args_manager.args.preset, str):
+    title += ' ' + args_manager.args.preset
+
 shared.gradio_root = gr.Blocks(
-    title=f'Fooocus {fooocus_version.version} ' + ('' if args_manager.args.preset is None else args_manager.args.preset),
+    title=title,
     css=modules.html.css).queue()
 
 with shared.gradio_root:
@@ -115,8 +119,9 @@ with shared.gradio_root:
                         model_management.interrupt_current_processing()
                         return
 
-                    stop_button.click(stop_clicked, outputs=[skip_button, stop_button], queue=False, _js='cancelGenerateForever')
-                    skip_button.click(skip_clicked, queue=False)
+                    stop_button.click(stop_clicked, outputs=[skip_button, stop_button],
+                                      queue=False, show_progress=False, _js='cancelGenerateForever')
+                    skip_button.click(skip_clicked, queue=False, show_progress=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
@@ -170,7 +175,8 @@ with shared.gradio_root:
                                 [flags.default_parameters[flags.default_ip][1]] * len(ip_weights)
 
                         ip_advanced.change(ip_advance_checked, inputs=ip_advanced,
-                                           outputs=ip_ad_cols + ip_types + ip_stops + ip_weights, queue=False)
+                                           outputs=ip_ad_cols + ip_types + ip_stops + ip_weights,
+                                           queue=False, show_progress=False)
 
                     with gr.TabItem(label='Inpaint or Outpaint (beta)') as inpaint_tab:
                         inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
@@ -181,8 +187,9 @@ with shared.gradio_root:
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
 
-            input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox, outputs=image_input_panel, queue=False, _js=switch_js)
-            ip_advanced.change(lambda: None, queue=False, _js=down_js)
+            input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox,
+                                        outputs=image_input_panel, queue=False, show_progress=False, _js=switch_js)
+            ip_advanced.change(lambda: None, queue=False, show_progress=False, _js=down_js)
 
             current_tab = gr.Textbox(value='uov', visible=False)
             uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
@@ -220,7 +227,8 @@ with shared.gradio_root:
                             pass
                         return random.randint(constants.MIN_SEED, constants.MAX_SEED)
 
-                seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed], queue=False)
+                seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed],
+                                   queue=False, show_progress=False)
 
                 if not args_manager.args.disable_image_log:
                     gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
@@ -259,30 +267,33 @@ with shared.gradio_root:
                     lambda: None, _js='()=>{refresh_style_localization();}')
 
             with gr.Tab(label='Model'):
-                with gr.Row():
-                    base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True)
-                    refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True)
+                with gr.Group():
+                    with gr.Row():
+                        base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True)
+                        refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True)
 
-                refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.1, maximum=1.0, step=0.0001,
-                                           info='Use 0.4 for SD1.5 realistic models; '
-                                                'or 0.667 for SD1.5 anime models; '
-                                                'or 0.8 for XL-refiners; '
-                                                'or any value for switching two SDXL models.',
-                                           value=modules.config.default_refiner_switch,
-                                           visible=modules.config.default_refiner_model_name != 'None')
+                    refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.1, maximum=1.0, step=0.0001,
+                                               info='Use 0.4 for SD1.5 realistic models; '
+                                                    'or 0.667 for SD1.5 anime models; '
+                                                    'or 0.8 for XL-refiners; '
+                                                    'or any value for switching two SDXL models.',
+                                               value=modules.config.default_refiner_switch,
+                                               visible=modules.config.default_refiner_model_name != 'None')
 
-                refiner_model.change(lambda x: gr.update(visible=x != 'None'),
-                                     inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False)
+                    refiner_model.change(lambda x: gr.update(visible=x != 'None'),
+                                         inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False)
 
-                with gr.Accordion(label='LoRAs (SDXL or SD 1.5)', open=True):
+                with gr.Group():
                     lora_ctrls = []
 
                     for i, (n, v) in enumerate(modules.config.default_loras):
                         with gr.Row():
-                            lora_model = gr.Dropdown(label=f'LoRA {i+1}', choices=['None'] + modules.config.lora_filenames, value=n)
+                            lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
+                                                     choices=['None'] + modules.config.lora_filenames, value=n)
                             lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=v,
                                                     elem_classes='lora_weight')
                             lora_ctrls += [lora_model, lora_weight]
+
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
             with gr.Tab(label='Advanced'):
@@ -389,7 +400,8 @@ with shared.gradio_root:
                     return gr.update(visible=r)
 
 
-                dev_mode.change(dev_mode_checked, inputs=[dev_mode], outputs=[dev_tools], queue=False)
+                dev_mode.change(dev_mode_checked, inputs=[dev_mode], outputs=[dev_tools],
+                                queue=False, show_progress=False)
 
                 def model_refresh_clicked():
                     modules.config.update_all_model_names()
@@ -399,7 +411,8 @@ with shared.gradio_root:
                         results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
                     return results
 
-                model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls, queue=False)
+                model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
+                                    queue=False, show_progress=False)
 
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11,
                                      inputs=performance_selection,
@@ -409,8 +422,9 @@ with shared.gradio_root:
                                          scheduler_name, adaptive_cfg, refiner_swap_method
                                      ], queue=False, show_progress=False)
 
-        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column, queue=False) \
-            .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False)
+        advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
+                                 queue=False, show_progress=False) \
+            .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)
 
         ctrls = [
             prompt, negative_prompt, style_selections,

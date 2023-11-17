@@ -22,8 +22,12 @@ try:
             config_dict = json.load(json_file)
             always_save_keys = list(config_dict.keys())
 except Exception as e:
-    print('Load path config failed')
-    print(e)
+    print(f'Failed to load config file "{config_path}" . The reason is: {str(e)}')
+    print('Please make sure that:')
+    print(f'1. The file "{config_path}" is a valid text file, and you have access to read it.')
+    print('2. Use "\\\\" instead of "\\" when describing paths.')
+    print('3. There is no "," before the last "}".')
+    print('4. All key/value formats are correct.')
 
 
 def try_load_deprecated_user_path_config():
@@ -78,19 +82,17 @@ try_load_deprecated_user_path_config()
 preset = args_manager.args.preset
 
 if isinstance(preset, str):
-    preset = os.path.abspath(f'./presets/{preset}.json')
+    preset_path = os.path.abspath(f'./presets/{preset}.json')
     try:
-        if os.path.exists(preset):
-            with open(preset, "r", encoding="utf-8") as json_file:
-                preset = json.load(json_file)
+        if os.path.exists(preset_path):
+            with open(preset_path, "r", encoding="utf-8") as json_file:
+                config_dict.update(json.load(json_file))
+                print(f'Loaded preset: {preset_path}')
+        else:
+            raise FileNotFoundError
     except Exception as e:
-        print('Load preset config failed')
+        print(f'Load preset [{preset_path}] failed')
         print(e)
-
-preset = preset if isinstance(preset, dict) else None
-
-if preset is not None:
-    config_dict.update(preset)
 
 
 def get_dir_or_set_default(key, default_value):
@@ -106,6 +108,8 @@ def get_dir_or_set_default(key, default_value):
     if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
         return v
     else:
+        if v is not None:
+            print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
         dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
         os.makedirs(dp, exist_ok=True)
         config_dict[key] = dp
@@ -141,6 +145,8 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
     if validator(v):
         return v
     else:
+        if v is not None:
+            print(f'Failed to load config key: {json.dumps({key:v})} is invalid; will use {json.dumps({key:default_value})} instead.')
         config_dict[key] = default_value
         return default_value
 
@@ -158,22 +164,43 @@ default_refiner_model_name = get_config_item_or_set_default(
 default_refiner_switch = get_config_item_or_set_default(
     key='default_refiner_switch',
     default_value=0.5,
-    validator=lambda x: isinstance(x, float)
+    validator=lambda x: isinstance(x, numbers.Number) and 0 <= x <= 1
 )
 default_loras = get_config_item_or_set_default(
     key='default_loras',
-    default_value=[['sd_xl_offset_example-lora_1.0.safetensors', 0.1]],
+    default_value=[
+        [
+            "sd_xl_offset_example-lora_1.0.safetensors",
+            0.1
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ]
+    ],
     validator=lambda x: isinstance(x, list) and all(len(y) == 2 and isinstance(y[0], str) and isinstance(y[1], numbers.Number) for y in x)
 )
 default_cfg_scale = get_config_item_or_set_default(
     key='default_cfg_scale',
     default_value=4.0,
-    validator=lambda x: isinstance(x, float)
+    validator=lambda x: isinstance(x, numbers.Number)
 )
 default_sample_sharpness = get_config_item_or_set_default(
     key='default_sample_sharpness',
-    default_value=2,
-    validator=lambda x: isinstance(x, float)
+    default_value=2.0,
+    validator=lambda x: isinstance(x, numbers.Number)
 )
 default_sampler = get_config_item_or_set_default(
     key='default_sampler',
@@ -187,7 +214,11 @@ default_scheduler = get_config_item_or_set_default(
 )
 default_styles = get_config_item_or_set_default(
     key='default_styles',
-    default_value=['Fooocus V2', 'Fooocus Enhance', 'Fooocus Sharp'],
+    default_value=[
+        "Fooocus V2",
+        "Fooocus Enhance",
+        "Fooocus Sharp"
+    ],
     validator=lambda x: isinstance(x, list) and all(y in modules.sdxl_styles.legal_style_names for y in x)
 )
 default_prompt_negative = get_config_item_or_set_default(
@@ -215,21 +246,19 @@ default_advanced_checkbox = get_config_item_or_set_default(
 default_image_number = get_config_item_or_set_default(
     key='default_image_number',
     default_value=2,
-    validator=lambda x: isinstance(x, int) and x >= 1 and x <= 32
+    validator=lambda x: isinstance(x, int) and 1 <= x <= 32
 )
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
     default_value={
-        'juggernautXL_version6Rundiffusion.safetensors':
-            'https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors'
+        "juggernautXL_version6Rundiffusion.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors"
     },
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
 lora_downloads = get_config_item_or_set_default(
     key='lora_downloads',
     default_value={
-        'sd_xl_offset_example-lora_1.0.safetensors':
-            'https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors'
+        "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors"
     },
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
@@ -240,7 +269,13 @@ embeddings_downloads = get_config_item_or_set_default(
 )
 available_aspect_ratios = get_config_item_or_set_default(
     key='available_aspect_ratios',
-    default_value=['704*1408', '704*1344', '768*1344', '768*1280', '832*1216', '832*1152', '896*1152', '896*1088', '960*1088', '960*1024', '1024*1024', '1024*960', '1088*960', '1088*896', '1152*896', '1152*832', '1216*832', '1280*768', '1344*768', '1344*704', '1408*704', '1472*704', '1536*640', '1600*640', '1664*576', '1728*576'],
+    default_value=[
+        '704*1408', '704*1344', '768*1344', '768*1280', '832*1216', '832*1152',
+        '896*1152', '896*1088', '960*1088', '960*1024', '1024*1024', '1024*960',
+        '1088*960', '1088*896', '1152*896', '1152*832', '1216*832', '1280*768',
+        '1344*768', '1344*704', '1408*704', '1472*704', '1536*640', '1600*640',
+        '1664*576', '1728*576'
+    ],
     validator=lambda x: isinstance(x, list) and all('*' in v for v in x) and len(x) > 1
 )
 default_aspect_ratio = get_config_item_or_set_default(
@@ -256,7 +291,7 @@ default_inpaint_engine_version = get_config_item_or_set_default(
 default_cfg_tsnr = get_config_item_or_set_default(
     key='default_cfg_tsnr',
     default_value=7.0,
-    validator=lambda x: isinstance(x, float)
+    validator=lambda x: isinstance(x, numbers.Number)
 )
 default_overwrite_step = get_config_item_or_set_default(
     key='default_overwrite_step',
@@ -269,6 +304,37 @@ default_overwrite_switch = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, int)
 )
 
+config_dict["default_loras"] = default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
+
+possible_preset_keys = [
+    "default_model",
+    "default_refiner",
+    "default_refiner_switch",
+    "default_loras",
+    "default_cfg_scale",
+    "default_sample_sharpness",
+    "default_sampler",
+    "default_scheduler",
+    "default_performance",
+    "default_prompt",
+    "default_prompt_negative",
+    "default_styles",
+    "default_aspect_ratio",
+    "checkpoint_downloads",
+    "embeddings_downloads",
+    "lora_downloads",
+]
+
+
+REWRITE_PRESET = False
+
+if REWRITE_PRESET and isinstance(args_manager.args.preset, str):
+    save_path = 'presets/' + args_manager.args.preset + '.json'
+    with open(save_path, "w", encoding="utf-8") as json_file:
+        json.dump({k: config_dict[k] for k in possible_preset_keys}, json_file, indent=4)
+    print(f'Preset saved to {save_path}. Exiting ...')
+    exit(0)
+
 
 def add_ratio(x):
     a, b = x.replace('*', ' ').split(' ')[:2]
@@ -280,9 +346,14 @@ def add_ratio(x):
 default_aspect_ratio = add_ratio(default_aspect_ratio)
 available_aspect_ratios = [add_ratio(x) for x in available_aspect_ratios]
 
-with open(config_path, "w", encoding="utf-8") as json_file:
-    json.dump({k: config_dict[k] for k in always_save_keys}, json_file, indent=4)
 
+# Only write config in the first launch.
+if not os.path.exists(config_path):
+    with open(config_path, "w", encoding="utf-8") as json_file:
+        json.dump({k: config_dict[k] for k in always_save_keys}, json_file, indent=4)
+
+
+# Always write tutorials.
 with open(config_example_path, "w", encoding="utf-8") as json_file:
     cpa = config_path.replace("\\", "\\\\")
     json_file.write(f'You can modify your "{cpa}" using the below keys, formats, and examples.\n'
@@ -297,7 +368,6 @@ os.makedirs(path_outputs, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []
-default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
 
 
 def get_model_filenames(folder_path, name_filter=None):

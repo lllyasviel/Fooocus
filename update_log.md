@@ -1,3 +1,11 @@
+# 2.1.821
+
+* New UI for LoRAs.
+* Improved preset system: normalized preset keys and file names.
+* Improved session system: now multiple users can use one Fooocus at the same time without seeing others' results.
+* Improved some computation related to model precision.
+* Improved config loading system with user-friendly prints.
+
 # 2.1.820
 
 * support "--disable-image-log" to prevent writing images and logs to hard drive.
@@ -21,7 +29,7 @@
 
 # 2.1.814
 
-* Allow using previous preset of official SAI SDXL by modify the args to '--preset sai_sdxl'. Note that this preset will set inpaint engine back to previous v1 to get same results like before. To change the inpaint engine to v2.6, use the dev tools -> inpaint engine -> v2.6.
+* Allow using previous preset of official SAI SDXL by modify the args to '--preset sai'. ~Note that this preset will set inpaint engine back to previous v1 to get same results like before. To change the inpaint engine to v2.6, use the dev tools -> inpaint engine -> v2.6.~ (update: it is not needed now after some tests.)
 
 # 2.1.813
 
