@@ -248,8 +248,8 @@ class ConditioningSetTimestepRange:
         c = []
         for t in conditioning:
             d = t[1].copy()
-            d['start_percent'] = 1.0 - start
-            d['end_percent'] = 1.0 - end
+            d['start_percent'] = start
+            d['end_percent'] = end
             n = [t[0], d]
             c.append(n)
         return (c, )
@@ -685,7 +685,7 @@ class ControlNetApplyAdvanced:
                 if prev_cnet in cnets:
                     c_net = cnets[prev_cnet]
                 else:
-                    c_net = control_net.copy().set_cond_hint(control_hint, strength, (1.0 - start_percent, 1.0 - end_percent))
+                    c_net = control_net.copy().set_cond_hint(control_hint, strength, (start_percent, end_percent))
                     c_net.set_previous_controlnet(prev_cnet)
                     cnets[prev_cnet] = c_net
 
@@ -1218,7 +1218,7 @@ class KSampler:
                     {"model": ("MODEL",),
                     "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                     "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
-                    "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0, "step":0.5, "round": 0.01}),
+                    "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0, "step":0.1, "round": 0.01}),
                     "sampler_name": (fcbh.samplers.KSampler.SAMPLERS, ),
                     "scheduler": (fcbh.samplers.KSampler.SCHEDULERS, ),
                     "positive": ("CONDITIONING", ),
@@ -1244,7 +1244,7 @@ class KSamplerAdvanced:
                     "add_noise": (["enable", "disable"], ),
                     "noise_seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                     "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
-                    "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0, "step":0.5, "round": 0.01}),
+                    "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0, "step":0.1, "round": 0.01}),
                     "sampler_name": (fcbh.samplers.KSampler.SAMPLERS, ),
                     "scheduler": (fcbh.samplers.KSampler.SCHEDULERS, ),
                     "positive": ("CONDITIONING", ),
@@ -1798,6 +1798,8 @@ def init_custom_nodes():
         "nodes_freelunch.py",
         "nodes_custom_sampler.py",
         "nodes_hypertile.py",
+        "nodes_model_advanced.py",
+        "nodes_model_downscale.py",
     ]
 
     for node_file in extras_files:

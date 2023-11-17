@@ -15,6 +15,10 @@ fcbh_cli.parser.add_argument("--enable-smart-memory", action="store_true",
                              help="Force loading models to vram when the unload can be avoided. "
                                   "Some Mac users may need this.")
 
+fcbh_cli.parser.add_argument("--theme", type=str, help="launches the UI with light or dark theme", default=None)
+fcbh_cli.parser.add_argument("--disable-image-log", action='store_true',
+                             help="Prevent writing images and logs to hard drive.")
+
 fcbh_cli.parser.set_defaults(
     disable_cuda_malloc=True,
     auto_launch=True,
@@ -23,7 +27,7 @@ fcbh_cli.parser.set_defaults(
 
 fcbh_cli.args = fcbh_cli.parser.parse_args()
 
-# Disable by default because of issues like https://github.com/lllyasviel/Fooocus/issues/724
+# (Disable by default because of issues like https://github.com/lllyasviel/Fooocus/issues/724)
 fcbh_cli.args.disable_smart_memory = not fcbh_cli.args.enable_smart_memory
 
 args = fcbh_cli.args

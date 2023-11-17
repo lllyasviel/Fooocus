@@ -187,7 +187,7 @@ class InpaintWorker:
 
         feed = torch.cat([
             latent_mask,
-            pipeline.xl_base_patched.unet.model.process_latent_in(latent_inpaint)
+            pipeline.final_unet.model.process_latent_in(latent_inpaint)
         ], dim=1)
 
         inpaint_head.to(device=feed.device, dtype=feed.dtype)

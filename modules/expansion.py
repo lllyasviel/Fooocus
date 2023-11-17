@@ -12,7 +12,7 @@ import fcbh.model_management as model_management
 
 from transformers.generation.logits_process import LogitsProcessorList
 from transformers import AutoTokenizer, AutoModelForCausalLM, set_seed
-from modules.path import fooocus_expansion_path
+from modules.config import path_fooocus_expansion
 from fcbh.model_patcher import ModelPatcher
 
 
@@ -36,9 +36,9 @@ def remove_pattern(x, pattern):
 
 class FooocusExpansion:
     def __init__(self):
-        self.tokenizer = AutoTokenizer.from_pretrained(fooocus_expansion_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(path_fooocus_expansion)
 
-        positive_words = open(os.path.join(fooocus_expansion_path, 'positive.txt'),
+        positive_words = open(os.path.join(path_fooocus_expansion, 'positive.txt'),
                               encoding='utf-8').read().splitlines()
         positive_words = ['Ġ' + x.lower() for x in positive_words if x != '']
 
@@ -59,7 +59,7 @@ class FooocusExpansion:
         # t198 = self.tokenizer('\n', return_tensors="np")
         # eos = self.tokenizer.eos_token_id
 
-        self.model = AutoModelForCausalLM.from_pretrained(fooocus_expansion_path)
+        self.model = AutoModelForCausalLM.from_pretrained(path_fooocus_expansion)
         self.model.eval()
 
         load_device = model_management.text_encoder_device()
