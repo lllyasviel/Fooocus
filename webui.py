@@ -13,6 +13,7 @@ import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
 import args_manager
+import fcbh.model_management as model_management
 import copy
 
 from modules.sdxl_styles import legal_style_names
@@ -20,10 +21,8 @@ from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 
-
 def generate_clicked(*args):
-    # outputs=[progress_html, progress_window, progress_gallery, gallery]
-
+    # worker_outputs=[progress_html, progress_window, progress_gallery, gallery]
     execution_start_time = time.perf_counter()
     task = worker.AsyncTask(args=list(args))
     finished = False
@@ -31,7 +30,9 @@ def generate_clicked(*args):
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
         gr.update(visible=True, value=None), \
         gr.update(visible=False, value=None), \
-        gr.update(visible=False)
+        gr.update(visible=False), \
+        gr.update(visible=True, interactive=True), \
+        gr.update(visible=True, interactive=True)
 
     worker.async_tasks.append(task)
 
@@ -49,19 +50,25 @@ def generate_clicked(*args):
 
                 percentage, title, image = product
                 yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
-                    gr.update(visible=True, value=image) if image is not None else gr.update(), \
+                    gr.update(visible=True, value=image) if image is not None and not (modules.config.default_black_out_nsfw and modules.config.default_hide_preview_if_black_out_nsfw) else gr.update(), \
                     gr.update(), \
-                    gr.update(visible=False)
+                    gr.update(visible=False), \
+                    gr.update(visible=True), \
+                    gr.update(visible=True)
             if flag == 'results':
                 yield gr.update(visible=True), \
                     gr.update(visible=True), \
                     gr.update(visible=True, value=product), \
-                    gr.update(visible=False)
+                    gr.update(visible=False), \
+                    gr.update(visible=True), \
+                    gr.update(visible=True)
             if flag == 'finish':
                 yield gr.update(visible=False), \
                     gr.update(visible=False), \
                     gr.update(visible=False), \
-                    gr.update(visible=True, value=product)
+                    gr.update(visible=True, value=product), \
+                    gr.update(visible=False), \
+                    gr.update(visible=False)
                 finished = True
 
     execution_time = time.perf_counter() - execution_start_time
@@ -108,13 +115,11 @@ with shared.gradio_root:
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
 
                     def stop_clicked():
-                        import fcbh.model_management as model_management
                         shared.last_stop = 'stop'
                         model_management.interrupt_current_processing()
                         return [gr.update(interactive=False)] * 2
 
                     def skip_clicked():
-                        import fcbh.model_management as model_management
                         shared.last_stop = 'skip'
                         model_management.interrupt_current_processing()
                         return
@@ -204,7 +209,7 @@ with shared.gradio_root:
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
                                                    value=modules.config.default_aspect_ratio, info='width × height',
                                                    elem_classes='aspect_ratios')
-                image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1, value=modules.config.default_image_number)
+                image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
                                              elem_id='negative_prompt',
@@ -414,6 +419,24 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
                                     queue=False, show_progress=False)
 
+            with gr.Tab(label='Audio'):
+                play_notification = gr.Checkbox(label='Play notification after rendering', value=False)
+                notification_file = 'notification.mp3'
+                if os.path.exists(notification_file):
+                    notification = gr.State(value=notification_file)
+                    notification_input = gr.Audio(label='Notification', interactive=True, elem_id='audio_notification', visible=False, show_edit_button=False)
+
+                    def play_notification_checked(r, notification):
+                        return gr.update(visible=r, value=notification if r else None)
+
+                    def notification_input_changed(notification_input, notification):
+                        if notification_input:
+                            notification = notification_input
+                        return notification
+
+                    play_notification.change(fn=play_notification_checked, inputs=[play_notification, notification], outputs=[notification_input], queue=False)
+                    notification_input.change(fn=notification_input_changed, inputs=[notification_input, notification], outputs=[notification], queue=False)
+
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11,
                                      inputs=performance_selection,
                                      outputs=[
@@ -437,18 +460,12 @@ with shared.gradio_root:
         ctrls += [outpaint_selections, inpaint_input_image]
         ctrls += ip_ctrls
 
-        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, generate_button, gallery]) \
+        generate_button.click(lambda: (gr.update(visible=True, interactive=False), gr.update(visible=True, interactive=False), gr.update(visible=False), []), outputs=[stop_button, skip_button, generate_button, gallery]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
-            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery, stop_button, skip_button]) \
             .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
-
-        for notification_file in ['notification.ogg', 'notification.mp3']:
-            if os.path.exists(notification_file):
-                gr.Audio(interactive=False, value=notification_file, elem_id='audio_notification', visible=False)
-                break
-
 
 def dump_default_english_config():
     from modules.localization import dump_english_config

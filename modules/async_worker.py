@@ -13,7 +13,6 @@ async_tasks = []
 
 def worker():
     global async_tasks
-
     import traceback
     import math
     import numpy as np
@@ -35,6 +34,8 @@ def worker():
     import fooocus_extras.ip_adapter as ip_adapter
     import fooocus_extras.face_crop
 
+    from modules.censor import censor_batch
+
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
     from modules.private_logger import log
     from modules.expansion import safe_str
@@ -55,9 +56,13 @@ def worker():
         print(f'[Fooocus] {text}')
         async_task.yields.append(['preview', (number, text, None)])
 
-    def yield_result(async_task, imgs, do_not_show_finished_images=False):
+    def yield_result(async_task, imgs, do_not_show_finished_images=False, progressbar_index=13):
         if not isinstance(imgs, list):
             imgs = [imgs]
+
+        if modules.config.default_black_out_nsfw:
+            progressbar(async_task, progressbar_index, 'Checking for NSFW content ...')
+            imgs = censor_batch(imgs)
 
         async_task.results = async_task.results + imgs
 
@@ -652,7 +657,7 @@ def worker():
             done_steps = current_task_id * steps + step
             async_task.yields.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
+                f'Sampling Image {current_task_id + 1}/{image_number}, Step {step + 1}/{total_steps} ...',
                 y)])
 
         for current_task_id, task in enumerate(tasks):
@@ -720,11 +725,14 @@ def worker():
                             d.append((f'LoRA [{n}] weight', w))
                     log(x, d, single_line_number=3)
 
-                yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
+                yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1, progressbar_index=int(15.0 + 85.0 * float((current_task_id + 1) * steps) / float(all_steps)))
             except fcbh.model_management.InterruptProcessingException as e:
                 if shared.last_stop == 'skip':
                     print('User skipped')
                     continue
+                elif shared.last_stop == 'stop_previous':
+                    print('Previous task stopped')
+                    break
                 else:
                     print('User stopped')
                     break

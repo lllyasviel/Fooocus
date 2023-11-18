@@ -243,10 +243,15 @@ default_advanced_checkbox = get_config_item_or_set_default(
     default_value=False,
     validator=lambda x: isinstance(x, bool)
 )
+default_max_image_number = get_config_item_or_set_default(
+    key='default_max_image_number',
+    default_value=4,
+    validator=lambda x: isinstance(x, int) and x >= 1 and x <= 32
+)
 default_image_number = get_config_item_or_set_default(
     key='default_image_number',
     default_value=2,
-    validator=lambda x: isinstance(x, int) and 1 <= x <= 32
+    validator=lambda x: isinstance(x, int) and 1 <= x <= default_max_image_number
 )
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
@@ -302,6 +307,16 @@ default_overwrite_switch = get_config_item_or_set_default(
     key='default_overwrite_switch',
     default_value=-1,
     validator=lambda x: isinstance(x, int)
+)
+default_black_out_nsfw = get_config_item_or_set_default(
+    key='default_black_out_nsfw',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool)
+)
+default_hide_preview_if_black_out_nsfw = get_config_item_or_set_default(
+    key='default_hide_preview_if_black_out_nsfw',
+    default_value=True,
+    validator=lambda x: isinstance(x, bool)
 )
 
 config_dict["default_loras"] = default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
