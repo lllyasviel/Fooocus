@@ -116,9 +116,10 @@ with shared.gradio_root:
                         currentTask.last_stop = 'stop'
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
-                        return [gr.update(interactive=False)] * 2, currentTask
+                        return gr.update(interactive=False), gr.update(interactive=False), currentTask
 
                     def skip_clicked(currentTask):
+                        print(currentTask.last_stop)
                         import fcbh.model_management as model_management
                         currentTask.last_stop = 'skip'
                         if (currentTask.processing):
