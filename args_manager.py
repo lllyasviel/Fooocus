@@ -16,6 +16,8 @@ fcbh_cli.parser.add_argument("--enable-smart-memory", action="store_true",
                                   "Some Mac users may need this.")
 
 fcbh_cli.parser.add_argument("--theme", type=str, help="launches the UI with light or dark theme", default=None)
+fcbh_cli.parser.add_argument("--disable-image-log", action='store_true',
+                             help="Prevent writing images and logs to hard drive.")
 
 fcbh_cli.parser.set_defaults(
     disable_cuda_malloc=True,

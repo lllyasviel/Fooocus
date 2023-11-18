@@ -255,7 +255,10 @@ def apply_control(h, control, name):
     if control is not None and name in control and len(control[name]) > 0:
         ctrl = control[name].pop()
         if ctrl is not None:
-            h += ctrl
+            try:
+                h += ctrl
+            except:
+                print("warning control could not be applied", h.shape, ctrl.shape)
     return h
 
 class UNetModel(nn.Module):
@@ -630,6 +633,10 @@ class UNetModel(nn.Module):
                     h = p(h, transformer_options)
 
             hs.append(h)
+            if "input_block_patch_after_skip" in transformer_patches:
+                patch = transformer_patches["input_block_patch_after_skip"]
+                for p in patch:
+                    h = p(h, transformer_options)
 
         transformer_options["block"] = ("middle", 0)
         h = forward_timestep_embed(self.middle_block, h, emb, context, transformer_options)

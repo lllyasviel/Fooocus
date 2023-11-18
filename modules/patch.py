@@ -1,6 +1,8 @@
 import os
 import torch
+import math
 import time
+import numpy as np
 import fcbh.model_base
 import fcbh.ldm.modules.diffusionmodules.openaimodel
 import fcbh.samplers
@@ -22,8 +24,10 @@ import warnings
 import safetensors.torch
 import modules.constants as constants
 
+from einops import repeat
 from fcbh.k_diffusion.sampling import BatchedBrownianTree
-from fcbh.ldm.modules.diffusionmodules.openaimodel import forward_timestep_embed, apply_control, timestep_embedding
+from fcbh.ldm.modules.diffusionmodules.openaimodel import forward_timestep_embed, apply_control
+from fcbh.ldm.modules.diffusionmodules.util import make_beta_schedule
 
 
 sharpness = 2.0
@@ -338,8 +342,27 @@ def timed_adm(y, timesteps):
     return y
 
 
+def patched_timestep_embedding(timesteps, dim, max_period=10000, repeat_only=False):
+    # Consistent with Kohya to reduce differences between model training and inference.
+
+    if not repeat_only:
+        half = dim // 2
+        freqs = torch.exp(
+            -math.log(max_period) * torch.arange(start=0, end=half, dtype=torch.float32) / half
+        ).to(device=timesteps.device)
+        args = timesteps[:, None].float() * freqs[None]
+        embedding = torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
+        if dim % 2:
+            embedding = torch.cat([embedding, torch.zeros_like(embedding[:, :1])], dim=-1)
+    else:
+        embedding = repeat(timesteps, 'b -> b d', d=dim)
+    return embedding
+
+
 def patched_cldm_forward(self, x, hint, timesteps, context, y=None, **kwargs):
-    t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False).to(self.dtype)
+    t_emb = fcbh.ldm.modules.diffusionmodules.openaimodel.timestep_embedding(
+        timesteps, self.model_channels, repeat_only=False).to(self.dtype)
+
     emb = self.time_embed(t_emb)
 
     guided_hint = self.input_hint_block(hint, emb, context)
@@ -391,7 +414,8 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     y = timed_adm(y, timesteps)
 
     hs = []
-    t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False).to(self.dtype)
+    t_emb = fcbh.ldm.modules.diffusionmodules.openaimodel.timestep_embedding(
+        timesteps, self.model_channels, repeat_only=False).to(self.dtype)
     emb = self.time_embed(t_emb)
 
     if self.num_classes is not None:
@@ -409,7 +433,16 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
                 inpaint_fix = None
 
         h = apply_control(h, control, 'input')
+        if "input_block_patch" in transformer_patches:
+            patch = transformer_patches["input_block_patch"]
+            for p in patch:
+                h = p(h, transformer_options)
+
         hs.append(h)
+        if "input_block_patch_after_skip" in transformer_patches:
+            patch = transformer_patches["input_block_patch_after_skip"]
+            for p in patch:
+                h = p(h, transformer_options)
 
     transformer_options["block"] = ("middle", 0)
     h = forward_timestep_embed(self.middle_block, h, emb, context, transformer_options)
@@ -437,6 +470,31 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
         return self.id_predictor(h)
     else:
         return self.out(h)
+
+
+def patched_register_schedule(self, given_betas=None, beta_schedule="linear", timesteps=1000,
+                          linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3):
+    # Consistent with Kohya to reduce differences between model training and inference.
+
+    if given_betas is not None:
+        betas = given_betas
+    else:
+        betas = make_beta_schedule(
+            beta_schedule,
+            timesteps,
+            linear_start=linear_start,
+            linear_end=linear_end,
+            cosine_s=cosine_s)
+
+    alphas = 1. - betas
+    alphas_cumprod = np.cumprod(alphas, axis=0)
+    timesteps, = betas.shape
+    self.num_timesteps = int(timesteps)
+    self.linear_start = linear_start
+    self.linear_end = linear_end
+    sigmas = torch.tensor(((1 - alphas_cumprod) / alphas_cumprod) ** 0.5, dtype=torch.float32)
+    self.set_sigmas(sigmas)
+    return
 
 
 def patched_load_models_gpu(*args, **kwargs):
@@ -494,6 +552,8 @@ def patch_all():
     fcbh.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
     fcbh.samplers.KSamplerX0Inpaint.forward = patched_KSamplerX0Inpaint_forward
     fcbh.k_diffusion.sampling.BrownianTreeNoiseSampler = BrownianTreeNoiseSamplerPatched
+    fcbh.ldm.modules.diffusionmodules.openaimodel.timestep_embedding = patched_timestep_embedding
+    fcbh.model_base.ModelSamplingDiscrete._register_schedule = patched_register_schedule
 
     warnings.filterwarnings(action='ignore', module='torchsde')
 
