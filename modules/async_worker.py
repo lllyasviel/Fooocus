@@ -7,6 +7,7 @@ class AsyncTask:
         self.yields = []
         self.results = []
         self.last_stop = False
+        self.processing = False
 
 
 async_tasks = []
@@ -115,6 +116,7 @@ def worker():
     @torch.inference_mode()
     def handler(async_task):
         execution_start_time = time.perf_counter()
+        async_task.processing = True
 
         args = async_task.args
         args.reverse()
@@ -660,6 +662,8 @@ def worker():
             execution_start_time = time.perf_counter()
 
             try:
+                if async_task.last_stop is not False:
+                    fcbh.model_management.interrupt_current_processing()
                 positive_cond, negative_cond = task['c'], task['uc']
 
                 if 'cn' in goals:
@@ -732,7 +736,7 @@ def worker():
 
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
-
+        async_task.processing = False
         return
 
     while True:
