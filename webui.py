@@ -116,20 +116,17 @@ with shared.gradio_root:
                         currentTask.last_stop = 'stop'
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
-                        return gr.update(interactive=False), gr.update(interactive=False), currentTask
+                        return currentTask
 
                     def skip_clicked(currentTask):
-                        print(currentTask.last_stop)
                         import fcbh.model_management as model_management
                         currentTask.last_stop = 'skip'
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
                         return currentTask
 
-                    stop_button.click(stop_clicked, inputs=currentTask, outputs=[skip_button, stop_button, currentTask],
-                                      queue=False, show_progress=False, _js='cancelGenerateForever')
-                    skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask,
-                                      queue=False, show_progress=False)
+                    stop_button.click(stop_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False, _js='cancelGenerateForever')
+                    skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
