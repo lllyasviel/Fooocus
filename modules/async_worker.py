@@ -6,6 +6,7 @@ class AsyncTask:
         self.args = args
         self.yields = []
         self.results = []
+        self.last_stop = False
 
 
 async_tasks = []
@@ -722,7 +723,7 @@ def worker():
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
             except fcbh.model_management.InterruptProcessingException as e:
-                if shared.last_stop == 'skip':
+                if async_task.last_stop == 'skip':
                     print('User skipped')
                     continue
                 else:

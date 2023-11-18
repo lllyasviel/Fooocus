@@ -20,12 +20,13 @@ from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 
+currentTask = gr.State()
 
 def generate_clicked(*args):
     # outputs=[progress_html, progress_window, progress_gallery, gallery]
 
     execution_start_time = time.perf_counter()
-    task = worker.AsyncTask(args=list(args))
+    currentTask.value = task = worker.AsyncTask(args=list(args))
     finished = False
 
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
@@ -117,13 +118,13 @@ with shared.gradio_root:
 
                     def stop_clicked():
                         import fcbh.model_management as model_management
-                        shared.last_stop = 'stop'
+                        currentTask.value.last_stop = 'stop'
                         model_management.interrupt_current_processing()
                         return [gr.update(interactive=False)] * 2
 
                     def skip_clicked():
                         import fcbh.model_management as model_management
-                        shared.last_stop = 'skip'
+                        currentTask.value.last_stop = 'skip'
                         model_management.interrupt_current_processing()
                         return
 
