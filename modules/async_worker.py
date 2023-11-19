@@ -734,6 +734,7 @@ def worker():
             except fcbh.model_management.InterruptProcessingException as e:
                 if async_task.last_stop == 'skip':
                     print('User skipped')
+                    async_task.last_stop = False
                     continue
                 else:
                     print('User stopped')
