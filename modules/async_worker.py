@@ -6,6 +6,8 @@ class AsyncTask:
         self.args = args
         self.yields = []
         self.results = []
+        self.last_stop = False
+        self.processing = False
 
 
 async_tasks = []
@@ -119,6 +121,7 @@ def worker():
     @torch.inference_mode()
     def handler(async_task):
         execution_start_time = time.perf_counter()
+        async_task.processing = True
 
         args = async_task.args
         args.reverse()
@@ -664,6 +667,8 @@ def worker():
             execution_start_time = time.perf_counter()
 
             try:
+                if async_task.last_stop is not False:
+                    fcbh.model_management.interrupt_current_processing()
                 positive_cond, negative_cond = task['c'], task['uc']
 
                 if 'cn' in goals:
@@ -727,19 +732,16 @@ def worker():
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1, progressbar_index=int(15.0 + 85.0 * float((current_task_id + 1) * steps) / float(all_steps)))
             except fcbh.model_management.InterruptProcessingException as e:
-                if shared.last_stop == 'skip':
+                if async_task.last_stop == 'skip':
                     print('User skipped')
                     continue
-                elif shared.last_stop == 'stop_previous':
-                    print('Previous task stopped')
-                    break
                 else:
                     print('User stopped')
                     break
 
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
-
+        async_task.processing = False
         return
 
     while True:
