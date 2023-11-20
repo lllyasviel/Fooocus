@@ -79,7 +79,7 @@ def get_shape_ceil(h, w):
 
 
 def get_image_shape_ceil(im):
-    H, W, _ = im.shape
+    H, W = im.shape[:2]
     return get_shape_ceil(H, W)
 
 

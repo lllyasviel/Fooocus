@@ -32,5 +32,10 @@ default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0)
 }  # stop, weight
 
-inpaint_engine_versions = ['v1', 'v2.5', 'v2.6']
+inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 performance_selections = ['Speed', 'Quality', 'Extreme Speed']
+
+inpaint_option_default = 'Inpaint or Outpaint (default)'
+inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
+inpaint_option_modify = 'Modify Content (add objects, change background, etc.)'
+inpaint_options = [inpaint_option_default, inpaint_option_detail, inpaint_option_modify]

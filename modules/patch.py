@@ -304,16 +304,19 @@ def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
 
 def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, denoise_mask, model_options={}, seed=None):
     if inpaint_worker.current_task is not None:
+        latent_processor = self.inner_model.inner_model.process_latent_in
+        inpaint_latent = latent_processor(inpaint_worker.current_task.latent).to(x)
+        inpaint_mask = inpaint_worker.current_task.latent_mask.to(x)
+
         if getattr(self, 'energy_generator', None) is None:
             # avoid bad results by using different seeds.
             self.energy_generator = torch.Generator(device='cpu').manual_seed((seed + 1) % constants.MAX_SEED)
 
-        latent_processor = self.inner_model.inner_model.process_latent_in
-        inpaint_latent = latent_processor(inpaint_worker.current_task.latent).to(x)
-        inpaint_mask = inpaint_worker.current_task.latent_mask.to(x)
-        energy_sigma = sigma.reshape([sigma.shape[0]] + [1] * (len(x.shape) - 1))
-        current_energy = torch.randn(x.size(), dtype=x.dtype, generator=self.energy_generator, device="cpu").to(x) * energy_sigma
-        x = x * inpaint_mask + (inpaint_latent + current_energy) * (1.0 - inpaint_mask)
+        if inpaint_worker.current_task.processing_sampler_in:
+            energy_sigma = sigma.reshape([sigma.shape[0]] + [1] * (len(x.shape) - 1))
+            current_energy = torch.randn(
+                x.size(), dtype=x.dtype, generator=self.energy_generator, device="cpu").to(x) * energy_sigma
+            x = x * inpaint_mask + (inpaint_latent + current_energy) * (1.0 - inpaint_mask)
 
         out = self.inner_model(x, sigma,
                                cond=cond,
@@ -322,7 +325,8 @@ def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, 
                                model_options=model_options,
                                seed=seed)
 
-        out = out * inpaint_mask + inpaint_latent * (1.0 - inpaint_mask)
+        if inpaint_worker.current_task.processing_sampler_out:
+            out = out * inpaint_mask + inpaint_latent * (1.0 - inpaint_mask)
     else:
         out = self.inner_model(x, sigma,
                                cond=cond,
@@ -403,10 +407,6 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     self.current_step = 1.0 - timesteps.to(x) / 999.0
     global_diffusion_progress = float(self.current_step.detach().cpu().numpy().tolist()[0])
 
-    inpaint_fix = None
-    if getattr(self, 'in_inpaint', False) and inpaint_worker.current_task is not None:
-        inpaint_fix = inpaint_worker.current_task.inpaint_head_feature
-
     transformer_options["original_shape"] = list(x.shape)
     transformer_options["current_index"] = 0
     transformer_patches = transformer_options.get("patches", {})
@@ -426,12 +426,6 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     for id, module in enumerate(self.input_blocks):
         transformer_options["block"] = ("input", id)
         h = forward_timestep_embed(module, h, emb, context, transformer_options)
-
-        if inpaint_fix is not None:
-            if int(h.shape[1]) == int(inpaint_fix.shape[1]):
-                h = h + inpaint_fix.to(h)
-                inpaint_fix = None
-
         h = apply_control(h, control, 'input')
         if "input_block_patch" in transformer_patches:
             patch = transformer_patches["input_block_patch"]
