@@ -1,3 +1,7 @@
+# 2.1.822
+
+* New inpaint system (inpaint beta test ends).
+
 # 2.1.821
 
 * New UI for LoRAs.
