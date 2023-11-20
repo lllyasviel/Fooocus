@@ -1,7 +1,7 @@
 {
     "default_model": "sd_xl_base_1.0_0.9vae.safetensors",
     "default_refiner": "sd_xl_refiner_1.0_0.9vae.safetensors",
-    "default_refiner_switch": 0.7,
+    "default_refiner_switch": 0.75,
     "default_loras": [
         [
             "sd_xl_offset_example-lora_1.0.safetensors",

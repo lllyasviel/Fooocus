@@ -52,10 +52,12 @@ class StableDiffusionModel:
         self.visited_loras = ''
         self.lora_key_map = {}
 
-        if self.unet is not None and self.clip is not None:
+        if self.unet is not None:
             self.lora_key_map = model_lora_keys_unet(self.unet.model, self.lora_key_map)
-            self.lora_key_map = model_lora_keys_clip(self.clip.cond_stage_model, self.lora_key_map)
             self.lora_key_map.update({x: x for x in self.unet.model.state_dict().keys()})
+
+        if self.clip is not None:
+            self.lora_key_map = model_lora_keys_clip(self.clip.cond_stage_model, self.lora_key_map)
             self.lora_key_map.update({x: x for x in self.clip.cond_stage_model.state_dict().keys()})
 
     @torch.no_grad()

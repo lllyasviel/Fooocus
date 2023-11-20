@@ -1,5 +1,6 @@
 import os
 import torch
+import modules.core as core
 
 from fcbh_extras.chainner_models.architecture.RRDB import RRDBNet as ESRGAN
 from fcbh_extras.nodes_upscale_model import ImageUpscaleWithModel
@@ -13,6 +14,9 @@ model = None
 
 def perform_upscale(img):
     global model
+
+    print(f'Upscaling image with shape {str(img.shape)} ...')
+
     if model is None:
         sd = torch.load(model_filename)
         sdo = OrderedDict()
@@ -22,4 +26,9 @@ def perform_upscale(img):
         model = ESRGAN(sdo)
         model.cpu()
         model.eval()
-    return opImageUpscaleWithModel.upscale(model, img)[0]
+
+    img = core.numpy_to_pytorch(img)
+    img = opImageUpscaleWithModel.upscale(model, img)[0]
+    img = core.pytorch_to_numpy(img)[0]
+
+    return img
