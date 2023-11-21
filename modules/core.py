@@ -115,7 +115,7 @@ class StableDiffusionModel:
                 print(f'Loaded LoRA [{lora_filename}] for UNet [{self.filename}] '
                       f'with {len(loaded_keys)} keys at weight {weight}.')
                 for item in lora_unet:
-                    if item not in set(list(loaded_keys)):
+                    if item not in loaded_keys:
                         print("UNet LoRA key skipped: ", item)
 
             if self.clip_with_lora is not None and len(lora_clip) > 0:
@@ -123,7 +123,7 @@ class StableDiffusionModel:
                 print(f'Loaded LoRA [{lora_filename}] for CLIP [{self.filename}] '
                       f'with {len(loaded_keys)} keys at weight {weight}.')
                 for item in lora_clip:
-                    if item not in set(list(loaded_keys)):
+                    if item not in loaded_keys:
                         print("CLIP LoRA key skipped: ", item)
 
 
