@@ -1,4 +1,4 @@
-def load_dangerous_lora(lora, to_load):
+def match_lora(lora, to_load):
     patch_dict = {}
     loaded_keys = set()
     for x in to_load:
@@ -136,13 +136,5 @@ def load_dangerous_lora(lora, to_load):
             patch_dict["{}.bias".format(to_load[x][:-len(".weight")])] = (diff_bias,)
             loaded_keys.add(diff_bias_name)
 
-    remaining_keys = [x for x in lora.keys() if x not in loaded_keys]
-
-    if len(remaining_keys) == 0:
-        return patch_dict
-
-    if len(remaining_keys) > 12:
-        return {}
-
-    print(f'LoRA loaded with extra keys: {remaining_keys}')
-    return patch_dict
+    remaining_dict = {x: y for x, y in lora.items() if x not in loaded_keys}
+    return patch_dict, remaining_dict
