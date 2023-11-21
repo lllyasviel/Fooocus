@@ -104,6 +104,26 @@ def refresh_refiner_model(name):
 
 @torch.no_grad()
 @torch.inference_mode()
+def synthesize_refiner_model():
+    global model_base, model_refiner
+
+    print('Synthetic Refiner Activated')
+    model_refiner = core.StableDiffusionModel(
+        unet=model_base.unet,
+        vae=model_base.vae,
+        clip=model_base.clip,
+        clip_vision=model_base.clip_vision,
+        filename=model_base.filename
+    )
+    model_refiner.vae = None
+    model_refiner.clip = None
+    model_refiner.clip_vision = None
+
+    return
+
+
+@torch.no_grad()
+@torch.inference_mode()
 def refresh_loras(loras, base_model_additional_loras=None):
     global model_base, model_refiner
 
@@ -196,8 +216,7 @@ def prepare_text_encoder(async_call=True):
 @torch.inference_mode()
 def refresh_everything(refiner_model_name, base_model_name, loras,
                        base_model_additional_loras=None, use_synthetic_refiner=False):
-    global final_unet, final_clip, final_vae, final_refiner_unet, final_refiner_vae, \
-        final_expansion, model_refiner, model_base
+    global final_unet, final_clip, final_vae, final_refiner_unet, final_refiner_vae, final_expansion
 
     final_unet = None
     final_clip = None
@@ -208,16 +227,7 @@ def refresh_everything(refiner_model_name, base_model_name, loras,
     if use_synthetic_refiner and refiner_model_name == 'None':
         print('Synthetic Refiner Activated')
         refresh_base_model(base_model_name)
-        model_refiner = core.StableDiffusionModel(
-            unet=model_base.unet,
-            vae=model_base.vae,
-            clip=model_base.clip,
-            clip_vision=model_base.clip_vision,
-            filename=model_base.filename
-        )
-        model_refiner.vae = None
-        model_refiner.clip = None
-        model_refiner.clip_vision = None
+        synthesize_refiner_model()
     else:
         refresh_refiner_model(refiner_model_name)
         refresh_base_model(base_model_name)

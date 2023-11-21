@@ -1,3 +1,7 @@
+# 2.1.823
+
+* Fix some potential problem when LoRAs has clip keys and user want to load those LoRAs to refiners.
+
 # 2.1.822
 
 * New inpaint system (inpaint beta test ends).
