@@ -174,7 +174,7 @@ def canny(
         - the canny edge magnitudes map, shape of :math:`(B,1,H,W)`.
         - the canny edge detection filtered by thresholds and hysteresis, shape of :math:`(B,1,H,W)`.
     .. note::
-       See a working example `here <https://kornia-tutorials.readthedocs.io/en/latest/
+       See a working example `here <https://kornia.readthedocs.io/en/latest/
        canny.html>`__.
     Example:
         >>> input = torch.rand(5, 3, 4, 4)
