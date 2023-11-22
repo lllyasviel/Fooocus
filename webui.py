@@ -214,7 +214,8 @@ with shared.gradio_root:
             with gr.Tab(label='Setting'):
                 performance_selection = gr.Radio(label='Performance',
                                                  choices=modules.flags.performance_selections,
-                                                 value=modules.config.default_performance)
+                                                 value=modules.config.default_performance,
+                                                 elem_classes='performance_selections')
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
                                                    value=modules.config.default_aspect_ratio, info='width × height',
                                                    elem_classes='aspect_ratios')
