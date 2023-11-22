@@ -14,7 +14,7 @@ from .timm.weight_init import trunc_normal_
 
 def drop_path(x, drop_prob: float = 0.0, training: bool = False):
     """Drop paths (Stochastic Depth) per sample (when applied in main path of residual blocks).
-    From: https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/layers/drop.py
+    From: https://github.com/huggingface/pytorch-image-models/blob/4d0737d5fa9674e64cb9210c688d2dd168dbb448/timm/layers/drop.py
     """
     if drop_prob == 0.0 or not training:
         return x
