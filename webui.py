@@ -63,7 +63,7 @@ def generate_clicked(task):
             if flag == 'results':
                 yield gr.update(visible=True), \
                     gr.update(visible=True), \
-                    gr.update(visible=True, value=product) if not advanced_parameters.disable_intermediate_results else gr.update(), \
+                    gr.update(visible=True, value=product) if not advanced_parameters.disable_intermediate_results and advanced_parameters.sampler_name != 'lcm' else gr.update(), \
                     gr.update(visible=False)
             if flag == 'finish':
                 yield gr.update(visible=False), \

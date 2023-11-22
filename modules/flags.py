@@ -34,11 +34,10 @@ default_parameters = {
 
 inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 
-
 performance_selections = [
-    (f'Speed <span style="color: grey;"> \U00002223 30 steps</span>', 'Speed'),
-    (f'Quality <span style="color: grey;"> \U00002223 60 steps</span>', 'Quality'),
-    (f'Extreme Speed <span style="color: grey;"> \U00002223 8 steps, LCM</span>', 'Extreme Speed')
+    ('Quality <span style="color: grey;"> \U00002223 60 steps</span>', 'Quality'),
+    ('Speed <span style="color: grey;"> \U00002223 30 steps</span>', 'Speed'),
+    ('Extreme Speed (LCM) <span style="color: grey;"> \U00002223 8 steps, intermediate results disabled</span>', 'Extreme Speed')
 ]
 
 inpaint_option_default = 'Inpaint or Outpaint (default)'
