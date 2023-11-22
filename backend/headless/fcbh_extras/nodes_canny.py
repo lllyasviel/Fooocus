@@ -118,7 +118,7 @@ def rgb_to_grayscale(image, rgb_weights = None):
         grayscale version of the image with shape :math:`(*,1,H,W)`.
 
     .. note::
-       See a working example `here <https://kornia-tutorials.readthedocs.io/en/latest/
+       See a working example `here <https://kornia.readthedocs.io/en/latest/
        color_conversions.html>`__.
 
     Example:
