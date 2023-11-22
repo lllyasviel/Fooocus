@@ -76,7 +76,7 @@ def spatial_gradient(input, normalized: bool = True):
     Return:
         the derivatives of the input feature map. with shape :math:`(B, C, 2, H, W)`.
     .. note::
-       See a working example `here <https://kornia-tutorials.readthedocs.io/en/latest/
+       See a working example `here <https://kornia.readthedocs.io/en/latest/
        filtering_edges.html>`__.
     Examples:
         >>> input = torch.rand(1, 3, 4, 4)
