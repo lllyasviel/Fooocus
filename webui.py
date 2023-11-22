@@ -57,7 +57,7 @@ def generate_clicked(task):
 
                 percentage, title, image = product
                 yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
-                    gr.update(visible=True, value=image) if image is not None and not (modules.config.default_black_out_nsfw and modules.config.default_hide_preview_if_black_out_nsfw) else gr.update(), \
+                    gr.update(visible=True, value=image) if image is not None else gr.update(), \
                     gr.update(), \
                     gr.update(visible=False)
             if flag == 'results':

@@ -301,7 +301,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
     def callback(step, x0, x, total_steps):
         fcbh.model_management.throw_exception_if_processing_interrupted()
         y = None
-        if previewer is not None and not modules.advanced_parameters.disable_preview:
+        if previewer is not None and not modules.advanced_parameters.disable_preview and not (modules.config.default_black_out_nsfw and modules.config.default_hide_preview_if_black_out_nsfw):
             y = previewer(x0, previewer_start + step, previewer_end)
         if callback_function is not None:
             callback_function(previewer_start + step, x0, x, previewer_end, y)
