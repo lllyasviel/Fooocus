@@ -24,9 +24,9 @@ from nodes import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDec
 from fcbh_extras.nodes_freelunch import FreeU_V2
 from fcbh.sample import prepare_mask
 from modules.patch import patched_sampler_cfg_function
-from fcbh.lora import model_lora_keys_unet, model_lora_keys_clip, load_lora
+from modules.lora import match_lora
+from fcbh.lora import model_lora_keys_unet, model_lora_keys_clip
 from modules.config import path_embeddings
-from modules.lora import load_dangerous_lora
 from fcbh_extras.nodes_model_advanced import ModelSamplingDiscrete
 
 if os.environ.get('USE_IPEX') is not None and os.environ.get('USE_IPEX') == "1":
@@ -55,13 +55,17 @@ class StableDiffusionModel:
         self.unet_with_lora = unet
         self.clip_with_lora = clip
         self.visited_loras = ''
-        self.lora_key_map = {}
 
-        if self.unet is not None and self.clip is not None:
-            self.lora_key_map = model_lora_keys_unet(self.unet.model, self.lora_key_map)
-            self.lora_key_map = model_lora_keys_clip(self.clip.cond_stage_model, self.lora_key_map)
-            self.lora_key_map.update({x: x for x in self.unet.model.state_dict().keys()})
-            self.lora_key_map.update({x: x for x in self.clip.cond_stage_model.state_dict().keys()})
+        self.lora_key_map_unet = {}
+        self.lora_key_map_clip = {}
+
+        if self.unet is not None:
+            self.lora_key_map_unet = model_lora_keys_unet(self.unet.model, self.lora_key_map_unet)
+            self.lora_key_map_unet.update({x: x for x in self.unet.model.state_dict().keys()})
+
+        if self.clip is not None:
+            self.lora_key_map_clip = model_lora_keys_clip(self.clip.cond_stage_model, self.lora_key_map_clip)
+            self.lora_key_map_clip.update({x: x for x in self.clip.cond_stage_model.state_dict().keys()})
 
     @torch.no_grad()
     @torch.inference_mode()
@@ -72,12 +76,13 @@ class StableDiffusionModel:
             return
 
         self.visited_loras = str(loras)
-        loras_to_load = []
 
         if self.unet is None:
             return
 
         print(f'Request to load LoRAs {str(loras)} for model [{self.filename}].')
+
+        loras_to_load = []
 
         for name, weight in loras:
             if name == 'None':
@@ -98,27 +103,33 @@ class StableDiffusionModel:
         self.clip_with_lora = self.clip.clone() if self.clip is not None else None
 
         for lora_filename, weight in loras_to_load:
-            lora = fcbh.utils.load_torch_file(lora_filename, safe_load=False)
-            lora_items = load_dangerous_lora(lora, self.lora_key_map)
+            lora_unmatch = fcbh.utils.load_torch_file(lora_filename, safe_load=False)
+            lora_unet, lora_unmatch = match_lora(lora_unmatch, self.lora_key_map_unet)
+            lora_clip, lora_unmatch = match_lora(lora_unmatch, self.lora_key_map_clip)
 
-            if len(lora_items) == 0:
+            if len(lora_unmatch) > 12:
+                # model mismatch
                 continue
-            
-            print(f'Loaded LoRA [{lora_filename}] for model [{self.filename}] with {len(lora_items)} keys at weight {weight}.')
 
-            if self.unet_with_lora is not None:
-                loaded_unet_keys = self.unet_with_lora.add_patches(lora_items, weight)
-            else:
-                loaded_unet_keys = []
+            if len(lora_unmatch) > 0:
+                print(f'Loaded LoRA [{lora_filename}] for model [{self.filename}] '
+                      f'with unmatched keys {list(lora_unmatch.keys())}')
 
-            if self.clip_with_lora is not None:
-                loaded_clip_keys = self.clip_with_lora.add_patches(lora_items, weight)
-            else:
-                loaded_clip_keys = []
+            if self.unet_with_lora is not None and len(lora_unet) > 0:
+                loaded_keys = self.unet_with_lora.add_patches(lora_unet, weight)
+                print(f'Loaded LoRA [{lora_filename}] for UNet [{self.filename}] '
+                      f'with {len(loaded_keys)} keys at weight {weight}.')
+                for item in lora_unet:
+                    if item not in loaded_keys:
+                        print("UNet LoRA key skipped: ", item)
 
-            for item in lora_items:
-                if item not in set(list(loaded_unet_keys) + list(loaded_clip_keys)):
-                    print("LoRA key skipped: ", item)
+            if self.clip_with_lora is not None and len(lora_clip) > 0:
+                loaded_keys = self.clip_with_lora.add_patches(lora_clip, weight)
+                print(f'Loaded LoRA [{lora_filename}] for CLIP [{self.filename}] '
+                      f'with {len(loaded_keys)} keys at weight {weight}.')
+                for item in lora_clip:
+                    if item not in loaded_keys:
+                        print("CLIP LoRA key skipped: ", item)
 
 
 @torch.no_grad()
@@ -146,36 +157,6 @@ def load_model(ckpt_filename):
     unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename, embedding_directory=path_embeddings)
     unet.model_options['sampler_cfg_function'] = patched_sampler_cfg_function
     return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision, filename=ckpt_filename)
-
-
-@torch.no_grad()
-@torch.inference_mode()
-def load_sd_lora(model, lora_filename, strength_model=1.0, strength_clip=1.0):
-    if strength_model == 0 and strength_clip == 0:
-        return model
-
-    lora = fcbh.utils.load_torch_file(lora_filename, safe_load=False)
-
-    if lora_filename.lower().endswith('.fooocus.patch'):
-        loaded = lora
-    else:
-        key_map = model_lora_keys_unet(model.unet.model)
-        key_map = model_lora_keys_clip(model.clip.cond_stage_model, key_map)
-        loaded = load_lora(lora, key_map)
-
-    new_unet = model.unet.clone()
-    loaded_unet_keys = new_unet.add_patches(loaded, strength_model)
-
-    new_clip = model.clip.clone()
-    loaded_clip_keys = new_clip.add_patches(loaded, strength_clip)
-
-    loaded_keys = set(list(loaded_unet_keys) + list(loaded_clip_keys))
-
-    for x in loaded:
-        if x not in loaded_keys:
-            print("Lora key not loaded: ", x)
-
-    return StableDiffusionModel(unet=new_unet, clip=new_clip, vae=model.vae, clip_vision=model.clip_vision)
 
 
 @torch.no_grad()

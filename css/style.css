@@ -29,8 +29,8 @@
 
 .canvas-tooltip-info {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 28px;
+  left: 2px;
   cursor: help;
   background-color: rgba(0, 0, 0, 0.3);
   width: 20px;

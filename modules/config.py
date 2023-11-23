@@ -303,6 +303,15 @@ default_overwrite_switch = get_config_item_or_set_default(
     default_value=-1,
     validator=lambda x: isinstance(x, int)
 )
+example_inpaint_prompts = get_config_item_or_set_default(
+    key='example_inpaint_prompts',
+    default_value=[
+        'highly detailed face', 'detailed girl face', 'detailed man face', 'detailed hand', 'beautiful eyes'
+    ],
+    validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x)
+)
+
+example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 
 config_dict["default_loras"] = default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
 
@@ -425,7 +434,7 @@ def downloading_sdxl_lcm_lora():
         model_dir=path_loras,
         file_name='sdxl_lcm_lora.safetensors'
     )
-    return os.path.join(path_loras, 'sdxl_lcm_lora.safetensors')
+    return 'sdxl_lcm_lora.safetensors'
 
 
 def downloading_controlnet_canny():
