@@ -372,7 +372,9 @@ with shared.gradio_root:
                         overwrite_upscale_strength = gr.Slider(label='Forced Overwrite of Denoising Strength of "Upscale"',
                                                                minimum=-1, maximum=1.0, step=0.001, value=-1,
                                                                info='Set as negative number to disable. For developer debugging.')
-                        disable_preview = gr.Checkbox(label='Disable Preview', value=False,
+                        disable_preview = gr.Checkbox(label='Disable Preview', 
+                                                            value=modules.config.default_black_out_nsfw and modules.config.default_hide_preview_if_black_out_nsfw,
+                                                            interactive=not (modules.config.default_black_out_nsfw and modules.config.default_hide_preview_if_black_out_nsfw),
                                                       info='Disable preview during generation.')
                         disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', value=False,
                                                       info='Disable intermediate results during generation, only show final gallery.')
