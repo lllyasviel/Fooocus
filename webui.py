@@ -19,7 +19,6 @@ from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
-from modules.translator import translate2en
 
 def generate_clicked(*args):
     import fcbh.model_management as model_management
@@ -30,17 +29,7 @@ def generate_clicked(*args):
     # outputs=[progress_html, progress_window, progress_gallery, gallery]
 
     execution_start_time = time.perf_counter()
-
-    args = list(args)
-
-    # translate prompts
-    if args[2]:
-        args[0] = translate2en(args[0], 'prompt')
-        args[1] = translate2en(args[1], 'negative prompt')
-    # remove translate_prompts from args
-    args.pop(2)
-
-    task = worker.AsyncTask(args=args)
+    task = worker.AsyncTask(args=list(args))
     finished = False
 
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \

@@ -8,8 +8,8 @@ def translate2en(text, element):
 
     try:
         result = translators.translate_text(text,to_language='en')
-        print(f'Translated {element}: {result}')
+        print(f'[Parameters] Translated {element}: {result}')
         return result
     except Exception as e:
-        print(f'Error during translation of {element}: {e}')
+        print(f'[Parameters] Error during translation of {element}: {e}')
         return text
