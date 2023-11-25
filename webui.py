@@ -14,26 +14,12 @@ import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
 import args_manager
 import copy
-import translators
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
-from functools import lru_cache
-
-@lru_cache(maxsize=32, typed=False)
-def translate2en(text, element):
-    if not text:
-        return text
-
-    try:
-        result = translators.translate_text(text,to_language='en')
-        print(f'Translated {element}: {result}')
-        return result
-    except Exception as e:
-        print(f'Error during translation of {element}: {e}')
-        return text
+from modules.translator import translate2en
 
 def generate_clicked(*args):
     import fcbh.model_management as model_management
@@ -47,6 +33,7 @@ def generate_clicked(*args):
 
     args = list(args)
 
+    # translate prompts
     if args[2]:
         args[0] = translate2en(args[0], 'prompt')
         args[1] = translate2en(args[1], 'negative prompt')
