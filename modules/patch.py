@@ -312,11 +312,10 @@ def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, 
             # avoid bad results by using different seeds.
             self.energy_generator = torch.Generator(device='cpu').manual_seed((seed + 1) % constants.MAX_SEED)
 
-        if inpaint_worker.current_task.processing_sampler_in:
-            energy_sigma = sigma.reshape([sigma.shape[0]] + [1] * (len(x.shape) - 1))
-            current_energy = torch.randn(
-                x.size(), dtype=x.dtype, generator=self.energy_generator, device="cpu").to(x) * energy_sigma
-            x = x * inpaint_mask + (inpaint_latent + current_energy) * (1.0 - inpaint_mask)
+        energy_sigma = sigma.reshape([sigma.shape[0]] + [1] * (len(x.shape) - 1))
+        current_energy = torch.randn(
+            x.size(), dtype=x.dtype, generator=self.energy_generator, device="cpu").to(x) * energy_sigma
+        x = x * inpaint_mask + (inpaint_latent + current_energy) * (1.0 - inpaint_mask)
 
         out = self.inner_model(x, sigma,
                                cond=cond,
@@ -325,8 +324,7 @@ def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, 
                                model_options=model_options,
                                seed=seed)
 
-        if inpaint_worker.current_task.processing_sampler_out:
-            out = out * inpaint_mask + inpaint_latent * (1.0 - inpaint_mask)
+        out = out * inpaint_mask + inpaint_latent * (1.0 - inpaint_mask)
     else:
         out = self.inner_model(x, sigma,
                                cond=cond,

@@ -176,8 +176,6 @@ class InpaintWorker:
         self.swapped = False
         self.latent_mask = None
         self.inpaint_head_feature = None
-        self.processing_sampler_in = True
-        self.processing_sampler_out = True
         return
 
     def load_latent(self, latent_fill, latent_mask, latent_swap=None):
