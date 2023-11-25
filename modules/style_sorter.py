@@ -34,6 +34,7 @@ def sort_styles(selected):
     global all_styles
     unselected = [y for y in all_styles if y not in selected]
     sorted_styles = selected + unselected
+    """
     try:
         with open('sorted_styles.json', 'wt', encoding='utf-8') as fp:
             json.dump(sorted_styles, fp, indent=4)
@@ -41,6 +42,7 @@ def sort_styles(selected):
         print('Write style sorting failed.')
         print(e)
     all_styles = sorted_styles
+    """
     return gr.CheckboxGroup.update(choices=sorted_styles)
 
 
