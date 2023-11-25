@@ -14,12 +14,26 @@ import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
 import args_manager
 import copy
+import translators
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
+from functools import lru_cache
 
+@lru_cache(maxsize=32, typed=False)
+def translate2en(text, element):
+    if not text:
+        return text
+
+    try:
+        result = translators.translate_text(text,to_language='en')
+        print(f'Translated {element}: {result}')
+        return result
+    except Exception as e:
+        print(f'Error during translation of {element}: {e}')
+        return text
 
 def generate_clicked(*args):
     import fcbh.model_management as model_management
@@ -30,7 +44,16 @@ def generate_clicked(*args):
     # outputs=[progress_html, progress_window, progress_gallery, gallery]
 
     execution_start_time = time.perf_counter()
-    task = worker.AsyncTask(args=list(args))
+
+    args = list(args)
+
+    if args[2]:
+        args[0] = translate2en(args[0], 'prompt')
+        args[1] = translate2en(args[1], 'negative prompt')
+    # remove translate_prompts from args
+    args.pop(2)
+
+    task = worker.AsyncTask(args=args)
     finished = False
 
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
@@ -218,6 +241,9 @@ with shared.gradio_root:
                                              info='Describing what you do not want to see.', lines=2,
                                              elem_id='negative_prompt',
                                              value=modules.config.default_prompt_negative)
+                translate_prompts = gr.Checkbox(label='Translate Prompts',
+                                                          info='Uses the internet to translate prompts to English',
+                                                          value=False)
                 seed_random = gr.Checkbox(label='Random', value=True)
                 image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
 
@@ -489,7 +515,7 @@ with shared.gradio_root:
         ], show_progress=False, queue=False)
 
         ctrls = [
-            prompt, negative_prompt, style_selections,
+            prompt, negative_prompt, translate_prompts, style_selections,
             performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, guidance_scale
         ]
 
