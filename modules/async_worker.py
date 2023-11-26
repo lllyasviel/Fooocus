@@ -41,7 +41,6 @@ def worker():
     from modules.util import remove_empty_str, HWC3, resize_image, \
         get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image
     from modules.upscaler import perform_upscale
-    from modules.translator import translate2en
 
     try:
         async_gradio_app = shared.gradio_root
@@ -198,6 +197,7 @@ def worker():
             steps = 8
 
         if translate_prompts:
+            from modules.translator import translate2en
             prompt = translate2en(prompt, 'prompt')
             negative_prompt = translate2en(negative_prompt, 'negative prompt')
 
