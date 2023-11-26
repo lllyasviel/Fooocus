@@ -194,8 +194,12 @@ with shared.gradio_root:
                         example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
                     with gr.TabItem(label='Realtime Canvas') as paint_tab:
                         with gr.Row(equal_height=True):
-                            canvas_size = 512
-                            realtime_input_image = gr.Image(source="canvas", tool="color-sketch", shape=(canvas_size, canvas_size), width=canvas_size, height=canvas_size)
+                            def aspect_ratios_selection_change(aspect_ratios_selection):
+                                width, height = aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
+                                width, height = int(int(width)/2), int(int(height)/2)
+                                return gr.Paint(shape=(width, height), width=width, height=height)
+
+                            realtime_input_image = aspect_ratios_selection_change(modules.config.default_aspect_ratio)
 
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
@@ -493,7 +497,8 @@ with shared.gradio_root:
             inpaint_strength, inpaint_respective_field
         ], show_progress=False, queue=False)
 
-        realtime_input_image.change(lambda: gr.update(value='Extreme Speed'), outputs=performance_selection, queue=False, show_progress=False, _js="() => {document.getElementById('generate_button').click();}")
+        realtime_input_image.change(lambda: (gr.update(value='Extreme Speed'), gr.update(value=False)), outputs=[performance_selection, seed_random], queue=False, show_progress=False, _js="() => {document.getElementById('generate_button').click();}")
+        aspect_ratios_selection.change(aspect_ratios_selection_change, inputs=aspect_ratios_selection, outputs=realtime_input_image, queue=False, show_progress=False)
 
         ctrls = [
             prompt, negative_prompt, style_selections,
