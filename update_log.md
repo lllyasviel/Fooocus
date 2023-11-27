@@ -1,3 +1,5 @@
+**(2023 Nov 26) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid December. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+
 # 2.1.823
 
 * Fix some potential problem when LoRAs has clip keys and user want to load those LoRAs to refiners.
