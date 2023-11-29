@@ -497,7 +497,7 @@ with shared.gradio_root:
             inpaint_strength, inpaint_respective_field
         ], show_progress=False, queue=False)
 
-        realtime_input_image.change(lambda: (gr.update(value='Extreme Speed'), gr.update(value=False)), outputs=[performance_selection, seed_random], queue=False, show_progress=False, _js="() => {document.getElementById('generate_button').click();}")
+        realtime_input_image.change(lambda: (gr.update(value='Extreme Speed'), gr.update(value=1), gr.update(value=False)), outputs=[performance_selection, image_number, seed_random], queue=False, show_progress=False, _js="() => {document.getElementById('generate_button').click();}")
         aspect_ratios_selection.change(aspect_ratios_selection_change, inputs=aspect_ratios_selection, outputs=realtime_input_image, queue=False, show_progress=False)
 
         ctrls = [
