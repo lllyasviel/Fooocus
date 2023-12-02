@@ -22,6 +22,9 @@ def worker():
     import shared
     import random
     import copy
+    #修改开始，导入OpenCV库
+    import cv2
+    #修改结束
     import modules.default_pipeline as pipeline
     import modules.core as core
     import modules.flags as flags
@@ -137,6 +140,9 @@ def worker():
         uov_input_image = args.pop()
         outpaint_selections = args.pop()
         inpaint_input_image = args.pop()
+        #修改开始，添加蒙版上传任务
+        inpaint_mask_image = args.pop()
+        #修改结束
         inpaint_additional_prompt = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
@@ -272,7 +278,18 @@ def worker():
                     current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint)) \
                     and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
-                inpaint_mask = inpaint_input_image['mask'][:, :, 0]
+                #修改开始
+                #注释删除掉原来的一行
+                #inpaint_mask = inpaint_input_image['mask'][:, :, 0]
+                # use uploaded inpaint mask image, if not brush for inpaint.如果没有手动涂鸦蒙版，则使用上传蒙版
+                if np.any(inpaint_input_image['mask'] == [255, 255, 255]):
+                    inpaint_mask = inpaint_input_image['mask'][:, :, 0]
+                else:
+                    inpaint_height, inpaint_width = inpaint_image.shape[:2]
+                    resized_mask_image = cv2.resize(inpaint_mask_image, (inpaint_width, inpaint_height))
+                    inpaint_mask = resized_mask_image[:, :, 0]
+                #修改结束
+
                 inpaint_image = HWC3(inpaint_image)
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
