@@ -184,7 +184,18 @@ with shared.gradio_root:
                                            queue=False, show_progress=False)
 
                     with gr.TabItem(label='Inpaint or Outpaint') as inpaint_tab:
-                        inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+                        #修改开始
+                        #注释删除原来的一行，同时添加蒙版上传框和蒙版涂鸦框为一行
+                        #inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+
+                        with gr.Row():
+                            with gr.Column():
+                                inpaint_input_image = grh.Image(label='Drag inpaint or outpaint image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+                            with gr.Column():
+                                inpaint_mask_image = grh.Image(label='Drag inapint mask image to here', source='upload', type='numpy', height=500)
+                                
+                        #修改结束
+                                
                         with gr.Row():
                             inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                             outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
@@ -203,6 +214,7 @@ with shared.gradio_root:
             current_tab = gr.Textbox(value='uov', visible=False)
             uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+            #这个不知道要不要修改？
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
@@ -496,7 +508,11 @@ with shared.gradio_root:
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
-        ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
+        #修改开始
+        #注释删除掉原来的一行，修改添加蒙版上传参数
+        #ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
+        ctrls += [outpaint_selections, inpaint_input_image, inpaint_mask_image, inpaint_additional_prompt]
+        #修改结束
         ctrls += ip_ctrls
 
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, generate_button, gallery]) \
