@@ -184,7 +184,7 @@ with shared.gradio_root:
                                            queue=False, show_progress=False)
 
                     with gr.TabItem(label='Inpaint or Outpaint') as inpaint_tab:
-                        #修改开始
+                        #修改开始，
                         #注释删除原来的一行，同时添加蒙版上传框和蒙版涂鸦框为一行
                         #inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
 
