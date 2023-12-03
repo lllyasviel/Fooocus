@@ -281,13 +281,15 @@ def worker():
                 #修改开始
                 #注释删除掉原来的一行
                 #inpaint_mask = inpaint_input_image['mask'][:, :, 0]
-                # use uploaded inpaint mask image, if not brush for inpaint.如果没有手动涂鸦蒙版，则使用上传蒙版
-                if np.any(inpaint_input_image['mask'] == [255, 255, 255]):
-                    inpaint_mask = inpaint_input_image['mask'][:, :, 0]
-                else:
+                # use uploaded inpaint mask image, if not brush for inpaint.如果没有手动涂鸦蒙版，则使用上传蒙版，并缩放。
+                # 调换判断条件，尝试修复和外部扩充绘制配合时出现的问题
+                if not np.any(inpaint_input_image['mask'] == [255, 255, 255]) and inpaint_mask_image is not None:
                     inpaint_height, inpaint_width = inpaint_image.shape[:2]
                     resized_mask_image = cv2.resize(inpaint_mask_image, (inpaint_width, inpaint_height))
+
                     inpaint_mask = resized_mask_image[:, :, 0]
+                else:
+                    inpaint_mask = inpaint_input_image['mask'][:, :, 0]
                 #修改结束
 
                 inpaint_image = HWC3(inpaint_image)
