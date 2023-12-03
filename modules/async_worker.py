@@ -140,7 +140,7 @@ def worker():
         uov_input_image = args.pop()
         outpaint_selections = args.pop()
         inpaint_input_image = args.pop()
-        #修改开始，添加蒙版上传任务
+        #修改开始，定义函数，接受上传蒙版的参数
         inpaint_mask_image = args.pop()
         #修改结束
         inpaint_additional_prompt = args.pop()
