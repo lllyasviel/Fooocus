@@ -185,7 +185,7 @@ with shared.gradio_root:
 
                     with gr.TabItem(label='Inpaint or Outpaint') as inpaint_tab:
                         #修改开始，
-                        #注释删除原来的一行，同时添加蒙版上传框和蒙版涂鸦框为一行
+                        #注释删除原来的一行，同时添加组件蒙版上传框和蒙版涂鸦框为一行
                         #inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
 
                         with gr.Row():
@@ -214,7 +214,6 @@ with shared.gradio_root:
             current_tab = gr.Textbox(value='uov', visible=False)
             uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
-            #这个不知道要不要修改？
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
