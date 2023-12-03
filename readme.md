@@ -120,6 +120,21 @@ Note that this Colab will disable refiner by default because Colab free's resour
 
 Thanks to [camenduru](https://github.com/camenduru)!
 
+### Linux (Using Docker + Nvidia GPU)
+
+```
+git clone https://github.com/lllyasviel/Fooocus.git
+cd Fooocus
+docker build . -t fooocus
+docker run -d --name=fooocus \
+  -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+  -e NVIDIA_VISIBLE_DEVICES=all \
+  -v /local/folder/fooocus/models:/app/models \
+  -v /local/folder/fooocus/outputs:/app/outputs \
+  -p 7865:7865 \
+  --runtime=nvidia fooocus
+```
+
 ### Linux (Using Anaconda)
 
 If you want to use Anaconda/Miniconda, you can
