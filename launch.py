@@ -61,8 +61,11 @@ def prepare_environment():
         print("Windows detected. Assigning cache directory to Transformers in AppData\Local.")
         transformers_cache_directory = os.path.join(os.getenv('LOCALAPPDATA'), 'transformers_cache')
         if not os.path.exists(transformers_cache_directory):
-            os.mkdir(transformers_cache_directory)
-            print(f"First launch. Directory '{transformers_cache_directory}' created successfully.")
+            try:
+                os.mkdir(transformers_cache_directory)
+                print(f"First launch. Directory '{transformers_cache_directory}' created successfully.")
+            except OSError as e:
+                print(f"Error creating directory '{transformers_cache_directory}': {e}")
         else:
             print(f"Directory '{transformers_cache_directory}' already exists.")
         os.environ['TRANSFORMERS_CACHE'] = transformers_cache_directory
