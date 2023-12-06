@@ -248,6 +248,11 @@ default_image_number = get_config_item_or_set_default(
     default_value=2,
     validator=lambda x: isinstance(x, int) and 1 <= x <= 32
 )
+max_image_number = get_config_item_or_set_default(
+    key='max_image_number',
+    default_value=32,
+    validator=lambda x: isinstance(x, int) and 1 <= x <= 1000
+)
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
     default_value={
