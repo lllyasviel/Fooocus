@@ -10,7 +10,8 @@ sys.path += [root, backend_path]
 
 os.chdir(root)
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
-# os.environ["GRADIO_SERVER_PORT"] = "7865"
+if "GRADIO_SERVER_PORT" not in os.environ:
+    os.environ["GRADIO_SERVER_PORT"] = "7865"
 
 
 import platform
