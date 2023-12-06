@@ -37,7 +37,7 @@ try:
         repo.reset(local_branch.target, pygit2.GIT_RESET_HARD)
         print("Fast-forward merge")
     elif merge_result & pygit2.GIT_MERGE_ANALYSIS_NORMAL:
-        print("Update failed - Did you modified any file?")
+        print("Update failed - Have you modified any files?")
 except Exception as e:
     print('Update failed.')
     print(str(e))
