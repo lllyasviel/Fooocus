@@ -185,22 +185,30 @@ with shared.gradio_root:
 
                     with gr.TabItem(label='Inpaint or Outpaint') as inpaint_tab:
                         #修改开始，
-                        #注释删除原来的一行，同时添加组件蒙版上传框和蒙版涂鸦框为一行
+                        #注释删除原来的一行，同时添加组件蒙版上传框、蒙版涂鸦框，添加复选框，默认不显示蒙版上传框，勾选后再显示。
                         #inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
 
                         with gr.Row():
                             with gr.Column():
                                 inpaint_input_image = grh.Image(label='Drag inpaint or outpaint image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
-                            with gr.Column():
-                                inpaint_mask_image = grh.Image(label='Drag inapint mask image to here', source='upload', type='numpy', height=500)
                                 
-                        #修改结束
+                        with gr.Row():
+                            with gr.Column():
+                                inpaint_mask_image = grh.Image(label='Drag inapint mask image to here', source='upload', type='numpy', height=500,visible=False)                                
+                        #修改结束1
                                 
                         with gr.Row():
                             inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                             outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
                             inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
                         example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts, label='Additional Prompt Quick List', components=[inpaint_additional_prompt], visible=False)
+                        
+                        #添加重绘高级设置选项卡
+                        with gr.TabItem(label='Inpaint advanced') as inpaint_advanced:
+                            enable_inpaint_mask_image = gr.Checkbox(label='Enable upload mask', value=False, container=False)
+                            enable_inpaint_mask_image.change(lambda x: gr.update(visible=x), inputs=enable_inpaint_mask_image, outputs=inpaint_mask_image, queue=False)                        
+                        #修改结束2
+                        
                         gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
                         example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
 
