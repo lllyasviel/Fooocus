@@ -297,7 +297,7 @@ Consider twice before you really change the config. If you find yourself breakin
 
 A safter way is just to try "run_anime.bat" or "run_realistic.bat" - they should be already good enough for different tasks.
 
-Note that `user_path_config.txt` is deprecated and will be removed soon.
+~Note that `user_path_config.txt` is deprecated and will be removed soon.~ (Edit: it is already removed.)
 
 ## Advanced Features
 
