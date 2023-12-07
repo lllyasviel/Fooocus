@@ -4,4 +4,8 @@ COPY . /app
 WORKDIR /app
 RUN pip3 install -r requirements_versions.txt
 RUN pip3 install --extra-index-url https://download.pytorch.org/whl/cu121 torch==2.1.0 torchvision==0.16.0
+RUN useradd -u 1000 -U -d /app -s /bin/false fooocus && \
+    usermod -G users fooocus && \
+    chown -R 1000:1000 /app
+USER fooocus
 CMD ["python3", "entry_with_update.py", "--listen"]
