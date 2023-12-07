@@ -115,9 +115,31 @@ def get_dir_or_set_default(key, default_value):
         config_dict[key] = dp
         return dp
 
+def get_dirs_or_set_default(key, default_value):
+    global config_dict, visited_keys, always_save_keys
 
-path_checkpoints = get_dir_or_set_default('path_checkpoints', '../models/checkpoints/')
-path_loras = get_dir_or_set_default('path_loras', '../models/loras/')
+    if key not in visited_keys:
+        visited_keys.append(key)
+
+    if key not in always_save_keys:
+        always_save_keys.append(key)
+
+    v = config_dict.get(key, None)
+    if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
+        return [v]
+    elif isinstance(v, list) and all([os.path.exists(d) and os.path.isdir(d) for d in v]):
+        return v
+    else:
+        if v is not None:
+            print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
+        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
+        os.makedirs(dp, exist_ok=True)
+        config_dict[key] = dp
+        return [dp]
+
+
+path_checkpoints = get_dirs_or_set_default('path_checkpoints', '../models/checkpoints/')
+path_loras = get_dirs_or_set_default('path_loras', '../models/loras/')
 path_embeddings = get_dir_or_set_default('path_embeddings', '../models/embeddings/')
 path_vae_approx = get_dir_or_set_default('path_vae_approx', '../models/vae_approx/')
 path_upscale_models = get_dir_or_set_default('path_upscale_models', '../models/upscale_models/')
@@ -379,8 +401,12 @@ model_filenames = []
 lora_filenames = []
 
 
-def get_model_filenames(folder_path, name_filter=None):
-    return get_files_from_folder(folder_path, ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch'], name_filter)
+def get_model_filenames(folder_paths, name_filter=None):
+    extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']
+    files = []
+    for folder in folder_paths:
+        files.extend(get_files_from_folder(folder,extensions, name_filter))
+    return files
 
 
 def update_all_model_names():

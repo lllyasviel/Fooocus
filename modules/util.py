@@ -165,3 +165,13 @@ def get_files_from_folder(folder_path, exensions=None, name_filter=None):
                 filenames.append(path)
 
     return sorted(filenames, key=lambda x: -1 if os.sep in x else 1)
+
+def get_file_from_folder_list(name, folders):
+
+    for folder in folders:
+        filename = os.path.abspath(os.path.realpath(os.path.join(folder, name)))
+        if os.path.isfile(filename):
+            return filename
+
+    # Default, happy path.
+    return os.path.abspath(os.path.realpath(os.path.join(folders[0], name)))
