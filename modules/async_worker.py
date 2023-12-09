@@ -408,6 +408,9 @@ def worker():
                     t['expansion'] = expansion
                     t['positive'] = copy.deepcopy(t['positive']) + [expansion]  # Deep copy.
 
+            last_task = tasks[-1]
+            async_task.yields.append(['prompts', (last_task['task_prompt'], str(last_task['positive'][-1]), str(last_task['negative'][-1]))])
+
             for i, t in enumerate(tasks):
                 progressbar(async_task, 7, f'Encoding positive #{i + 1} ...')
                 t['c'] = pipeline.clip_encode(texts=t['positive'], pool_top_k=t['positive_top_k'])

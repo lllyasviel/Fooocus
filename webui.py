@@ -15,6 +15,7 @@ import modules.style_sorter as style_sorter
 import args_manager
 import copy
 
+from modules import sdxl_styles
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
@@ -36,7 +37,9 @@ def generate_clicked(*args):
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
         gr.update(visible=True, value=None), \
         gr.update(visible=False, value=None), \
-        gr.update(visible=False)
+        gr.update(visible=False), \
+        gr.update(), \
+        gr.update()
 
     worker.async_tasks.append(task)
 
@@ -44,6 +47,11 @@ def generate_clicked(*args):
         time.sleep(0.01)
         if len(task.yields) > 0:
             flag, product = task.yields.pop(0)
+            if flag == 'prompts':
+                default, positive, negative = product
+
+                yield gr.update(), gr.update(), gr.update(), gr.update(visible=False), gr.update(value=positive), gr.update(value=negative)
+
             if flag == 'preview':
 
                 # help bad internet connection by skipping duplicated preview
@@ -56,17 +64,23 @@ def generate_clicked(*args):
                 yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
                     gr.update(), \
-                    gr.update(visible=False)
+                    gr.update(visible=False), \
+                    gr.update(), \
+                    gr.update()
             if flag == 'results':
                 yield gr.update(visible=True), \
                     gr.update(visible=True), \
                     gr.update(visible=True, value=product), \
-                    gr.update(visible=False)
+                    gr.update(visible=False), \
+                    gr.update(), \
+                    gr.update()
             if flag == 'finish':
                 yield gr.update(visible=False), \
                     gr.update(visible=False), \
                     gr.update(visible=False), \
-                    gr.update(visible=True, value=product)
+                    gr.update(visible=True, value=product), \
+                    gr.update(), \
+                    gr.update()
                 finished = True
 
     execution_time = time.perf_counter() - execution_start_time
@@ -98,6 +112,9 @@ with shared.gradio_root:
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', visible=True, height=768,
                                  elem_classes=['resizable_area', 'main_view', 'final_gallery', 'image_gallery'],
                                  elem_id='final_gallery')
+            with gr.Group(container=False):
+                real_positive_prompt = gr.Textbox(info='Positive prompt', elem_id='real_positive_prompt', text_align='left', container=False, interactive=False)
+                real_negative_prompt = gr.Textbox(info='Negative prompt', elem_id='real_negative_prompt', text_align='left', container=False, interactive=False)
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=17):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", elem_id='positive_prompt',
@@ -274,6 +291,19 @@ with shared.gradio_root:
                                                        queue=False,
                                                        show_progress=False).then(
                     lambda: None, _js='()=>{refresh_style_localization();}')
+
+                def prompt_styles(selections):
+                    if not selections:
+                        yield gr.update(value=""), gr.update(value="")
+
+                    last = sdxl_styles.styles.get(selections[-1], (None, None))
+                    yield gr.update(value=str(last[0])), gr.update(value=str(last[1]))
+
+                style_selections.change(prompt_styles,
+                                        inputs=style_selections,
+                                        outputs=[real_positive_prompt, real_negative_prompt],
+                                        queue=True,
+                                        show_progress=False)
 
             with gr.Tab(label='Model'):
                 with gr.Group():
@@ -502,7 +532,7 @@ with shared.gradio_root:
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, generate_button, gallery]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
-            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery, real_positive_prompt, real_negative_prompt]) \
             .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
