@@ -1,17 +1,31 @@
 import threading
+import uuid
 
 
 class AsyncTask:
     def __init__(self, args):
         self.args = args
+        self.uuid = str(uuid.uuid4())
+        self._name = None
         self.yields = []
         self.results = []
         self.finished = False
+
+    @property
+    def name(self):
+        return f"[{self.uuid}] {self._name or str(self.args[0])}"
 
 
 async_tasks = []
 running_tasks = []
 results = []
+
+
+def queue_list():
+    return [
+        task.name
+        for task in running_tasks + async_tasks
+    ]
 
 
 def worker():
@@ -122,6 +136,7 @@ def worker():
         args.reverse()
 
         prompt = args.pop()
+        async_task._name = prompt
         negative_prompt = args.pop()
         style_selections = args.pop()
         performance_selection = args.pop()

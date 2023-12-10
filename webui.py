@@ -37,7 +37,8 @@ def generate_clicked(*args):
         gr.update(visible=bool(worker.results), value=worker.results), \
         gr.update(), \
         gr.update(), \
-        gr.update(value=str(len(worker.async_tasks)))
+        gr.update(value=str(len(worker.async_tasks))), \
+        gr.update(choices=worker.queue_list())
 
     execution_start_time = time.perf_counter()
     task = worker.AsyncTask(args=list(args))
@@ -52,7 +53,8 @@ def generate_clicked(*args):
                     gr.update(visible=bool(worker.results), value=worker.results), \
                     gr.update(), \
                     gr.update(), \
-                    gr.update(value=str(len(worker.async_tasks)))
+                    gr.update(value=str(len(worker.async_tasks))), \
+                    gr.update(choices=worker.queue_list())
 
             task = worker.running_tasks[0]
 
@@ -63,7 +65,7 @@ def generate_clicked(*args):
             if flag == 'prompts':
                 default, positive, negative = product
 
-                yield gr.update(), gr.update(), gr.update(), gr.update(value=positive), gr.update(value=negative), gr.update(value=tasks_count)
+                yield gr.update(), gr.update(), gr.update(), gr.update(value=positive), gr.update(value=negative), gr.update(value=tasks_count), gr.update(choices=worker.queue_list())
 
             if flag == 'preview':
 
@@ -79,14 +81,16 @@ def generate_clicked(*args):
                     gr.update(visible=bool(worker.results), value=worker.results), \
                     gr.update(), \
                     gr.update(), \
-                    gr.update(value=tasks_count)
+                    gr.update(value=tasks_count), \
+                    gr.update(choices=worker.queue_list())
             if flag == 'results':
                 yield gr.update(visible=True), \
                     gr.update(visible=True), \
                     gr.update(visible=bool(worker.results), value=worker.results + product), \
                     gr.update(), \
                     gr.update(), \
-                    gr.update(value=tasks_count)
+                    gr.update(value=tasks_count), \
+                    gr.update(choices=worker.queue_list())
             if flag == 'finish':
                 if not len(worker.async_tasks):
                     yield gr.update(visible=False), \
@@ -94,10 +98,11 @@ def generate_clicked(*args):
                         gr.update(visible=bool(worker.results), value=worker.results), \
                         gr.update(), \
                         gr.update(), \
-                        gr.update(value=tasks_count)
+                        gr.update(value=tasks_count), \
+                        gr.update(choices=worker.queue_list())
                 task = None
         else:
-            yield gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(value=tasks_count)
+            yield gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(value=tasks_count), gr.update()
 
     execution_time = time.perf_counter() - execution_start_time
     print(f'Total time: {execution_time:.2f} seconds')
@@ -510,6 +515,19 @@ with shared.gradio_root:
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
                                     queue=False, show_progress=False)
+            with gr.Tab(label='Queue') as queue_tab:
+                stop_all = gr.Button(label="Stop all", value="Stop all", elem_id='stop_all_button', visible=True)
+                stop_any = gr.Button(label="Stop", value="Stop", elem_id='stop_any_button', visible=True)
+                queue_list = gr.CheckboxGroup(value=[], visible=True)
+
+                def stop_any_f(selected):
+                    to_stop = {x.split(' ', 1)[0] for x in selected}
+                    for task in list(worker.async_tasks):
+                        if task.uuid in to_stop:
+                            worker.async_tasks.remove(task)
+
+                stop_all.click(lambda: worker.async_tasks.clear(), queue=False)
+                stop_any.click(stop_any_f, inputs=queue_list)
 
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11,
                                      inputs=performance_selection,
@@ -571,7 +589,7 @@ with shared.gradio_root:
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False)), outputs=[stop_button, skip_button, queue_button, generate_button]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
-            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, real_positive_prompt, real_negative_prompt, queue_length]) \
+            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, real_positive_prompt, real_negative_prompt, queue_length, queue_list]) \
             .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button, queue_button]) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
