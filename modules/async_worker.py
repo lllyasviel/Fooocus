@@ -6,9 +6,11 @@ class AsyncTask:
         self.args = args
         self.yields = []
         self.results = []
+        self.finished = False
 
 
 async_tasks = []
+running_tasks = []
 
 
 def worker():
@@ -802,6 +804,7 @@ def worker():
         time.sleep(0.01)
         if len(async_tasks) > 0:
             task = async_tasks.pop(0)
+            running_tasks.append(task)
             try:
                 handler(task)
             except:
@@ -810,6 +813,7 @@ def worker():
                 build_image_wall(task)
                 task.yields.append(['finish', task.results])
                 pipeline.prepare_text_encoder(async_call=True)
+                running_tasks.remove(task)
     pass
 
 
