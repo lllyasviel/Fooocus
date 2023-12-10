@@ -31,24 +31,31 @@ def generate_clicked(*args):
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
 
-    # outputs=[progress_html, progress_window, progress_gallery, gallery]
+    # outputs=[progress_html, progress_window, progress_gallery]
+    yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
+        gr.update(visible=True, value=None), \
+        gr.update(visible=bool(worker.results), value=worker.results), \
+        gr.update(), \
+        gr.update(), \
+        gr.update(value=str(len(worker.async_tasks)))
 
     execution_start_time = time.perf_counter()
     task = worker.AsyncTask(args=list(args))
     worker.async_tasks.append(task)
 
-    while len(worker.async_tasks) or len(worker.running_tasks):
-        while not len(worker.running_tasks):
-            time.sleep(0.5)
-            yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
-                gr.update(visible=True, value=None), \
-                gr.update(visible=False, value=None), \
-                gr.update(visible=False), \
-                gr.update(), \
-                gr.update(), \
-                gr.update(value=str(len(worker.async_tasks)))
+    while len(worker.async_tasks) or len(worker.running_tasks) or task:
+        if not task:
+            while not len(worker.running_tasks):
+                time.sleep(0.5)
+                yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
+                    gr.update(visible=True, value=None), \
+                    gr.update(visible=bool(worker.results), value=worker.results), \
+                    gr.update(), \
+                    gr.update(), \
+                    gr.update(value=str(len(worker.async_tasks)))
 
-        task = worker.running_tasks[0]
+            task = worker.running_tasks[0]
+
         tasks_count = f"Tasks count: {len(worker.async_tasks) + len(worker.running_tasks)}"
         time.sleep(0.01)
         if len(task.yields) > 0:
@@ -56,7 +63,7 @@ def generate_clicked(*args):
             if flag == 'prompts':
                 default, positive, negative = product
 
-                yield gr.update(), gr.update(), gr.update(), gr.update(visible=False), gr.update(value=positive), gr.update(value=negative), gr.update(value=tasks_count)
+                yield gr.update(), gr.update(), gr.update(), gr.update(value=positive), gr.update(value=negative), gr.update(value=tasks_count)
 
             if flag == 'preview':
 
@@ -69,16 +76,14 @@ def generate_clicked(*args):
                 percentage, title, image = product
                 yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
-                    gr.update(), \
-                    gr.update(visible=False), \
+                    gr.update(visible=bool(worker.results), value=worker.results), \
                     gr.update(), \
                     gr.update(), \
                     gr.update(value=tasks_count)
             if flag == 'results':
                 yield gr.update(visible=True), \
                     gr.update(visible=True), \
-                    gr.update(visible=True, value=product), \
-                    gr.update(visible=False), \
+                    gr.update(visible=bool(worker.results), value=worker.results + product), \
                     gr.update(), \
                     gr.update(), \
                     gr.update(value=tasks_count)
@@ -86,12 +91,11 @@ def generate_clicked(*args):
                 if not len(worker.async_tasks):
                     yield gr.update(visible=False), \
                         gr.update(visible=False), \
-                        gr.update(visible=True, value=None), \
-                        gr.update(visible=True, value=product), \
+                        gr.update(visible=bool(worker.results), value=worker.results), \
                         gr.update(), \
                         gr.update(), \
                         gr.update(value=tasks_count)
-                finished = True
+                task = None
         else:
             yield gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(value=tasks_count)
 
@@ -127,18 +131,18 @@ with shared.gradio_root:
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Row():
-                progress_window = grh.Image(label='Preview', show_label=True, visible=False, height=768,
+                progress_window = grh.Image(label='Preview', show_label=True, visible=True, height=768,
                                             elem_classes=['main_view'])
                 progress_gallery = gr.Gallery(label='Finished Images', show_label=True, object_fit='contain',
                                               height=768, visible=False, elem_classes=['main_view', 'image_gallery'])
+
             progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False,
                                     elem_id='progress-bar', elem_classes='progress-bar')
-            gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', visible=True, height=768,
-                                 elem_classes=['resizable_area', 'main_view', 'final_gallery', 'image_gallery'],
-                                 elem_id='final_gallery')
-            with gr.Group():
+
+            with gr.Accordion(label='Prompts', open=False):
                 real_positive_prompt = gr.Textbox(info='Positive prompt', elem_id='real_positive_prompt', text_align='left', container=False, interactive=False, show_label=False, lines=3)
                 real_negative_prompt = gr.Textbox(info='Negative prompt', elem_id='real_negative_prompt', text_align='left', container=False, interactive=False, show_label=False, lines=3)
+
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=17):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", elem_id='positive_prompt',
@@ -168,10 +172,12 @@ with shared.gradio_root:
 
                     stop_button.click(stop_clicked, queue=False, show_progress=False, _js='cancelGenerateForever')
                     skip_button.click(skip_clicked, queue=False, show_progress=False)
+
             with gr.Row(elem_classes='advanced_check_row'):
+                with gr.Column():
+                    queue_length = gr.Markdown(value='Tasks count: ', container=False)
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
-                queue_length = gr.Markdown(value='Tasks count: ', container=False)
 
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Tabs():
@@ -264,6 +270,10 @@ with shared.gradio_root:
                                              value=modules.config.default_prompt_negative)
                 seed_random = gr.Checkbox(label='Random', value=True)
                 image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
+                clear_button = gr.Button(label="Clear workspace", value="Clear workspace", elem_id='clear_button',
+                                         visible=True)
+
+                clear_button.click(lambda: worker.results.clear(), queue=False)
 
                 def random_checked(r):
                     return gr.update(visible=not r)
@@ -558,10 +568,10 @@ with shared.gradio_root:
         ctrls += ip_ctrls
         ctrls += [custom_steps]
 
-        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, queue_button, generate_button, gallery]) \
+        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False)), outputs=[stop_button, skip_button, queue_button, generate_button]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
-            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery, real_positive_prompt, real_negative_prompt, queue_length]) \
+            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, real_positive_prompt, real_negative_prompt, queue_length]) \
             .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button, queue_button]) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
