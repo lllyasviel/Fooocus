@@ -1,4 +1,8 @@
+import json
 import os
+
+from PIL.PngImagePlugin import PngInfo
+
 import args_manager
 import modules.config
 
@@ -22,7 +26,9 @@ def log(img, dic, single_line_number=3):
 
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
-    Image.fromarray(img).save(local_temp_filename)
+    pnginfo = PngInfo()
+    pnginfo.add_text("Comment", json.dumps(dic, ensure_ascii=False))
+    Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
 
     existing_log = log_cache.get(html_name, None)

@@ -6,9 +6,11 @@ class AsyncTask:
         self.args = args
         self.yields = []
         self.results = []
+        self.finished = False
 
 
 async_tasks = []
+running_tasks = []
 
 
 def worker():
@@ -165,15 +167,19 @@ def worker():
             print(f'Refiner disabled because base model and refiner are same.')
             refiner_model_name = 'None'
 
-        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed']
+        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed', 'Custom']
 
         steps = 30
+        custom_steps = args.pop()
 
         if performance_selection == 'Speed':
             steps = 30
 
         if performance_selection == 'Quality':
             steps = 60
+
+        if performance_selection == 'Custom':
+            steps = custom_steps
 
         if performance_selection == 'Extreme Speed':
             print('Enter LCM mode.')
@@ -407,6 +413,9 @@ def worker():
                     print(f'[Prompt Expansion] {expansion}')
                     t['expansion'] = expansion
                     t['positive'] = copy.deepcopy(t['positive']) + [expansion]  # Deep copy.
+
+            last_task = tasks[-1]
+            async_task.yields.append(['prompts', (last_task['task_prompt'], str(last_task['positive'][-1]), str(last_task['negative'][-1]))])
 
             for i, t in enumerate(tasks):
                 progressbar(async_task, 7, f'Encoding positive #{i + 1} ...')
@@ -799,6 +808,7 @@ def worker():
         time.sleep(0.01)
         if len(async_tasks) > 0:
             task = async_tasks.pop(0)
+            running_tasks.append(task)
             try:
                 handler(task)
             except:
@@ -807,6 +817,7 @@ def worker():
                 build_image_wall(task)
                 task.yields.append(['finish', task.results])
                 pipeline.prepare_text_encoder(async_call=True)
+                running_tasks.remove(task)
     pass
 
 

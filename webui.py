@@ -15,10 +15,14 @@ import modules.style_sorter as style_sorter
 import args_manager
 import copy
 
+from modules import sdxl_styles
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
+
+
+global_queue = []
 
 
 def generate_clicked(*args):
@@ -31,19 +35,29 @@ def generate_clicked(*args):
 
     execution_start_time = time.perf_counter()
     task = worker.AsyncTask(args=list(args))
-    finished = False
-
-    yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
-        gr.update(visible=True, value=None), \
-        gr.update(visible=False, value=None), \
-        gr.update(visible=False)
-
     worker.async_tasks.append(task)
 
-    while not finished:
+    while len(worker.async_tasks) or len(worker.running_tasks):
+        while not len(worker.running_tasks):
+            time.sleep(0.5)
+            yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
+                gr.update(visible=True, value=None), \
+                gr.update(visible=False, value=None), \
+                gr.update(visible=False), \
+                gr.update(), \
+                gr.update(), \
+                gr.update(value=str(len(worker.async_tasks)))
+
+        task = worker.running_tasks[0]
+        tasks_count = f"Tasks count: {len(worker.async_tasks) + len(worker.running_tasks)}"
         time.sleep(0.01)
         if len(task.yields) > 0:
             flag, product = task.yields.pop(0)
+            if flag == 'prompts':
+                default, positive, negative = product
+
+                yield gr.update(), gr.update(), gr.update(), gr.update(visible=False), gr.update(value=positive), gr.update(value=negative), gr.update(value=tasks_count)
+
             if flag == 'preview':
 
                 # help bad internet connection by skipping duplicated preview
@@ -56,22 +70,46 @@ def generate_clicked(*args):
                 yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
                     gr.update(), \
-                    gr.update(visible=False)
+                    gr.update(visible=False), \
+                    gr.update(), \
+                    gr.update(), \
+                    gr.update(value=tasks_count)
             if flag == 'results':
                 yield gr.update(visible=True), \
                     gr.update(visible=True), \
                     gr.update(visible=True, value=product), \
-                    gr.update(visible=False)
+                    gr.update(visible=False), \
+                    gr.update(), \
+                    gr.update(), \
+                    gr.update(value=tasks_count)
             if flag == 'finish':
-                yield gr.update(visible=False), \
-                    gr.update(visible=False), \
-                    gr.update(visible=False), \
-                    gr.update(visible=True, value=product)
+                if not len(worker.async_tasks):
+                    yield gr.update(visible=False), \
+                        gr.update(visible=False), \
+                        gr.update(visible=True, value=None), \
+                        gr.update(visible=True, value=product), \
+                        gr.update(), \
+                        gr.update(), \
+                        gr.update(value=tasks_count)
                 finished = True
+        else:
+            yield gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(value=tasks_count)
 
     execution_time = time.perf_counter() - execution_start_time
     print(f'Total time: {execution_time:.2f} seconds')
-    return
+
+
+def queue_clicked(*args):
+    import fcbh.model_management as model_management
+
+    with model_management.interrupt_processing_mutex:
+        model_management.interrupt_processing = False
+
+    time.sleep(0.1)
+    task = worker.AsyncTask(args=list(copy.deepcopy(args)))
+    worker.async_tasks.append(task)
+    tasks_count = f"Tasks count: {len(worker.async_tasks) + len(worker.running_tasks)}"
+    return gr.update(value=tasks_count)
 
 
 reload_javascript()
@@ -98,6 +136,9 @@ with shared.gradio_root:
             gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', visible=True, height=768,
                                  elem_classes=['resizable_area', 'main_view', 'final_gallery', 'image_gallery'],
                                  elem_id='final_gallery')
+            with gr.Group():
+                real_positive_prompt = gr.Textbox(info='Positive prompt', elem_id='real_positive_prompt', text_align='left', container=False, interactive=False, show_label=False, lines=3)
+                real_negative_prompt = gr.Textbox(info='Negative prompt', elem_id='real_negative_prompt', text_align='left', container=False, interactive=False, show_label=False, lines=3)
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=17):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", elem_id='positive_prompt',
@@ -107,16 +148,17 @@ with shared.gradio_root:
                     if isinstance(default_prompt, str) and default_prompt != '':
                         shared.gradio_root.load(lambda: default_prompt, outputs=prompt)
 
-                with gr.Column(scale=3, min_width=0):
+                with gr.Column(scale=4, min_width=0):
                     generate_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', elem_id='generate_button', visible=True)
                     skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', visible=False)
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
+                    queue_button = gr.Button(label="Queue", value="Queue", elem_classes='type_row_half', elem_id='queue_button', visible=False)
 
                     def stop_clicked():
                         import fcbh.model_management as model_management
                         shared.last_stop = 'stop'
                         model_management.interrupt_current_processing()
-                        return [gr.update(interactive=False)] * 2
+                        return
 
                     def skip_clicked():
                         import fcbh.model_management as model_management
@@ -124,12 +166,13 @@ with shared.gradio_root:
                         model_management.interrupt_current_processing()
                         return
 
-                    stop_button.click(stop_clicked, outputs=[skip_button, stop_button],
-                                      queue=False, show_progress=False, _js='cancelGenerateForever')
+                    stop_button.click(stop_clicked, queue=False, show_progress=False, _js='cancelGenerateForever')
                     skip_button.click(skip_clicked, queue=False, show_progress=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
+                queue_length = gr.Markdown(value='Tasks count: ', container=False)
+
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Tabs():
                     with gr.TabItem(label='Upscale or Variation') as uov_tab:
@@ -210,6 +253,7 @@ with shared.gradio_root:
                 performance_selection = gr.Radio(label='Performance',
                                                  choices=modules.flags.performance_selections,
                                                  value=modules.config.default_performance)
+                custom_steps = gr.Slider(label='Steps', minimum=1, maximum=200, step=1, value=30)
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
                                                    value=modules.config.default_aspect_ratio, info='width × height',
                                                    elem_classes='aspect_ratios')
@@ -274,6 +318,20 @@ with shared.gradio_root:
                                                        queue=False,
                                                        show_progress=False).then(
                     lambda: None, _js='()=>{refresh_style_localization();}')
+
+                def prompt_styles(selections):
+                    try:
+                        last = sdxl_styles.styles.get(selections[-1], (None, None))
+                        yield gr.update(value=str(last[0])), gr.update(value=str(last[1]))
+                    except IndexError:
+                        yield gr.update(value=""), gr.update(value="")
+
+
+                style_selections.change(prompt_styles,
+                                        inputs=style_selections,
+                                        outputs=[real_positive_prompt, real_negative_prompt],
+                                        queue=True,
+                                        show_progress=False)
 
             with gr.Tab(label='Model'):
                 with gr.Group():
@@ -498,13 +556,16 @@ with shared.gradio_root:
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
         ctrls += ip_ctrls
+        ctrls += [custom_steps]
 
-        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, generate_button, gallery]) \
+        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, queue_button, generate_button, gallery]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
-            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
-            .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
+            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery, real_positive_prompt, real_negative_prompt, queue_length]) \
+            .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button, queue_button]) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
+
+        queue_button.click(fn=queue_clicked, inputs=ctrls, outputs=queue_length, queue=False)
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):
