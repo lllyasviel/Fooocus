@@ -167,15 +167,19 @@ def worker():
             print(f'Refiner disabled because base model and refiner are same.')
             refiner_model_name = 'None'
 
-        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed']
+        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed', 'Custom']
 
         steps = 30
+        custom_steps = args.pop()
 
         if performance_selection == 'Speed':
             steps = 30
 
         if performance_selection == 'Quality':
             steps = 60
+
+        if performance_selection == 'Custom':
+            steps = custom_steps
 
         if performance_selection == 'Extreme Speed':
             print('Enter LCM mode.')

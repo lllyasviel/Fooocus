@@ -39,7 +39,6 @@ def generate_clicked(*args):
 
     while len(worker.async_tasks) or len(worker.running_tasks):
         while not len(worker.running_tasks):
-            print('running_tasks', len(worker.running_tasks))
             time.sleep(0.5)
             yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
                 gr.update(visible=True, value=None), \
@@ -84,7 +83,7 @@ def generate_clicked(*args):
                     gr.update(), \
                     gr.update(value=tasks_count)
             if flag == 'finish':
-                if not (len(worker.async_tasks)):
+                if not len(worker.async_tasks):
                     yield gr.update(visible=False), \
                         gr.update(visible=False), \
                         gr.update(visible=True, value=None), \
@@ -98,7 +97,6 @@ def generate_clicked(*args):
 
     execution_time = time.perf_counter() - execution_start_time
     print(f'Total time: {execution_time:.2f} seconds')
-    return
 
 
 def queue_clicked(*args):
@@ -255,6 +253,7 @@ with shared.gradio_root:
                 performance_selection = gr.Radio(label='Performance',
                                                  choices=modules.flags.performance_selections,
                                                  value=modules.config.default_performance)
+                custom_steps = gr.Slider(label='Steps', minimum=1, maximum=200, step=1, value=30)
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
                                                    value=modules.config.default_aspect_ratio, info='width × height',
                                                    elem_classes='aspect_ratios')
@@ -557,6 +556,7 @@ with shared.gradio_root:
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
         ctrls += ip_ctrls
+        ctrls += [custom_steps]
 
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, queue_button, generate_button, gallery]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
