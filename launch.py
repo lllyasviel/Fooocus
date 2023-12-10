@@ -11,7 +11,7 @@ sys.path += [root, backend_path]
 os.chdir(root)
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 os.environ["GRADIO_SERVER_PORT"] = "7865"
-
+os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
 
 import platform
 import fooocus_version
