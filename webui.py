@@ -92,7 +92,7 @@ def generate_clicked(*args):
                     gr.update(value=tasks_count), \
                     gr.update(choices=worker.queue_list())
             if flag == 'finish':
-                if not len(worker.async_tasks):
+                if len(worker.async_tasks):
                     yield gr.update(visible=False), \
                         gr.update(visible=False), \
                         gr.update(visible=bool(worker.results), value=worker.results), \
@@ -100,6 +100,15 @@ def generate_clicked(*args):
                         gr.update(), \
                         gr.update(value=tasks_count), \
                         gr.update(choices=worker.queue_list())
+                else:
+                    yield gr.update(), \
+                        gr.update(), \
+                        gr.update(visible=bool(worker.results), value=worker.results), \
+                        gr.update(), \
+                        gr.update(), \
+                        gr.update(value=tasks_count), \
+                        gr.update(choices=worker.queue_list())
+
                 task = None
         else:
             yield gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(value=tasks_count), gr.update()
