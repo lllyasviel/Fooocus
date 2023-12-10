@@ -1,8 +1,3 @@
-
-# Update 更新内容
-
-Fooocus 2.1.824 版本在基础上，添加了上传蒙版功能，enable upload mask，添加复选框，默认情况下不显示蒙版上传框，勾选后再显示。
-
 <div align=center>
 <img src="https://github.com/lllyasviel/Fooocus/assets/19834515/483fb86d-c9a2-4c20-997c-46dafc124f25">
 
