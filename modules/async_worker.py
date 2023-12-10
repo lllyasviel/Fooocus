@@ -11,6 +11,7 @@ class AsyncTask:
 
 async_tasks = []
 running_tasks = []
+results = []
 
 
 def worker():
@@ -815,6 +816,7 @@ def worker():
                 traceback.print_exc()
             finally:
                 build_image_wall(task)
+                results.extend(task.results)
                 task.yields.append(['finish', task.results])
                 pipeline.prepare_text_encoder(async_call=True)
                 running_tasks.remove(task)
