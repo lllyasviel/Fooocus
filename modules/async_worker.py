@@ -1,3 +1,4 @@
+import re
 import typing as tp
 import copy
 import dataclasses
@@ -32,31 +33,65 @@ class TaskArgs:
 
 
 class AsyncTask:
-    def __init__(self, execution_start_time, **kwargs):
+    def __init__(self, **kwargs):
         self.uuid = str(uuid.uuid4())
-        self.name = f"[{self.uuid}] {kwargs.get('prompt')}"
-        self.start_time = execution_start_time
         self.args = TaskArgs(**copy.deepcopy(kwargs))
-
+        self.name = f"[{self.uuid}] {kwargs.get('prompt')}"
         #
         self.yields = []
         self.results = []
         self.finished = False
 
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f'<AsyncTask: "{self.name}">'
+
 
 async_tasks: list[AsyncTask] = []
 running_tasks: list[AsyncTask] = []
-results = []
 events: list[tuple[str, tp.Any]] = []
 states = {
     'progress_bar': (0, '...'),
     'preview': None,
+    'running_task': None,
+    'tasks_list': [],
+    'gallery': [],
 }
 
 
-def async_tasks_list():
-    global async_tasks
-    return [task.name for task in async_tasks]
+def update_task_states():
+    running_task = None
+    try:
+        running_task = running_tasks[0]
+    except IndexError:
+        pass
+    finally:
+        states['running_task'] = running_task.name if running_tasks else None
+
+    states['tasks_list'] = [task.name for task in async_tasks]
+    return states['running_task'], states['tasks_list']
+
+
+def add_task(task: AsyncTask):
+    async_tasks.append(task)
+    return update_task_states()
+
+
+def remove_task(selected):
+    rer = re.compile(r'\[([\w-]+)]')
+    to_stop = {re.findall(rer, x)[0] for x in selected}
+    for task in list(async_tasks):
+        if task.uuid in to_stop:
+            async_tasks.remove(task)
+
+    return update_task_states()
+
+
+def clear_tasks():
+    async_tasks.clear()
+    return update_task_states()
 
 
 def worker():
@@ -119,11 +154,9 @@ def worker():
         events.append(('Results', async_task.results))
 
     def yield_finish(async_task):
-        global results
-
         states['preview'] = None
-        results.extend(async_task.results)
-        events.append(('Finish', results))
+        states['gallery'].extend(async_task.results)
+        events.append(('Finish', states['gallery']))
 
     def build_image_wall(async_task):
         if not advanced_parameters.generate_image_grid:
