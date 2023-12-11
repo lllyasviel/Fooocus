@@ -224,6 +224,10 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
+## Troubleshoot
+
+See the common problems [here](troubleshoot.md).
+
 ## Default Models
 <a name="models"></a>
 
