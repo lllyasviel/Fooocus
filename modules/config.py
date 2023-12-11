@@ -349,7 +349,7 @@ def add_ratio(x):
     a, b = x.replace('*', ' ').split(' ')[:2]
     a, b = int(a), int(b)
     g = math.gcd(a, b)
-    return f'{a}×{b} <span style="color: grey;"> \U00002223 {a // g}:{b // g}</span>'
+    return f'{a}×{b}  [{a // g}:{b // g}]'
 
 
 default_aspect_ratio = add_ratio(default_aspect_ratio)

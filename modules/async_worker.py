@@ -1,35 +1,66 @@
+import typing as tp
+import copy
+import dataclasses
 import threading
 import uuid
 
 
+@dataclasses.dataclass
+class TaskArgs:
+    prompt: str
+    negative_prompt: str
+    style_selections: list[str]
+    performance_selection: str
+    aspect_ratios_selection: str
+    image_number: int
+    image_seed: int
+    sharpness: float
+    guidance_scale: float
+    custom_steps: int
+    base_model_name: str
+    refiner_model_name: str
+    refiner_switch: float
+    loras: list[tuple[str, float]]
+    input_image_checkbox: bool
+    current_tab: str
+    uov_method: str
+    uov_input_image: tp.Any
+    outpaint_selections: str
+    inpaint_input_image: tp.Any
+    inpaint_additional_prompt: str
+    ip_ctrls: list
+
+
 class AsyncTask:
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, execution_start_time, **kwargs):
         self.uuid = str(uuid.uuid4())
-        self._name = None
+        self.start_time = execution_start_time
+        self.args = TaskArgs(**copy.deepcopy(kwargs))
+
+        #
         self.yields = []
         self.results = []
         self.finished = False
 
     @property
     def name(self):
-        return f"[{self.uuid}] {self._name or str(self.args[0])}"
+        return f"[{self.uuid}] {self.args.prompt}"
 
 
-async_tasks = []
-running_tasks = []
+async_tasks: list[AsyncTask] = []
+running_task: AsyncTask | None = None
 results = []
-
-
-def queue_list():
-    return [
-        task.name
-        for task in running_tasks + async_tasks
-    ]
+events: list[tuple[str, tp.Any]] = []
+states = {
+    'progress_bar': (0, '...'),
+    'preview': None,
+}
 
 
 def worker():
     global async_tasks
+    global running_task
+    global results
 
     import traceback
     import math
@@ -70,7 +101,13 @@ def worker():
 
     def progressbar(async_task, number, text):
         print(f'[Fooocus] {text}')
-        async_task.yields.append(['preview', (number, text, None)])
+        states['progress_bar'] = (number, text)
+        events.append(('Preview', (number, text, None)))
+
+    def yield_preview(async_task, number, text, img):
+        states['progress_bar'] = (number, text)
+        states['preview'] = img
+        events.append(('Preview', (number, text, img)))
 
     def yield_result(async_task, imgs, do_not_show_finished_images=False):
         if not isinstance(imgs, list):
@@ -81,8 +118,14 @@ def worker():
         if do_not_show_finished_images:
             return
 
-        async_task.yields.append(['results', async_task.results])
-        return
+        events.append(('Results', async_task.results))
+
+    def yield_finish(async_task):
+        global results
+
+        states['preview'] = None
+        results.extend(async_task.results)
+        events.append(('Finish', results))
 
     def build_image_wall(async_task):
         if not advanced_parameters.generate_image_grid:
@@ -129,98 +172,68 @@ def worker():
 
     @torch.no_grad()
     @torch.inference_mode()
-    def handler(async_task):
+    def handler(async_task: AsyncTask):
         execution_start_time = time.perf_counter()
-
         args = async_task.args
-        args.reverse()
-
-        prompt = args.pop()
-        async_task._name = prompt
-        negative_prompt = args.pop()
-        style_selections = args.pop()
-        performance_selection = args.pop()
-        aspect_ratios_selection = args.pop()
-        image_number = args.pop()
-        image_seed = args.pop()
-        sharpness = args.pop()
-        guidance_scale = args.pop()
-        base_model_name = args.pop()
-        refiner_model_name = args.pop()
-        refiner_switch = args.pop()
-        loras = [[str(args.pop()), float(args.pop())] for _ in range(5)]
-        input_image_checkbox = args.pop()
-        current_tab = args.pop()
-        uov_method = args.pop()
-        uov_input_image = args.pop()
-        outpaint_selections = args.pop()
-        inpaint_input_image = args.pop()
-        inpaint_additional_prompt = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
-            cn_img = args.pop()
-            cn_stop = args.pop()
-            cn_weight = args.pop()
-            cn_type = args.pop()
+            cn_img = args.ip_ctrls.pop()
+            cn_stop = args.ip_ctrls.pop()
+            cn_weight = args.ip_ctrls.pop()
+            cn_type = args.ip_ctrls.pop()
             if cn_img is not None:
                 cn_tasks[cn_type].append([cn_img, cn_stop, cn_weight])
 
-        outpaint_selections = [o.lower() for o in outpaint_selections]
+        outpaint_selections = [o.lower() for o in args.outpaint_selections]
         base_model_additional_loras = []
-        raw_style_selections = copy.deepcopy(style_selections)
-        uov_method = uov_method.lower()
+        raw_style_selections = copy.deepcopy(args.style_selections)
+        uov_method = args.uov_method.lower()
 
-        if fooocus_expansion in style_selections:
+        if fooocus_expansion in args.style_selections:
             use_expansion = True
-            style_selections.remove(fooocus_expansion)
+            args.style_selections.remove(fooocus_expansion)
         else:
             use_expansion = False
 
-        use_style = len(style_selections) > 0
+        use_style = len(args.style_selections) > 0
 
-        if base_model_name == refiner_model_name:
+        if args.base_model_name == args.refiner_model_name:
             print(f'Refiner disabled because base model and refiner are same.')
-            refiner_model_name = 'None'
+            args.refiner_model_name = 'None'
 
-        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed', 'Custom']
+        assert args.performance_selection in ['Speed', 'Quality', 'Extreme Speed', 'Custom']
 
-        steps = 30
-        custom_steps = args.pop()
+        steps_map = {
+            'Speed': 30,
+            'Quality': 60,
+            'Extreme Speed': 8,
+        }
+        steps = steps_map.get(args.performance_selection, args.custom_steps)
 
-        if performance_selection == 'Speed':
-            steps = 30
-
-        if performance_selection == 'Quality':
-            steps = 60
-
-        if performance_selection == 'Custom':
-            steps = custom_steps
-
-        if performance_selection == 'Extreme Speed':
+        if args.performance_selection == 'Extreme Speed':
             print('Enter LCM mode.')
             progressbar(async_task, 1, 'Downloading LCM components ...')
-            loras += [(modules.config.downloading_sdxl_lcm_lora(), 1.0)]
+            args.loras += [(modules.config.downloading_sdxl_lcm_lora(), 1.0)]
 
-            if refiner_model_name != 'None':
+            if args.refiner_model_name != 'None':
                 print(f'Refiner disabled in LCM mode.')
 
-            refiner_model_name = 'None'
+            args.refiner_model_name = 'None'
             sampler_name = advanced_parameters.sampler_name = 'lcm'
             scheduler_name = advanced_parameters.scheduler_name = 'lcm'
-            modules.patch.sharpness = sharpness = 0.0
-            cfg_scale = guidance_scale = 1.0
+            modules.patch.sharpness = args.sharpness = 0.0
+            cfg_scale = args.guidance_scale = 1.0
             modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg = 1.0
-            refiner_switch = 1.0
+            args.refiner_switch = 1.0
             modules.patch.positive_adm_scale = advanced_parameters.adm_scaler_positive = 1.0
             modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative = 1.0
             modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
-            steps = 8
 
         modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
 
-        modules.patch.sharpness = sharpness
+        modules.patch.sharpness = args.sharpness
         print(f'[Parameters] Sharpness = {modules.patch.sharpness}')
 
         modules.patch.positive_adm_scale = advanced_parameters.adm_scaler_positive
@@ -231,14 +244,14 @@ def worker():
               f'{modules.patch.negative_adm_scale} : '
               f'{modules.patch.adm_scaler_end}')
 
-        cfg_scale = float(guidance_scale)
+        cfg_scale = float(args.guidance_scale)
         print(f'[Parameters] CFG = {cfg_scale}')
 
         initial_latent = None
         denoising_strength = 1.0
         tiled = False
 
-        width, height = aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
+        width, height = args.aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
         width, height = int(width), int(height)
 
         skip_prompt_processing = False
@@ -256,7 +269,7 @@ def worker():
         controlnet_cpds_path = None
         clip_vision_path, ip_negative_path, ip_adapter_path, ip_adapter_face_path = None, None, None, None
 
-        seed = int(image_seed)
+        seed = int(args.image_seed)
         print(f'[Parameters] Seed = {seed}')
 
         sampler_name = advanced_parameters.sampler_name
@@ -265,11 +278,11 @@ def worker():
         goals = []
         tasks = []
 
-        if input_image_checkbox:
-            if (current_tab == 'uov' or (
-                    current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_vary_upscale)) \
-                    and uov_method != flags.disabled and uov_input_image is not None:
-                uov_input_image = HWC3(uov_input_image)
+        if args.input_image_checkbox:
+            if (args.current_tab == 'uov' or (
+                    args.current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_vary_upscale)) \
+                    and uov_method != flags.disabled and args.uov_input_image is not None:
+                args.uov_input_image = HWC3(args.uov_input_image)
                 if 'vary' in uov_method:
                     goals.append('vary')
                 elif 'upscale' in uov_method:
@@ -279,22 +292,22 @@ def worker():
                     else:
                         steps = 18
 
-                        if performance_selection == 'Speed':
+                        if args.performance_selection == 'Speed':
                             steps = 18
 
-                        if performance_selection == 'Quality':
+                        if args.performance_selection == 'Quality':
                             steps = 36
 
-                        if performance_selection == 'Extreme Speed':
+                        if args.performance_selection == 'Extreme Speed':
                             steps = 8
 
                     progressbar(async_task, 1, 'Downloading upscale models ...')
                     modules.config.downloading_upscale_model()
-            if (current_tab == 'inpaint' or (
-                    current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint)) \
-                    and isinstance(inpaint_input_image, dict):
-                inpaint_image = inpaint_input_image['image']
-                inpaint_mask = inpaint_input_image['mask'][:, :, 0]
+            if (args.current_tab == 'inpaint' or (
+                    args.current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint)) \
+                    and isinstance(args.inpaint_input_image, dict):
+                inpaint_image = args.inpaint_input_image['image']
+                inpaint_mask = args.inpaint_input_image['mask'][:, :, 0]
                 inpaint_image = HWC3(inpaint_image)
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
@@ -305,19 +318,19 @@ def worker():
                             advanced_parameters.inpaint_engine)
                         base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
                         print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
-                        if refiner_model_name == 'None':
+                        if args.refiner_model_name == 'None':
                             use_synthetic_refiner = True
                             refiner_switch = 0.5
                     else:
                         inpaint_head_model_path, inpaint_patch_model_path = None, None
                         print(f'[Inpaint] Parameterized inpaint is disabled.')
-                    if inpaint_additional_prompt != '':
-                        if prompt == '':
-                            prompt = inpaint_additional_prompt
+                    if args.inpaint_additional_prompt != '':
+                        if args.prompt == '':
+                            prompt = args.inpaint_additional_prompt
                         else:
-                            prompt = inpaint_additional_prompt + '\n' + prompt
+                            prompt = args.inpaint_additional_prompt + '\n' + args.prompt
                     goals.append('inpaint')
-            if current_tab == 'ip' or \
+            if args.current_tab == 'ip' or \
                     advanced_parameters.mixing_image_prompt_and_inpaint or \
                     advanced_parameters.mixing_image_prompt_and_vary_upscale:
                 goals.append('cn')
@@ -338,7 +351,7 @@ def worker():
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
 
-        switch = int(round(steps * refiner_switch))
+        switch = int(round(steps * args.refiner_switch))
 
         if advanced_parameters.overwrite_step > 0:
             steps = advanced_parameters.overwrite_step
@@ -359,8 +372,8 @@ def worker():
 
         if not skip_prompt_processing:
 
-            prompts = remove_empty_str([safe_str(p) for p in prompt.splitlines()], default='')
-            negative_prompts = remove_empty_str([safe_str(p) for p in negative_prompt.splitlines()], default='')
+            prompts = remove_empty_str([safe_str(p) for p in args.prompt.splitlines()], default='')
+            negative_prompts = remove_empty_str([safe_str(p) for p in args.negative_prompt.splitlines()], default='')
 
             prompt = prompts[0]
             negative_prompt = negative_prompts[0]
@@ -373,13 +386,13 @@ def worker():
             extra_negative_prompts = negative_prompts[1:] if len(negative_prompts) > 1 else []
 
             progressbar(async_task, 3, 'Loading models ...')
-            pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
-                                        loras=loras, base_model_additional_loras=base_model_additional_loras,
+            pipeline.refresh_everything(refiner_model_name=args.refiner_model_name, base_model_name=args.base_model_name,
+                                        loras=args.loras, base_model_additional_loras=base_model_additional_loras,
                                         use_synthetic_refiner=use_synthetic_refiner)
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
-            for i in range(image_number):
+            for i in range(args.image_number):
                 task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
 
@@ -392,7 +405,7 @@ def worker():
                 negative_basic_workloads = []
 
                 if use_style:
-                    for s in style_selections:
+                    for s in args.style_selections:
                         p, n = apply_style(s, positive=task_prompt)
                         positive_basic_workloads = positive_basic_workloads + p
                         negative_basic_workloads = negative_basic_workloads + n
@@ -431,7 +444,10 @@ def worker():
                     t['positive'] = copy.deepcopy(t['positive']) + [expansion]  # Deep copy.
 
             last_task = tasks[-1]
-            async_task.yields.append(['prompts', (last_task['task_prompt'], str(last_task['positive'][-1]), str(last_task['negative'][-1]))])
+
+            async_task.positive_prompt = last_task['positive'][-1] or ''
+            async_task.negative_prompt = last_task['negative'][-1] or ''
+            events.append(('Prompts', (async_task.positive_prompt, async_task.negative_prompt)))
 
             for i, t in enumerate(tasks):
                 progressbar(async_task, 7, f'Encoding positive #{i + 1} ...')
@@ -455,7 +471,7 @@ def worker():
             if advanced_parameters.overwrite_vary_strength > 0:
                 denoising_strength = advanced_parameters.overwrite_vary_strength
 
-            shape_ceil = get_image_shape_ceil(uov_input_image)
+            shape_ceil = get_image_shape_ceil(args.uov_input_image)
             if shape_ceil < 1024:
                 print(f'[Vary] Image is resized because it is too small.')
                 shape_ceil = 1024
@@ -463,9 +479,9 @@ def worker():
                 print(f'[Vary] Image is resized because it is too big.')
                 shape_ceil = 2048
 
-            uov_input_image = set_image_shape_ceil(uov_input_image, shape_ceil)
+            args.uov_input_image = set_image_shape_ceil(args.uov_input_image, shape_ceil)
 
-            initial_pixels = core.numpy_to_pytorch(uov_input_image)
+            initial_pixels = core.numpy_to_pytorch(args.uov_input_image)
             progressbar(async_task, 13, 'VAE encoding ...')
 
             candidate_vae, _ = pipeline.get_candidate_vae(
@@ -482,9 +498,9 @@ def worker():
             print(f'Final resolution is {str((height, width))}.')
 
         if 'upscale' in goals:
-            H, W, C = uov_input_image.shape
+            H, W, C = args.uov_input_image.shape
             progressbar(async_task, 13, f'Upscaling image from {str((H, W))} ...')
-            uov_input_image = perform_upscale(uov_input_image)
+            args.uov_input_image = perform_upscale(args.uov_input_image)
             print(f'Image upscaled.')
 
             if '1.5x' in uov_method:
@@ -498,10 +514,10 @@ def worker():
 
             if shape_ceil < 1024:
                 print(f'[Upscale] Image is resized because it is too small.')
-                uov_input_image = set_image_shape_ceil(uov_input_image, 1024)
+                args.uov_input_image = set_image_shape_ceil(args.uov_input_image, 1024)
                 shape_ceil = 1024
             else:
-                uov_input_image = resample_image(uov_input_image, width=W * f, height=H * f)
+                args.uov_input_image = resample_image(args.uov_input_image, width=W * f, height=H * f)
 
             image_is_super_large = shape_ceil > 2800
 
@@ -517,8 +533,8 @@ def worker():
 
             if direct_return:
                 d = [('Upscale (Fast)', '2x')]
-                log(uov_input_image, d, single_line_number=1)
-                yield_result(async_task, uov_input_image, do_not_show_finished_images=True)
+                log(args.uov_input_image, d, single_line_number=1)
+                yield_result(async_task, args.uov_input_image, do_not_show_finished_images=True)
                 return
 
             tiled = True
@@ -527,7 +543,7 @@ def worker():
             if advanced_parameters.overwrite_upscale_strength > 0:
                 denoising_strength = advanced_parameters.overwrite_upscale_strength
 
-            initial_pixels = core.numpy_to_pytorch(uov_input_image)
+            initial_pixels = core.numpy_to_pytorch(args.uov_input_image)
             progressbar(async_task, 13, 'VAE encoding ...')
 
             candidate_vae, _ = pipeline.get_candidate_vae(
@@ -701,7 +717,7 @@ def worker():
                 advanced_parameters.freeu_s2
             )
 
-        all_steps = steps * image_number
+        all_steps = steps * args.image_number
 
         print(f'[Parameters] Denoising Strength = {denoising_strength}')
 
@@ -732,14 +748,16 @@ def worker():
                     zsnr=False)[0]
             print('Using lcm scheduler.')
 
-        async_task.yields.append(['preview', (13, 'Moving model to GPU ...', None)])
+        progressbar(async_task, 13, 'Moving model to GPU ...')
 
         def callback(step, x0, x, total_steps, y):
             done_steps = current_task_id * steps + step
-            async_task.yields.append(['preview', (
+            yield_preview(
+                async_task,
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
                 f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
-                y)])
+                y,
+            )
 
         for current_task_id, task in enumerate(tasks):
             execution_start_time = time.perf_counter()
@@ -786,22 +804,22 @@ def worker():
                         ('Negative Prompt', task['log_negative_prompt']),
                         ('Fooocus V2 Expansion', task['expansion']),
                         ('Styles', str(raw_style_selections)),
-                        ('Performance', performance_selection),
+                        ('Performance', args.performance_selection),
                         ('Resolution', str((width, height))),
-                        ('Sharpness', sharpness),
-                        ('Guidance Scale', guidance_scale),
+                        ('Sharpness', args.sharpness),
+                        ('Guidance Scale', args.guidance_scale),
                         ('ADM Guidance', str((
                             modules.patch.positive_adm_scale,
                             modules.patch.negative_adm_scale,
                             modules.patch.adm_scaler_end))),
-                        ('Base Model', base_model_name),
-                        ('Refiner Model', refiner_model_name),
-                        ('Refiner Switch', refiner_switch),
+                        ('Base Model', args.base_model_name),
+                        ('Refiner Model', args.refiner_model_name),
+                        ('Refiner Switch', args.refiner_switch),
                         ('Sampler', sampler_name),
                         ('Scheduler', scheduler_name),
                         ('Seed', task['task_seed'])
                     ]
-                    for n, w in loras:
+                    for n, w in args.loras:
                         if n != 'None':
                             d.append((f'LoRA [{n}] weight', w))
                     log(x, d, single_line_number=3)
@@ -823,18 +841,16 @@ def worker():
     while True:
         time.sleep(0.01)
         if len(async_tasks) > 0:
-            task = async_tasks.pop(0)
-            running_tasks.append(task)
+            running_task = task = async_tasks.pop(0)
             try:
                 handler(task)
             except:
                 traceback.print_exc()
             finally:
                 build_image_wall(task)
-                results.extend(task.results)
-                task.yields.append(['finish', task.results])
+                yield_finish(task)
                 pipeline.prepare_text_encoder(async_call=True)
-                running_tasks.remove(task)
+                running_task = None
     pass
 
 
