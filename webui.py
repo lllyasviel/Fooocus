@@ -28,7 +28,7 @@ global_queue = []
 def create_task(*args):
     args = list(reversed(args))
     task = worker.AsyncTask(
-        execution_start_time=time.perf_counter(),
+        execution_start_time=123,
         prompt=args.pop(), negative_prompt=args.pop(),
         style_selections=args.pop(), performance_selection=args.pop(), aspect_ratios_selection=args.pop(),
         image_number=args.pop(), image_seed=args.pop(),
@@ -43,6 +43,26 @@ def create_task(*args):
     )
     worker.async_tasks.append(task)
     return task
+
+
+def update_state():
+    """
+    Outputs:
+        progress_html
+        progress_window
+        progress_gallery
+        gallery
+        queue_running_task
+        queue_tasks_list
+    """
+    return (
+        gr.update(visible=bool(worker.running_tasks), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
+        gr.update(value=worker.states['preview']),
+        gr.update(value=worker.running_tasks[0].results if worker.running_tasks else None),
+        gr.update(value=worker.results),
+        gr.update(value=worker.running_tasks[0].name if worker.running_tasks else None),
+        gr.update(choices=worker.async_tasks_list()),
+    )
 
 
 def queue_click(*args):
@@ -72,19 +92,8 @@ def queue_click(*args):
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
 
-    task = create_task(*args)
-
-    while worker.running_task is None:
-        if worker.async_tasks:
-            break
-
-        yield (
-            gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')),
-            None,
-            None,
-            gr.update(value=task.name),
-            gr.update(value=worker.async_tasks),
-        )
+    create_task(*args)
+    yield update_state()
 
 
 def generate_click(*args):
@@ -100,7 +109,7 @@ def generate_click(*args):
         None,
         None,
         gr.update(value=task.name),
-        gr.update(value=worker.async_tasks),
+        gr.update(choices=worker.async_tasks_list()),
     )
 
 
@@ -118,78 +127,59 @@ def processing_state():
     """
     task = None
 
-    while worker.running_task or len(worker.async_tasks) or task:
-        if not worker.running_task and len(worker.async_tasks):
+    while worker.running_tasks or len(worker.async_tasks) or task:
+        if not worker.running_tasks and len(worker.async_tasks):
             time.sleep(0.5)
             yield (
-                *update_state(),
-                None,
-                None,
+                gr.update(visible=bool(worker.running_tasks), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
+                *[gr.update() for _ in range(7)],
             )
             continue
 
-        task = worker.running_task
-        time.sleep(0.02)
+        if worker.running_tasks and task != worker.running_tasks[0]:
+            print(111)
+            task = worker.running_tasks[0]
+            yield (
+                *update_state(),
+                gr.update(),
+                gr.update(),
+            )
+            continue
+
+        task = worker.running_tasks[0]
+        time.sleep(0.1)
         if worker.events:
             flag, args = worker.events.pop(0)
 
             if flag == "Prompts":
                 positive, negative = args
                 yield (
-                    *[None for _ in range(6)],
+                    *[gr.update() for _ in range(6)],
                     gr.update(value=positive),
                     gr.update(value=negative),
                 )
             elif flag == 'Preview':
                 yield (
-                    gr.update(visible=bool(worker.running_task),
+                    gr.update(visible=bool(worker.running_tasks),
                               value=modules.html.make_progress_html(*worker.states['progress_bar'])),
                     gr.update(value=worker.states['preview']),
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
+                    *[gr.update() for _ in range(6)],
                 )
             elif flag in ['Results', 'Finish']:
                 yield (
-                    gr.update(visible=bool(worker.running_task), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
+                    gr.update(visible=bool(worker.running_tasks), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
                     gr.update(value=worker.states['preview']),
-                    gr.update(value=worker.running_task.results if worker.running_task else None),
+                    gr.update(value=worker.running_tasks[0].results if worker.running_tasks else None),
                     gr.update(value=worker.results),
-                    None,
-                    None,
-                    None,
-                    None,
+                    *[gr.update() for _ in range(4)],
                 )
 
         else:
             yield (
-                *update_state(),
-                None,
-                None,
+                gr.update(visible=bool(worker.running_tasks),
+                          value=modules.html.make_progress_html(*worker.states['progress_bar'])),
+                *[gr.update() for _ in range(7)],
             )
-
-
-def update_state():
-    """
-    Outputs:
-        progress_html
-        progress_window
-        progress_gallery
-        gallery
-        queue_running_task
-        queue_tasks_list
-    """
-    return (
-        gr.update(visible=bool(worker.running_task), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
-        gr.update(value=worker.states['preview']),
-        gr.update(value=worker.running_task.results if worker.running_task else None),
-        gr.update(value=worker.results),
-        gr.update(value=worker.running_task.name if worker.running_task else None),
-        gr.update(value=worker.async_tasks),
-    )
 
 
 reload_javascript()
@@ -599,7 +589,7 @@ with shared.gradio_root:
                 with gr.Group():
                     stop_any = gr.Button(label="Stop selected", value="Stop", elem_id='stop_any_button')
                     queue_running_task = gr.Text(label='Running task', value=None)
-                    queue_tasks_list = gr.CheckboxGroup(label="Queued tasks", value=[])
+                    queue_tasks_list = gr.CheckboxGroup(label="Queued tasks", choices=[])
 
                 ##
                 def stop_any_f(selected):
@@ -608,8 +598,10 @@ with shared.gradio_root:
                         if task.uuid in to_stop:
                             worker.async_tasks.remove(task)
 
-                stop_all.click(lambda: gr.update(values=worker.async_tasks.clear()), queue=False, outputs=queue_tasks_list)
-                stop_any.click(stop_any_f, inputs=queue_tasks_list)
+                    yield gr.update()
+
+                stop_all.click(lambda: gr.update(choices=worker.async_tasks.clear()), queue=False, outputs=queue_tasks_list)
+                stop_any.click(stop_any_f, inputs=queue_tasks_list, queue=False)
 
             ##
             clear_button.click(lambda: worker.results.clear(), queue=False).then(fn=update_state, outputs=[
@@ -695,7 +687,7 @@ with shared.gradio_root:
             .then(fn=update_state, outputs=[
                 progress_html, progress_window, progress_gallery,
                 queue_running_task, queue_tasks_list,
-                ], queue=False)
+                ])
             .then(lambda: (gr.update(visible=True),
                            gr.update(visible=False),
                            gr.update(visible=False),
@@ -704,7 +696,10 @@ with shared.gradio_root:
             .then(fn=lambda: None, _js='playNotification')
             .then(fn=lambda: None, _js='refresh_grid_delayed')
         )
-        queue_button.click(fn=queue_click, inputs=ctrls, queue=False)
+        queue_button.click(queue_click, inputs=ctrls, outputs=[
+            progress_html, progress_window, progress_gallery,
+            queue_running_task, queue_tasks_list,
+        ], queue=False)
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):

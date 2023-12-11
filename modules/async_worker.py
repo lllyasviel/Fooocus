@@ -36,19 +36,16 @@ class AsyncTask:
         self.uuid = str(uuid.uuid4())
         self.start_time = execution_start_time
         self.args = TaskArgs(**copy.deepcopy(kwargs))
+        self.name = f"[{self.uuid}] {self.args.prompt}"
 
         #
         self.yields = []
         self.results = []
         self.finished = False
 
-    @property
-    def name(self):
-        return f"[{self.uuid}] {self.args.prompt}"
-
 
 async_tasks: list[AsyncTask] = []
-running_task: AsyncTask | None = None
+running_tasks: list[AsyncTask] = []
 results = []
 events: list[tuple[str, tp.Any]] = []
 states = {
@@ -57,11 +54,11 @@ states = {
 }
 
 
-def worker():
-    global async_tasks
-    global running_task
-    global results
+def async_tasks_list():
+    return [task.name for task in async_tasks]
 
+
+def worker():
     import traceback
     import math
     import numpy as np
@@ -841,7 +838,8 @@ def worker():
     while True:
         time.sleep(0.01)
         if len(async_tasks) > 0:
-            running_task = task = async_tasks.pop(0)
+            task = async_tasks.pop(0)
+            running_tasks.append(task)
             try:
                 handler(task)
             except:
@@ -850,7 +848,7 @@ def worker():
                 build_image_wall(task)
                 yield_finish(task)
                 pipeline.prepare_text_encoder(async_call=True)
-                running_task = None
+                running_tasks.clear()
     pass
 
 
