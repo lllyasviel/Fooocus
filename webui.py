@@ -93,14 +93,6 @@ def queue_click(*args):
         model_management.interrupt_processing = False
 
     create_task(*args)
-    yield (
-        gr.update(visible=bool(worker.running_tasks), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
-        gr.update(),
-        gr.update(),
-        gr.update(),
-        gr.update(value=worker.running_tasks[0].name if worker.running_tasks else None),
-        gr.update(choices=worker.async_tasks_list()),
-    )
 
 
 def generate_click(*args):
@@ -709,10 +701,7 @@ with shared.gradio_root:
             .then(fn=lambda: None, _js='playNotification')
             .then(fn=lambda: None, _js='refresh_grid_delayed')
         )
-        queue_button.click(queue_click, inputs=ctrls, outputs=[
-            progress_html, progress_window, progress_gallery,
-            queue_running_task, queue_tasks_list,
-        ], queue=False)
+        queue_button.click(queue_click, inputs=ctrls, queue=False)
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):
