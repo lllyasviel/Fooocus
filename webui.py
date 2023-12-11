@@ -184,6 +184,11 @@ def processing_state():
                     *[gr.update() for _ in range(4)],
                 )
 
+    yield (
+        *update_state(),
+        *[gr.update() for _ in range(2)],
+    )
+
 
 reload_javascript()
 
