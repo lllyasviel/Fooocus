@@ -105,9 +105,9 @@ def generate_click(*args):
     task = create_task(*args)
     yield (
         gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')),
-        None,
-        None,
-        None,
+        gr.update(),
+        gr.update(),
+        gr.update(),
         gr.update(value=task.name),
         gr.update(choices=worker.async_tasks_list()),
     )
@@ -137,7 +137,6 @@ def processing_state():
             continue
 
         if worker.running_tasks and task != worker.running_tasks[0]:
-            print(111)
             task = worker.running_tasks[0]
             yield (
                 *update_state(),
@@ -173,13 +172,6 @@ def processing_state():
                     gr.update(value=worker.results),
                     *[gr.update() for _ in range(4)],
                 )
-
-        else:
-            yield (
-                gr.update(visible=bool(worker.running_tasks),
-                          value=modules.html.make_progress_html(*worker.states['progress_bar'])),
-                *[gr.update() for _ in range(7)],
-            )
 
 
 reload_javascript()
