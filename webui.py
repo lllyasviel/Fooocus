@@ -93,7 +93,14 @@ def queue_click(*args):
         model_management.interrupt_processing = False
 
     create_task(*args)
-    yield update_state()
+    yield (
+        gr.update(visible=bool(worker.running_tasks), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
+        gr.update(),
+        gr.update(),
+        gr.update(),
+        gr.update(value=worker.running_tasks[0].name if worker.running_tasks else None),
+        gr.update(choices=worker.async_tasks_list()),
+    )
 
 
 def generate_click(*args):
@@ -136,7 +143,7 @@ def processing_state():
             )
             continue
 
-        if worker.running_tasks and task != worker.running_tasks[0]:
+        if task and worker.running_tasks and task != worker.running_tasks[0]:
             task = worker.running_tasks[0]
             yield (
                 *update_state(),
@@ -148,7 +155,7 @@ def processing_state():
         try:
             task = worker.running_tasks[0]
         except IndexError:
-            continue
+            pass
 
         time.sleep(0.1)
         if worker.events:
@@ -228,10 +235,10 @@ with shared.gradio_root:
                 )
 
             with gr.Row():
-                generate_button = gr.Button(label="Generate", value="Generate", elem_id='generate_button')
-                queue_button = gr.Button(label="Queue", value="Queue", elem_id='queue_button', visible=False)
-                skip_button = gr.Button(label="Skip", value="Skip",  visible=False)
                 stop_button = gr.Button(label="Stop", value="Stop", elem_id='stop_button', visible=False)
+                skip_button = gr.Button(label="Skip", value="Skip", visible=False)
+                queue_button = gr.Button(label="Queue", value="Queue", elem_id='queue_button', visible=False)
+                generate_button = gr.Button(label="Generate", value="Generate", elem_id='generate_button')
 
                 def stop_clicked():
                     import fcbh.model_management as model_management

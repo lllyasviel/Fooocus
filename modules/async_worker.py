@@ -34,9 +34,9 @@ class TaskArgs:
 class AsyncTask:
     def __init__(self, execution_start_time, **kwargs):
         self.uuid = str(uuid.uuid4())
+        self.name = f"[{self.uuid}] {kwargs.get('prompt')}"
         self.start_time = execution_start_time
         self.args = TaskArgs(**copy.deepcopy(kwargs))
-        self.name = f"[{self.uuid}] {self.args.prompt}"
 
         #
         self.yields = []
