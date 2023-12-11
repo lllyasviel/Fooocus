@@ -1,0 +1,51 @@
+{
+    "default_model": "sdxlYamersRealisticNSFW_v4VAE.safetensors",
+    "default_refiner": "sdxlYamersRealisticNSFW_v4VAE.safetensors",
+    "default_refiner_switch": 0.5,
+    "default_loras": [
+        [
+            "more_details.safetensors",
+            1.0
+        ],
+        [
+            "sdxl_cyberpunk.safetensors",
+            1.0
+        ],
+        [
+            "ral-exposure-sdxl.safetensors",
+            1.0
+        ],
+        [
+            "xl-shanbailing-1003fire-000010.safetensors",
+            1.0
+        ],
+        [
+            "sd_xl_offset_example-lora_1.0.safetensors",
+            0.1
+        ]
+    ],
+    "default_cfg_scale": 4.0,
+    "default_sample_sharpness": 5.0,
+    "default_sampler": "dpmpp_2m_sde_gpu",
+    "default_scheduler": "karras",
+    "default_performance": "Quality",
+    "default_prompt": "",
+    "default_prompt_negative": "",
+    "default_styles": [
+        "Fooocus V2",
+        "Fooocus Enhance",
+        "Fooocus Sharp"
+    ],
+    "default_aspect_ratio": "1152*896",
+    "checkpoint_downloads": {
+        "sdxlYamersRealisticNSFW_v4VAE.safetensors": "https://civitai.com/api/download/models/227767?type=Model&format=SafeTensor&size=full&fp=fp16"
+    },
+    "embeddings_downloads": {},
+    "lora_downloads": {
+        "more_details.safetensors": "https://civitai.com/api/download/models/87153?type=Model&format=SafeTensor",
+        "sdxl_cyberpunk.safetensors": "https://civitai.com/api/download/models/147106?type=Model&format=SafeTensor",
+        "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors",
+        "ral-exposure-sdxl.safetensors": "https://civitai.com/api/download/models/237604?type=Model&format=SafeTensor",
+        "xl-shanbailing-1003fire-000010.safetensors": "https://civitai.com/api/download/models/175257"
+    }
+}

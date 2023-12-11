@@ -50,3 +50,4 @@ experiment.py
 /package-lock.json
 /.coverage*
 /auth.json
+/fooocus_env
