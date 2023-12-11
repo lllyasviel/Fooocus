@@ -58,7 +58,7 @@ If you are using Linux/Mac, please follow your provider's instructions to set Sw
 
 If you are using Windows, you can set Swap here:
 
-![swap](https://private-user-images.githubusercontent.com/19834515/260322660-2a06b130-fe9b-4504-94f1-2763be4476e9.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTEiLCJleHAiOjE3MDIyNTE5NzMsIm5iZiI6MTcwMjI1MTY3MywicGF0aCI6Ii8xOTgzNDUxNS8yNjAzMjI2NjAtMmEwNmIxMzAtZmU5Yi00NTA0LTk0ZjEtMjc2M2JlNDQ3NmU5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFJV05KWUFYNENTVkVINTNBJTJGMjAyMzEyMTAlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjMxMjEwVDIzNDExM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTc2NTg3MWFmMmI2MTcwNzc2NDc2NjkyZTRjN2Q2N2Q3MTBkZDEyNmQ3MTY3ZjU4NGVjMzQ5MDQ0ZjAyMzEzMjcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.z9ztLn3l-Tmy98pLTgKwvGayhJchT-roB4dgMrjHvro)
+![swap](https://github.com/lllyasviel/Fooocus/assets/19834515/2a06b130-fe9b-4504-94f1-2763be4476e9)
 
 If you use both HDD and SSD, you *may* test some settings on the above step 7 to try best to put swap area on SSD, so that the speed of model loading will be faster.
 
