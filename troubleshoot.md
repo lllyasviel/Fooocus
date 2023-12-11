@@ -66,6 +66,8 @@ If you use both HDD and SSD, you *may* test some settings on the above step 7 to
 
 Also, if you obtain Microsoft Windows 10/11 from some unofficial Chinese or Russian provider, they may have modified the default setting of system swap to advertise some "Enhanced Windows 10/11" (but actually they are just making things worse rather than improve things). In those cases, you may need to manually check if your system swap setting is consistent to the above screenshot.
 
+Finally, note that you need to restart computer to activate any changes in system swap.
+
 ### MetadataIncompleteBuffer
 
 See also the section: **Model corrupted**
@@ -158,3 +160,7 @@ Current AMD support for Linux is better than that for Windows, but still, very e
 ### I tried flags like --lowvram or --gpu-only or --bf16 or so on, and things are not getting any better?
 
 Please remove these flags if you are mislead by some wrong tutorials. In most cases these flags are making things worse and introducing more problems.
+
+### Fooocus suddenly becomes very slow and I have not changed anything
+
+Are you accidentally running two Fooocus at the same time?
