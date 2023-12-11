@@ -178,7 +178,7 @@ def processing_state():
                     gr.update(visible=True,
                               value=modules.html.make_progress_html(*worker.states['progress_bar'])),
                     gr.update(value=worker.states['preview']),
-                    gr.update(value=task.results if task else None),
+                    gr.update(value=args),
                     gr.update(value=worker.states['gallery']),
                     *[gr.update() for _ in range(4)],
                 )
