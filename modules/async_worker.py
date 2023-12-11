@@ -55,6 +55,7 @@ states = {
 
 
 def async_tasks_list():
+    global async_tasks
     return [task.name for task in async_tasks]
 
 

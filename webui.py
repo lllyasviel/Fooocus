@@ -145,7 +145,11 @@ def processing_state():
             )
             continue
 
-        task = worker.running_tasks[0]
+        try:
+            task = worker.running_tasks[0]
+        except IndexError:
+            continue
+
         time.sleep(0.1)
         if worker.events:
             flag, args = worker.events.pop(0)
