@@ -1,0 +1,30 @@
+aluminum
+copper
+iron
+zinc
+gold
+silver
+platinum
+titanium
+brass
+bronze
+lead
+nickel
+tin
+cobalt
+chromium
+magnesium
+tungsten
+palladium
+rhodium
+beryllium
+cadmium
+vanadium
+manganese
+mercury
+molybdenum
+antimony
+niobium
+zirconium
+aluminum alloy
+stainless steel

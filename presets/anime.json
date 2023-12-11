@@ -1,5 +1,5 @@
 {
-    "default_model": "bluePencilXL_v050.safetensors",
+    "default_model": "bluePencilXL_v200.safetensors",
     "default_refiner": "DreamShaper_8_pruned.safetensors",
     "default_refiner_switch": 0.667,
     "default_loras": [

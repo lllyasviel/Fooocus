@@ -1,0 +1,30 @@
+Action
+Adventure
+RPG
+FPS
+3rd-person shooter
+Strategy
+Simulation
+Sports
+Racing
+Fighting
+Horror
+Puzzle
+Sandbox
+MOBA
+Battle Royale
+MMORPG
+Rhythm
+Stealth
+Survival
+Educational
+Open World
+Platformer
+RTS
+Turn-Based Strategy
+Tactical RPG
+Visual Novel
+Party Game
+Casual Game
+Retro/Classic
+VR Game

@@ -1,0 +1,33 @@
+wood
+metal
+glass
+plastic
+concrete
+fabric
+leather
+paper
+rubber
+ceramic
+stone
+brick
+bamboo
+vinyl
+foam
+fiberglass
+clay
+carbon fiber
+stainless steel
+copper
+granite
+marble
+polyester
+silk
+wool
+aluminum foil
+plywood
+particleboard
+acrylic
+latex
+diamond
+gem
+ruby
