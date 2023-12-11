@@ -377,6 +377,7 @@ os.makedirs(path_outputs, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []
+embedding_filenames = []
 
 
 def get_model_filenames(folder_path, name_filter=None):
@@ -384,9 +385,10 @@ def get_model_filenames(folder_path, name_filter=None):
 
 
 def update_all_model_names():
-    global model_filenames, lora_filenames
+    global model_filenames, lora_filenames, embedding_filenames
     model_filenames = get_model_filenames(path_checkpoints)
     lora_filenames = get_model_filenames(path_loras)
+    embedding_filenames = get_model_filenames(path_embeddings)
     return
 
 
@@ -500,6 +502,13 @@ def downloading_upscale_model():
         file_name='fooocus_upscaler_s409985e5.bin'
     )
     return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
+
+
+def get_embedding_names_list():
+    return "\n".join([
+        f'(embedding:{name.removesuffix(".safetensors")}:0.8)'
+        for name in embedding_filenames
+    ])
 
 
 update_all_model_names()

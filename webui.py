@@ -499,21 +499,26 @@ with shared.gradio_root:
                                                     elem_classes='lora_weight')
                             lora_ctrls += [lora_model, lora_weight]
 
+                with gr.Group():
+                    embeddings = gr.TextArea(label='Embeddings', interactive=False, value=modules.config.get_embedding_names_list())
+
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
 
-                    ##
-                    def model_refresh_clicked():
-                        modules.config.update_all_model_names()
-                        results = []
-                        results += [gr.update(choices=modules.config.model_filenames),
-                                    gr.update(choices=['None'] + modules.config.model_filenames)]
-                        for i in range(5):
-                            results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
-                        return results
+                ##
+                def model_refresh_clicked():
+                    modules.config.update_all_model_names()
+                    results = []
+                    results += [gr.update(choices=modules.config.model_filenames),
+                                gr.update(choices=['None'] + modules.config.model_filenames),
+                                gr.update(value=modules.config.get_embedding_names_list()),
+                                ]
+                    for i in range(5):
+                        results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
+                    return results
 
-                    model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
-                                        queue=False, show_progress=False)
+                model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model, embeddings] + lora_ctrls,
+                                    queue=False, show_progress=False)
 
             with gr.Tab(label='Img2Img') as image_input_panel:
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
