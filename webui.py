@@ -617,11 +617,11 @@ with shared.gradio_root:
 
             ##
             clear_button.click(lambda: worker.clear_tasks(), queue=False).then(fn=update_state, outputs=[
-                progress_html, progress_window, progress_gallery,
+                progress_html, progress_window, progress_gallery, gallery,
                 queue_running_task, queue_tasks_list,
             ], queue=False)
             refresh_button.click(update_state, outputs=[
-                progress_html, progress_window, progress_gallery,
+                progress_html, progress_window, progress_gallery, gallery,
                 queue_running_task, queue_tasks_list,
             ], queue=False)
 
@@ -697,7 +697,7 @@ with shared.gradio_root:
                 real_positive_prompt, real_negative_prompt,
             ])
             .then(fn=update_state, outputs=[
-                progress_html, progress_window, progress_gallery,
+                progress_html, progress_window, progress_gallery, gallery,
                 queue_running_task, queue_tasks_list,
                 ])
             .then(lambda: (gr.update(visible=True),
