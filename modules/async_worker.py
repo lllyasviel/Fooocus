@@ -848,8 +848,8 @@ def worker():
             finally:
                 build_image_wall(task)
                 yield_finish(task)
+                running_tasks.remove(task)
                 pipeline.prepare_text_encoder(async_call=True)
-                running_tasks.clear()
     pass
 
 
