@@ -16,6 +16,10 @@ See also the section: **System Swap**
 
 See also the section: **System Swap**
 
+### ^C, then quit
+
+See also the section: **System Swap**
+
 ### adm 2816, then stuck
 
 See also the section: **System Swap**
