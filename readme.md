@@ -79,7 +79,7 @@ In the first time you launch the software, it will automatically download models
 1. It will download [default models](#models) to the folder "Fooocus\models\checkpoints" given different presets. You can download them in advance if you do not want automatic download.
 2. Note that if you use inpaint, at the first time you inpaint an image, it will download [Fooocus's own inpaint control model from here](https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint_v26.fooocus.patch) as the file "Fooocus\models\inpaint\inpaint_v26.fooocus.patch" (the size of this file is 1.28GB).
 
-After Fooocus 2.1.60, you will also have `run_anime.bat` and `run_realistic.bat`. They are different model presets (and requires different models, but thet will be automatically downloaded). [Check here for more details](https://github.com/lllyasviel/Fooocus/discussions/679).
+After Fooocus 2.1.60, you will also have `run_anime.bat` and `run_realistic.bat`. They are different model presets (and requires different models, but they will be automatically downloaded). [Check here for more details](https://github.com/lllyasviel/Fooocus/discussions/679).
 
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/d386f817-4bd7-490c-ad89-c1e228c23447)
 
@@ -224,6 +224,10 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
+## Troubleshoot
+
+See the common problems [here](troubleshoot.md).
+
 ## Default Models
 <a name="models"></a>
 
@@ -297,7 +301,7 @@ Consider twice before you really change the config. If you find yourself breakin
 
 A safter way is just to try "run_anime.bat" or "run_realistic.bat" - they should be already good enough for different tasks.
 
-Note that `user_path_config.txt` is deprecated and will be removed soon.
+~Note that `user_path_config.txt` is deprecated and will be removed soon.~ (Edit: it is already removed.)
 
 ## Advanced Features
 
