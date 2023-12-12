@@ -308,7 +308,7 @@ A safter way is just to try "run_anime.bat" or "run_realistic.bat" - they should
 ### All CMD Flags
 
 ```
-entry_with_-update.py [-h] [--listen [IP]] [--port PORT]
+entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
                       [--disable-header-check [ORIGIN]]
                       [--web-upload-size WEB_UPLOAD_SIZE]
                       [--external-working-path PATH [PATH ...]]
@@ -324,7 +324,8 @@ entry_with_-update.py [-h] [--listen [IP]] [--port PORT]
                       [--preview-option [none,auto,fast,taesd]]
                       [--attention-split | --attention-quad | --attention-pytorch]
                       [--disable-xformers]
-                      [--always-gpu | --always-high-vram | --always-normal-vram | --always-low-vram | --always-no-vram | --always-cpu]
+                      [--always-gpu | --always-high-vram | --always-normal-vram | 
+                       --always-low-vram | --always-no-vram | --always-cpu]
                       [--always-offload-from-vram] [--disable-server-log]
                       [--debug-mode] [--is-windows-embedded-python]
                       [--disable-server-info] [--share] [--preset PRESET]
