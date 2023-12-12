@@ -9,7 +9,7 @@
     "path_clip_vision": "/content/Fooocus/models/clip_vision",
     "path_fooocus_expansion": "/content/Fooocus/models/prompt_expansion/fooocus_expansion",
     "path_outputs": "/content/Fooocus/outputs",
-    "default_model": "juggernautXL_version6Rundiffusion.safetensors",
+    "default_model": "realisticStockPhoto_v10.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
     "default_loras": [
@@ -50,10 +50,11 @@
     "default_advanced_checkbox": true,
     "default_image_number": 6,
     "checkpoint_downloads": {
-        "juggernautXL_version6Rundiffusion.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors",
+        "realisticStockPhoto_v10.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/realisticStockPhoto_v10.safetensors",
         "sdxlYamersRealisticNSFW_v4VAE.safetensors": "https://civitai-delivery-worker-prod.5ac0637cfd0766c97916cefa3764fbdf.r2.cloudflarestorage.com/model/1552153/yamers20realistic20V4.5CqN.safetensors?X-Amz-Expires=86400&response-content-disposition=attachment%3B%20filename%3D%22sdxlYamersRealisticNSFW_v4VAE.safetensors%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=e01358d793ad6966166af8b3064953ad/20231211/us-east-1/s3/aws4_request&X-Amz-Date=20231211T145135Z&X-Amz-SignedHeaders=host&X-Amz-Signature=b9f06d86136aa761581ca9fdcc47ece9dbb9d7f99512f7056d84e8da248c8d81"
     },
     "lora_downloads": {
+        "SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors",
         "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors",
         "NsfwPovAllInOneLoraSdxl-000009.safetensors": "https://civitai-delivery-worker-prod.5ac0637cfd0766c97916cefa3764fbdf.r2.cloudflarestorage.com/model/116575/nsfwpovallinonelorasd.ql6p.safetensors?X-Amz-Expires=86400&response-content-disposition=attachment%3B%20filename%3D%22NsfwPovAllInOneLoraSdxl-000009.safetensors%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=e01358d793ad6966166af8b3064953ad/20231211/us-east-1/s3/aws4_request&X-Amz-Date=20231211T220547Z&X-Amz-SignedHeaders=host&X-Amz-Signature=3c905dd94bc9be8a8b9591281af5e6a6679aad56ba63da9bc56561cf63cf3152",
         "polyhedron_men_eyes.safetensors": "https://civitai-delivery-worker-prod.5ac0637cfd0766c97916cefa3764fbdf.r2.cloudflarestorage.com/1672998/model/polyhedronMenEyes.49yH.safetensors?X-Amz-Expires=86400&response-content-disposition=attachment%3B%20filename%3D%22polyhedron_men_eyes.safetensors%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=e01358d793ad6966166af8b3064953ad/20231212/us-east-1/s3/aws4_request&X-Amz-Date=20231212T015354Z&X-Amz-SignedHeaders=host&X-Amz-Signature=59d6bda21a7829705fb2c80f8e9af26f3a4b14a1a051fdb120de5e1b0f662d92"
