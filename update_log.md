@@ -1,3 +1,7 @@
+# 2.1.829
+
+* Change SDE tree to CPU on AMD/DirectMl to avoid potential problems.
+
 # 2.1.828
 
 * Allow to disable gradio analytics.
