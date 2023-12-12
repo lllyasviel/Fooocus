@@ -37,7 +37,7 @@ def log(img, dic, single_line_number=3):
     item = f'<div id="{div_name}">\n'
     item += "<table><tr>"
     item += f"<td><img src=\"{only_name}\" width=auto height=100% loading=lazy style=\"height:auto;max-width:512px\" onerror=\"document.getElementById('{div_name}').style.display = 'none';\"></img></p></td>"
-    item += f"<td><p>{only_name}</p>\n"
+    item += f"<td style=\"padding-left:10px;\"><p>{only_name}</p>\n"
     for i, (k, v) in enumerate(dic):
         if i < single_line_number:
             item += f"<p>{k}: <b>{v}</b></p>\n"

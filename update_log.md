@@ -1,3 +1,9 @@
+# 2.1.828
+
+* Allow to disable gradio analytics.
+* Use html table in log.
+* fix some SSL problems.
+
 # 2.1.826
 
 * New backend.
