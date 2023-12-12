@@ -83,7 +83,9 @@ if isinstance(args_manager.args.preset, str):
 
 shared.gradio_root = gr.Blocks(
     title=title,
-    css=modules.html.css).queue()
+    css=modules.html.css,
+    analytics_enabled=not args_manager.args.disable_analytics
+).queue()
 
 with shared.gradio_root:
     with gr.Row():
@@ -526,6 +528,5 @@ shared.gradio_root.launch(
     server_port=args_manager.args.port,
     share=args_manager.args.share,
     auth=check_auth if args_manager.args.share and auth_enabled else None,
-    blocked_paths=[constants.AUTH_FILENAME],
-    analytics_enabled=not args_manager.args.disable_analytics
+    blocked_paths=[constants.AUTH_FILENAME]
 )
