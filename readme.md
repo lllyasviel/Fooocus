@@ -106,6 +106,8 @@ Note that the minimal requirement is **4GB Nvidia GPU memory (4GB VRAM)** and **
 
 Please open an issue if you use similar devices but still cannot achieve acceptable performances.
 
+See also the common problems and troubleshoots [here](troubleshoot.md).
+
 ### Colab
 
 (Last tested - 2023 Nov 15)

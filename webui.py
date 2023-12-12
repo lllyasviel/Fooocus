@@ -443,12 +443,13 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
                                     queue=False, show_progress=False)
 
-        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11,
+        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
+                                               [gr.update(visible=x != 'Extreme Speed')] * 1,
                                      inputs=performance_selection,
                                      outputs=[
                                          guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
                                          adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
-                                         scheduler_name, adaptive_cfg, refiner_swap_method
+                                         scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt
                                      ], queue=False, show_progress=False)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
