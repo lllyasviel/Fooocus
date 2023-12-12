@@ -106,9 +106,11 @@ Note that the minimal requirement is **4GB Nvidia GPU memory (4GB VRAM)** and **
 
 Please open an issue if you use similar devices but still cannot achieve acceptable performances.
 
+See also the common problems and troubleshoots [here](troubleshoot.md).
+
 ### Colab
 
-(Last tested - 2023 Nov 15)
+(Last tested - 2023 Dec 12)
 
 | Colab | Info
 | --- | --- |
@@ -206,7 +208,7 @@ Then run the `run.bat`.
 
 AMD is not intensively tested, however. The AMD support is in beta.
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+For AMD, use `python entry_with_update.py --directml --preset anime` or `python entry_with_update.py --directml --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Mac
 
@@ -220,9 +222,13 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 1. Create a new conda environment, `conda env create -f environment.yaml`.
 1. Activate your new conda environment, `conda activate fooocus`.
 1. Install the packages required by Fooocus, `pip install -r requirements_versions.txt`.
-1. Launch Fooocus by running `python entry_with_update.py`. (Some Mac M2 users may need `python entry_with_update.py --enable-smart-memory` to speed up model loading/unloading.) The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
+1. Launch Fooocus by running `python entry_with_update.py`. (Some Mac M2 users may need `python entry_with_update.py --disable-offload-from-vram` to speed up model loading/unloading.) The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+
+## Troubleshoot
+
+See the common problems [here](troubleshoot.md).
 
 ## Default Models
 <a name="models"></a>
@@ -299,6 +305,34 @@ A safter way is just to try "run_anime.bat" or "run_realistic.bat" - they should
 
 ~Note that `user_path_config.txt` is deprecated and will be removed soon.~ (Edit: it is already removed.)
 
+### All CMD Flags
+
+```
+entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
+                      [--disable-header-check [ORIGIN]]
+                      [--web-upload-size WEB_UPLOAD_SIZE]
+                      [--external-working-path PATH [PATH ...]]
+                      [--output-path OUTPUT_PATH] [--temp-path TEMP_PATH]
+                      [--cache-path CACHE_PATH] [--in-browser]
+                      [--disable-in-browser] [--gpu-device-id DEVICE_ID]
+                      [--async-cuda-allocation | --disable-async-cuda-allocation]
+                      [--disable-attention-upcast] [--all-in-fp32 | --all-in-fp16]
+                      [--unet-in-bf16 | --unet-in-fp16 | --unet-in-fp8-e4m3fn | --unet-in-fp8-e5m2]
+                      [--vae-in-fp16 | --vae-in-fp32 | --vae-in-bf16]
+                      [--clip-in-fp8-e4m3fn | --clip-in-fp8-e5m2 | --clip-in-fp16 | --clip-in-fp32]
+                      [--directml [DIRECTML_DEVICE]] [--disable-ipex-hijack]
+                      [--preview-option [none,auto,fast,taesd]]
+                      [--attention-split | --attention-quad | --attention-pytorch]
+                      [--disable-xformers]
+                      [--always-gpu | --always-high-vram | --always-normal-vram | 
+                       --always-low-vram | --always-no-vram | --always-cpu]
+                      [--always-offload-from-vram] [--disable-server-log]
+                      [--debug-mode] [--is-windows-embedded-python]
+                      [--disable-server-info] [--share] [--preset PRESET]
+                      [--language LANGUAGE] [--disable-offload-from-vram]
+                      [--theme THEME] [--disable-image-log]
+```
+
 ## Advanced Features
 
 [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
@@ -312,8 +346,6 @@ Fooocus also has many community forks, just like SD-WebUI's [vladmandic/automati
 See also [About Forking and Promotion of Forks](https://github.com/lllyasviel/Fooocus/discussions/699).
 
 ## Thanks
-
-Fooocus is powered by [FCBH backend](https://github.com/lllyasviel/Fooocus/tree/main/backend), which starts from an odd mixture of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) and [ComfyUI](https://github.com/comfyanonymous/ComfyUI).
 
 Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com/3Diva) for creating additional SDXL styles available in Fooocus.
 

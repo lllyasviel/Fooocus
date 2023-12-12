@@ -22,7 +22,7 @@ from modules.auth import auth_enabled, check_auth
 
 
 def generate_clicked(*args):
-    import fcbh.model_management as model_management
+    import ldm_patched.modules.model_management as model_management
 
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
@@ -113,13 +113,13 @@ with shared.gradio_root:
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
 
                     def stop_clicked():
-                        import fcbh.model_management as model_management
+                        import ldm_patched.modules.model_management as model_management
                         shared.last_stop = 'stop'
                         model_management.interrupt_current_processing()
                         return [gr.update(interactive=False)] * 2
 
                     def skip_clicked():
-                        import fcbh.model_management as model_management
+                        import ldm_patched.modules.model_management as model_management
                         shared.last_stop = 'skip'
                         model_management.interrupt_current_processing()
                         return
@@ -443,12 +443,13 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
                                     queue=False, show_progress=False)
 
-        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11,
+        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
+                                               [gr.update(visible=x != 'Extreme Speed')] * 1,
                                      inputs=performance_selection,
                                      outputs=[
                                          guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
                                          adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
-                                         scheduler_name, adaptive_cfg, refiner_swap_method
+                                         scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt
                                      ], queue=False, show_progress=False)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
@@ -520,7 +521,7 @@ def dump_default_english_config():
 # dump_default_english_config()
 
 shared.gradio_root.launch(
-    inbrowser=args_manager.args.auto_launch,
+    inbrowser=args_manager.args.in_browser,
     server_name=args_manager.args.listen,
     server_port=args_manager.args.port,
     share=args_manager.args.share,

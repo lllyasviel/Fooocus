@@ -1,5 +1,5 @@
 import cv2
-import fooocus_extras.face_crop as cropper
+import extras.face_crop as cropper
 
 
 img = cv2.imread('lena.png')
