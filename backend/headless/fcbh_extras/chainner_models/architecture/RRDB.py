@@ -13,7 +13,7 @@ import torch.nn.functional as F
 from . import block as B
 
 
-# Borrowed from https://github.com/rlaphoenix/VSGAN/blob/master/vsgan/archs/ESRGAN.py
+# Borrowed from https://github.com/rlaphoenix/VSGAN/blob/master/vsgan/archs/esrgan.py
 # Which enhanced stuff that was already here
 class RRDBNet(nn.Module):
     def __init__(
