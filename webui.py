@@ -22,7 +22,7 @@ from modules.auth import auth_enabled, check_auth
 
 
 def generate_clicked(*args):
-    import fcbh.model_management as model_management
+    import ldm_patched.modules.model_management as model_management
 
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
@@ -113,13 +113,13 @@ with shared.gradio_root:
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
 
                     def stop_clicked():
-                        import fcbh.model_management as model_management
+                        import ldm_patched.modules.model_management as model_management
                         shared.last_stop = 'stop'
                         model_management.interrupt_current_processing()
                         return [gr.update(interactive=False)] * 2
 
                     def skip_clicked():
-                        import fcbh.model_management as model_management
+                        import ldm_patched.modules.model_management as model_management
                         shared.last_stop = 'skip'
                         model_management.interrupt_current_processing()
                         return

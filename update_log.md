@@ -1,6 +1,14 @@
-**(2023 Nov 26) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid December. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+# 2.1.826
+
+* New backend.
+* FP8 support (see also the new cmd flag list in Readme, eg, --unet-in-fp8-e4m3fn and --unet-in-fp8-e5m2).
+* Fix some MPS problems.
+* GLoRA support.
+* Turbo scheduler.
 
 # 2.1.823
+
+(2023 Nov 26) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid December. However, you may still see updates if other collaborators are fixing bugs or solving problems.
 
 * Fix some potential problem when LoRAs has clip keys and user want to load those LoRAs to refiners.
 
