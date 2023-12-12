@@ -25,6 +25,7 @@ from fcbh_extras.nodes_freelunch import FreeU_V2
 from fcbh.sample import prepare_mask
 from modules.patch import patched_sampler_cfg_function
 from modules.lora import match_lora
+from modules.util import get_file_from_folder_list
 from fcbh.lora import model_lora_keys_unet, model_lora_keys_clip
 from modules.config import path_embeddings
 from fcbh_extras.nodes_model_advanced import ModelSamplingDiscrete
@@ -86,7 +87,7 @@ class StableDiffusionModel:
             if os.path.exists(name):
                 lora_filename = name
             else:
-                lora_filename = os.path.join(modules.config.path_loras, name)
+                lora_filename = get_file_from_folder_list(name, modules.config.path_loras)
 
             if not os.path.exists(lora_filename):
                 print(f'Lora file not found: {lora_filename}')
