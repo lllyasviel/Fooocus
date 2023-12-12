@@ -12,6 +12,14 @@ See also the section: **System Swap**
 
 See also the section: **System Swap**
 
+### Aborted
+
+See also the section: **System Swap**
+
+### core dumped
+
+See also the section: **System Swap**
+
 ### Killed
 
 See also the section: **System Swap**
