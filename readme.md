@@ -110,7 +110,7 @@ See also the common problems and troubleshoots [here](troubleshoot.md).
 
 ### Colab
 
-(Last tested - 2023 Nov 15)
+(Last tested - 2023 Dec 12)
 
 | Colab | Info
 | --- | --- |
