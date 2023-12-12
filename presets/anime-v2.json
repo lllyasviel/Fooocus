@@ -30,7 +30,7 @@
     "default_scheduler": "karras",
     "default_performance": "Speed",
     "default_prompt": "1girl, ",
-    "default_prompt_negative": "(embedding:unaestheticXLv31:0.8), low quality, watermark",
+    "default_prompt_negative": "(embedding:unaestheticXLv31:0.8), low quality, watermark, cat ears, bad fingers",
     "default_styles": [
         "Fooocus V2",
         "Fooocus Masterpiece",
