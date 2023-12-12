@@ -19,7 +19,7 @@ args_parser.parser.add_argument("--disable-image-log", action='store_true',
 
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
-    auto_launch=True,
+    in_browser=True,
     port=None
 )
 
