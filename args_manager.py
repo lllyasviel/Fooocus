@@ -17,6 +17,9 @@ args_parser.parser.add_argument("--theme", type=str, help="launches the UI with 
 args_parser.parser.add_argument("--disable-image-log", action='store_true',
                                 help="Prevent writing images and logs to hard drive.")
 
+args_parser.parser.add_argument("--disable-analytics", action='store_true',
+                                help="Disables analytics for Gradio", default=False)
+
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
     in_browser=True,
@@ -27,5 +30,9 @@ args_parser.args = args_parser.parser.parse_args()
 
 # (Disable by default because of issues like https://github.com/lllyasviel/Fooocus/issues/724)
 args_parser.args.always_offload_from_vram = not args_parser.args.disable_offload_from_vram
+
+if args_parser.args.disable_analytics:
+    import os
+    os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
 
 args = args_parser.args
