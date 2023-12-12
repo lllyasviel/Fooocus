@@ -234,6 +234,9 @@ def worker():
         controlnet_cpds_path = None
         clip_vision_path, ip_negative_path, ip_adapter_path, ip_adapter_face_path = None, None, None, None
 
+        swapper = None
+        face_analyser = None
+
         seed = int(image_seed)
         print(f'[Parameters] Seed = {seed}')
 
@@ -309,6 +312,8 @@ def worker():
                 if len(cn_tasks[flags.cn_ip_face]) > 0:
                     clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters(
                         'face')
+                if len(cn_tasks[flags.cn_insightface]) > 0:
+                    swapper, face_analyser = modules.config.downloading_faceswap()
                 progressbar(async_task, 1, 'Loading control models ...')
 
         # Load or unload CNs
@@ -660,6 +665,12 @@ def worker():
                 if advanced_parameters.debugging_cn_preprocessor:
                     yield_result(async_task, cn_img, do_not_show_finished_images=True)
                     return
+            for task in cn_tasks[flags.cn_insightface]:
+                cn_img, cn_stop, cn_weight = task
+                cn_img = HWC3(cn_img)
+
+                # replace cn_img by face_analyser results
+                task[0] = face_analyser.get(cn_img)
 
             all_ip_tasks = cn_tasks[flags.cn_ip] + cn_tasks[flags.cn_ip_face]
 
@@ -754,6 +765,27 @@ def worker():
 
                 if inpaint_worker.current_task is not None:
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
+
+                if swapper is not None:
+
+                    def swap_faces(img):
+                        log(img, [('swapping', 'source image')])
+
+                        frame = img
+                        face_index = 0
+
+                        source_faces, cn_stop, cn_weight = cn_tasks[flags.cn_insightface][0]
+                        target_faces = face_analyser.get(img)
+
+                        for source_face, target_face in zip(source_faces, target_faces):
+                            frame = swapper.get(frame, target_face, source_face, paste_back=True)
+                            log(frame, [('swapping', f"face %i" % face_index)])
+                            face_index += 1
+
+                        return frame
+
+                    imgs = [swap_faces(x) for x in imgs]
+
 
                 for x in imgs:
                     d = [

@@ -9,6 +9,9 @@ import modules.sdxl_styles
 from modules.model_loader import load_file_from_url
 from modules.util import get_files_from_folder
 
+import insightface
+from insightface.app import FaceAnalysis
+
 
 config_path = os.path.abspath("./config.txt")
 config_example_path = os.path.abspath("config_modification_tutorial.txt")
@@ -126,6 +129,7 @@ path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlne
 path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vision/')
 path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
 path_outputs = get_dir_or_set_default('path_outputs', '../outputs/')
+path_faceswap = get_dir_or_set_default('path_faceswap', '../models/faceswap/')
 
 
 def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False):
@@ -491,6 +495,30 @@ def downloading_ip_adapters(v):
         results += [os.path.join(path_controlnet, 'ip-adapter-plus-face_sdxl_vit-h.bin')]
 
     return results
+
+
+def downloading_faceswap():
+
+    swapper = None
+    face_analyser = None
+
+    load_file_from_url(
+        url='https://github.com/facefusion/facefusion-assets/releases/download/models/inswapper_128.onnx',
+        model_dir=path_faceswap,
+        file_name='inswapper_128.onnx'
+    )
+
+    swapper = insightface.model_zoo.get_model(
+        os.path.join(path_faceswap, 'inswapper_128.onnx')
+    )
+
+    face_analyser = FaceAnalysis(
+        name='buffalo_l',
+        root=path_faceswap
+    )
+    face_analyser.prepare(ctx_id=0)
+
+    return [swapper, face_analyser]
 
 
 def downloading_upscale_model():
