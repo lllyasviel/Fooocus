@@ -16,6 +16,8 @@ args_parser.parser.add_argument("--disable-offload-from-vram", action="store_tru
 args_parser.parser.add_argument("--theme", type=str, help="launches the UI with light or dark theme", default=None)
 args_parser.parser.add_argument("--disable-image-log", action='store_true',
                                 help="Prevent writing images and logs to hard drive.")
+args_parser.parser.add_argument("--disable-analytics", action='store_true', 
+                                help="Disables analytics for Gradio", default=False)
 
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
