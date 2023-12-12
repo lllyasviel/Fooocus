@@ -1,0 +1,372 @@
+{
+    "Preview": "معاينة",
+    "Gallery": "صالة عرض",
+    "Generate": "ولّد",
+    "Skip": "تخطى",
+    "Stop": "قف",
+    "Input Image": "الصورة المدخلة",
+    "Advanced": "متقدم",
+    "Upscale or Variation": "الترقية أو الأختلاف",
+    "Image Prompt": "موجه الصورة",
+    "Inpaint or Outpaint (beta)": "Inpaint أو Outpaint (تجريبي)",
+    "Drag above image to here": "اسحب الصورة أعلاه إلى هنا",
+    "Upscale or Variation:": "الراقي أو المتغير:",
+    "Disabled": "عاجز",
+    "Vary (Subtle)": "تختلف (دقيقة)",
+    "Vary (Strong)": "متنوع (قوي)",
+    "Upscale (1.5x)": "الراقي (1.5x)",
+    "Upscale (2x)": "الراقي (2x)",
+    "Upscale (Fast 2x)": "الراقي (سريع 2x)",
+    "📔 Document": "📔وثيقة",
+    "Image": "صورة",
+    "Stop At": "توقف عند",
+    "Weight": "وزن",
+    "Type": "يكتب",
+    "PyraCanny": "بيرا كاني",
+    "CPDS": "CPDS",
+    "* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1).": "* يتم تشغيل &quot;مطالبة الصورة&quot; بواسطة Fooocus Image Mixture Engine (الإصدار 1.0.1).",
+    "The scaler multiplied to positive ADM (use 1.0 to disable).": "تم ضرب المقياس في ADM موجب (استخدم 1.0 للتعطيل).",
+    "The scaler multiplied to negative ADM (use 1.0 to disable).": "تم ضرب المقياس في ADM السالب (استخدم 1.0 للتعطيل).",
+    "When to end the guidance from positive/negative ADM.": "متى تنتهي التوجيهات من ADM الإيجابي/السلبي.",
+    "Similar to the Control Mode in A1111 (use 0.0 to disable).": "يشبه وضع التحكم في A1111 (استخدم 0.0 للتعطيل).",
+    "Outpaint Expansion (": "توسيع الطلاء الخارجي (",
+    "Outpaint": "طلاء خارجي",
+    "Left": "غادر",
+    "Right": "يمين",
+    "Top": "قمة",
+    "Bottom": "قاع",
+    "* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)": "* يتم تشغيل &quot;Inpaint or Outpaint&quot; بواسطة جهاز أخذ العينات &quot;DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler&quot; (إصدار تجريبي)",
+    "Setting": "جلسة",
+    "Style": "أسلوب",
+    "Performance": "أداء",
+    "Speed": "سرعة",
+    "Quality": "جودة",
+    "Aspect Ratios": "نسب",
+    "width × height": "العرض × الارتفاع",
+    "Image Number": "رقم الصورة",
+    "Negative Prompt": "موجه سلبي",
+    "Describing what you do not want to see.": "وصف ما لا تريد رؤيته.",
+    "Random": "عشوائي",
+    "Seed": "بذرة",
+    "📚 History Log": "📚 سجل التاريخ",
+    "Image Style": "نمط الصورة",
+    "Fooocus V2": "Fooocus V2",
+    "Default (Slightly Cinematic)": "افتراضي (سينمائي قليلاً)",
+    "Fooocus Masterpiece": "تحفة فوكوس",
+    "Fooocus Photograph": "صورة فوكوس",
+    "Fooocus Negative": "فوكوس سلبي",
+    "SAI 3D Model": "نموذج ساي ثلاثي الأبعاد",
+    "SAI Analog Film": "ساي الفيلم التناظري",
+    "SAI Anime": "ساي أنمي",
+    "SAI Cinematic": "ساي السينمائية",
+    "SAI Comic Book": "ساي الكتاب الهزلي",
+    "SAI Craft Clay": "ساي كرافت كلاي",
+    "SAI Digital Art": "SAI للفن الرقمي",
+    "SAI Enhance": "ساي تعزيز",
+    "SAI Fantasy Art": "ساي الخيال الفن",
+    "SAI Isometric": "ساي متساوي القياس",
+    "SAI Line Art": "ساي فن الخط",
+    "SAI Lowpoly": "ساي لوبولي",
+    "SAI Neonpunk": "ساي نيونبانك",
+    "SAI Origami": "ساي اوريغامي",
+    "SAI Photographic": "ساي للتصوير الفوتوغرافي",
+    "SAI Pixel Art": "SAI بكسل الفن",
+    "SAI Texture": "ساي الملمس",
+    "MRE Cinematic Dynamic": "MRE الديناميكية السينمائية",
+    "MRE Spontaneous Picture": "التوعية بمخاطر الألغام صورة عفوية",
+    "MRE Artistic Vision": "رؤية فنية للتوعية بمخاطر الألغام",
+    "MRE Dark Dream": "MRE الحلم المظلم",
+    "MRE Gloomy Art": "MRE الفن الكئيب",
+    "MRE Bad Dream": "MRE حلم سيء",
+    "MRE Underground": "التوعية بمخاطر الألغام تحت الأرض",
+    "MRE Surreal Painting": "MRE لوحة سريالية",
+    "MRE Dynamic Illustration": "التوضيح الديناميكي للتوعية بمخاطر الألغام",
+    "MRE Undead Art": "التوعية بمخاطر الألغام أوندد الفن",
+    "MRE Elemental Art": "فن عنصري التوعية بمخاطر الألغام",
+    "MRE Space Art": "فن مساحة التوعية بمخاطر الألغام",
+    "MRE Ancient Illustration": "التوضيح القديم بمخاطر الألغام",
+    "MRE Brave Art": "MRE الفن الشجاع",
+    "MRE Heroic Fantasy": "MRE البطولية الخيال",
+    "MRE Dark Cyberpunk": "MRE Dark Cyberpunk",
+    "MRE Lyrical Geometry": "MRE الهندسة الغنائية",
+    "MRE Sumi E Symbolic": "MRE سومي إي رمزي",
+    "MRE Sumi E Detailed": "MRE سومي E مفصلة",
+    "MRE Manga": "مخاطر الألغام مانغا",
+    "MRE Anime": "أنمي MRE",
+    "MRE Comic": "التوعية بمخاطر الألغام هزلية",
+    "Ads Advertising": "اعلانات اعلانية",
+    "Ads Automotive": "إعلانات السيارات",
+    "Ads Corporate": "اعلانات الشركات",
+    "Ads Fashion Editorial": "افتتاحية إعلانات الموضة",
+    "Ads Food Photography": "إعلانات تصوير الأطعمة",
+    "Ads Gourmet Food Photography": "إعلانات تصوير الأطعمة الذواقة",
+    "Ads Luxury": "إعلانات فاخرة",
+    "Ads Real Estate": "اعلانات عقارات",
+    "Ads Retail": "إعلانات التجزئة",
+    "Artstyle Abstract": "خلاصة أسلوب الفن",
+    "Artstyle Abstract Expressionism": "Artstyle التعبيرية التجريدية",
+    "Artstyle Art Deco": "آرت ستايل آرت ديكو",
+    "Artstyle Art Nouveau": "آرت ستايل آرت نوفو",
+    "Artstyle Constructivist": "فن البناء",
+    "Artstyle Cubist": "آرت ستايل التكعيبي",
+    "Artstyle Expressionist": "أسلوب التعبير الفني",
+    "Artstyle Graffiti": "فن الكتابة على الجدران",
+    "Artstyle Hyperrealism": "الواقعية المفرطة",
+    "Artstyle Impressionist": "الفن الانطباعي",
+    "Artstyle Pointillism": "التنقيطية الفنية",
+    "Artstyle Pop Art": "آرت ستايل فن البوب",
+    "Artstyle Psychedelic": "آرت ستايل مخدر",
+    "Artstyle Renaissance": "أسلوب فن عصر النهضة",
+    "Artstyle Steampunk": "ارت ستايل ستيمبانك",
+    "Artstyle Surrealist": "آرت ستايل السريالي",
+    "Artstyle Typography": "الطباعة الفنية",
+    "Artstyle Watercolor": "ألوان مائية فنية",
+    "Futuristic Biomechanical": "الميكانيكا الحيوية المستقبلية",
+    "Futuristic Biomechanical Cyberpunk": "مستقبلية الميكانيكا الحيوية Cyberpunk",
+    "Futuristic Cybernetic": "مستقبلية السيبرانية",
+    "Futuristic Cybernetic Robot": "الروبوت السيبراني المستقبلي",
+    "Futuristic Cyberpunk Cityscape": "مستقبلية Cyberpunk سيتي سكيب",
+    "Futuristic Futuristic": "مستقبلية مستقبلية",
+    "Futuristic Retro Cyberpunk": "مستقبلية الرجعية السايبربانك",
+    "Futuristic Retro Futurism": "مستقبلية الرجعية مستقبلية",
+    "Futuristic Sci Fi": "الخيال العلمي المستقبلي",
+    "Futuristic Vaporwave": "موجة بخار مستقبلية",
+    "Game Bubble Bobble": "لعبة فقاعة الكرة",
+    "Game Cyberpunk Game": "لعبة سايبربانك",
+    "Game Fighting Game": "لعبة لعبة القتال",
+    "Game Gta": "لعبة جي تي ايه",
+    "Game Mario": "لعبة ماريو",
+    "Game Minecraft": "لعبة ماين كرافت",
+    "Game Pokemon": "لعبة البوكيمون",
+    "Game Retro Arcade": "لعبة ريترو أركيد",
+    "Game Retro Game": "لعبة لعبة الرجعية",
+    "Game Rpg Fantasy Game": "لعبة آر بي جي لعبة الخيال",
+    "Game Strategy Game": "لعبة لعبة استراتيجية",
+    "Game Streetfighter": "لعبة ستريت فايتر",
+    "Game Zelda": "لعبة زيلدا",
+    "Misc Architectural": "منوعات معمارية",
+    "Misc Disco": "منوعات القرص",
+    "Misc Dreamscape": "منوعات دريم سكيب",
+    "Misc Dystopian": "منوعات ديستوبيا",
+    "Misc Fairy Tale": "حكاية خرافية متنوعة",
+    "Misc Gothic": "متنوعة القوطية",
+    "Misc Grunge": "متنوعات الجرونج",
+    "Misc Horror": "رعب متنوع",
+    "Misc Kawaii": "متنوعة كاواي",
+    "Misc Lovecraftian": "منوعات لافكرافتيان",
+    "Misc Macabre": "منوعات مروعة",
+    "Misc Manga": "مانغا متنوعة",
+    "Misc Metropolis": "منوعات متروبوليس",
+    "Misc Minimalist": "متنوعات الحد الأدنى",
+    "Misc Monochrome": "منوعات أحادية اللون",
+    "Misc Nautical": "متنوعات بحرية",
+    "Misc Space": "مساحة متنوعة",
+    "Misc Stained Glass": "متنوعات الزجاج المعشق",
+    "Misc Techwear Fashion": "أزياء متنوعة تيكوير",
+    "Misc Tribal": "منوعات قبلية",
+    "Misc Zentangle": "متنوعات زنتانجل",
+    "Papercraft Collage": "كلية صناعة الورق",
+    "Papercraft Flat Papercut": "صناعة الورق المسطح",
+    "Papercraft Kirigami": "صناعة الورق كيريجامي",
+    "Papercraft Paper Mache": "صناعة الورق من الورق المعجن",
+    "Papercraft Paper Quilling": "صناعة الورق من الورق اللف",
+    "Papercraft Papercut Collage": "مجموعة من الورق المقوى",
+    "Papercraft Papercut Shadow Box": "صندوق الظل من Papercraft",
+    "Papercraft Stacked Papercut": "Papercraft مكدسة Papercut",
+    "Papercraft Thick Layered Papercut": "صناعة الورق بطبقات سميكة من الورق",
+    "Photo Alien": "صور الغريبة",
+    "Photo Film Noir": "صور فيلم نوير",
+    "Photo Glamour": "صور بريق",
+    "Photo Hdr": "صور نطاق عالي الديناميكية",
+    "Photo Iphone Photographic": "صور ايفون فوتوغرافي",
+    "Photo Long Exposure": "صور التعرض الطويل",
+    "Photo Neon Noir": "صور نيون بلاك",
+    "Photo Silhouette": "صورة ظلية الصورة",
+    "Photo Tilt Shift": "تحويل إمالة الصورة",
+    "Cinematic Diva": "المغنية السينمائية",
+    "Abstract Expressionism": "التعبيرية التجريدية",
+    "Academia": "الأوساط الأكاديمية",
+    "Action Figure": "شخصية العمل",
+    "Adorable 3D Character": "شخصية ثلاثية الأبعاد رائعتين",
+    "Adorable Kawaii": "كاواي رائعتين",
+    "Art Deco": "الفن ديكو",
+    "Art Nouveau": "فن حديث",
+    "Astral Aura": "هالة نجمية",
+    "Avant Garde": "الطليعة",
+    "Baroque": "الباروك",
+    "Bauhaus Style Poster": "ملصقات على طراز باوهاوس",
+    "Blueprint Schematic Drawing": "الرسم التخطيطي للمخطط",
+    "Caricature": "كاريكاتير",
+    "Cel Shaded Art": "الفن المظلل",
+    "Character Design Sheet": "ورقة تصميم الشخصيات",
+    "Classicism Art": "الفن الكلاسيكي",
+    "Color Field Painting": "لوحة الألوان الميدانية",
+    "Colored Pencil Art": "الفن بالقلم الرصاص الملون",
+    "Conceptual Art": "الفن التصوري",
+    "Constructivism": "البنائية",
+    "Cubism": "التكعيبية",
+    "Dadaism": "الدادية",
+    "Dark Fantasy": "خيال غامض",
+    "Dark Moody Atmosphere": "جو مظلم مودي",
+    "Dmt Art Style": "دي إم تي آرت ستايل",
+    "Doodle Art": "فن الشعار المبتكر",
+    "Double Exposure": "التعرض المزدوج",
+    "Dripping Paint Splatter Art": "الفن المتناثر لرش الطلاء",
+    "Expressionism": "التعبيرية",
+    "Faded Polaroid Photo": "صورة بولارويد باهتة",
+    "Fauvism": "الحوشية",
+    "Flat 2d Art": "شقة 2D الفن",
+    "Fortnite Art Style": "نمط الفن Fortnite",
+    "Futurism": "مستقبلية",
+    "Glitchcore": "خلل",
+    "Glo Fi": "Glo Fi",
+    "Googie Art Style": "جوجل آرت ستايل",
+    "Graffiti Art": "فن الكتابة على الجدران",
+    "Harlem Renaissance Art": "فن عصر النهضة هارلم",
+    "High Fashion": "موضة عالية",
+    "Idyllic": "شاعري",
+    "Impressionism": "انطباعية",
+    "Infographic Drawing": "رسم الانفوجرافيك",
+    "Ink Dripping Drawing": "رسم يقطر الحبر",
+    "Japanese Ink Drawing": "الرسم بالحبر الياباني",
+    "Knolling Photography": "التصوير الفوتوغرافي",
+    "Light Cheery Atmosphere": "جو مبهج خفيف",
+    "Logo Design": "تصميم شعار",
+    "Luxurious Elegance": "الأناقة الفاخرة",
+    "Macro Photography": "تصوير الماكرو",
+    "Mandola Art": "فن الماندولا",
+    "Marker Drawing": "رسم العلامة",
+    "Medievalism": "العصور الوسطى",
+    "Minimalism": "تقليلية",
+    "Neo Baroque": "نيو باروك",
+    "Neo Byzantine": "البيزنطية الجديدة",
+    "Neo Futurism": "المستقبل الجديد",
+    "Neo Impressionism": "الانطباعية الجديدة",
+    "Neo Rococo": "نيو روكوكو",
+    "Neoclassicism": "الكلاسيكية الجديدة",
+    "Op Art": "في الفن",
+    "Ornate And Intricate": "مزخرفة ومعقدة",
+    "Pencil Sketch Drawing": "رسم تخطيطي بقلم الرصاص",
+    "Pop Art 2": "فن البوب 2",
+    "Rococo": "روكوكو",
+    "Silhouette Art": "فن الصورة الظلية",
+    "Simple Vector Art": "فن ناقل بسيط",
+    "Sketchup": "سكيتش اب",
+    "Steampunk 2": "ستيمبانك 2",
+    "Surrealism": "السريالية",
+    "Suprematism": "التفوق",
+    "Terragen": "تيراجين",
+    "Tranquil Relaxing Atmosphere": "أجواء الاسترخاء الهادئة",
+    "Sticker Designs": "تصاميم الملصقات",
+    "Vibrant Rim Light": "ضوء حافة نابض بالحياة",
+    "Volumetric Lighting": "الإضاءة الحجمية",
+    "Watercolor 2": "الألوان المائية 2",
+    "Whimsical And Playful": "غريب الأطوار ومرحة",
+    "Model": "نموذج",
+    "Base Model (SDXL only)": "الطراز الأساسي (SDXL فقط)",
+    "sd_xl_base_1.0_0.9vae.safetensors": "sd_xl_base_1.0_0.9vae.safetensors",
+    "bluePencilXL_v009.safetensors": "bluePencilXL_v009.safetensors",
+    "bluePencilXL_v050.safetensors": "bluePencilXL_v050.safetensors",
+    "DreamShaper_8_pruned.safetensors": "DreamShaper_8_pruned.safetensors",
+    "realisticStockPhoto_v10.safetensors": "realStockPhoto_v10.safetensors",
+    "realisticVisionV51_v51VAE.safetensors": "واقعيVisionV51_v51VAE.safetensors",
+    "sd_xl_refiner_1.0_0.9vae.safetensors": "sd_xl_refiner_1.0_0.9vae.safetensors",
+    "Refiner (SDXL or SD 1.5)": "المصفاة (SDXL أو SD 1.5)",
+    "None": "لا أحد",
+    "LoRAs": "LoRAs",
+    "SDXL LoRA 1": "إس دي إكس إل لورا 1",
+    "sd_xl_offset_example-lora_1.0.safetensors": "sd_xl_offset_example-lora_1.0.safetensors",
+    "3d_render_style_xl.safetensors": "3d_render_style_xl.safetensors",
+    "Bloodstained-XL-V1.safetensors": "Bloodstained-XL-V1.safetensors",
+    "SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors": "SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors",
+    "SDXL LoRA 2": "إس دي إكس إل لورا 2",
+    "SDXL LoRA 3": "إس دي إكس إل لورا 3",
+    "SDXL LoRA 4": "إس دي إكس إل لورا 4",
+    "SDXL LoRA 5": "إس دي إكس إل لورا 5",
+    "Refresh": "ينعش",
+    "🔄 Refresh All Files": "🔄 تحديث كافة الملفات",
+    "Sampling Sharpness": "حدة أخذ العينات",
+    "Higher value means image and texture are sharper.": "القيمة الأعلى تعني أن الصورة والملمس أكثر وضوحًا.",
+    "Guidance Scale": "مقياس التوجيه",
+    "Higher value means style is cleaner, vivider, and more artistic.": "القيمة الأعلى تعني أن الأسلوب أكثر نظافة وحيوية وأكثر فنية.",
+    "Developer Debug Mode": "وضع تصحيح المطور",
+    "Developer Debug Tools": "أدوات تصحيح المطور",
+    "Positive ADM Guidance Scaler": "مقياس التوجيه الإيجابي ADM",
+    "The scaler multiplied to positive ADM (use 1.0 to disable). ": "تم ضرب المقياس في ADM موجب (استخدم 1.0 للتعطيل).",
+    "Negative ADM Guidance Scaler": "مقياس توجيه ADM السلبي",
+    "The scaler multiplied to negative ADM (use 1.0 to disable). ": "تم ضرب المقياس في ADM السالب (استخدم 1.0 للتعطيل).",
+    "ADM Guidance End At Step": "تنتهي إرشادات ADM عند الخطوة",
+    "When to end the guidance from positive/negative ADM. ": "متى تنتهي التوجيهات من ADM الإيجابي/السلبي.",
+    "Refiner swap method": "طريقة تبديل المصافي",
+    "joint": "مشترك",
+    "separate": "متفرق",
+    "vae": "قدم",
+    "CFG Mimicking from TSNR": "محاكاة CFG من TSNR",
+    "Enabling Fooocus's implementation of CFG mimicking for TSNR (effective when real CFG > mimicked CFG).": "تمكين تنفيذ Fooocus لمحاكاة CFG لـ TSNR (فعال عندما يحاكي CFG الحقيقي&gt; CFG).",
+    "Sampler": "أخذ العينات",
+    "dpmpp_2m_sde_gpu": "dpmpp_2m_sde_gpu",
+    "Only effective in non-inpaint mode.": "فعالة فقط في وضع غير inpaint.",
+    "euler": "أويلر",
+    "euler_ancestral": "euler_ancestral",
+    "heun": "يا",
+    "dpm_2": "dpm_2",
+    "dpm_2_ancestral": "dpm_2_ancestral",
+    "lms": "lms",
+    "dpm_fast": "dpm_fast",
+    "dpm_adaptive": "dpm_adaptive",
+    "dpmpp_2s_ancestral": "dpmpp_2s_ancestral",
+    "dpmpp_sde": "dpmpp_sde",
+    "dpmpp_sde_gpu": "dpmpp_sde_gpu",
+    "dpmpp_2m": "dpmpp_2m",
+    "dpmpp_2m_sde": "dpmpp_2m_sde",
+    "dpmpp_3m_sde": "dpmpp_3m_sde",
+    "dpmpp_3m_sde_gpu": "dpmpp_3m_sde_gpu",
+    "ddpm": "com.ddpm",
+    "ddim": "لا",
+    "uni_pc": "uni_pc",
+    "uni_pc_bh2": "uni_pc_bh2",
+    "Scheduler": "مجدول",
+    "karras": "كراس",
+    "Scheduler of Sampler.": "جدولة العينات.",
+    "normal": "طبيعي",
+    "exponential": "متسارع",
+    "sgm_uniform": "sgm_uniform",
+    "simple": "بسيط",
+    "ddim_uniform": "غير موحده",
+    "Forced Overwrite of Sampling Step": "الكتابة الفوقية القسرية لخطوة أخذ العينات",
+    "Set as -1 to disable. For developer debugging.": "اضبط على -1 للتعطيل. لتصحيح أخطاء المطور.",
+    "Forced Overwrite of Refiner Switch Step": "الكتابة الفوقية القسرية لخطوة تبديل المصفاة",
+    "Forced Overwrite of Generating Width": "الكتابة الفوقية القسرية لتوليد العرض",
+    "Set as -1 to disable. For developer debugging. Results will be worse for non-standard numbers that SDXL is not trained on.": "اضبط على -1 للتعطيل. لتصحيح أخطاء المطور. ستكون النتائج أسوأ بالنسبة للأرقام غير القياسية التي لم يتم تدريب SDXL عليها.",
+    "Forced Overwrite of Generating Height": "الكتابة الفوقية القسرية لتوليد الارتفاع",
+    "Forced Overwrite of Denoising Strength of \"Vary\"": "الكتابة الفوقية القسرية لقوة تقليل الضوضاء لـ &quot;Vary&quot;",
+    "Set as negative number to disable. For developer debugging.": "تعيين كرقم سلبي لتعطيله. لتصحيح أخطاء المطور.",
+    "Forced Overwrite of Denoising Strength of \"Upscale\"": "الكتابة الفوقية القسرية لقوة تقليل الضوضاء لـ &quot;الراقي&quot;",
+    "Inpaint Engine": "محرك إنبينت",
+    "v1": "الإصدار 1",
+    "Version of Fooocus inpaint model": "نسخة من نموذج Fooocus inpaint",
+    "v2.5": "v2.5",
+    "Control Debug": "تصحيح التحكم",
+    "Debug Preprocessors": "تصحيح المعالجات المسبقة",
+    "Mixing Image Prompt and Vary/Upscale": "خلط موجه الصور والتنوع/الترقية",
+    "Mixing Image Prompt and Inpaint": "خلط موجه الصور وInpaint",
+    "Softness of ControlNet": "ليونة ControlNet",
+    "Similar to the Control Mode in A1111 (use 0.0 to disable). ": "يشبه وضع التحكم في A1111 (استخدم 0.0 للتعطيل).",
+    "Canny": "حكيم",
+    "Canny Low Threshold": "عتبة منخفضة كاني",
+    "Canny High Threshold": "عتبة عالية كاني",
+    "FreeU": "FreeU",
+    "Enabled": "ممكّن",
+    "B1": "ب1",
+    "B2": "B2",
+    "S1": "S1",
+    "S2": "S2",
+    "Extreme Speed": "السرعة القصوى",
+    "🔎 Type here to search styles ...": "🔎 اكتب هنا للبحث عن الأنماط...",
+    "Type prompt here.": "اكتب المطالبة هنا.",
+    "Outpaint Expansion Direction:": "اتجاه توسيع الطلاء الخارجي:",
+    "* Powered by Fooocus Inpaint Engine (beta)": "* مدعوم من محرك Fooocus Inpaint (تجريبي)",
+    "Fooocus Enhance": "تعزيز فوكوس",
+    "Fooocus Cinematic": "فوكوس السينمائية",
+    "Fooocus Sharp": "فوكوس شارب"
+}
