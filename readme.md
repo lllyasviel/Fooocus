@@ -51,6 +51,7 @@ Using Fooocus is as easy as (probably easier than) Midjourney – but this does 
 | --no | Advanced -> Negative Prompt |
 | --ar | Advanced -> Aspect Ratios |
 | InsightFace | Input Image -> Image Prompt -> Advanced -> FaceSwap |
+| Describe | Input Image -> Describe |
 
 We also have a few things borrowed from the best parts of LeonardoAI:
 

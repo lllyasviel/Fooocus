@@ -1,3 +1,7 @@
+# 2.1.831
+
+* Input Image -> Describe (Midjourney Describe)
+
 # 2.1.830
 
 * SegmindVega support.

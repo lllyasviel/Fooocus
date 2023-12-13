@@ -7,13 +7,14 @@ __pycache__
 *.patch
 *.backup
 *.corrupted
+*.partial
+*.onnx
+*.csv
 sorted_styles.json
 /input
 /cache
 /language/default.json
-lena.png
-lena_result.png
-lena_test.py
+/test_imgs
 config.txt
 config_modification_tutorial.txt
 user_path_config.txt
