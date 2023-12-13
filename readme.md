@@ -255,7 +255,7 @@ Below is the minimal requirement for running Fooocus locally. If your device cap
 
 &ast; AMD GPU ROCm (on hold): The AMD is still working on supporting ROCm on Windows.
 
-&ast; 6GB uncertain: Some people reports 6GB success on GTX 10XX but some other people reports failure cases.
+&ast; Nvidia GTX 1XXX 6GB uncertain: Some people reports 6GB success on GTX 10XX but some other people reports failure cases.
 
 *Note that Fooocus is only for extremely high quality image generating. We will not support smaller models to reduce the requirement and sacrifice result quality.*
 
