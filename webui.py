@@ -201,19 +201,6 @@ with shared.gradio_root:
                                     choices=[flags.desc_type_photo, flags.desc_type_anime],
                                     value=flags.desc_type_photo)
                                 desc_btn = gr.Button(value='Describe this Image into Prompt')
-
-                                def trigger_describe(mode, img):
-                                    if mode == flags.desc_type_photo:
-                                        from extras.interrogate import default_interrogator as default_interrogator_photo
-                                        return default_interrogator_photo(img)
-                                    if mode == flags.desc_type_anime:
-                                        from extras.wd14tagger import default_interrogator as default_interrogator_anime
-                                        return default_interrogator_anime(img)
-                                    return mode
-
-                                desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
-                                               outputs=prompt, show_progress=True, queue=False)
-
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Document</a>')
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
@@ -534,6 +521,18 @@ with shared.gradio_root:
             if os.path.exists(notification_file):
                 gr.Audio(interactive=False, value=notification_file, elem_id='audio_notification', visible=False)
                 break
+
+        def trigger_describe(mode, img):
+            if mode == flags.desc_type_photo:
+                from extras.interrogate import default_interrogator as default_interrogator_photo
+                return default_interrogator_photo(img), ["Fooocus V2", "Fooocus Enhance"]
+            if mode == flags.desc_type_anime:
+                from extras.wd14tagger import default_interrogator as default_interrogator_anime
+                return default_interrogator_anime(img), ["Fooocus V2", "Fooocus Masterpiece"]
+            return mode, ["Fooocus V2"]
+
+        desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
+                       outputs=[prompt, style_selections], show_progress=True, queue=False)
 
 
 def dump_default_english_config():
