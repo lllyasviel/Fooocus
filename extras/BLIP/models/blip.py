@@ -184,7 +184,8 @@ def blip_feature_extractor(pretrained='',**kwargs):
     return model        
 
 def init_tokenizer():
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    tokenizer_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "bert_tokenizer")
+    tokenizer = BertTokenizer.from_pretrained(tokenizer_path)
     tokenizer.add_special_tokens({'bos_token':'[DEC]'})
     tokenizer.add_special_tokens({'additional_special_tokens':['[ENC]']})       
     tokenizer.enc_token_id = tokenizer.additional_special_tokens_ids[0]  

@@ -1,3 +1,7 @@
+# 2.1.836
+
+* Avoid blip tokenizer download from torch hub
+
 # 2.1.831
 
 * Input Image -> Describe (Midjourney Describe)
