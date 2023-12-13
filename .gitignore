@@ -9,7 +9,6 @@ __pycache__
 *.corrupted
 *.partial
 *.onnx
-*.csv
 sorted_styles.json
 /input
 /cache

@@ -30,13 +30,13 @@ def default_interrogator(image_rgb, threshold=0.35, character_threshold=0.85, ex
     model_name = "wd-v1-4-moat-tagger-v2"
 
     model_onnx_filename = load_file_from_url(
-        url=f'https://huggingface.co/SmilingWolf/{model_name}/resolve/main/model.onnx',
+        url=f'https://huggingface.co/lllyasviel/misc/resolve/main/{model_name}.onnx',
         model_dir=path_clip_vision,
         file_name=f'{model_name}.onnx',
     )
 
     model_csv_filename = load_file_from_url(
-        url=f'https://huggingface.co/SmilingWolf/{model_name}/resolve/main/selected_tags.csv',
+        url=f'https://huggingface.co/lllyasviel/misc/resolve/main/{model_name}.csv',
         model_dir=path_clip_vision,
         file_name=f'{model_name}.csv',
     )
