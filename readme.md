@@ -253,7 +253,7 @@ Below is the minimal requirement for running Fooocus locally. If your device cap
 | Mac               | M1/M2 MPS                    | Shared                  | Shared                    | Shared                         | about 9x slower than Nvidia RTX 3XXX  |
 | Windows/Linux/Mac | only use CPU                 | 0GB                     | 32GB                      | Required                       | about 17x slower than Nvidia RTX 3XXX |
 
-&ast; AMD GPU ROCm: The AMD is still working on supporting ROCm on Windows.
+&ast; AMD GPU ROCm (on hold): The AMD is still working on supporting ROCm on Windows.
 
 *Note that Fooocus is only for extremely high quality image generating. We will not support smaller models to reduce the requirement and sacrifice result quality.*
 
