@@ -214,7 +214,7 @@ with shared.gradio_root:
                                 desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
                                                outputs=prompt, show_progress=True, queue=False)
 
-                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/99999" target="_blank">\U0001F4D4 Document</a>')
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Document</a>')
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
 
