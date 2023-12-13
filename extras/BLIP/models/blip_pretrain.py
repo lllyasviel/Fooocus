@@ -5,7 +5,7 @@
  * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  * By Junnan Li
 '''
-from models.med import BertConfig, BertModel, BertLMHeadModel
+from extras.BLIP.models.med import BertConfig, BertModel, BertLMHeadModel
 from transformers import BertTokenizer
 import transformers
 transformers.logging.set_verbosity_error()
@@ -14,7 +14,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from models.blip import create_vit, init_tokenizer, load_checkpoint
+from extras.BLIP.models.blip import create_vit, init_tokenizer, load_checkpoint
 
 class BLIP_Pretrain(nn.Module):
     def __init__(self,                 
@@ -270,7 +270,7 @@ from typing import List
 def tie_encoder_decoder_weights(encoder: nn.Module, decoder: nn.Module, base_model_prefix: str, skip_key:str):
     uninitialized_encoder_weights: List[str] = []
     if decoder.__class__ != encoder.__class__:
-        logger.info(
+        print(
             f"{decoder.__class__} and {encoder.__class__} are not equal. In this case make sure that all encoder weights are correctly initialized."
         )
 
