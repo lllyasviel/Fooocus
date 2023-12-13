@@ -244,8 +244,8 @@ Below is the minimal requirement for running Fooocus locally. If your device cap
 | Windows/Linux     | Nvidia RTX 4XXX              | 4GB                | 8GB                   | Required                       | fastest                               |
 | Windows/Linux     | Nvidia RTX 3XXX              | 4GB                | 8GB                   | Required                       | usually faster than RTX 2XXX          |
 | Windows/Linux     | Nvidia RTX 2XXX              | 4GB                | 8GB                   | Required                       | usually faster than GTX 1XXX          |
-| Windows/Linux     | Nvidia GTX 1XXX              | 6GB                | 8GB                   | Required                       | only marginally faster than cpu       |
-| Windows/Linux     | Nvidia GTX 9XX               | 8GB                | 8GB                   | Required                       | faster or slower than cpu             |
+| Windows/Linux     | Nvidia GTX 1XXX              | 6GB                | 8GB                   | Required                       | only marginally faster than CPU       |
+| Windows/Linux     | Nvidia GTX 9XX               | 8GB                | 8GB                   | Required                       | faster or slower than CPU             |
 | Windows/Linux     | Nvidia GTX < 9XX             | Not supported      | /                     | /                              | /                                     |
 | Windows           | AMD GPU                      | 16GB               | 8GB                   | Required                       | via DirectML                          |
 | Linux             | AMD GPU                      | 8GB                | 8GB                   | Required                       | via ROCm                              |
