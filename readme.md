@@ -235,6 +235,10 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
+### Download Previous Version
+
+See the guidelines [here](https://github.com/lllyasviel/Fooocus/discussions/1405).
+
 ## Minimal Requirement
 
 Below is the minimal requirement for running Fooocus locally. If your device capability is lower than this spec, you may not be able to use Fooocus locally. (Please let us know, in any case, if your device capability is lower but Fooocus still works.)
