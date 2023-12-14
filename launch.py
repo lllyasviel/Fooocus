@@ -1,16 +1,18 @@
 import os
 import sys
-
+import ssl
 
 print('[System ARGV] ' + str(sys.argv))
 
 root = os.path.dirname(os.path.abspath(__file__))
-backend_path = os.path.join(root, 'backend', 'headless')
-sys.path += [root, backend_path]
-
+sys.path.append(root)
 os.chdir(root)
+
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
+os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
 os.environ["GRADIO_SERVER_PORT"] = "7865"
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 import platform
@@ -87,19 +89,19 @@ def download_models():
     return
 
 
-def ini_fcbh_args():
+def ini_args():
     from args_manager import args
     return args
 
 
 prepare_environment()
 build_launcher()
-args = ini_fcbh_args()
+args = ini_args()
 
 
-if args.cuda_device is not None:
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.cuda_device)
-    print("Set device to:", args.cuda_device)
+if args.gpu_device_id is not None:
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_device_id)
+    print("Set device to:", args.gpu_device_id)
 
 
 download_models()

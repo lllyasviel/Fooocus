@@ -13,7 +13,6 @@ import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
 import args_manager
-import fcbh.model_management as model_management
 import copy
 
 from modules.sdxl_styles import legal_style_names
@@ -28,7 +27,7 @@ def get_task(*args):
     return currentTask
 
 def generate_clicked(task):
-    import fcbh.model_management as model_management
+    import ldm_patched.modules.model_management as model_management
 
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
@@ -117,14 +116,14 @@ with shared.gradio_root:
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
 
                     def stop_clicked(currentTask):
-                        import fcbh.model_management as model_management
+                        import ldm_patched.modules.model_management as model_management
                         currentTask.last_stop = 'stop'
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
                         return currentTask
 
                     def skip_clicked(currentTask):
-                        import fcbh.model_management as model_management
+                        import ldm_patched.modules.model_management as model_management
                         currentTask.last_stop = 'skip'
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
@@ -198,6 +197,17 @@ with shared.gradio_root:
                         gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
                         example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
 
+                    with gr.TabItem(label='Describe') as desc_tab:
+                        with gr.Row():
+                            with gr.Column():
+                                desc_input_image = grh.Image(label='Drag any image to here', source='upload', type='numpy')
+                            with gr.Column():
+                                desc_method = gr.Radio(
+                                    label='Content Type',
+                                    choices=[flags.desc_type_photo, flags.desc_type_anime],
+                                    value=flags.desc_type_photo)
+                                desc_btn = gr.Button(value='Describe this Image into Prompt')
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Document</a>')
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
 
@@ -209,6 +219,7 @@ with shared.gradio_root:
             uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+            desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
@@ -474,12 +485,14 @@ with shared.gradio_root:
                     play_notification.change(fn=play_notification_checked, inputs=[play_notification, notification], outputs=[notification_input], queue=False)
                     notification_input.change(fn=notification_input_changed, inputs=[notification_input, notification], outputs=[notification], queue=False)
 
-        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 12,
+        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 12 +
+                                               [gr.update(visible=x != 'Extreme Speed')] * 1,
+
                                      inputs=performance_selection,
                                      outputs=[
                                          guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
                                          adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
-                                         scheduler_name, adaptive_cfg, refiner_swap_method, disable_intermediate_results
+                                         scheduler_name, adaptive_cfg, refiner_swap_method, disable_intermediate_results, negative_prompt
                                      ], queue=False, show_progress=False)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
@@ -538,6 +551,18 @@ with shared.gradio_root:
             .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
+        def trigger_describe(mode, img):
+            if mode == flags.desc_type_photo:
+                from extras.interrogate import default_interrogator as default_interrogator_photo
+                return default_interrogator_photo(img), ["Fooocus V2", "Fooocus Enhance", "Fooocus Sharp"]
+            if mode == flags.desc_type_anime:
+                from extras.wd14tagger import default_interrogator as default_interrogator_anime
+                return default_interrogator_anime(img), ["Fooocus V2", "Fooocus Masterpiece"]
+            return mode, ["Fooocus V2"]
+
+        desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
+                       outputs=[prompt, style_selections], show_progress=True, queue=False)
+
 def dump_default_english_config():
     from modules.localization import dump_english_config
     dump_english_config(grh.all_components)
@@ -546,7 +571,7 @@ def dump_default_english_config():
 # dump_default_english_config()
 
 shared.gradio_root.launch(
-    inbrowser=args_manager.args.auto_launch,
+    inbrowser=args_manager.args.in_browser,
     server_name=args_manager.args.listen,
     server_port=args_manager.args.port,
     share=args_manager.args.share,
