@@ -12,6 +12,14 @@ See also the section: **System Swap**
 
 See also the section: **System Swap**
 
+### Aborted
+
+See also the section: **System Swap**
+
+### core dumped
+
+See also the section: **System Swap**
+
 ### Killed
 
 See also the section: **System Swap**
@@ -129,7 +137,7 @@ Please upgrade your Nvidia Driver.
 
 ### I am using Mac, the speed is very slow.
 
-Some MAC users may need `--enable-smart-memory` to speed up model loading.
+Some MAC users may need `--disable-offload-from-vram` to speed up model loading.
 
 Besides, the current support for MAC is very experimental, and we encourage users to also try Diffusionbee or Drawingthings: they are developed only for MAC.
 
