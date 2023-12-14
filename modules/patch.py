@@ -214,16 +214,20 @@ def compute_cfg(uncond, cond, cfg_scale, t):
 
 
 def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, model_options=None, seed=None):
-    if math.isclose(cond_scale, 1.0):
-        return calc_cond_uncond_batch(model, cond, None, x, timestep, model_options)[0]
-
     global eps_record
+
+    if math.isclose(cond_scale, 1.0):
+        final_x0 = calc_cond_uncond_batch(model, cond, None, x, timestep, model_options)[0]
+
+        if eps_record is not None:
+            eps_record = ((x - final_x0) / timestep).cpu()
+
+        return final_x0
 
     positive_x0, negative_x0 = calc_cond_uncond_batch(model, cond, uncond, x, timestep, model_options)
 
     positive_eps = x - positive_x0
     negative_eps = x - negative_x0
-    sigma = timestep
 
     alpha = 0.001 * sharpness * global_diffusion_progress
 
@@ -234,7 +238,7 @@ def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, mode
                             cfg_scale=cond_scale, t=global_diffusion_progress)
 
     if eps_record is not None:
-        eps_record = (final_eps / sigma).cpu()
+        eps_record = (final_eps / timestep).cpu()
 
     return x - final_eps
 
