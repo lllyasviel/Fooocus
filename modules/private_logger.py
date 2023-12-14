@@ -35,7 +35,6 @@ def log(img, dic, single_line_number=3):
         ".metadata th, .metadata td { border: 1px solid #4d4d4d; padding: 4px; } "
         ".image-container img { height: auto; max-width: 512px; display: block; padding-right:10px; } "
         ".image-container div { text-align: center; padding: 4px; } "
-        ".image-row { vertical-align: top; } "
         "</style>"
     )
 
@@ -46,11 +45,11 @@ def log(img, dic, single_line_number=3):
             existing_log = open(html_name, 'r', encoding='utf-8').read()
         else:
             existing_log = f"<html><head>{css_styles}</head><body>"
-            existing_log += f'\n<hr>\n<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p>'
+            existing_log += f'\n<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p>'
 
     div_name = only_name.replace('.', '_')
     item = f'<div id="{div_name}" class="image-container">\n'
-    item += "<table><tr class='image-row'>"
+    item += "<table><tr>"
     item += f"<td><a href='{only_name}'><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
     item += "<td>"
     item += "<table class='metadata'>"
@@ -68,7 +67,7 @@ def log(img, dic, single_line_number=3):
 
     item += "</table>"
     item += "</td>"
-    item += "</tr></table></div>\n\n"
+    item += "</tr></table><hr></div>\n\n"
     existing_log = item + existing_log
 
     with open(html_name, 'w', encoding='utf-8') as f:
