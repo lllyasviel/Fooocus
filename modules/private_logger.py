@@ -31,24 +31,33 @@ def log(img, dic, single_line_number=3):
         if os.path.exists(html_name):
             existing_log = open(html_name, encoding='utf-8').read()
         else:
-            existing_log = f'<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p>'
+            existing_log = "<html><head><style>body { background-color: #121212; color: #E0E0E0; } a { color: #BB86FC; } table.metadata { border-collapse: collapse; } table.metadata th, table.metadata td { border: 1px solid #4d4d4d; } </style></head><body>"
+            existing_log += f'<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p>'
 
     div_name = only_name.replace('.', '_')
     item = f'<div id="{div_name}">\n'
     item += "<table><tr>"
-    item += f"<td><img src=\"{only_name}\" width=auto height=100% loading=lazy style=\"height:auto;max-width:512px\" onerror=\"document.getElementById('{div_name}').style.display = 'none';\"></img></p></td>"
-    item += f"<td style=\"padding-left:10px;\"><p>{only_name}</p>\n"
-    for i, (k, v) in enumerate(dic):
-        if i < single_line_number:
-            item += f"<p>{k}: <b>{v}</b></p>\n"
-        else:
-            if (i - single_line_number) % 2 == 0:
-                item += f"<p>{k}: <b>{v}</b>, "
-            else:
-                item += f"{k}: <b>{v}</b></p>\n"
+    item += f"<td style='text-align: center;'><a href='{only_name}'><img src='{only_name}' width='auto' height='100%' loading='lazy' style='height:auto;max-width:512px; display:block;'></img></a><div style='text-align: center; padding: 4px'>{only_name}</div></td>"
+    item += f"<td style='padding-left:10px;'>"
+    item += "<table class='metadata'>"
+
+    if isinstance(dic, list):
+        for item_tuple in dic:
+            if len(item_tuple) == 2:  # Ensure there is a key and a value
+                key, value = item_tuple
+                if key.startswith('LoRA [') and ']' in key:
+                    lora_name = key[key.find('[') + 1 : key.find(']')]
+                    rest_of_key = key[key.find(']') + 2:]
+                    item += f"<tr><td style='padding: 4px; width: 15%;'>LoRA</td><td style='padding: 4px; width: 85%;'><b>{lora_name}: {value}</b></td></tr>"
+                else:
+                    item += f"<tr><td style='padding: 4px; width: 15%;'>{key}</td><td style='padding: 4px; width: 85%;'><b>{value}</b></td></tr>"
+
+    item += "</table>"
     item += "</td>"
     item += "</tr></table><hr></div>\n"
     existing_log = item + existing_log
+
+    existing_log += "</body></html>"
 
     with open(html_name, 'w', encoding='utf-8') as f:
         f.write(existing_log)
