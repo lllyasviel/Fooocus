@@ -133,12 +133,14 @@ document.addEventListener('keydown', function(e) {
         if (generateButton) {
             generateButton.click();
             e.preventDefault();
+            return;
         }
 
         const stopButton = gradioApp().querySelector('button:not(.hidden)[id=stop_button]')
         if(stopButton) {
             stopButton.click();
             e.preventDefault();
+            return;
         }
     }
 });
