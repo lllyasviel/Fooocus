@@ -7,9 +7,9 @@ import ldm_patched.modules.model_management
 import ldm_patched.modules.latent_formats
 import modules.inpaint_worker
 import extras.vae_interpose as vae_interpose
+from extras.expansion import FooocusExpansion
 
 from ldm_patched.modules.model_base import SDXL, SDXLRefiner
-from modules.expansion import FooocusExpansion
 from modules.sample_hijack import clip_separate
 
 

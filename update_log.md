@@ -1,3 +1,10 @@
+# 2.1.839
+
+* Maintained some computation codes in backend for efficiency.
+* Added a note about Seed Breaking Change.
+
+**Seed Breaking Change**: Note that 2.1.825-2.1.839 is seed breaking change. The computation float point is changed and some seeds may give slightly different results. If you want to 100% reproduce previous results, please use `git switch v2.1.824` and `python launch.py` to change to previous version. Note that once you change to any previous version, the updating will be turned off forever. Besides, the minor change in 2.1.825-2.1.839 do not influence image quality - they are purely random, determined by your device.
+
 # 2.1.837
 
 * Fix some precision-related problems.
