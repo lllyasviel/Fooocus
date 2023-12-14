@@ -25,39 +25,51 @@ def log(img, dic, single_line_number=3):
     Image.fromarray(img).save(local_temp_filename)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
 
+    css_styles = (
+        "<style>"
+        "body { background-color: #121212; color: #E0E0E0; } "
+        "a { color: #BB86FC; } "
+        ".metadata { border-collapse: collapse; width: 100%; } "
+        ".metadata .key { width: 15%; } "
+        ".metadata .value { width: 85%; } "
+        ".metadata th, .metadata td { border: 1px solid #4d4d4d; padding: 4px; } "
+        ".image-container img { height: auto; max-width: 512px; display: block; } "
+        ".image-container div { text-align: center; padding: 4px; } "
+        ".image-row { vertical-align: top; } "
+        "</style>"
+    )
+
     existing_log = log_cache.get(html_name, None)
 
     if existing_log is None:
         if os.path.exists(html_name):
-            existing_log = open(html_name, encoding='utf-8').read()
+            existing_log = open(html_name, 'r', encoding='utf-8').read()
         else:
-            existing_log = "<html><head><style>body { background-color: #121212; color: #E0E0E0; } a { color: #BB86FC; } table.metadata { border-collapse: collapse; } table.metadata th, table.metadata td { border: 1px solid #4d4d4d; } </style></head><body>"
-            existing_log += f'<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p>'
+            existing_log = f"<html><head>{css_styles}</head><body>"
+            existing_log += f'\n<hr>\n<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p>'
 
     div_name = only_name.replace('.', '_')
-    item = f'<div id="{div_name}">\n'
-    item += "<table><tr>"
-    item += f"<td style='text-align: center;'><a href='{only_name}'><img src='{only_name}' width='auto' height='100%' loading='lazy' style='height:auto;max-width:512px; display:block;'></img></a><div style='text-align: center; padding: 4px'>{only_name}</div></td>"
-    item += f"<td style='padding-left:10px;'>"
+    item = f'<div id="{div_name}" class="image-container">\n'
+    item += "<table><tr class='image-row'>"
+    item += f"<td style='text-align: center;'><a href='{only_name}'><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
+    item += "<td style='padding-left:10px;'>"
     item += "<table class='metadata'>"
 
     if isinstance(dic, list):
         for item_tuple in dic:
-            if len(item_tuple) == 2:  # Ensure there is a key and a value
+            if len(item_tuple) == 2:
                 key, value = item_tuple
                 if key.startswith('LoRA [') and ']' in key:
                     lora_name = key[key.find('[') + 1 : key.find(']')]
                     rest_of_key = key[key.find(']') + 2:]
-                    item += f"<tr><td style='padding: 4px; width: 15%;'>LoRA</td><td style='padding: 4px; width: 85%;'><b>{lora_name}: {value}</b></td></tr>"
+                    item += f"<tr><td class='key'>LoRA</td><td class='value'><b>{lora_name}: {value}</b></td></tr>"
                 else:
-                    item += f"<tr><td style='padding: 4px; width: 15%;'>{key}</td><td style='padding: 4px; width: 85%;'><b>{value}</b></td></tr>"
+                    item += f"<tr><td class='key'>{key}</td><td class='value'><b>{value}</b></td></tr>"
 
     item += "</table>"
     item += "</td>"
-    item += "</tr></table><hr></div>\n"
+    item += "</tr></table></div>\n"
     existing_log = item + existing_log
-
-    existing_log += "</body></html>"
 
     with open(html_name, 'w', encoding='utf-8') as f:
         f.write(existing_log)
