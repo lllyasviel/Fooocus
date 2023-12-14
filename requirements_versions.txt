@@ -15,3 +15,5 @@ gradio==3.45.0
 pygit2==1.12.2
 opencv-contrib-python==4.8.0.74
 httpx==0.24.1
+onnxruntime==1.16.3
+timm==0.9.2
