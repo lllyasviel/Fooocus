@@ -125,18 +125,23 @@ document.addEventListener("DOMContentLoaded", function() {
  * Add a ctrl+enter as a shortcut to start a generation
  */
 document.addEventListener('keydown', function(e) {
-    var handled = false;
-    if (e.key !== undefined) {
-        if ((e.key == "Enter" && (e.metaKey || e.ctrlKey || e.altKey))) handled = true;
-    } else if (e.keyCode !== undefined) {
-        if ((e.keyCode == 13 && (e.metaKey || e.ctrlKey || e.altKey))) handled = true;
-    }
-    if (handled) {
-        var button = gradioApp().querySelector('button[id=generate_button]');
-        if (button) {
-            button.click();
+    const isModifierKey = (e.metaKey || e.ctrlKey || e.altKey);
+    const isEnterKey = (e.key == "Enter" || e.keyCode == 13);
+
+    if(isModifierKey && isEnterKey) {
+        const generateButton = gradioApp().querySelector('button:not(.hidden)[id=generate_button]');
+        if (generateButton) {
+            generateButton.click();
+            e.preventDefault();
+            return;
         }
-        e.preventDefault();
+
+        const stopButton = gradioApp().querySelector('button:not(.hidden)[id=stop_button]')
+        if(stopButton) {
+            stopButton.click();
+            e.preventDefault();
+            return;
+        }
     }
 });
 
