@@ -118,12 +118,12 @@ If you get this error elsewhere in the world, then you may need to look at [this
 
 ### CUDA kernel errors might be asynchronously reported at some other API call
 
-This problem is fixed two months ago. Please make sure that you are using the latest version of Fooocus (try fresh install).
+A very small amount of devices does have this problem. The cause can be complicated but usually can be resolved after following these steps:
 
-If it still does not work, try to upgrade your Nvidia driver.
-
-If it still does not work, open an issue with full log, and we will take a look.
-
+1. Make sure that you are using official version and latest version installed from [here](https://github.com/lllyasviel/Fooocus#download). (Some forks and other versions are more likely to cause this problem.)
+2. Upgrade your Nvidia driver to the latest version. (Usually the version of your Nvidia driver should be 53X, not 3XX or 4XX.)
+3. If things still do not work, then perhaps it is a problem with CUDA 12. You can use CUDA 11 and Xformers to try to solve this problem. We have prepared all files for you, and please do NOT install any CUDA or other environment on you own. The only one official way to do this is: (1) Backup and delete your `python_embeded` folder (near the `run.bat`); (2) Download the "previous_old_xformers_env.7z" from the [release page](https://github.com/lllyasviel/Fooocus/releases/tag/release), decompress it, and put the newly extracted `python_embeded` folder near your `run.bat`; (3) run Fooocus.
+4. If it still does not work, please open an issue for us to take a look.
 
 ### Found no NVIDIA driver on your system
 
