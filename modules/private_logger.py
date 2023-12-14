@@ -31,9 +31,9 @@ def log(img, dic, single_line_number=3):
         "a { color: #BB86FC; } "
         ".metadata { border-collapse: collapse; width: 100%; } "
         ".metadata .key { width: 15%; } "
-        ".metadata .value { width: 85%; } "
+        ".metadata .value { width: 85%; font-weight: bold; } "
         ".metadata th, .metadata td { border: 1px solid #4d4d4d; padding: 4px; } "
-        ".image-container img { height: auto; max-width: 512px; display: block; } "
+        ".image-container img { height: auto; max-width: 512px; display: block; padding-right:10px; } "
         ".image-container div { text-align: center; padding: 4px; } "
         ".image-row { vertical-align: top; } "
         "</style>"
@@ -51,8 +51,8 @@ def log(img, dic, single_line_number=3):
     div_name = only_name.replace('.', '_')
     item = f'<div id="{div_name}" class="image-container">\n'
     item += "<table><tr class='image-row'>"
-    item += f"<td style='text-align: center;'><a href='{only_name}'><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
-    item += "<td style='padding-left:10px;'>"
+    item += f"<td><a href='{only_name}'><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
+    item += "<td>"
     item += "<table class='metadata'>"
 
     if isinstance(dic, list):
@@ -62,13 +62,13 @@ def log(img, dic, single_line_number=3):
                 if key.startswith('LoRA [') and ']' in key:
                     lora_name = key[key.find('[') + 1 : key.find(']')]
                     rest_of_key = key[key.find(']') + 2:]
-                    item += f"<tr><td class='key'>LoRA</td><td class='value'><b>{lora_name}: {value}</b></td></tr>"
+                    item += f"<tr><td class='key'>LoRA</td><td class='value'>{lora_name}: {value}</td></tr>\n"
                 else:
-                    item += f"<tr><td class='key'>{key}</td><td class='value'><b>{value}</b></td></tr>"
+                    item += f"<tr><td class='key'>{key}</td><td class='value'>{value}</td></tr>\n"
 
     item += "</table>"
     item += "</td>"
-    item += "</tr></table></div>\n"
+    item += "</tr></table></div>\n\n"
     existing_log = item + existing_log
 
     with open(html_name, 'w', encoding='utf-8') as f:
