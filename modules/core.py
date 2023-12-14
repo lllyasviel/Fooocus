@@ -191,7 +191,7 @@ def encode_vae_inpaint(vae, pixels, mask):
 
     latent_mask = mask[:, None, :, :]
     latent_mask = torch.nn.functional.interpolate(latent_mask, size=(H * 8, W * 8), mode="bilinear").round()
-    latent_mask = torch.nn.functional.max_pool2d(latent_mask, (8, 8)).round()
+    latent_mask = torch.nn.functional.max_pool2d(latent_mask, (8, 8)).round().to(latent)
 
     return latent, latent_mask
 
