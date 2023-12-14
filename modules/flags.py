@@ -14,7 +14,7 @@ KSAMPLER_NAMES = ["euler", "euler_ancestral", "heun", "heunpp2","dpm_2", "dpm_2_
                   "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
                   "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "dpmpp_3m_sde", "dpmpp_3m_sde_gpu", "ddpm", "lcm"]
 
-SCHEDULER_NAMES = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform", "lcm"]
+SCHEDULER_NAMES = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform", "lcm", "turbo"]
 SAMPLER_NAMES = KSAMPLER_NAMES + ["ddim", "uni_pc", "uni_pc_bh2"]
 
 sampler_list = SAMPLER_NAMES
@@ -32,5 +32,13 @@ default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0)
 }  # stop, weight
 
-inpaint_engine_versions = ['v1', 'v2.5', 'v2.6']
+inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 performance_selections = ['Speed', 'Quality', 'Extreme Speed']
+
+inpaint_option_default = 'Inpaint or Outpaint (default)'
+inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
+inpaint_option_modify = 'Modify Content (add objects, change background, etc.)'
+inpaint_options = [inpaint_option_default, inpaint_option_detail, inpaint_option_modify]
+
+desc_type_photo = 'Photograph'
+desc_type_anime = 'Art/Anime'
