@@ -23,7 +23,6 @@ from ldm_patched.contrib.external import VAEDecode, EmptyLatentImage, VAEEncode,
     ControlNetApplyAdvanced
 from ldm_patched.contrib.external_freelunch import FreeU_V2
 from ldm_patched.modules.sample import prepare_mask
-from modules.patch import patched_sampler_cfg_function
 from modules.lora import match_lora
 from ldm_patched.modules.lora import model_lora_keys_unet, model_lora_keys_clip
 from modules.config import path_embeddings
@@ -150,7 +149,6 @@ def apply_controlnet(positive, negative, control_net, image, strength, start_per
 @torch.inference_mode()
 def load_model(ckpt_filename):
     unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename, embedding_directory=path_embeddings)
-    unet.model_options['sampler_cfg_function'] = patched_sampler_cfg_function
     return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision, filename=ckpt_filename)
 
 

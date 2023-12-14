@@ -1,11 +1,9 @@
 import os
 import torch
 import time
-import numpy as np
 import math
 import ldm_patched.modules.model_base
 import ldm_patched.ldm.modules.diffusionmodules.openaimodel
-import ldm_patched.modules.samplers
 import ldm_patched.modules.model_management
 import modules.anisotropic as anisotropic
 import ldm_patched.ldm.modules.attention
@@ -24,10 +22,9 @@ import warnings
 import safetensors.torch
 import modules.constants as constants
 
-from einops import repeat
+from ldm_patched.modules.samplers import calc_cond_uncond_batch
 from ldm_patched.k_diffusion.sampling import BatchedBrownianTree
 from ldm_patched.ldm.modules.diffusionmodules.openaimodel import forward_timestep_embed, apply_control
-from ldm_patched.ldm.modules.diffusionmodules.util import make_beta_schedule
 
 
 sharpness = 2.0
@@ -178,8 +175,6 @@ def calculate_weight_patched(self, patches, weight, key):
 class BrownianTreeNoiseSamplerPatched:
     transform = None
     tree = None
-    global_sigma_min = 1.0
-    global_sigma_max = 1.0
 
     @staticmethod
     def global_init(x, sigma_min, sigma_max, seed=None, transform=lambda x: x, cpu=False):
@@ -190,9 +185,6 @@ class BrownianTreeNoiseSamplerPatched:
 
         BrownianTreeNoiseSamplerPatched.transform = transform
         BrownianTreeNoiseSamplerPatched.tree = BatchedBrownianTree(x, t0, t1, seed, cpu=cpu)
-
-        BrownianTreeNoiseSamplerPatched.global_sigma_min = sigma_min
-        BrownianTreeNoiseSamplerPatched.global_sigma_max = sigma_max
 
     def __init__(self, *args, **kwargs):
         pass
@@ -221,34 +213,47 @@ def compute_cfg(uncond, cond, cfg_scale, t):
         return real_eps
 
 
-def patched_sampler_cfg_function(args):
+def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, model_options=None, seed=None):
+    if math.isclose(cond_scale, 1.0):
+        return calc_cond_uncond_batch(model, cond, None, x, timestep, model_options)[0]
+
     global eps_record
 
-    positive_eps = args['cond']
-    negative_eps = args['uncond']
-    cfg_scale = args['cond_scale']
-    positive_x0 = args['input'] - positive_eps
-    sigma = args['sigma']
+    positive_x0, negative_x0 = calc_cond_uncond_batch(model, cond, uncond, x, timestep, model_options)
+
+    positive_eps = x - positive_x0
+    negative_eps = x - negative_x0
+    sigma = timestep
 
     alpha = 0.001 * sharpness * global_diffusion_progress
+
     positive_eps_degraded = anisotropic.adaptive_anisotropic_filter(x=positive_eps, g=positive_x0)
     positive_eps_degraded_weighted = positive_eps_degraded * alpha + positive_eps * (1.0 - alpha)
 
     final_eps = compute_cfg(uncond=negative_eps, cond=positive_eps_degraded_weighted,
-                            cfg_scale=cfg_scale, t=global_diffusion_progress)
+                            cfg_scale=cond_scale, t=global_diffusion_progress)
 
     if eps_record is not None:
         eps_record = (final_eps / sigma).cpu()
 
-    return final_eps
+    return x - final_eps
+
+
+def round_to_64(x):
+    h = float(x)
+    h = h / 64.0
+    h = round(h)
+    h = int(h)
+    h = h * 64
+    return h
 
 
 def sdxl_encode_adm_patched(self, **kwargs):
     global positive_adm_scale, negative_adm_scale
 
     clip_pooled = ldm_patched.modules.model_base.sdxl_pooled(kwargs, self.noise_augmentor)
-    width = kwargs.get("width", 768)
-    height = kwargs.get("height", 768)
+    width = kwargs.get("width", 1024)
+    height = kwargs.get("height", 1024)
     target_width = width
     target_height = height
 
@@ -259,25 +264,21 @@ def sdxl_encode_adm_patched(self, **kwargs):
         width = float(width) * positive_adm_scale
         height = float(height) * positive_adm_scale
 
-    # Avoid artifacts
-    width = int(width)
-    height = int(height)
-    crop_w = 0
-    crop_h = 0
-    target_width = int(target_width)
-    target_height = int(target_height)
+    def embedder(number_list):
+        h = [self.embedder(torch.Tensor([number])) for number in number_list]
+        y = torch.flatten(torch.cat(h)).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
+        return y
 
-    out_a = [self.embedder(torch.Tensor([height])), self.embedder(torch.Tensor([width])),
-             self.embedder(torch.Tensor([crop_h])), self.embedder(torch.Tensor([crop_w])),
-             self.embedder(torch.Tensor([target_height])), self.embedder(torch.Tensor([target_width]))]
-    flat_a = torch.flatten(torch.cat(out_a)).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
+    width, height = round_to_64(width), round_to_64(height)
+    target_width, target_height = round_to_64(target_width), round_to_64(target_height)
 
-    out_b = [self.embedder(torch.Tensor([target_height])), self.embedder(torch.Tensor([target_width])),
-             self.embedder(torch.Tensor([crop_h])), self.embedder(torch.Tensor([crop_w])),
-             self.embedder(torch.Tensor([target_height])), self.embedder(torch.Tensor([target_width]))]
-    flat_b = torch.flatten(torch.cat(out_b)).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
+    adm_emphasized = embedder([height, width, 0, 0, target_height, target_width])
+    adm_consistent = embedder([target_height, target_width, 0, 0, target_height, target_width])
 
-    return torch.cat((clip_pooled.to(flat_a.device), flat_a, clip_pooled.to(flat_b.device), flat_b), dim=1)
+    clip_pooled = clip_pooled.to(adm_emphasized)
+    final_adm = torch.cat((clip_pooled, adm_emphasized, clip_pooled, adm_consistent), dim=1)
+
+    return final_adm
 
 
 def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
@@ -512,48 +513,6 @@ def build_loaded(module, loader_name):
     return
 
 
-def patched_timestep_embedding(timesteps, dim, max_period=10000, repeat_only=False):
-    # Consistent with Kohya to reduce differences between model training and inference.
-
-    if not repeat_only:
-        half = dim // 2
-        freqs = torch.exp(
-            -math.log(max_period) * torch.arange(start=0, end=half, dtype=torch.float32) / half
-        ).to(device=timesteps.device)
-        args = timesteps[:, None].float() * freqs[None]
-        embedding = torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
-        if dim % 2:
-            embedding = torch.cat([embedding, torch.zeros_like(embedding[:, :1])], dim=-1)
-    else:
-        embedding = repeat(timesteps, 'b -> b d', d=dim)
-    return embedding
-
-
-def patched_register_schedule(self, given_betas=None, beta_schedule="linear", timesteps=1000,
-                          linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3):
-    # Consistent with Kohya to reduce differences between model training and inference.
-
-    if given_betas is not None:
-        betas = given_betas
-    else:
-        betas = make_beta_schedule(
-            beta_schedule,
-            timesteps,
-            linear_start=linear_start,
-            linear_end=linear_end,
-            cosine_s=cosine_s)
-
-    alphas = 1. - betas
-    alphas_cumprod = np.cumprod(alphas, axis=0)
-    timesteps, = betas.shape
-    self.num_timesteps = int(timesteps)
-    self.linear_start = linear_start
-    self.linear_end = linear_end
-    sigmas = torch.tensor(((1 - alphas_cumprod) / alphas_cumprod) ** 0.5, dtype=torch.float32)
-    self.set_sigmas(sigmas)
-    return
-
-
 def patch_all():
     if not hasattr(ldm_patched.modules.model_management, 'load_models_gpu_origin'):
         ldm_patched.modules.model_management.load_models_gpu_origin = ldm_patched.modules.model_management.load_models_gpu
@@ -566,10 +525,7 @@ def patch_all():
     ldm_patched.modules.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
     ldm_patched.modules.samplers.KSamplerX0Inpaint.forward = patched_KSamplerX0Inpaint_forward
     ldm_patched.k_diffusion.sampling.BrownianTreeNoiseSampler = BrownianTreeNoiseSamplerPatched
-
-    # Precision fix
-    ldm_patched.ldm.modules.diffusionmodules.openaimodel.timestep_embedding = patched_timestep_embedding
-    ldm_patched.modules.model_base.ModelSamplingDiscrete._register_schedule = patched_register_schedule
+    ldm_patched.modules.samplers.sampling_function = patched_sampling_function
 
     warnings.filterwarnings(action='ignore', module='torchsde')
 
