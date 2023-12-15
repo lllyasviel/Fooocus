@@ -1,9 +1,17 @@
+# 2.1.841
+
+* Backend maintain.
+* Fix some potential frozen after model mismatch.
+* Fix crash when cfg=1 when using anime preset.
+* Added some guidelines for troubleshoot the "CUDA kernel errors asynchronously" problem.
+* Fix inpaint device problem in `--always-gpu` mode.
+
 # 2.1.839
 
 * Maintained some computation codes in backend for efficiency.
 * Added a note about Seed Breaking Change.
 
-**Seed Breaking Change**: Note that 2.1.825-2.1.839 is seed breaking change. The computation float point is changed and some seeds may give slightly different results. If you want to 100% reproduce previous results, please use `git switch v2.1.824` and `python launch.py` to change to previous version. Note that once you change to any previous version, the updating will be turned off forever. Besides, the minor change in 2.1.825-2.1.839 do not influence image quality - they are purely random, determined by your device.
+**Seed Breaking Change**: Note that 2.1.825-2.1.839 is seed breaking change. The computation float point is changed and some seeds may give slightly different results. The minor change in 2.1.825-2.1.839 do not influence image quality. See also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
 
 # 2.1.837
 

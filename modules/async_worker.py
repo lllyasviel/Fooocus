@@ -801,12 +801,12 @@ def worker():
             task = async_tasks.pop(0)
             try:
                 handler(task)
-            except:
-                traceback.print_exc()
-            finally:
                 build_image_wall(task)
                 task.yields.append(['finish', task.results])
                 pipeline.prepare_text_encoder(async_call=True)
+            except:
+                traceback.print_exc()
+                task.yields.append(['finish', task.results])
     pass
 
 
