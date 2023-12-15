@@ -36,7 +36,7 @@ def log(img, dic, single_line_number=3):
     div_name = only_name.replace('.', '_')
     item = f'<div id="{div_name}">\n'
     item += "<table><tr>"
-    item += f"<td><img src=\"{only_name}\" width=auto height=100% loading=lazy style=\"height:auto;max-width:512px\" onerror=\"document.getElementById('{div_name}').style.display = 'none';\"></img></p></td>"
+    item += f"<td><img src=\"{only_name}\" width=auto height=100% loading=lazy style=\"height:auto;max-width:512px\" onerror=\"document.getElementById('{div_name}').style.display = 'none';\"></img></td>"
     item += f"<td style=\"padding-left:10px;\"><p>{only_name}</p>\n"
     for i, (k, v) in enumerate(dic):
         if i < single_line_number:
