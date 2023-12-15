@@ -51,6 +51,7 @@ Using Fooocus is as easy as (probably easier than) Midjourney – but this does 
 | --no | Advanced -> Negative Prompt |
 | --ar | Advanced -> Aspect Ratios |
 | InsightFace | Input Image -> Image Prompt -> Advanced -> FaceSwap |
+| Describe | Input Image -> Describe |
 
 We also have a few things borrowed from the best parts of LeonardoAI:
 
@@ -68,7 +69,7 @@ Fooocus also developed many "fooocus-only" features for advanced users to get pe
 
 You can directly download Fooocus with:
 
-**[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_2-1-791.7z)**
+**[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_2-1-831.7z)**
 
 After you download the file, please uncompress it, and then run the "run.bat".
 
@@ -106,9 +107,13 @@ Note that the minimal requirement is **4GB Nvidia GPU memory (4GB VRAM)** and **
 
 Please open an issue if you use similar devices but still cannot achieve acceptable performances.
 
+Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
+
+See also the common problems and troubleshoots [here](troubleshoot.md).
+
 ### Colab
 
-(Last tested - 2023 Nov 15)
+(Last tested - 2023 Dec 12)
 
 | Colab | Info
 | --- | --- |
@@ -116,7 +121,7 @@ Please open an issue if you use similar devices but still cannot achieve accepta
 
 In Colab, you can modify the last line to `!python entry_with_update.py --share` or `!python entry_with_update.py --preset anime --share` or `!python entry_with_update.py --preset realistic --share` for Fooocus Default/Anime/Realistic Edition.
 
-Note that this Colab will disable refiner by default because Colab free's resource is relatively limited. 
+Note that this Colab will disable refiner by default because Colab free's resource is relatively limited (and some "big" features like image prompt may cause free-tier Colab to disconnect). We make sure that basic text-to-image is always working on free-tier Colab.
 
 Thanks to [camenduru](https://github.com/camenduru)!
 
@@ -184,6 +189,8 @@ Use `python entry_with_update.py --preset anime` or `python entry_with_update.py
 
 ### Linux (AMD GPUs)
 
+Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
+
 Same with the above instructions. You need to change torch to AMD version
 
     pip uninstall torch torchvision torchaudio torchtext functorch xformers 
@@ -194,6 +201,8 @@ AMD is not intensively tested, however. The AMD support is in beta.
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Windows(AMD GPUs)
+
+Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
 
 Same with Windows. Download the software, edit the content of `run.bat` as:
 
@@ -210,6 +219,8 @@ For AMD, use `python entry_with_update.py --directml --preset anime` or `python 
 
 ### Mac
 
+Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
+
 Mac is not intensively tested. Below is an unofficial guideline for using Mac. You can discuss problems [here](https://github.com/lllyasviel/Fooocus/pull/129).
 
 You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or a newer version. Fooocus runs on Apple silicon computers via [PyTorch](https://pytorch.org/get-started/locally/) MPS device acceleration. Mac Silicon computers don't come with a dedicated graphics card, resulting in significantly longer image processing times compared to computers with dedicated graphics cards.
@@ -220,9 +231,37 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 1. Create a new conda environment, `conda env create -f environment.yaml`.
 1. Activate your new conda environment, `conda activate fooocus`.
 1. Install the packages required by Fooocus, `pip install -r requirements_versions.txt`.
-1. Launch Fooocus by running `python entry_with_update.py`. (Some Mac M2 users may need `python entry_with_update.py --enable-smart-memory` to speed up model loading/unloading.) The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
+1. Launch Fooocus by running `python entry_with_update.py`. (Some Mac M2 users may need `python entry_with_update.py --disable-offload-from-vram` to speed up model loading/unloading.) The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+
+### Download Previous Version
+
+See the guidelines [here](https://github.com/lllyasviel/Fooocus/discussions/1405).
+
+## Minimal Requirement
+
+Below is the minimal requirement for running Fooocus locally. If your device capability is lower than this spec, you may not be able to use Fooocus locally. (Please let us know, in any case, if your device capability is lower but Fooocus still works.)
+
+| Operating System  | GPU                          | Minimal GPU Memory        | Minimal System Memory     | [System Swap](troubleshoot.md) | Note                                  |
+|-------------------|------------------------------|---------------------------|---------------------------|--------------------------------|---------------------------------------|
+| Windows/Linux     | Nvidia RTX 4XXX              | 4GB                       | 8GB                       | Required                       | fastest                               |
+| Windows/Linux     | Nvidia RTX 3XXX              | 4GB                       | 8GB                       | Required                       | usually faster than RTX 2XXX          |
+| Windows/Linux     | Nvidia RTX 2XXX              | 4GB                       | 8GB                       | Required                       | usually faster than GTX 1XXX          |
+| Windows/Linux     | Nvidia GTX 1XXX              | 8GB (&ast; 6GB uncertain) | 8GB                       | Required                       | only marginally faster than CPU       |
+| Windows/Linux     | Nvidia GTX 9XX               | 8GB                       | 8GB                       | Required                       | faster or slower than CPU             |
+| Windows/Linux     | Nvidia GTX < 9XX             | Not supported             | /                         | /                              | /                                     |
+| Windows           | AMD GPU                      | 16GB                      | 8GB                       | Required                       | via DirectML                          |
+| Linux             | AMD GPU                      | 8GB                       | 8GB                       | Required                       | via ROCm                              |
+| Windows           | &ast; AMD GPU ROCm (on hold) | 8GB     (on hold)         | 8GB             (on hold) | Required           (on hold)   | via ROCm     (on hold)                |
+| Mac               | M1/M2 MPS                    | Shared                    | Shared                    | Shared                         | about 9x slower than Nvidia RTX 3XXX  |
+| Windows/Linux/Mac | only use CPU                 | 0GB                       | 32GB                      | Required                       | about 17x slower than Nvidia RTX 3XXX |
+
+&ast; AMD GPU ROCm (on hold): The AMD is still working on supporting ROCm on Windows.
+
+&ast; Nvidia GTX 1XXX 6GB uncertain: Some people reports 6GB success on GTX 10XX but some other people reports failure cases.
+
+*Note that Fooocus is only for extremely high quality image generating. We will not support smaller models to reduce the requirement and sacrifice result quality.*
 
 ## Troubleshoot
 
@@ -234,7 +273,7 @@ See the common problems [here](troubleshoot.md).
 Given different goals, the default models and configs of Fooocus is different:
 
 | Task | Windows | Linux args | Main Model | Refiner | Config |
-| - | - | - | - | - | - |
+| --- | --- | --- | --- | --- | --- |
 | General | run.bat |  | [juggernautXL v6_RunDiffusion](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors) | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/modules/path.py) |
 | Realistic | run_realistic.bat | --preset realistic | [realistic_stock_photo](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/realisticStockPhoto_v10.safetensors) | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/realistic.json) |
 | Anime | run_anime.bat | --preset anime | [bluepencil_v50](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/bluePencilXL_v050.safetensors) | [dreamsharper_v8](https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/DreamShaper_8_pruned.safetensors) (SD1.5) | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/anime.json) |
@@ -303,6 +342,34 @@ A safter way is just to try "run_anime.bat" or "run_realistic.bat" - they should
 
 ~Note that `user_path_config.txt` is deprecated and will be removed soon.~ (Edit: it is already removed.)
 
+### All CMD Flags
+
+```
+entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
+                      [--disable-header-check [ORIGIN]]
+                      [--web-upload-size WEB_UPLOAD_SIZE]
+                      [--external-working-path PATH [PATH ...]]
+                      [--output-path OUTPUT_PATH] [--temp-path TEMP_PATH]
+                      [--cache-path CACHE_PATH] [--in-browser]
+                      [--disable-in-browser] [--gpu-device-id DEVICE_ID]
+                      [--async-cuda-allocation | --disable-async-cuda-allocation]
+                      [--disable-attention-upcast] [--all-in-fp32 | --all-in-fp16]
+                      [--unet-in-bf16 | --unet-in-fp16 | --unet-in-fp8-e4m3fn | --unet-in-fp8-e5m2]
+                      [--vae-in-fp16 | --vae-in-fp32 | --vae-in-bf16]
+                      [--clip-in-fp8-e4m3fn | --clip-in-fp8-e5m2 | --clip-in-fp16 | --clip-in-fp32]
+                      [--directml [DIRECTML_DEVICE]] [--disable-ipex-hijack]
+                      [--preview-option [none,auto,fast,taesd]]
+                      [--attention-split | --attention-quad | --attention-pytorch]
+                      [--disable-xformers]
+                      [--always-gpu | --always-high-vram | --always-normal-vram | 
+                       --always-low-vram | --always-no-vram | --always-cpu]
+                      [--always-offload-from-vram] [--disable-server-log]
+                      [--debug-mode] [--is-windows-embedded-python]
+                      [--disable-server-info] [--share] [--preset PRESET]
+                      [--language LANGUAGE] [--disable-offload-from-vram]
+                      [--theme THEME] [--disable-image-log]
+```
+
 ## Advanced Features
 
 [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
@@ -311,13 +378,11 @@ Fooocus also has many community forks, just like SD-WebUI's [vladmandic/automati
 
 | Fooocus' forks |
 | - |
-| [fenneishi/Fooocus-Control](https://github.com/fenneishi/Fooocus-Control) </br>[runew0lf/RuinedFooocus](https://github.com/runew0lf/RuinedFooocus) </br> [MoonRide303/Fooocus-MRE](https://github.com/MoonRide303/Fooocus-MRE) </br> and so on ... |
+| [fenneishi/Fooocus-Control](https://github.com/fenneishi/Fooocus-Control) </br>[runew0lf/RuinedFooocus](https://github.com/runew0lf/RuinedFooocus) </br> [MoonRide303/Fooocus-MRE](https://github.com/MoonRide303/Fooocus-MRE) </br> [metercai/SimpleSDXL](https://github.com/metercai/SimpleSDXL) </br> and so on ... |
 
 See also [About Forking and Promotion of Forks](https://github.com/lllyasviel/Fooocus/discussions/699).
 
 ## Thanks
-
-Fooocus is powered by [FCBH backend](https://github.com/lllyasviel/Fooocus/tree/main/backend), which starts from an odd mixture of [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) and [ComfyUI](https://github.com/comfyanonymous/ComfyUI).
 
 Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com/3Diva) for creating additional SDXL styles available in Fooocus.
 

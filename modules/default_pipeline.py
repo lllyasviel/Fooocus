@@ -3,13 +3,13 @@ import os
 import torch
 import modules.patch
 import modules.config
-import fcbh.model_management
-import fcbh.latent_formats
+import ldm_patched.modules.model_management
+import ldm_patched.modules.latent_formats
 import modules.inpaint_worker
-import fooocus_extras.vae_interpose as vae_interpose
+import extras.vae_interpose as vae_interpose
+from extras.expansion import FooocusExpansion
 
-from fcbh.model_base import SDXL, SDXLRefiner
-from modules.expansion import FooocusExpansion
+from ldm_patched.modules.model_base import SDXL, SDXLRefiner
 from modules.sample_hijack import clip_separate
 
 
@@ -208,7 +208,7 @@ def prepare_text_encoder(async_call=True):
         # TODO: make sure that this is always called in an async way so that users cannot feel it.
         pass
     assert_model_integrity()
-    fcbh.model_management.load_models_gpu([final_clip.patcher, final_expansion.patcher])
+    ldm_patched.modules.model_management.load_models_gpu([final_clip.patcher, final_expansion.patcher])
     return
 
 
@@ -270,7 +270,7 @@ def vae_parse(latent):
 @torch.no_grad()
 @torch.inference_mode()
 def calculate_sigmas_all(sampler, model, scheduler, steps):
-    from fcbh.samplers import calculate_sigmas_scheduler
+    from ldm_patched.modules.samplers import calculate_sigmas_scheduler
 
     discard_penultimate_sigma = False
     if sampler in ['dpm_2', 'dpm_2_ancestral']:
@@ -352,7 +352,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
     print(f'[Sampler] sigma_min = {sigma_min}, sigma_max = {sigma_max}')
 
     modules.patch.BrownianTreeNoiseSamplerPatched.global_init(
-        initial_latent['samples'].to(fcbh.model_management.get_torch_device()),
+        initial_latent['samples'].to(ldm_patched.modules.model_management.get_torch_device()),
         sigma_min, sigma_max, seed=image_seed, cpu=False)
 
     decoded_latent = None
