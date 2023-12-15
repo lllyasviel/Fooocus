@@ -1,3 +1,7 @@
+# 2.1.843
+
+* Many improvements to Canvas. Thanks CanvasZoom author!
+
 # 2.1.841
 
 * Backend maintain.
