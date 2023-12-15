@@ -1,3 +1,11 @@
+# 2.1.841
+
+* Backend maintain.
+* Fix some potential frozen after model mismatch.
+* Fix crash when cfg=1 when using anime preset.
+* Added some guidelines for troubleshoot the "CUDA kernel errors asynchronously" problem.
+* Fix inpaint device problem in `--always-gpu` mode.
+
 # 2.1.839
 
 * Maintained some computation codes in backend for efficiency.
