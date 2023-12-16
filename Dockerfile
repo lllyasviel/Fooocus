@@ -23,5 +23,6 @@ WORKDIR /content
 USER user
 
 RUN mv /content/app/models /content/app/models.org
+RUN python -m compileall .
 
 CMD /content/app/entrypoint.sh ${CMDARGS}
