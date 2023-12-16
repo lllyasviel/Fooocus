@@ -387,7 +387,9 @@ with shared.gradio_root:
                         disable_preview = gr.Checkbox(label='Disable Preview', value=modules.config.default_black_out_nsfw,
                                                       interactive=not modules.config.default_black_out_nsfw,
                                                       info='Disable preview during generation.')
-                        disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', value=False,
+                        disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', 
+                                                      value=modules.config.default_performance == 'Extreme Speed',
+                                                      interactive=modules.config.default_performance != 'Extreme Speed',
                                                       info='Disable intermediate results during generation, only show final gallery.')
 
                         black_out_nsfw = gr.Checkbox(label='Black Out NSFW', value=modules.config.default_black_out_nsfw,
@@ -492,14 +494,14 @@ with shared.gradio_root:
                     play_notification.change(fn=play_notification_checked, inputs=[play_notification, notification], outputs=[notification_input], queue=False)
                     notification_input.change(fn=notification_input_changed, inputs=[notification_input, notification], outputs=[notification], queue=False)
 
-        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 12 +
-                                               [gr.update(visible=x != 'Extreme Speed')] * 1,
-
+        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
+                                               [gr.update(visible=x != 'Extreme Speed')] * 1 +
+                                               [gr.update(interactive=x != 'Extreme Speed', value=x == 'Extreme Speed', )] * 1,
                                      inputs=performance_selection,
                                      outputs=[
                                          guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
                                          adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
-                                         scheduler_name, adaptive_cfg, refiner_swap_method, disable_intermediate_results, negative_prompt
+                                         scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt, disable_intermediate_results
                                      ], queue=False, show_progress=False)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
