@@ -375,7 +375,9 @@ with shared.gradio_root:
                                                                info='Set as negative number to disable. For developer debugging.')
                         disable_preview = gr.Checkbox(label='Disable Preview', value=False,
                                                       info='Disable preview during generation.')
-                        disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', value=False,
+                        disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', 
+                                                      value=modules.config.default_performance == 'Extreme Speed',
+                                                      interactive=modules.config.default_performance != 'Extreme Speed',
                                                       info='Disable intermediate results during generation, only show final gallery.')
 
                     with gr.Tab(label='Control'):
@@ -456,12 +458,13 @@ with shared.gradio_root:
                                     queue=False, show_progress=False)
 
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
-                                               [gr.update(visible=x != 'Extreme Speed')] * 1,
+                                               [gr.update(visible=x != 'Extreme Speed')] * 1 +
+                                               [gr.update(interactive=x != 'Extreme Speed', value=x == 'Extreme Speed', )] * 1,
                                      inputs=performance_selection,
                                      outputs=[
                                          guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
                                          adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
-                                         scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt
+                                         scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt, disable_intermediate_results
                                      ], queue=False, show_progress=False)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
