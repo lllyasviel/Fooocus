@@ -249,7 +249,7 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
         return self.transformer.load_state_dict(sd, strict=False)
 
 
-class ClipVisionModel:
+class ClipVisionModelFooocus:
     def __init__(self, json_config):
         config = CLIPVisionConfig.from_json_file(json_config)
         self.load_device = ldm_patched.modules.model_management.text_encoder_device()
@@ -275,5 +275,5 @@ class ClipVisionModel:
 def patch_all_clip():
     ldm_patched.modules.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_fooocus
     ldm_patched.modules.sd1_clip.SDClipModel = SDClipModelFooocus
-    ldm_patched.modules.clip_vision.ClipVisionModel = ClipVisionModel
+    ldm_patched.modules.clip_vision.ClipVisionModel = ClipVisionModelFooocus
     return
