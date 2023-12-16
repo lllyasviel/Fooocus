@@ -121,7 +121,7 @@ See also the common problems and troubleshoots [here](troubleshoot.md).
 
 In Colab, you can modify the last line to `!python entry_with_update.py --share` or `!python entry_with_update.py --preset anime --share` or `!python entry_with_update.py --preset realistic --share` for Fooocus Default/Anime/Realistic Edition.
 
-Note that this Colab will disable refiner by default because Colab free's resource is relatively limited. 
+Note that this Colab will disable refiner by default because Colab free's resource is relatively limited (and some "big" features like image prompt may cause free-tier Colab to disconnect). We make sure that basic text-to-image is always working on free-tier Colab.
 
 Thanks to [camenduru](https://github.com/camenduru)!
 
@@ -384,7 +384,7 @@ See also [About Forking and Promotion of Forks](https://github.com/lllyasviel/Fo
 
 ## Thanks
 
-Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com/3Diva) for creating additional SDXL styles available in Fooocus.
+Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com/3Diva) for creating additional SDXL styles available in Fooocus. Thanks [daswer123](https://github.com/daswer123) for contributing the Canvas Zoom!
 
 ## Update Log
 
