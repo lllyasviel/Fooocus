@@ -269,7 +269,7 @@ class ClipVisionModelFooocus:
         return self.model.load_state_dict(sd, strict=False)
 
     def encode_image(self, image):
-        raise NotImplementedError
+        raise NotImplementedError('wrong clip vision call!')
 
 
 def patch_all_clip():
