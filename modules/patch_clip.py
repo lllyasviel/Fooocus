@@ -131,7 +131,7 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
         self.layer_norm_hidden_state = layer_norm_hidden_state
         if layer == "hidden":
             assert layer_idx is not None
-            assert abs(layer_idx) <= self.num_layers
+            assert abs(layer_idx) < self.num_layers
             self.clip_layer(layer_idx)
         self.layer_default = (self.layer, self.layer_idx)
 
@@ -142,7 +142,7 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
             param.requires_grad = False
 
     def clip_layer(self, layer_idx):
-        if abs(layer_idx) >= self.num_layers:
+        if abs(layer_idx) > self.num_layers:
             self.layer = "last"
         else:
             self.layer = "hidden"
