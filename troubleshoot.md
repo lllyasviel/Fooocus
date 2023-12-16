@@ -143,19 +143,19 @@ Besides, the current support for MAC is very experimental, and we encourage user
 
 ### I am using Nvidia with 8GB VRAM, I get CUDA Out Of Memory
 
-It is a BUG. Please let us know as soon as possible. Please make an issue. See also [minimal requirements](readme.md#minimal-requirement).
+It is a BUG. Please let us know as soon as possible. Please make an issue. See also [minimal requirements](https://github.com/lllyasviel/Fooocus/tree/main?tab=readme-ov-file#minimal-requirement).
 
 ### I am using Nvidia with 6GB VRAM, I get CUDA Out Of Memory
 
-It is very likely a BUG. Please let us know as soon as possible. Please make an issue. See also [minimal requirements](readme.md#minimal-requirement).
+It is very likely a BUG. Please let us know as soon as possible. Please make an issue. See also [minimal requirements](https://github.com/lllyasviel/Fooocus/tree/main?tab=readme-ov-file#minimal-requirement).
 
 ### I am using Nvidia with 4GB VRAM with Float16 support, like RTX 3050, I get CUDA Out Of Memory
 
-It is a BUG. Please let us know as soon as possible. Please make an issue. See also [minimal requirements](readme.md#minimal-requirement).
+It is a BUG. Please let us know as soon as possible. Please make an issue. See also [minimal requirements](https://github.com/lllyasviel/Fooocus/tree/main?tab=readme-ov-file#minimal-requirement).
 
 ### I am using Nvidia with 4GB VRAM without Float16 support, like GTX 960, I get CUDA Out Of Memory
 
-Supporting GPU with 4GB VRAM without fp16 is extremely difficult, and you may not be able to use SDXL. However, you may still make an issue and let us know. You may try SD1.5 in Automatic1111 or other software for your device. See also [minimal requirements](readme.md#minimal-requirement).
+Supporting GPU with 4GB VRAM without fp16 is extremely difficult, and you may not be able to use SDXL. However, you may still make an issue and let us know. You may try SD1.5 in Automatic1111 or other software for your device. See also [minimal requirements](https://github.com/lllyasviel/Fooocus/tree/main?tab=readme-ov-file#minimal-requirement).
 
 ### I am using AMD GPU on Windows, I get CUDA Out Of Memory
 
@@ -163,11 +163,11 @@ Current AMD support is very experimental for Windows. If you see this, then perh
 
 However, if you re able to run SDXL on this same device on any other software, please let us know immediately, and we will support it as soon as possible. If no other software can enable your device to run SDXL on Windows, then we also do not have much to help.
 
-Besides, the AMD support on Linux is slightly better because it will use ROCM. You may also try it if you are willing to change OS to linux. See also [minimal requirements](readme.md#minimal-requirement).
+Besides, the AMD support on Linux is slightly better because it will use ROCM. You may also try it if you are willing to change OS to linux. See also [minimal requirements](https://github.com/lllyasviel/Fooocus/tree/main?tab=readme-ov-file#minimal-requirement).
 
 ### I am using AMD GPU on Linux, I get CUDA Out Of Memory
 
-Current AMD support for Linux is better than that for Windows, but still, very experimental. However, if you re able to run SDXL on this same device on any other software, please let us know immediately, and we will support it as soon as possible. If no other software can enable your device to run SDXL on Windows, then we also do not have much to help. See also [minimal requirements](readme.md#minimal-requirement).
+Current AMD support for Linux is better than that for Windows, but still, very experimental. However, if you re able to run SDXL on this same device on any other software, please let us know immediately, and we will support it as soon as possible. If no other software can enable your device to run SDXL on Windows, then we also do not have much to help. See also [minimal requirements](https://github.com/lllyasviel/Fooocus/tree/main?tab=readme-ov-file#minimal-requirement).
 
 ### I tried flags like --lowvram or --gpu-only or --bf16 or so on, and things are not getting any better?
 
