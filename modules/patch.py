@@ -271,12 +271,11 @@ def sdxl_encode_adm_patched(self, **kwargs):
         height = float(height) * positive_adm_scale
 
     def embedder(number_list):
-        h = [self.embedder(torch.tensor([x], dtype=torch.float32)) for x in number_list]
-        h = torch.cat(h)
+        h = self.embedder(torch.tensor(number_list, dtype=torch.float32))
         h = torch.flatten(h).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
         return h
 
-    width, height = round_to_64(width), round_to_64(height)
+    width, height = int(width), int(height)
     target_width, target_height = round_to_64(target_width), round_to_64(target_height)
 
     adm_emphasized = embedder([height, width, 0, 0, target_height, target_width])
