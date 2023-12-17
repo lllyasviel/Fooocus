@@ -35,16 +35,19 @@ def log(img, dic, single_line_number=3):
 
     div_name = only_name.replace('.', '_')
     item = f'<div id="{div_name}">\n'
-    item += f"<p>{only_name}</p>\n"
+    item += "<table><tr>"
+    item += f"<td><img src=\"{only_name}\" width=auto height=100% loading=lazy style=\"height:auto;max-width:512px\" onerror=\"document.getElementById('{div_name}').style.display = 'none';\"></img></p></td>"
+    item += f"<td style=\"padding-left:10px;\"><p>{only_name}</p>\n"
     for i, (k, v) in enumerate(dic):
         if i < single_line_number:
-            item += f"<p>{k}: <b>{v}</b> </p>\n"
+            item += f"<p>{k}: <b>{v}</b></p>\n"
         else:
             if (i - single_line_number) % 2 == 0:
                 item += f"<p>{k}: <b>{v}</b>, "
             else:
                 item += f"{k}: <b>{v}</b></p>\n"
-    item += f"<p><img src=\"{only_name}\" width=auto height=100% loading=lazy style=\"height:auto;max-width:512px\" onerror=\"document.getElementById('{div_name}').style.display = 'none';\"></img></p><hr></div>\n"
+    item += "</td>"
+    item += "</tr></table><hr></div>\n"
     existing_log = item + existing_log
 
     with open(html_name, 'w', encoding='utf-8') as f:

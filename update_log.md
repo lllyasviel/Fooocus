@@ -1,6 +1,63 @@
-**(2023 Nov 26) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid December. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+# 2.1.846
+
+* Many users reported that image quality is different from 2.1.824. We reviewed all codes and fixed several precision problems in 2.1.846.
+
+# 2.1.843
+
+* Many improvements to Canvas. Thanks CanvasZoom author!
+
+# 2.1.841
+
+* Backend maintain.
+* Fix some potential frozen after model mismatch.
+* Fix crash when cfg=1 when using anime preset.
+* Added some guidelines for troubleshoot the "CUDA kernel errors asynchronously" problem.
+* Fix inpaint device problem in `--always-gpu` mode.
+
+# 2.1.839
+
+* Maintained some computation codes in backend for efficiency.
+* Added a note about Seed Breaking Change.
+
+**Seed Breaking Change**: Note that 2.1.825-2.1.839 is seed breaking change. The computation float point is changed and some seeds may give slightly different results. The minor change in 2.1.825-2.1.839 do not influence image quality. See also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
+
+# 2.1.837
+
+* Fix some precision-related problems.
+
+# 2.1.836
+
+* Avoid blip tokenizer download from torch hub
+
+# 2.1.831
+
+* Input Image -> Describe (Midjourney Describe)
+
+# 2.1.830
+
+* SegmindVega support.
+
+# 2.1.829
+
+* Change SDE tree to CPU on AMD/DirectMl to avoid potential problems.
+
+# 2.1.828
+
+* Allow to disable gradio analytics.
+* Use html table in log.
+* fix some SSL problems.
+
+# 2.1.826
+
+* New backend.
+* FP8 support (see also the new cmd flag list in Readme, eg, --unet-in-fp8-e4m3fn and --unet-in-fp8-e5m2).
+* Fix some MPS problems.
+* GLoRA support.
+* Turbo scheduler.
 
 # 2.1.823
+
+(2023 Nov 26) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid December. However, you may still see updates if other collaborators are fixing bugs or solving problems.
 
 * Fix some potential problem when LoRAs has clip keys and user want to load those LoRAs to refiners.
 
