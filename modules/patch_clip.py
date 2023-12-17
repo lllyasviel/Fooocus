@@ -72,7 +72,6 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
     ]
 
     def __init__(self,
-                 device="cpu",
                  max_length=77,
                  freeze=True,
                  layer="last",
@@ -96,6 +95,9 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
 
         with modeling_utils.no_init_weights():
             self.transformer = CLIPTextModel(config)
+
+        if 'cuda' not in model_management.text_encoder_device().type:
+            dtype = torch.float32
 
         if dtype is not None:
             self.transformer.to(dtype)
@@ -239,6 +241,9 @@ class ClipVisionModelFooocus:
         if ldm_patched.modules.model_management.should_use_fp16(self.load_device, prioritize_performance=False):
             self.dtype = torch.float16
         else:
+            self.dtype = torch.float32
+
+        if 'cuda' not in self.load_device.type:
             self.dtype = torch.float32
 
         with modeling_utils.no_init_weights():
