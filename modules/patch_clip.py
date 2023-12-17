@@ -23,28 +23,6 @@ import contextlib
 from transformers import CLIPTextModel, CLIPTextConfig, modeling_utils, CLIPVisionConfig, CLIPVisionModelWithProjection
 
 
-@contextlib.contextmanager
-def use_disable_weight_init_linear_ops(device=None, dtype=None):
-    old_torch_nn_linear = torch.nn.Linear
-    force_device = device
-    force_dtype = dtype
-
-    def linear_with_dtype(in_features: int, out_features: int, bias: bool = True, device=None, dtype=None):
-        if force_device is not None:
-            device = force_device
-        if force_dtype is not None:
-            dtype = force_dtype
-        return ldm_patched.modules.ops.disable_weight_init.Linear(in_features, out_features, bias=bias, device=device,
-                                                                  dtype=dtype)
-
-    torch.nn.Linear = linear_with_dtype
-    try:
-        yield
-    finally:
-        torch.nn.Linear = old_torch_nn_linear
-    return
-
-
 def encode_token_weights_fooocus(self, token_weight_pairs):
     to_encode = list()
     max_token_len = 0
@@ -93,34 +71,40 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
         "hidden"
     ]
 
-    def __init__(self, version="openai/clip-vit-large-patch14", device="cpu", max_length=77,
-                 freeze=True, layer="last", layer_idx=None, textmodel_json_config=None, dtype=None, model_class=ldm_patched.modules.clip_model.CLIPTextModel,
-                 special_tokens={"start": 49406, "end": 49407, "pad": 49407}, layer_norm_hidden_state=True):  # clip-vit-base-patch32
+    def __init__(self,
+                 device="cpu",
+                 max_length=77,
+                 freeze=True,
+                 layer="last",
+                 layer_idx=None,
+                 textmodel_json_config=None,
+                 dtype=None,
+                 special_tokens=None,
+                 layer_norm_hidden_state=True,
+                 **kwargs):
         super().__init__()
         assert layer in self.LAYERS
+
+        if special_tokens is None:
+            special_tokens = {"start": 49406, "end": 49407, "pad": 49407}
 
         if textmodel_json_config is None:
             textmodel_json_config = os.path.join(os.path.dirname(os.path.realpath(ldm_patched.modules.sd1_clip.__file__)), "sd1_clip_config.json")
 
         config = CLIPTextConfig.from_json_file(textmodel_json_config)
-
         self.num_layers = config.num_hidden_layers
-        with use_disable_weight_init_linear_ops(device, dtype):
-            with modeling_utils.no_init_weights():
-                self.transformer = CLIPTextModel(config)
 
-        self.inner_name = "text_model"
+        with modeling_utils.no_init_weights():
+            self.transformer = CLIPTextModel(config)
+
         if dtype is not None:
             self.transformer.to(dtype)
-            inner_model = getattr(self.transformer, self.inner_name)
-            if hasattr(inner_model, "embeddings"):
-                inner_model.embeddings.to(torch.float32)
-            else:
-                self.transformer.set_input_embeddings(self.transformer.get_input_embeddings().to(torch.float32))
+            self.transformer.text_model.embeddings.to(torch.float32)
 
-        self.max_length = max_length
         if freeze:
             self.freeze()
+
+        self.max_length = max_length
         self.layer = layer
         self.layer_idx = None
         self.special_tokens = special_tokens
@@ -131,7 +115,6 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
         self.layer_norm_hidden_state = layer_norm_hidden_state
         if layer == "hidden":
             assert layer_idx is not None
-            assert abs(layer_idx) < self.num_layers
             self.clip_layer(layer_idx)
         self.layer_default = (self.layer, self.layer_idx)
 
@@ -142,11 +125,8 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
             param.requires_grad = False
 
     def clip_layer(self, layer_idx):
-        if abs(layer_idx) > self.num_layers:
-            self.layer = "last"
-        else:
-            self.layer = "hidden"
-            self.layer_idx = layer_idx
+        self.layer = "hidden"
+        self.layer_idx = layer_idx
 
     def reset_clip_layer(self):
         self.layer = self.layer_default[0]
@@ -200,7 +180,7 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
         tokens = self.set_up_textual_embeddings(tokens, backup_embeds)
         tokens = torch.LongTensor(tokens).to(device)
 
-        if getattr(self.transformer, self.inner_name).final_layer_norm.weight.dtype != torch.float32:
+        if self.transformer.text_model.final_layer_norm.weight.dtype != torch.float32:
             precision_scope = torch.autocast
         else:
             precision_scope = lambda a, dtype: contextlib.nullcontext(a)
@@ -227,7 +207,7 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
             else:
                 z = outputs.hidden_states[self.layer_idx]
                 if self.layer_norm_hidden_state:
-                    z = getattr(self.transformer, self.inner_name).final_layer_norm(z)
+                    z = self.transformer.text_model.final_layer_norm(z)
 
             if hasattr(outputs, "pooler_output"):
                 pooled_output = outputs.pooler_output.float()
@@ -252,24 +232,27 @@ class SDClipModelFooocus(torch.nn.Module, ldm_patched.modules.sd1_clip.ClipToken
 class ClipVisionModelFooocus:
     def __init__(self, json_config):
         config = CLIPVisionConfig.from_json_file(json_config)
+
         self.load_device = ldm_patched.modules.model_management.text_encoder_device()
-        offload_device = ldm_patched.modules.model_management.text_encoder_offload_device()
-        self.dtype = torch.float32
+        self.offload_device = ldm_patched.modules.model_management.text_encoder_offload_device()
+
         if ldm_patched.modules.model_management.should_use_fp16(self.load_device, prioritize_performance=False):
             self.dtype = torch.float16
+        else:
+            self.dtype = torch.float32
 
-        with use_disable_weight_init_linear_ops(offload_device, self.dtype):
-            with modeling_utils.no_init_weights():
-                self.model = CLIPVisionModelWithProjection(config)
+        with modeling_utils.no_init_weights():
+            self.model = CLIPVisionModelWithProjection(config)
+
         self.model.to(self.dtype)
-
-        self.patcher = ldm_patched.modules.model_patcher.ModelPatcher(self.model, load_device=self.load_device, offload_device=offload_device)
+        self.patcher = ldm_patched.modules.model_patcher.ModelPatcher(
+            self.model,
+            load_device=self.load_device,
+            offload_device=self.offload_device
+        )
 
     def load_sd(self, sd):
         return self.model.load_state_dict(sd, strict=False)
-
-    def encode_image(self, image):
-        raise NotImplementedError('wrong clip vision call!')
 
 
 def patch_all_clip():
