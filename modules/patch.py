@@ -271,8 +271,8 @@ def sdxl_encode_adm_patched(self, **kwargs):
         height = float(height) * positive_adm_scale
 
     def embedder(number_list):
-        h = torch.tensor(number_list, dtype=torch.float32)
-        h = self.embedder(h)
+        h = [self.embedder(torch.tensor([x], dtype=torch.float32)) for x in number_list]
+        h = torch.cat(h)
         h = torch.flatten(h).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
         return h
 
