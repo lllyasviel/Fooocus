@@ -275,7 +275,7 @@ def sdxl_encode_adm_patched(self, **kwargs):
         h = torch.flatten(h).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
         return h
 
-    width, height = round_to_64(width), round_to_64(height)
+    width, height = int(width), int(height)
     target_width, target_height = round_to_64(target_width), round_to_64(target_height)
 
     adm_emphasized = embedder([height, width, 0, 0, target_height, target_width])
