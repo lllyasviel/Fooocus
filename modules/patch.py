@@ -246,7 +246,6 @@ def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, mode
 
 
 def round_to_64(x):
-    return int(x)
     h = float(x)
     h = h / 64.0
     h = round(h)
