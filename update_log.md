@@ -1,3 +1,7 @@
+# 2.1.846
+
+* Many users reported that image quality is different from 2.1.824. We reviewed all codes and fixed several precision problems in 2.1.846.
+
 # 2.1.843
 
 * Many improvements to Canvas. Thanks CanvasZoom author!
