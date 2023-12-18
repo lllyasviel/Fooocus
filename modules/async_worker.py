@@ -34,6 +34,7 @@ def worker():
     import modules.advanced_parameters as advanced_parameters
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
+    import fooocus_version
 
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
     from modules.private_logger import log
@@ -774,7 +775,8 @@ def worker():
                         ('Refiner Switch', refiner_switch),
                         ('Sampler', sampler_name),
                         ('Scheduler', scheduler_name),
-                        ('Seed', task['task_seed'])
+                        ('Seed', task['task_seed']),
+                        ('Version', fooocus_version.version),
                     ]
                     for n, w in loras:
                         if n != 'None':
