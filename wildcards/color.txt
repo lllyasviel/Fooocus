@@ -15,3 +15,16 @@ silver
 teal
 white
 yellow
+gold
+violet
+pink
+cyan
+indigo
+magenta
+brown
+beige
+turquoise
+peach
+tan
+salmon
+charcoal

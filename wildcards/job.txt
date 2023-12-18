@@ -1,0 +1,62 @@
+firefighter
+police officer
+paramedic
+doctor
+nurse
+engineer
+scientist
+teacher
+software developer
+designer
+entrepreneur
+CEO
+manager
+janitor
+artist
+chef
+waitstaff
+barista
+writer
+photographer
+pilot
+carpenter
+electrician
+plumber
+farmer
+surgeon
+graphic designer
+data scientist
+flight attendant
+mechanic
+librarian
+software engineer
+veterinarian
+marketing manager
+journalist
+social worker
+architect
+physicist
+fitness trainer
+florist
+financial analyst
+web developer
+biologist
+astronomer
+environmentalist
+project manager
+makeup artist
+fashion designer
+truck driver
+executive assistant
+geologist
+pharmacist
+real estate agent
+yoga instructor
+detective
+welder
+astronaut
+translator
+economist
+construction worker
+mathematician
+surveyor

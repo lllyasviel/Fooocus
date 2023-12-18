@@ -1,0 +1,50 @@
+circle
+square
+triangle
+rectangle
+pentagon
+hexagon
+octagon
+rhombus
+trapezoid
+parallelogram
+oval
+ellipse
+crescent
+star
+heart
+diamond
+cross
+sphere
+cube
+cylinder
+cone
+pyramid
+rectangular prism
+triangular prism
+torus
+crescent
+arrowhead
+spiral
+pentagon
+hexagon
+heptagon
+octagon
+nonagon
+decagon
+dodecagon
+quadrilateral
+quadrilateral
+kite
+arrow
+crescent
+star
+shield
+teardrop
+double-headed arrow
+infinity symbol
+trefoil
+maltese cross
+swirl
+cloud
+arrow

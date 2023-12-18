@@ -1,250 +1,250 @@
-Acacia
-Achillea
-Adam's-needle
-African Boxwood
-African Lily
-Agapanthus
-Ageratum
-Ageratum houstonim
-Allium
-Alpina
-Alstroemeria
-Amaranthus hypochondriacus
-Amaryllis
-Ammi majus
-Anconitum
-Anemone
-Anigozanthus
-Annual Delphinium
-Anthurium
-Antirrhinum majus
-Artichoke thistle
-Asparagus
-Aster
-Astilbe
-Baby's Breath
-Bachelor's Button
-Banksia
-Bellflower
-Big Flax
-Bighead Knapweed
-Billy Buttons
-Bird of Paradise
-Blazing Star
-Blue Lace Flower
-Boronia
-Bouvardia
-Boxwood African
-Diosma
-Buckthorn Variegated
-Buddleia
-Bupleurum
-Butterfly Bush
-Butterfly Orchid
-Calla Lily
-Campanula
-Candytuft
-Canterbury Bells
-Carnation
-Carthamus
-Casa Blanca
-Caspia
-Cattleya
-Celosia
-Celosia argenta
-Centaurea cyanus
-Chamelaucium
-Chimney Bells
-Chrysanthemum
-Chrysanthemum x morifolium
-Clarkia
-Cockscomb Crested
-Coffee Bean Berry
-Common Myrtle
-Common Yarrow
-Cone Flower
-Consolida ambigua
-Convallaria
-Cordyline
-Cosmos
-Cornflower
-Craspedia
-Curly Willow
-Cymbidium
-Cymbidium Orchid
-Daffodil
-Dahlia
-Daisy Mums
-Delphinium Belladonna
-Delphinium Pacific Giant
-Dendrobium
-Dendrobium Orchid
-Dianthus barbatus
-Dianthus caryophyllus
-Dianthus caryophyllus nana
-Erica spp
-Eucalyptus seeded
-Eucalyptus silver dollar
-Eustoma grandiflorum
-False Bird of Paradise
-False Spirea
-Farewell-To-Spring
-Fernleaf Yarrow
-Feverfew
-Flamingo Flower
-Flax New Zealand
-Floss Flower
-Foxtail Fern
-Freesia
-Freesia x hybrida
-Fuji Mums
-Gardenia
-Gay Feather
-Genista
-Gerbera
-Gerbera Ruby Red
-Ginger
-Gladiolus
-Gladiolus hybrid nanus
-Goat's Beard
-Godetia
-Golden Rod
-Guersney Lily
-Gyp
-Gypsophila paniculata
-Hanging Helicona
-Heath
-Heather
-Helianthus annuus
-Heliconia spp.
-Hippeastrum
-Hydrangea
-Iberis amara
-Inca Lily
-Iris
-Japhette Orchid
-Jonquil
-Knapweed
-Lace fern
-Larkspur
-Lathyrus odoratus
-Lavandula
-Lavender
-Liatris
-Lilac
-Lily
-Lilly-of-the-Valley
-Lily Casa Blanca
-Lily of the Field
-Lily of the Nile
-Lily Stargazer
-Limonium
-Lisianthus
-Marguerite daisy
-Mattholia incana
-Melaleuca
-Memosa
-Misty Blue Limonium
-Moluccella laevis
-Monkshood
-Montbretia
-Monte Cassino
-Moon orchid
-Musa
-Myrsine
-Myrtle
-Myrtus
-Nephrolepis
-Nerine
-Nerine Lily
-Nigella
-Ornithogalum
-Paeonia
-Painted Tongue
-Paper Reed
-Papyrus lion's head
-Peony
-Peruvian Lily
-Phalaenopsis
-Philodendron
-Phlox
-Pincushion Flower
-Pink Mink
-Pitt
-Pittosporum
-Pixie Carnation
-Polianthes tuberosa
-Pompon Chrysanthemum
-Poppy Anemone
-Porium
-Pussy Willow
-Queen Anne's Lace
-Ranunculus
-Red Ribbons
-Rice flower
-Rose
-Rose Bridal Pink
-Rose Bridal White
-Rose Champagne
-Rose Diadem
-Rose Emblem
-Rose Kardinal
-Rose Lady Liberty
-Rose Lavanda
-Rose Osiana
-Rose Royalty
-Safari Sunset
-Safflower
-Sage Perennial
-Salix
-Salmon Reagan
-Sansevieria
-Saponaria
-Satin Flowers
-Saxicola
-Scabiosa
-Schinus
-Sea lavender
-Shell Flowers
-Snake Plant
-Snapdragon
-Solidago
-Solidaster
-Speedwell
-Spider Lily
-Spider Mums
-Spray Carnation
-Sprengeri Fern
-Star of Bethlehem
-Statice
-Stenamezon
-Stephanotis
-Strawberry banksia
-Strawflower
-Summer poinsettia
-Summer's Darling
-Sunflower
-Sweet Pea
-Sweet William
-Sword Fern
-Syringa vulgaris
-Tailflowers
-Tassel flower
-Thouroughwax
-Throatwort
-Tracelium
-Tree Fern
-Trumpet Lily
-Tuberose
-Tulip
-Tulipa
-Veronica
-Wattle
-Waxflower
-Wild Plantain
-Willow curly
-Windflower
-Wolfsbane
-Zantedeschia
-Zinna
-Zinnia elegans
+acacia
+achillea
+adam's-needle
+african boxwood
+african lily
+agapanthus
+ageratum
+ageratum houstonim
+allium
+alpina
+alstroemeria
+amaranthus hypochondriacus
+amaryllis
+ammi majus
+anconitum
+anemone
+anigozanthus
+annual delphinium
+anthurium
+antirrhinum majus
+artichoke thistle
+asparagus
+aster
+astilbe
+baby's breath
+bachelor's button
+banksia
+bellflower
+big flax
+bighead knapweed
+billy buttons
+bird of paradise
+blazing star
+blue lace flower
+boronia
+bouvardia
+boxwood african
+diosma
+buckthorn variegated
+buddleia
+bupleurum
+butterfly bush
+butterfly orchid
+calla lily
+campanula
+candytuft
+canterbury bells
+carnation
+carthamus
+casa blanca
+caspia
+cattleya
+celosia
+celosia argenta
+centaurea cyanus
+chamelaucium
+chimney bells
+chrysanthemum
+chrysanthemum x morifolium
+clarkia
+cockscomb crested
+coffee bean berry
+common myrtle
+common yarrow
+cone flower
+consolida ambigua
+convallaria
+cordyline
+cosmos
+cornflower
+craspedia
+curly willow
+cymbidium
+cymbidium orchid
+daffodil
+dahlia
+daisy mums
+delphinium belladonna
+delphinium pacific giant
+dendrobium
+dendrobium orchid
+dianthus barbatus
+dianthus caryophyllus
+dianthus caryophyllus nana
+erica spp
+eucalyptus seeded
+eucalyptus silver dollar
+eustoma grandiflorum
+false bird of paradise
+false spirea
+farewell-to-spring
+fernleaf yarrow
+feverfew
+flamingo flower
+flax new zealand
+floss flower
+foxtail fern
+freesia
+freesia x hybrida
+fuji mums
+gardenia
+gay feather
+genista
+gerbera
+gerbera ruby red
+ginger
+gladiolus
+gladiolus hybrid nanus
+goat's beard
+godetia
+golden rod
+guersney lily
+gyp
+gypsophila paniculata
+hanging helicona
+heath
+heather
+helianthus annuus
+heliconia spp.
+hippeastrum
+hydrangea
+iberis amara
+inca lily
+iris
+japhette orchid
+jonquil
+knapweed
+lace fern
+larkspur
+lathyrus odoratus
+lavandula
+lavender
+liatris
+lilac
+lily
+lilly-of-the-valley
+lily casa blanca
+lily of the field
+lily of the nile
+lily stargazer
+limonium
+lisianthus
+marguerite daisy
+mattholia incana
+melaleuca
+memosa
+misty blue limonium
+moluccella laevis
+monkshood
+montbretia
+monte cassino
+moon orchid
+musa
+myrsine
+myrtle
+myrtus
+nephrolepis
+nerine
+nerine lily
+nigella
+ornithogalum
+paeonia
+painted tongue
+paper reed
+papyrus lion's head
+peony
+peruvian lily
+phalaenopsis
+philodendron
+phlox
+pincushion flower
+pink mink
+pitt
+pittosporum
+pixie carnation
+polianthes tuberosa
+pompon chrysanthemum
+poppy anemone
+porium
+pussy willow
+queen anne's lace
+ranunculus
+red ribbons
+rice flower
+rose
+rose bridal pink
+rose bridal white
+rose champagne
+rose diadem
+rose emblem
+rose kardinal
+rose lady liberty
+rose lavanda
+rose osiana
+rose royalty
+safari sunset
+safflower
+sage perennial
+salix
+salmon reagan
+sansevieria
+saponaria
+satin flowers
+saxicola
+scabiosa
+schinus
+sea lavender
+shell flowers
+snake plant
+snapdragon
+solidago
+solidaster
+speedwell
+spider lily
+spider mums
+spray carnation
+sprengeri fern
+star of bethlehem
+statice
+stenamezon
+stephanotis
+strawberry banksia
+strawflower
+summer poinsettia
+summer's darling
+sunflower
+sweet pea
+sweet william
+sword fern
+syringa vulgaris
+tailflowers
+tassel flower
+thouroughwax
+throatwort
+tracelium
+tree fern
+trumpet lily
+tuberose
+tulip
+tulipa
+veronica
+wattle
+waxflower
+wild plantain
+willow curly
+windflower
+wolfsbane
+zantedeschia
+zinna
+zinnia elegans

@@ -1,0 +1,50 @@
+car
+truck
+motorcycle
+bicycle
+bus
+van
+SUV
+minivan
+pickup truck
+convertible
+coupe
+sedan
+hatchback
+limousine
+ambulance
+fire truck
+police car
+taxi
+RV
+motorhome
+ATV
+jet ski
+snowmobile
+tractor
+bulldozer
+excavator
+forklift
+ambulance
+garbage truck
+tow truck
+ice cream truck
+cement mixer
+golf cart
+segway
+electric scooter
+skateboard
+jet plane
+helicopter
+sailboat
+yacht
+submarine
+canoe
+kayak
+ferry
+cruise ship
+hovercraft
+hot air balloon
+blimp
+bicycle rickshaw
+electric scooter
