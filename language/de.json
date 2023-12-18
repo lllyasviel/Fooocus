@@ -35,7 +35,7 @@
 	"Right": "Rechts",
 	"Top": "Oben",
 	"Bottom": "Unten",
-	"* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)": "* \"Aus- oder Übermalen\" wird vom Sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (Beta) angetrieben",
+	"* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)": "* \"In- oder Outpainting\" wird vom Sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (Beta) angetrieben",
 	"Setting": "Einstellung",
 	"Style": "Stil",
 	"Performance": "Leistung",
