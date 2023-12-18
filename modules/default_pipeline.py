@@ -76,7 +76,7 @@ def refresh_base_model(name):
 def refresh_refiner_model(name):
     global model_refiner
 
-    filename = os.path.abspath(os.path.realpath(os.path.join(modules.config.path_checkpoints, name)))
+    filename = os.path.abspath(os.path.realpath(os.path.join(modules.config.path_refiners, name)))
 
     if model_refiner.filename == filename:
         return
