@@ -38,14 +38,16 @@ def log(img, dic):
         "</style>"
     )
 
-    existing_log = log_cache.get(html_name, None)
+    begin_part = f"<html><head>{css_styles}</head><body><!--fooocus-log-split-->"
+    end_part = f'<!--fooocus-log-split-->\n<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p></html>'
 
-    if existing_log is None:
+    middle_part = log_cache.get(html_name, "")
+
+    if middle_part == "":
         if os.path.exists(html_name):
-            existing_log = open(html_name, 'r', encoding='utf-8').read()
-        else:
-            existing_log = f"<html><head>{css_styles}</head><body>"
-            existing_log += f'\n<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p>'
+            existing_split = open(html_name, 'r', encoding='utf-8').read().split('<!--fooocus-log-split-->')
+            if len(existing_split) == 3:
+                middle_part = existing_split[1]
 
     div_name = only_name.replace('.', '_')
     item = f'<div id="{div_name}" class="image-container">\n'
@@ -63,13 +65,13 @@ def log(img, dic):
     item += "</table>"
     item += "</td>"
     item += "</tr></table><hr></div>\n\n"
-    existing_log = item + existing_log
+    middle_part = item + middle_part
 
     with open(html_name, 'w', encoding='utf-8') as f:
-        f.write(existing_log)
+        f.write(begin_part + middle_part + end_part)
 
     print(f'Image generated with private log at: {html_name}')
 
-    log_cache[html_name] = existing_log
+    log_cache[html_name] = middle_part
 
     return
