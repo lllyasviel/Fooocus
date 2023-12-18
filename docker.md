@@ -6,6 +6,8 @@ PyTorch version is 2.1. See [requirements_docker.txt](requirements_docker.txt) f
 
 ## Quick start with pre-build container
 
+**This is just an easy way for testing. Please also see [Notes](#notes) for using.**
+
 Download [docker-compose.yml](docker-compose.yml), Then run the docker container `mkdir -p -m=777 data && docker compose up`
 When you will see gradio URL in the console message, you can access the URL on your browser.
 
@@ -39,4 +41,8 @@ Docker specified envronments are there. They are used by 'entrypoint.sh'
 You can also use the same json key names and values explained in the 'config_modification_tutorial.txt' as the envronments.
 See samples in the [docker-compose.yml](docker-compose.yml)
 
-**Please keep 'path_outputs' under '/content/app'. Otherwise you will see an error when you open the history log.**
+## Notes
+
+- Please keep 'path_outputs' under '/content/app'. Otherwise you will see an error when you open the history log.
+- Docker on Mac/Windows has a slow volume access problem when you use "bind mount" volume. When you see this problem, don't use "bind mount". Please refer [this article](https://docs.docker.com/storage/volumes/#use-a-volume-with-docker-compose) for not using "bind mount".
+- `CMDARG=--share` in docker-compose.yml is for testing only. Because gradio URL can be accessed from worldwide. Please use `CMDARG=--listen` and add other settings for using a long time.
