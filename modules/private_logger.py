@@ -48,6 +48,8 @@ def log(img, dic):
             existing_split = open(html_name, 'r', encoding='utf-8').read().split('<!--fooocus-log-split-->')
             if len(existing_split) == 3:
                 middle_part = existing_split[1]
+            else:
+                middle_part = existing_split[0]
 
     div_name = only_name.replace('.', '_')
     item = f'<div id="{div_name}" class="image-container">\n'
