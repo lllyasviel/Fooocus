@@ -1,4 +1,5 @@
 import os
+import json
 import args_manager
 import modules.config
 
@@ -6,7 +7,7 @@ from PIL import Image
 from modules.util import generate_temp_filename
 
 
-log_cache = {}
+html_log_cache = {}
 
 
 def get_current_html_path():
@@ -24,6 +25,7 @@ def log(img, dic):
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
     Image.fromarray(img).save(local_temp_filename)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
+    json_name = os.path.join(os.path.dirname(local_temp_filename), 'log.json')
 
     css_styles = (
         "<style>"
@@ -42,7 +44,7 @@ def log(img, dic):
     begin_part = f"<html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body><p>Fooocus Log {date_string} (private)</p>\n<p>All images are clean, without any hidden data/meta, and safe to share with others.</p><!--fooocus-log-split-->\n\n"
     end_part = f'\n<!--fooocus-log-split--></body></html>'
 
-    middle_part = log_cache.get(html_name, "")
+    middle_part = html_log_cache.get(html_name, "")
 
     if middle_part == "":
         if os.path.exists(html_name):
@@ -67,8 +69,23 @@ def log(img, dic):
     with open(html_name, 'w', encoding='utf-8') as f:
         f.write(begin_part + middle_part + end_part)
 
-    print(f'Image generated with private log at: {html_name}')
+    html_log_cache[html_name] = middle_part
 
-    log_cache[html_name] = middle_part
+    json_log_cache = []
+    if os.path.exists(json_name):
+        with open(json_name, 'r', encoding='utf-8') as f:
+            json_log_cache = json.load(f)
+
+    metadata = {}
+    for key, value in dic:
+        metadata[key] = value
+
+    log_entry = {"Filename": only_name, "Metadata": metadata}
+
+    json_log_cache.insert(0, log_entry)
+    with open(json_name, 'w', encoding='utf-8') as f:
+        json.dump(json_log_cache, f, indent=4)
+    
+    print(f'Image generated with private log at: {html_name} and {json_name}')
 
     return
