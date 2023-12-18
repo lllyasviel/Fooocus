@@ -1,3 +1,7 @@
+# 2.1.852
+
+* Log system now use a table. If this is breaking some other browser extension or javascript developments, see also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
+
 # 2.1.846
 
 * Many users reported that image quality is different from 2.1.824. We reviewed all codes and fixed several precision problems in 2.1.846.
