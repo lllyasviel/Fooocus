@@ -776,11 +776,11 @@ def worker():
                         ('Sampler', sampler_name),
                         ('Scheduler', scheduler_name),
                         ('Seed', task['task_seed']),
-                        ('Version', fooocus_version.version),
                     ]
                     for n, w in loras:
                         if n != 'None':
                             d.append((f'LoRA', f'{n} : {w}'))
+                    d.append(('Version', 'V ' + fooocus_version.version))
                     log(x, d)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
