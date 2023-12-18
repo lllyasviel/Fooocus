@@ -38,8 +38,8 @@ def log(img, dic):
         "</style>"
     )
 
-    begin_part = f"<html><head>{css_styles}</head><body><!--fooocus-log-split-->"
-    end_part = f'<!--fooocus-log-split-->\n<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p></html>'
+    begin_part = f"<html><head>{css_styles}</head><body><p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p><!--fooocus-log-split-->"
+    end_part = f'<!--fooocus-log-split--></body></html>'
 
     middle_part = log_cache.get(html_name, "")
 
