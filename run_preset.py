@@ -27,17 +27,14 @@ def select_preset():
     display_presets(presets)
 
     while True:
+        user_input = input("Select a preset to launch: ")
         try:
-            user_input = input("Select a preset to launch: ")
             selected_index = int(user_input)
-
             if 1 <= selected_index <= len(presets):
                 return os.path.splitext(presets[selected_index - 1])[0]
-
-            print(f"Invalid input. Please enter a number between 1 and {len(presets)}")
-
         except ValueError:
-            print(f"Invalid input. Please enter a number between 1 and {len(presets)}")
+            pass
+        print(f"Invalid input. Please enter a number between 1 and {len(presets)}")
 
 
 def run_with_selected_preset(selected_preset):
