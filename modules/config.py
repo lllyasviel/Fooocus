@@ -117,6 +117,7 @@ def get_dir_or_set_default(key, default_value):
 
 
 path_checkpoints = get_dir_or_set_default('path_checkpoints', '../models/checkpoints/')
+path_refiners = get_dir_or_set_default('path_refiners', path_checkpoints)
 path_loras = get_dir_or_set_default('path_loras', '../models/loras/')
 path_embeddings = get_dir_or_set_default('path_embeddings', '../models/embeddings/')
 path_vae_approx = get_dir_or_set_default('path_vae_approx', '../models/vae_approx/')
@@ -377,6 +378,7 @@ os.makedirs(path_outputs, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []
+refiner_filenames = []
 
 
 def get_model_filenames(folder_path, name_filter=None):
@@ -386,6 +388,7 @@ def get_model_filenames(folder_path, name_filter=None):
 def update_all_model_names():
     global model_filenames, lora_filenames
     model_filenames = get_model_filenames(path_checkpoints)
+    refiner_filenames = get_model_filenames(path_refiners)
     lora_filenames = get_model_filenames(path_loras)
     return
 
