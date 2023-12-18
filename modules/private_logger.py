@@ -35,7 +35,7 @@ def log(img, dic):
         ".metadata th, .metadata td { border: 1px solid #4d4d4d; padding: 4px; } "
         ".image-container img { height: auto; max-width: 512px; display: block; padding-right:10px; } "
         ".image-container div { text-align: center; padding: 4px; } "
-        "hr { border-color: #BB86FC; } "
+        "hr { border-color: gray; } "
         "</style>"
     )
 
