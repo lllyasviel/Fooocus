@@ -27,7 +27,7 @@
 	"* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1).": "* \"Bild Prompt\" wird von Fooocus Image Mixture Engine (v1.0.1) angetrieben.",
 	"The scaler multiplied to positive ADM (use 1.0 to disable).": "Skalierung multipliziert mit positivem ADM (1.0 verwenden, um zu deaktivieren).",
 	"The scaler multiplied to negative ADM (use 1.0 to disable).": "Skalierung multipliziert mit negativem ADM (1.0 verwenden, um zu deaktivieren).",
-	"When to end the guidance from positive/negative ADM.": "Wann der Leitfaden von positivem/negativem ADM beendet werden soll.",
+	"When to end the guidance from positive/negative ADM.": "Wann die Führung vom positiven/negativen ADM beendet werden soll.",
 	"Similar to the Control Mode in A1111 (use 0.0 to disable).": "Ähnlich wie der Steuerungsmodus in A1111 (0.0 verwenden, um zu deaktivieren).",
 	"Outpaint Expansion (": "Outpaint-Erweiterung (",
 	"Outpaint": "Outpaint",
