@@ -53,7 +53,6 @@ def log(img, dic):
                 middle_part = existing_split[0]
 
     div_name = only_name.replace('.', '_')
-
     item = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
     item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
     item += "<td><table class='metadata'>"
@@ -62,6 +61,7 @@ def log(img, dic):
     item += "</table>"
     item += "</td>"
     item += "</tr></table></div>\n\n"
+
     middle_part = item + middle_part
 
     with open(html_name, 'w', encoding='utf-8') as f:
