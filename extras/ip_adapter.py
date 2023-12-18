@@ -167,21 +167,19 @@ def preprocess(img, ip_adapter_path):
 
     ldm_patched.modules.model_management.load_model_gpu(clip_vision.patcher)
     pixel_values = clip_preprocess(numpy_to_pytorch(img).to(clip_vision.load_device))
-
-    if clip_vision.dtype != torch.float32:
-        precision_scope = torch.autocast
-    else:
-        precision_scope = lambda a, b: contextlib.nullcontext(a)
-
-    with precision_scope(ldm_patched.modules.model_management.get_autocast_device(clip_vision.load_device), torch.float32):
-        outputs = clip_vision.model(pixel_values=pixel_values, intermediate_output=-2)
+    outputs = clip_vision.model(pixel_values=pixel_values, output_hidden_states=True)
 
     ip_adapter = entry['ip_adapter']
     ip_layers = entry['ip_layers']
     image_proj_model = entry['image_proj_model']
     ip_unconds = entry['ip_unconds']
 
-    cond = outputs[1].to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
+    if ip_adapter.plus:
+        cond = outputs.hidden_states[-2]
+    else:
+        cond = outputs.image_embeds
+
+    cond = cond.to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
 
     ldm_patched.modules.model_management.load_model_gpu(image_proj_model)
     cond = image_proj_model.model(cond).to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)

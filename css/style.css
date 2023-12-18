@@ -94,6 +94,10 @@
   overflow:inherit !important;
 }
 
+.gradio-container{
+  overflow: visible;
+}
+
 /* fullpage image viewer */
 
 #lightboxModal{
