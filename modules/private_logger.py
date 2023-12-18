@@ -53,11 +53,10 @@ def log(img, dic):
                 middle_part = existing_split[0]
 
     div_name = only_name.replace('.', '_')
-    item = f'<div id="{div_name}" class="image-container">\n'
-    item += "<hr><table><tr>"
-    item += f"<td><a href='{only_name}'><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
-    item += "<td>"
-    item += "<table class='metadata'>"
+    
+    item = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
+    item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
+    item += "<td><table class='metadata'>"
 
     if isinstance(dic, list):
         for item_tuple in dic:
