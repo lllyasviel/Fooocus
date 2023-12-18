@@ -778,7 +778,7 @@ def worker():
                     ]
                     for n, w in loras:
                         if n != 'None':
-                            d.append((f'LoRA [{n}] weight', w))
+                            d.append((f'LoRA', f'{n} : {w}'))
                     log(x, d)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)

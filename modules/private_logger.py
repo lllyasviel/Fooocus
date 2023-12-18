@@ -58,12 +58,7 @@ def log(img, dic):
         for item_tuple in dic:
             if len(item_tuple) == 2:
                 key, value = item_tuple
-                if key.startswith('LoRA [') and ']' in key:
-                    lora_name = key[key.find('[') + 1 : key.find(']')]
-                    rest_of_key = key[key.find(']') + 2:]
-                    item += f"<tr><td class='key'>LoRA</td><td class='value'>{lora_name}: {value}</td></tr>\n"
-                else:
-                    item += f"<tr><td class='key'>{key}</td><td class='value'>{value}</td></tr>\n"
+                item += f"<tr><td class='key'>{key}</td><td class='value'>{value}</td></tr>\n"
 
     item += "</table>"
     item += "</td>"
