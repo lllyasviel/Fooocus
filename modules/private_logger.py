@@ -35,11 +35,12 @@ def log(img, dic):
         ".metadata th, .metadata td { border: 1px solid #4d4d4d; padding: 4px; } "
         ".image-container img { height: auto; max-width: 512px; display: block; padding-right:10px; } "
         ".image-container div { text-align: center; padding: 4px; } "
+        "hr { border-color: #BB86FC; } "
         "</style>"
     )
 
-    begin_part = f"<html><head>{css_styles}</head><body><p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p><!--fooocus-log-split-->"
-    end_part = f'<!--fooocus-log-split--></body></html>'
+    begin_part = f"<html><head>{css_styles}</head><body><p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p><!--fooocus-log-split-->\n"
+    end_part = f'\n<!--fooocus-log-split--></body></html>'
 
     middle_part = log_cache.get(html_name, "")
 
