@@ -57,13 +57,8 @@ def log(img, dic):
     item = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
     item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
     item += "<td><table class='metadata'>"
-
-    if isinstance(dic, list):
-        for item_tuple in dic:
-            if len(item_tuple) == 2:
-                key, value = item_tuple
-                item += f"<tr><td class='key'>{key}</td><td class='value'>{value}</td></tr>\n"
-
+    for key, value in dic:
+        item += f"<tr><td class='key'>{key}</td><td class='value'>{value}</td></tr>\n"
     item += "</table>"
     item += "</td>"
     item += "</tr></table></div>\n\n"
