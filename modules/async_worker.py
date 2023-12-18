@@ -492,7 +492,7 @@ def worker():
 
             if direct_return:
                 d = [('Upscale (Fast)', '2x')]
-                log(uov_input_image, d, single_line_number=1)
+                log(uov_input_image, d)
                 yield_result(async_task, uov_input_image, do_not_show_finished_images=True)
                 return
 
@@ -779,7 +779,7 @@ def worker():
                     for n, w in loras:
                         if n != 'None':
                             d.append((f'LoRA [{n}] weight', w))
-                    log(x, d, single_line_number=3)
+                    log(x, d)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:

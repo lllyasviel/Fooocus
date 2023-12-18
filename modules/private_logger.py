@@ -16,7 +16,7 @@ def get_current_html_path():
     return html_name
 
 
-def log(img, dic, single_line_number=3):
+def log(img, dic):
     if args_manager.args.disable_image_log:
         return
 
