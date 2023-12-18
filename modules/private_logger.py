@@ -16,7 +16,7 @@ def get_current_html_path():
     return html_name
 
 
-def log(img, dic, single_line_number=3):
+def log(img, dic):
     if args_manager.args.disable_image_log:
         return
 
@@ -35,46 +35,40 @@ def log(img, dic, single_line_number=3):
         ".metadata th, .metadata td { border: 1px solid #4d4d4d; padding: 4px; } "
         ".image-container img { height: auto; max-width: 512px; display: block; padding-right:10px; } "
         ".image-container div { text-align: center; padding: 4px; } "
+        "hr { border-color: gray; } "
         "</style>"
     )
 
-    existing_log = log_cache.get(html_name, None)
+    begin_part = f"<html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body><p>Fooocus Log {date_string} (private)</p>\n<p>All images are clean, without any hidden data/meta, and safe to share with others.</p><!--fooocus-log-split-->\n\n"
+    end_part = f'\n<!--fooocus-log-split--></body></html>'
 
-    if existing_log is None:
+    middle_part = log_cache.get(html_name, "")
+
+    if middle_part == "":
         if os.path.exists(html_name):
-            existing_log = open(html_name, 'r', encoding='utf-8').read()
-        else:
-            existing_log = f"<html><head>{css_styles}</head><body>"
-            existing_log += f'\n<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p>'
+            existing_split = open(html_name, 'r', encoding='utf-8').read().split('<!--fooocus-log-split-->')
+            if len(existing_split) == 3:
+                middle_part = existing_split[1]
+            else:
+                middle_part = existing_split[0]
 
     div_name = only_name.replace('.', '_')
-    item = f'<div id="{div_name}" class="image-container">\n'
-    item += "<table><tr>"
-    item += f"<td><a href='{only_name}'><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
-    item += "<td>"
-    item += "<table class='metadata'>"
-
-    if isinstance(dic, list):
-        for item_tuple in dic:
-            if len(item_tuple) == 2:
-                key, value = item_tuple
-                if key.startswith('LoRA [') and ']' in key:
-                    lora_name = key[key.find('[') + 1 : key.find(']')]
-                    rest_of_key = key[key.find(']') + 2:]
-                    item += f"<tr><td class='key'>LoRA</td><td class='value'>{lora_name}: {value}</td></tr>\n"
-                else:
-                    item += f"<tr><td class='key'>{key}</td><td class='value'>{value}</td></tr>\n"
-
+    item = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
+    item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
+    item += "<td><table class='metadata'>"
+    for key, value in dic:
+        item += f"<tr><td class='key'>{key}</td><td class='value'>{value}</td></tr>\n"
     item += "</table>"
     item += "</td>"
-    item += "</tr></table><hr></div>\n\n"
-    existing_log = item + existing_log
+    item += "</tr></table></div>\n\n"
+
+    middle_part = item + middle_part
 
     with open(html_name, 'w', encoding='utf-8') as f:
-        f.write(existing_log)
+        f.write(begin_part + middle_part + end_part)
 
     print(f'Image generated with private log at: {html_name}')
 
-    log_cache[html_name] = existing_log
+    log_cache[html_name] = middle_part
 
     return
