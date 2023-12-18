@@ -386,7 +386,7 @@ def get_model_filenames(folder_path, name_filter=None):
 
 
 def update_all_model_names():
-    global model_filenames, lora_filenames
+    global model_filenames, lora_filenames, refiner_filenames
     model_filenames = get_model_filenames(path_checkpoints)
     refiner_filenames = get_model_filenames(path_refiners)
     lora_filenames = get_model_filenames(path_loras)
