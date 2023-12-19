@@ -28,6 +28,9 @@
 # 2.1.852
 
 * New Log System: Log system now uses tables. If this is breaking some other browser extension or javascript developments, see also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
+# 2.1.847
+
+* Added support for arrays in the main prompt.
 
 # 2.1.846
 
