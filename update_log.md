@@ -1,3 +1,7 @@
+# 2.1.847
+
+* Added support for arrays in the main prompt.
+
 # 2.1.846
 
 * Many users reported that image quality is different from 2.1.824. We reviewed all codes and fixed several precision problems in 2.1.846.
