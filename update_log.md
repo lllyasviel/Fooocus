@@ -1,3 +1,7 @@
+# 2.1.853
+
+* Add Marc K3nt3L's styles. Thanks [Marc K3nt3L](https://github.com/K3nt3L)!
+
 # 2.1.852
 
 * New Log System: Log system now uses tables. If this is breaking some other browser extension or javascript developments, see also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
