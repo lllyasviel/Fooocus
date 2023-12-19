@@ -236,7 +236,8 @@ with shared.gradio_root:
                                              value=modules.config.default_prompt_negative)
                 seed_random = gr.Checkbox(label='Random', value=True)
                 image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
-
+                freeze_seed = gr.Checkbox(label='Freeze Seed', value=False)
+                
                 def random_checked(r):
                     return gr.update(visible=not r)
 
@@ -535,6 +536,7 @@ with shared.gradio_root:
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
         ctrls += ip_ctrls
+        ctrls += [freeze_seed]
 
         state_is_generating = gr.State(False)
 
