@@ -1,0 +1,312 @@
+[
+  {
+    "name": "MK Chromolithography",
+    "prompt": "Chromolithograph {prompt}. Vibrant colors, intricate details, rich color saturation, meticulous registration, multi-layered printing, decorative elements, historical charm, artistic reproductions, commercial posters, nostalgic, ornate compositions.",
+    "negative_prompt": "monochromatic, simple designs, limited color palette, imprecise registration, minimalistic, modern aesthetic, digital appearance."
+  },
+  {
+    "name": "MK Cross Processing Print",
+    "prompt": "Cross processing print {prompt}. Experimental color shifts, unconventional tonalities, vibrant and surreal hues, heightened contrasts, unpredictable results, artistic unpredictability, retro and vintage feel, dynamic color interplay, abstract and dreamlike.",
+    "negative_prompt": "predictable color tones, traditional processing, realistic color representation, subdued contrasts, standard photographic aesthetics."
+  },
+  {
+    "name": "MK Dufaycolor Photograph",
+    "prompt": "Dufaycolor photograph {prompt}. Vintage color palette, distinctive color rendering, soft and dreamy atmosphere, historical charm, unique color process, grainy texture, evocative mood, nostalgic aesthetic, hand-tinted appearance, artistic patina.",
+    "negative_prompt": "modern color reproduction, hyperrealistic tones, sharp and clear details, digital precision, contemporary aesthetic."
+  },
+  {
+    "name": "MK Herbarium",
+    "prompt": "Herbarium drawing{prompt}. Botanical accuracy, old botanical book illustration, detailed illustrations, pressed plants, delicate and precise linework, scientific documentation, meticulous presentation, educational purpose, organic compositions, timeless aesthetic, naturalistic beauty.",
+    "negative_prompt": "abstract representation, vibrant colors, artistic interpretation, chaotic compositions, fantastical elements, digital appearance."
+  },
+  {
+    "name": "MK Punk Collage",
+    "prompt": "punk collage style {prompt} . mixed media, papercut,textured paper, overlapping, ripped posters, safety pins, chaotic layers, graffiti-style elements, anarchy symbols, vintage photos, cut-and-paste aesthetic, bold typography, distorted images, political messages, urban decay, distressed textures, newspaper clippings, spray paint, rebellious icons, DIY spirit, vivid colors, punk band logos, edgy and raw compositions, ",
+    "negative_prompt": "conventional,blurry, noisy, low contrast"
+  },
+  {
+    "name": "MK mosaic",
+    "prompt": "mosaic style {prompt} . fragmented, assembled, colorful, highly detailed",
+    "negative_prompt": "whole, unbroken, monochrome"
+  },
+  {
+    "name": "MK Van Gogh",
+    "prompt": "Oil painting by Van Gogh {prompt} . Expressive, impasto, swirling brushwork, vibrant, brush strokes, Brushstroke-heavy, Textured, Impasto, Colorful, Dynamic, Bold, Distinctive, Vibrant, Whirling, Expressive, Dramatic, Swirling, Layered, Intense, Contrastive, Atmospheric, Luminous, Textural, Evocative, SpiraledVan Gogh style",
+    "negative_prompt": "realistic, photorealistic, calm, straight lines, signature, frame, text, watermark"
+  },
+  {
+    "name": "MK Coloring Book",
+    "prompt": "centered black and white high contrast line drawing, coloring book style,{prompt} . monochrome, blank white background",
+    "negative_prompt": "greyscale, gradients,shadows,shadow, colored, Red, Blue, Yellow, Green, Orange, Purple, Pink, Brown, Gray, Beige, Turquoise, Lavender, Cyan, Magenta, Olive, Indigo, black background"
+  },
+  {
+    "name": "MK Singer Sargent",
+    "prompt": "Oil painting by John Singer Sargent {prompt}. Elegant, refined, masterful technique,realistic portrayal, subtle play of light, captivating expression, rich details, harmonious colors, skillful composition, brush strokes, chiaroscuro.",
+    "negative_prompt": "realistic, photorealistic, abstract, overly stylized, excessive contrasts, distorted,bright colors,disorder."
+  },
+  {
+    "name": "MK Pollock",
+    "prompt": "Oil painting by Jackson Pollock {prompt}. Abstract expressionism, drip painting, chaotic composition, energetic, spontaneous, unconventional technique, dynamic, bold, distinctive, vibrant, intense, expressive, energetic, layered, non-representational, gestural.",
+    "negative_prompt": "(realistic:1.5), (photorealistic:1.5), representational, calm, ordered composition, precise lines, detailed forms, subdued colors, quiet, static, traditional, figurative."
+  },
+  {
+    "name": "MK Basquiat",
+    "prompt": "Artwork by Jean-Michel Basquiat {prompt}. Neo-expressionism, street art influence, graffiti-inspired, raw, energetic, bold colors, dynamic composition, chaotic, layered, textural, expressive, spontaneous, distinctive, symbolic,energetic brushstrokes.",
+    "negative_prompt": "(realistic:1.5), (photorealistic:1.5), calm, precise lines, conventional composition, subdued"
+  },
+  {
+    "name": "MK Andy Warhol",
+    "prompt": "Artwork in the style of Andy Warhol {prompt}. Pop art, vibrant colors, bold compositions, repetition of iconic imagery, celebrity culture, commercial aesthetics, mass production influence, stylized simplicity, cultural commentary, graphical elements, distinctive portraits.",
+    "negative_prompt": "subdued colors, realistic, lack of repetition, minimalistic."
+  },
+  {
+    "name": "MK Halftone print",
+    "prompt": "Halftone print of {prompt}. Dot matrix pattern, grayscale tones, vintage aesthetic, newspaper print vibe, stylized dots, visual texture, black and white contrasts, retro appearance, artistic pointillism,pop culture, (Roy Lichtenstein style:1.5).",
+    "negative_prompt": "smooth gradients, continuous tones, vibrant colors."
+  },
+  {
+    "name": "MK Gond Painting",
+    "prompt": "Gond painting {prompt}. Intricate patterns, vibrant colors, detailed motifs, nature-inspired themes, tribal folklore, fine lines, intricate detailing, storytelling compositions, mystical and folkloric, cultural richness.",
+    "negative_prompt": "monochromatic, abstract shapes, minimalistic."
+  },
+  {
+    "name": "MK Albumen Print",
+    "prompt": "Albumen print {prompt}. Sepia tones, fine details, subtle tonal gradations, delicate highlights, vintage aesthetic, soft and muted atmosphere, historical charm, rich textures, meticulous craftsmanship, classic photographic technique, vignetting.",
+    "negative_prompt": "vibrant colors, high contrast, modern, digital appearance, sharp details, contemporary style."
+  },
+  {
+    "name": "MK Aquatint Print",
+    "prompt": "Aquatint print {prompt}. Soft tonal gradations, atmospheric effects, velvety textures, rich contrasts, fine details, etching process, delicate lines, nuanced shading, expressive and moody atmosphere, artistic depth.",
+    "negative_prompt": "sharp contrasts, bold lines, minimalistic."
+  },
+  {
+    "name": "MK Anthotype Print",
+    "prompt": "Anthotype print {prompt}. Monochrome dye, soft and muted colors, organic textures, ephemeral and delicate appearance, low details, watercolor canvas, low contrast, overexposed, silhouette, textured paper.",
+    "negative_prompt": "vibrant synthetic dyes, bold and saturated colors."
+  },
+  {
+    "name": "MK Inuit Carving",
+    "prompt": "A sculpture made of ivory, {prompt} made of . Sculptures, Inuit art style, intricate carvings, natural materials, storytelling motifs, arctic wildlife themes, symbolic representations, cultural traditions, earthy tones, harmonious compositions, spiritual and mythological elements.",
+    "negative_prompt": "abstract, vibrant colors."
+  },
+  {
+    "name": "MK Bromoil Print",
+    "prompt": "Bromoil print {prompt}. Painterly effects, sepia tones, textured surfaces, rich contrasts, expressive brushwork, tonal variations, vintage aesthetic, atmospheric mood, handmade quality, artistic experimentation, darkroom craftsmanship, vignetting.",
+    "negative_prompt": "smooth surfaces, minimal brushwork, contemporary digital appearance."
+  },
+  {
+    "name": "MK Calotype Print",
+    "prompt": "Calotype print {prompt}. Soft focus, subtle tonal range, paper negative process, fine details, vintage aesthetic, artistic experimentation, atmospheric mood, early photographic charm, handmade quality, vignetting.",
+    "negative_prompt": "sharp focus, bold contrasts, modern aesthetic, digital photography."
+  },
+  {
+    "name": "MK Color Sketchnote",
+    "prompt": "Color sketchnote {prompt}. Hand-drawn elements, vibrant colors, visual hierarchy, playful illustrations, varied typography, graphic icons, organic and dynamic layout, personalized touches, creative expression, engaging storytelling.",
+    "negative_prompt": "monochromatic, geometric layout."
+  },
+  {
+    "name": "MK Cibulak Porcelain",
+    "prompt": "A sculpture made of blue pattern porcelain of {prompt}. Classic design, blue and white color scheme, intricate detailing, floral motifs, onion-shaped elements, historical charm, rococo, white ware, cobalt blue, underglaze pattern, fine craftsmanship, traditional elegance, delicate patterns, vintage aesthetic, Meissen, Blue Onion pattern, Cibulak.",
+    "negative_prompt": "tea, teapot, cup, teacup,bright colors, bold and modern design, absence of intricate detailing, lack of floral motifs, non-traditional shapes."
+  },
+  {
+    "name": "MK Alcohol Ink Art",
+    "prompt": "Alcohol ink art {prompt}. Fluid and vibrant colors, unpredictable patterns, organic textures, translucent layers, abstract compositions, ethereal and dreamy effects, free-flowing movement, expressive brushstrokes, contemporary aesthetic, wet textured paper.",
+    "negative_prompt": "monochromatic, controlled patterns."
+  },
+  {
+    "name": "MK One Line Art",
+    "prompt": "One line art {prompt}. Continuous and unbroken black line, minimalistic, simplicity, economical use of space, flowing and dynamic, symbolic representations, contemporary aesthetic, evocative and abstract, white background.",
+    "negative_prompt": "disjointed lines, complexity, complex detailing."
+  },
+  {
+    "name": "MK Blacklight Paint",
+    "prompt": "Blacklight paint {prompt}. Fluorescent pigments, vibrant and surreal colors, ethereal glow, otherworldly effects, dynamic and psychedelic compositions, neon aesthetics, transformative in ultraviolet light, contemporary and experimental.",
+    "negative_prompt": "muted colors, traditional and realistic compositions."
+  },
+  {
+    "name": "MK Carnival Glass",
+    "prompt": "A sculpture made of Carnival glass, {prompt}. Iridescent surfaces, vibrant colors, intricate patterns, opalescent hues, reflective and prismatic effects, Art Nouveau and Art Deco influences, vintage charm, intricate detailing, lustrous and luminous appearance, Carnival Glass style.",
+    "negative_prompt": "non-iridescent surfaces, muted colors, absence of intricate patterns, lack of opalescent hues, modern and minimalist aesthetic."
+  },
+  {
+    "name": "MK Cyanotype Print",
+    "prompt": "Cyanotype print {prompt}. Prussian blue tones, distinctive coloration, high contrast, blueprint aesthetics, atmospheric mood, sun-exposed paper, silhouette effects, delicate details, historical charm, handmade and experimental quality.",
+    "negative_prompt": "vibrant colors, low contrast, modern and polished appearance."
+  },
+  {
+    "name": "MK Cross-Stitching",
+    "prompt": "Cross-stitching {prompt}. Intricate patterns, embroidery thread, sewing, fine details, precise stitches, textile artistry, symmetrical designs, varied color palette, traditional and contemporary motifs, handmade and crafted,canvas, nostalgic charm.",
+    "negative_prompt": "paper, paint, ink, photography."
+  },
+  {
+    "name": "MK Encaustic Paint",
+    "prompt": "Encaustic paint {prompt}. Textured surfaces, translucent layers, luminous quality, wax medium, rich color saturation, fluid and organic shapes, contemporary and historical influences, mixed media elements, atmospheric depth.",
+    "negative_prompt": "flat surfaces, opaque layers, lack of wax medium, muted color palette, absence of textured surfaces, non-mixed media."
+  },
+  {
+    "name": "MK Embroidery",
+    "prompt": "Embroidery {prompt}. Intricate stitching, embroidery thread, fine details, varied thread textures, textile artistry, embellished surfaces, diverse color palette, traditional and contemporary motifs, handmade and crafted, tactile and ornate.",
+    "negative_prompt": "minimalist, monochromatic."
+  },
+  {
+    "name": "MK Gyotaku",
+    "prompt": "Gyotaku {prompt}. Fish impressions, realistic details, ink rubbings, textured surfaces, traditional Japanese art form, nature-inspired compositions, artistic representation of marine life, black and white contrasts, cultural significance.",
+    "negative_prompt": "photography."
+  },
+  {
+    "name": "MK Luminogram",
+    "prompt": "Luminogram {prompt}. Photogram technique, ethereal and abstract effects, light and shadow interplay, luminous quality, experimental process, direct light exposure, unique and unpredictable results, artistic experimentation.",
+    "negative_prompt": ""
+  },
+  {
+    "name": "MK Lite Brite Art",
+    "prompt": "Lite Brite art {prompt}. Luminous and colorful designs, pixelated compositions, retro aesthetic, glowing effects, creative patterns, interactive and playful, nostalgic charm, vibrant and dynamic arrangements.",
+    "negative_prompt": "monochromatic."
+  },
+  {
+    "name": "MK Mokume-gane",
+    "prompt": "Mokume-gane {prompt}. Wood-grain patterns, mixed metal layers, intricate and organic designs, traditional Japanese metalwork, harmonious color combinations, artisanal craftsmanship, unique and layered textures, cultural and historical significance.",
+    "negative_prompt": "uniform metal surfaces."
+  },
+  {
+    "name": "Pebble Art",
+    "prompt": "a sculpture made of peebles, {prompt}. Pebble art style,natural materials, textured surfaces, balanced compositions, organic forms, harmonious arrangements, tactile and 3D effects, beach-inspired aesthetic, creative storytelling, artisanal craftsmanship.",
+    "negative_prompt": "non-natural materials, lack of textured surfaces, imbalanced compositions, absence of organic forms, non-tactile appearance."
+  },
+  {
+    "name": "MK Palekh",
+    "prompt": "Palekh art {prompt}. Miniature paintings, intricate details, vivid colors, folkloric themes, lacquer finish, storytelling compositions, symbolic elements, Russian folklore influence, cultural and historical significance.",
+    "negative_prompt": "large-scale paintings."
+  },
+  {
+    "name": "MK Suminagashi",
+    "prompt": "Suminagashi {prompt}. Floating ink patterns, marbled effects, delicate and ethereal designs, water-based ink, fluid and unpredictable compositions, meditative process, monochromatic or subtle color palette, Japanese artistic tradition.",
+    "negative_prompt": "vibrant and bold color palette."
+  },
+  {
+    "name": "MK Scrimshaw",
+    "prompt": "A Scrimshaw engraving of {prompt}. Intricate engravings on a spermwhale's teeth, marine motifs, detailed scenes, nautical themes, black and white contrasts, historical craftsmanship, artisanal carving, storytelling compositions, maritime heritage.",
+    "negative_prompt": "colorful, modern."
+  },
+  {
+    "name": "MK Shibori",
+    "prompt": "Shibori {prompt}. Textured fabric, intricate patterns, resist-dyeing technique, indigo or vibrant colors, organic and flowing designs, Japanese textile art, cultural tradition, tactile and visual interest.",
+    "negative_prompt": "monochromatic."
+  },
+  {
+    "name": "MK Vitreous Enamel",
+    "prompt": "A sculpture made of Vitreous enamel {prompt}. Smooth and glossy surfaces, vibrant colors, glass-like finish, durable and resilient, intricate detailing, traditional and contemporary applications, artistic craftsmanship, jewelry and decorative objects, , Vitreous enamel, colored glass.",
+    "negative_prompt": "rough surfaces, muted colors."
+  },
+  {
+    "name": "MK Ukiyo-e",
+    "prompt": "Ukiyo-e {prompt}. Woodblock prints, vibrant colors, intricate details, depictions of landscapes, kabuki actors, beautiful women, cultural scenes, traditional Japanese art, artistic craftsmanship, historical significance.",
+    "negative_prompt": "absence of woodblock prints, muted colors, lack of intricate details, non-traditional Japanese themes, absence of cultural scenes."
+  },
+  {
+    "name": "MK vintage-airline-poster",
+    "prompt": "vintage airline poster {prompt} . classic aviation fonts, pastel colors, elegant aircraft illustrations, scenic destinations, distressed textures, retro travel allure",
+    "negative_prompt": "modern fonts, bold colors, hyper-realistic, sleek design"
+  },
+  {
+    "name": "MK vintage-travel-poster",
+    "prompt": "vintage travel poster {prompt} . retro fonts, muted colors, scenic illustrations, iconic landmarks, distressed textures, nostalgic vibes",
+    "negative_prompt": "modern fonts, vibrant colors, hyper-realistic, sleek design"
+  },
+  {
+    "name": "MK bauhaus-style",
+    "prompt": "Bauhaus-inspired {prompt} . minimalism, geometric precision, primary colors, sans-serif typography, asymmetry, functional design",
+    "negative_prompt": "ornate, intricate, excessive detail, complex patterns, serif typography"
+  },
+  {
+    "name": "MK afrofuturism",
+    "prompt": "Afrofuturism illustration {prompt} . vibrant colors, futuristic elements, cultural symbolism, cosmic imagery, dynamic patterns, empowering narratives",
+    "negative_prompt": "monochromatic"
+  },
+  {
+    "name": "MK atompunk",
+    "prompt": "Atompunk illustation, {prompt} . retro-futuristic, atomic age aesthetics, sleek lines, metallic textures, futuristic technology, optimism, energy",
+    "negative_prompt": "organic, natural textures, rustic, dystopian"
+  },
+  {
+    "name": "MK constructivism",
+    "prompt": "Constructivism {prompt} . geometric abstraction, bold colors, industrial aesthetics, dynamic compositions, utilitarian design, revolutionary spirit",
+    "negative_prompt": "organic shapes, muted colors, ornate elements, traditional"
+  },
+  {
+    "name": "MK chicano-art",
+    "prompt": "Chicano art {prompt} . bold colors, cultural symbolism, muralism, lowrider aesthetics, barrio life, political messages, social activism, Mexico",
+    "negative_prompt": "monochromatic, minimalist, mainstream aesthetics"
+  },
+  {
+    "name": "MK de-stijl",
+    "prompt": "De Stijl Art {prompt} . neoplasticism, primary colors, geometric abstraction, horizontal and vertical lines, simplicity, harmony, utopian ideals",
+    "negative_prompt": "complex patterns, muted colors, ornate elements, asymmetry"
+  },
+  {
+    "name": "MK dayak-art",
+    "prompt": "Dayak art sculpture of {prompt} . intricate patterns, nature-inspired motifs, vibrant colors, traditional craftsmanship, cultural symbolism, storytelling",
+    "negative_prompt": "minimalist, monochromatic, modern"
+  },
+  {
+    "name": "MK fayum-portrait",
+    "prompt": "Fayum portrait {prompt} . encaustic painting, realistic facial features, warm earth tones, serene expressions, ancient Egyptian influences",
+    "negative_prompt": "abstract, vibrant colors, exaggerated features, modern"
+  },
+  {
+    "name": "MK illuminated-manuscript",
+    "prompt": "Illuminated manuscript {prompt} . intricate calligraphy, rich colors, detailed illustrations, gold leaf accents, ornate borders, religious, historical, medieval",
+    "negative_prompt": "modern typography, minimalist design, monochromatic, abstract themes"
+  },
+  {
+    "name": "MK kalighat-painting",
+    "prompt": "Kalighat painting {prompt} . bold lines, vibrant colors, narrative storytelling, cultural motifs, flat compositions, expressive characters",
+    "negative_prompt": "subdued colors, intricate details, realistic portrayal, modern aesthetics"
+  },
+  {
+    "name": "MK madhubani-painting",
+    "prompt": "Madhubani painting {prompt} . intricate patterns, vibrant colors, nature-inspired motifs, cultural storytelling, symmetry, folk art aesthetics",
+    "negative_prompt": "abstract, muted colors, minimalistic design, modern aesthetics"
+  },
+  {
+    "name": "MK pictorialism",
+    "prompt": "Pictorialism illustration{prompt} . soft focus, atmospheric effects, artistic interpretation, tonality, muted colors, evocative storytelling",
+    "negative_prompt": "sharp focus, high contrast, realistic depiction, vivid colors"
+  },
+  {
+    "name": "MK pichwai-painting",
+    "prompt": "Pichwai painting {prompt} . intricate detailing, vibrant colors, religious themes, nature motifs, devotional storytelling, gold leaf accents",
+    "negative_prompt": "minimalist, subdued colors, abstract design"
+  },
+  {
+    "name": "MK patachitra-painting",
+    "prompt": "Patachitra painting {prompt} . bold outlines, vibrant colors, intricate detailing, mythological themes, storytelling, traditional craftsmanship",
+    "negative_prompt": "subdued colors, minimalistic, abstract, modern aesthetics"
+  },
+  {
+    "name": "MK samoan-art-inspired",
+    "prompt": "Samoan art-inspired wooden sculpture {prompt} . traditional motifs, natural elements, bold colors, cultural symbolism, storytelling, craftsmanship",
+    "negative_prompt": "modern aesthetics, minimalist, abstract"
+  },
+  {
+    "name": "MK tlingit-art",
+    "prompt": "Tlingit art {prompt} . formline design, natural elements, animal motifs, bold colors, cultural storytelling, traditional craftsmanship, Alaska traditional art, (totem:1.5)",
+    "negative_prompt": ""
+  },
+  {
+    "name": "MK adnate-style",
+    "prompt": "Painting by Adnate {prompt} . realistic portraits, street art, large-scale murals, subdued color palette, social narratives",
+    "negative_prompt": "abstract, vibrant colors, small-scale art"
+  },
+  {
+    "name": "MK ron-english-style",
+    "prompt": "Painting by Ron English {prompt} . pop-surrealism, cultural subversion, iconic mash-ups, vibrant and bold colors, satirical commentary",
+    "negative_prompt": "traditional, monochromatic"
+  },
+  {
+    "name": "MK shepard-fairey-style",
+    "prompt": "Painting by Shepard Fairey {prompt} . street art, political activism, iconic stencils, bold typography, high contrast, red, black, and white color palette",
+    "negative_prompt": "traditional, muted colors"
+  }
+]

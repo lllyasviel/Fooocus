@@ -35,6 +35,7 @@ def worker():
     import modules.advanced_parameters as advanced_parameters
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
+    import fooocus_version
 
     from modules.censor import censor_batch
 
@@ -506,7 +507,7 @@ def worker():
 
             if direct_return:
                 d = [('Upscale (Fast)', '2x')]
-                log(uov_input_image, d, single_line_number=1)
+                log(uov_input_image, d)
                 yield_result(async_task, uov_input_image, do_not_show_finished_images=True)
                 return
 
@@ -790,12 +791,13 @@ def worker():
                         ('Refiner Switch', refiner_switch),
                         ('Sampler', sampler_name),
                         ('Scheduler', scheduler_name),
-                        ('Seed', task['task_seed'])
+                        ('Seed', task['task_seed']),
                     ]
                     for n, w in loras:
                         if n != 'None':
-                            d.append((f'LoRA [{n}] weight', w))
-                    log(x, d, single_line_number=3)
+                            d.append((f'LoRA', f'{n} : {w}'))
+                    d.append(('Version', 'v' + fooocus_version.version))
+                    log(x, d)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1, progressbar_index=int(15.0 + 85.0 * float((current_task_id + 1) * steps) / float(all_steps)))
             except ldm_patched.modules.model_management.InterruptProcessingException as e:

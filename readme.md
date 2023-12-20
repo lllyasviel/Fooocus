@@ -384,7 +384,7 @@ See also [About Forking and Promotion of Forks](https://github.com/lllyasviel/Fo
 
 ## Thanks
 
-Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com/3Diva) for creating additional SDXL styles available in Fooocus. Thanks [daswer123](https://github.com/daswer123) for contributing the Canvas Zoom!
+Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com/3Diva) and [Marc K3nt3L](https://github.com/K3nt3L) for creating additional SDXL styles available in Fooocus. Thanks [daswer123](https://github.com/daswer123) for contributing the Canvas Zoom!
 
 ## Update Log
 
