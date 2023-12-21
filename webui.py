@@ -1,6 +1,7 @@
 import gradio as gr
 import random
 import os
+import json
 import time
 import shared
 import modules.config
@@ -12,6 +13,7 @@ import modules.flags as flags
 import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
+import modules.meta_parser
 import args_manager
 import copy
 
@@ -100,7 +102,7 @@ with shared.gradio_root:
                                  elem_id='final_gallery')
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=17):
-                    prompt = gr.Textbox(show_label=False, placeholder="Type prompt here.", elem_id='positive_prompt',
+                    prompt = gr.Textbox(show_label=False, placeholder="Type prompt here or paste parameters.", elem_id='positive_prompt',
                                         container=False, autofocus=True, elem_classes='type_row', lines=1024)
 
                     default_prompt = modules.config.default_prompt
@@ -109,6 +111,7 @@ with shared.gradio_root:
 
                 with gr.Column(scale=3, min_width=0):
                     generate_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', elem_id='generate_button', visible=True)
+                    load_parameter_button = gr.Button(label="Load Parameters", value="Load Parameters", elem_classes='type_row', elem_id='load_parameter_button', visible=False)
                     skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', visible=False)
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
 
@@ -509,6 +512,50 @@ with shared.gradio_root:
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
         ctrls += ip_ctrls
+
+        def parse_meta(raw_prompt_txt):
+            loaded_json = None
+            try:
+                if '{' in raw_prompt_txt:
+                    if '}' in raw_prompt_txt:
+                        if ':' in raw_prompt_txt:
+                            loaded_json = json.loads(raw_prompt_txt)
+                            assert isinstance(loaded_json, dict)
+            except:
+                loaded_json = None
+
+            if loaded_json is None:
+                return gr.update(), gr.update(visible=True), gr.update(visible=False)
+
+            return json.dumps(loaded_json), gr.update(visible=False), gr.update(visible=True)
+
+        prompt.input(parse_meta, inputs=prompt, outputs=[prompt, generate_button, load_parameter_button], queue=False, show_progress=False)
+
+        load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=prompt, outputs=[
+            advanced_checkbox,
+            image_number,
+            prompt,
+            negative_prompt,
+            style_selections,
+            performance_selection,
+            aspect_ratios_selection,
+            overwrite_width,
+            overwrite_height,
+            sharpness,
+            guidance_scale,
+            adm_scaler_positive,
+            adm_scaler_negative,
+            adm_scaler_end,
+            base_model,
+            refiner_model,
+            refiner_switch,
+            sampler_name,
+            scheduler_name,
+            seed_random,
+            image_seed,
+            generate_button,
+            load_parameter_button
+        ] + lora_ctrls, queue=False, show_progress=False)
 
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, generate_button, gallery]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
