@@ -1,3 +1,8 @@
+# 2.1.854
+
+* Add a button to copy parameters to clipboard in log.
+* Allow users to load parameters directly by pasting parameters to prompt.
+
 # 2.1.853
 
 * Add Marc K3nt3L's styles. Thanks [Marc K3nt3L](https://github.com/K3nt3L)!
