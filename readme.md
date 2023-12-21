@@ -28,6 +28,8 @@ Fooocus has simplified the installation. Between pressing "download" and generat
 
 `[1]` David Holz, 2019.
 
+**Recently many fake websites exist on Google when you search “fooocus”. Do not trust those – here is the only official source of Fooocus.**
+
 ## [Installing Fooocus](#download)
 
 # Moving from Midjourney to Fooocus
