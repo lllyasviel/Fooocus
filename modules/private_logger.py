@@ -48,7 +48,7 @@ def log(img, dic):
         "function to_clipboard(txt) { "
         "txt = decodeURIComponent(txt);"
         "navigator.clipboard.writeText(txt);"
-        "alert('Copied to Clipboard!\\nYou can also paste to Fooocus prompt area to load parameters.\\nCurrent clipboard content is:\\n\\n' + txt);"
+        "alert('Copied to Clipboard!\\nPaste to prompt area to load parameters.\\nCurrent clipboard content is:\\n\\n' + txt);"
         "}"
         "</script>"
     )
