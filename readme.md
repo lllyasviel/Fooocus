@@ -28,6 +28,8 @@ Fooocus has simplified the installation. Between pressing "download" and generat
 
 `[1]` David Holz, 2019.
 
+**Recently many fake websites exist on Google when you search “fooocus”. Do not trust those – here is the only official source of Fooocus.**
+
 ## [Installing Fooocus](#download)
 
 # Moving from Midjourney to Fooocus
@@ -384,7 +386,7 @@ See also [About Forking and Promotion of Forks](https://github.com/lllyasviel/Fo
 
 ## Thanks
 
-Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com/3Diva) for creating additional SDXL styles available in Fooocus. Thanks [daswer123](https://github.com/daswer123) for contributing the Canvas Zoom!
+Special thanks to [twri](https://github.com/twri) and [3Diva](https://github.com/3Diva) and [Marc K3nt3L](https://github.com/K3nt3L) for creating additional SDXL styles available in Fooocus. Thanks [daswer123](https://github.com/daswer123) for contributing the Canvas Zoom!
 
 ## Update Log
 
