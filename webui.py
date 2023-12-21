@@ -205,7 +205,7 @@ with shared.gradio_root:
                         with gr.TabItem(label='Inpaint advanced') as inpaint_advanced:
                             inpaint_mask_image_checkbox = gr.Checkbox(label='Enable upload mask', value=False, container=False)
                             inpaint_mask_image_checkbox.change(lambda x: gr.update(visible=x), inputs=inpaint_mask_image_checkbox, outputs=inpaint_mask_image, queue=False)  
-                            invert_mask_checkbox = gr.Checkbox(label='Invert mask', value=False, container=False)                       
+                            invert_mask_checkbox = gr.Checkbox(label='Invert hand-drawn mask', value=False, container=False)                       
                         # xhoxye2
                         
                         gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
