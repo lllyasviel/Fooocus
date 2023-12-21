@@ -192,7 +192,7 @@ with shared.gradio_root:
                         with gr.Row():
                             inpaint_input_image = grh.Image(label='Drag inpaint or outpaint image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
                                 
-                            inpaint_mask_image = grh.Image(label='Drag inapint mask image to here', source='upload', type='numpy', height=500,visible=False)                              
+                            inpaint_mask_image = grh.Image(label='Drag inpaint mask image to here', source='upload', type='numpy', height=500,visible=False)                              
                         # xhoxye1
                                 
                         with gr.Row():
