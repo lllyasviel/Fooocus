@@ -533,6 +533,7 @@ with shared.gradio_root:
 
         load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=prompt, outputs=[
             advanced_checkbox,
+            image_number,
             prompt,
             negative_prompt,
             style_selections,
