@@ -7,7 +7,7 @@ def load_parameter_button_click(raw_prompt_txt):
     loaded_parameter_dict = json.loads(raw_prompt_txt)
     assert isinstance(loaded_parameter_dict, dict)
 
-    results = []
+    results = [True]
 
     try:
         h = loaded_parameter_dict.get('Prompt', None)

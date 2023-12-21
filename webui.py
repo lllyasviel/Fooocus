@@ -532,6 +532,7 @@ with shared.gradio_root:
         prompt.input(parse_meta, inputs=prompt, outputs=[prompt, generate_button, load_parameter_button], queue=False, show_progress=False)
 
         load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=prompt, outputs=[
+            advanced_checkbox,
             prompt,
             negative_prompt,
             style_selections,
