@@ -146,16 +146,16 @@ def load_parameter_button_click(raw_prompt_txt):
 def parse_meta_from_preset(preset_content):
     assert isinstance(preset_content, dict)
     preset_prepared = {}
+    items = preset_content
 
-    for k, v in preset_content.items():
-        if k in modules.config.possible_preset_keys:
-            if modules.config.possible_preset_keys[k] is not None:
-                if k != "default_loras":
-                    preset_prepared[modules.config.possible_preset_keys[k]] = v
-                else:
-                    lora_count = 1
-                    for lora_value in v[:5]:
-                        preset_prepared[f'LoRA {lora_count}'] = ' : '.join(map(str, lora_value))
-                        lora_count += 1
+    for settings_key, meta_key in modules.config.possible_preset_keys.items():
+        if settings_key != "default_loras":
+            preset_prepared[meta_key] = items[settings_key] if settings_key in items and items[settings_key] is not None else getattr(modules.config, settings_key)
+        else:
+            loras = getattr(modules.config, settings_key)
+            if settings_key in items:
+                loras = items[settings_key]
+            for index, lora in enumerate(loras[:5]):
+                preset_prepared[f'LoRA {index + 1}'] = ' : '.join(map(str, lora))
 
     return load_parameter_button_click(json.dumps(preset_prepared))

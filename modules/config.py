@@ -81,7 +81,7 @@ try_load_deprecated_user_path_config()
 
 def list_presets():
     preset_folder = 'presets'
-    presets = ['None']
+    presets = ['initial']
     if not os.path.exists(preset_folder):
         print('No presets found.')
         return presets;
@@ -105,6 +105,7 @@ def try_get_preset_content(preset):
         except Exception as e:
             print(f'Load preset [{preset_path}] failed')
             print(e)
+    return {}
 
 def try_load_preset_global(preset):
     global config_dict
@@ -181,12 +182,12 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
         return default_value
 
 
-default_base_model_name = get_config_item_or_set_default(
+default_base_model_name = default_model = get_config_item_or_set_default(
     key='default_model',
     default_value='juggernautXL_version6Rundiffusion.safetensors',
     validator=lambda x: isinstance(x, str)
 )
-default_refiner_model_name = get_config_item_or_set_default(
+default_refiner_model_name = default_refiner = get_config_item_or_set_default(
     key='default_refiner',
     default_value='None',
     validator=lambda x: isinstance(x, str)

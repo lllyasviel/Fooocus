@@ -222,7 +222,7 @@ with shared.gradio_root:
             with gr.Tab(label='Setting'):
                 preset_selection = gr.Radio(label='Preset',
                                             choices=modules.config.available_presets,
-                                            value=args_manager.args.preset if args_manager.args.preset else "None",
+                                            value=args_manager.args.preset if args_manager.args.preset else "initial",
                                             interactive=True)
                 performance_selection = gr.Radio(label='Performance',
                                                  choices=modules.flags.performance_selections,
@@ -461,9 +461,8 @@ with shared.gradio_root:
                                     queue=False, show_progress=False)
 
         def preset_selection_change(preset):
-            preset_content = modules.config.try_get_preset_content(preset)
-            if preset_content is not None:
-                return modules.meta_parser.parse_meta_from_preset(preset_content)
+            preset_content = modules.config.try_get_preset_content(preset) if preset != 'initial' else {}
+            return modules.meta_parser.parse_meta_from_preset(preset_content)
 
         preset_selection.change(preset_selection_change, inputs=preset_selection, outputs=[
             advanced_checkbox,
