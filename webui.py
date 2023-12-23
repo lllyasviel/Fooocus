@@ -451,13 +451,16 @@ with shared.gradio_root:
 
                 def model_refresh_clicked():
                     modules.config.update_all_model_names()
+                    modules.config.update_presets()
                     results = []
-                    results += [gr.update(choices=modules.config.model_filenames), gr.update(choices=['None'] + modules.config.model_filenames)]
+                    results += [gr.update(choices=modules.config.model_filenames), 
+                                gr.update(choices=['None'] + modules.config.model_filenames),
+                                gr.update(choices=modules.config.available_presets)]
                     for i in range(5):
                         results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
                     return results
 
-                model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
+                model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model, preset_selection] + lora_ctrls,
                                     queue=False, show_progress=False)
 
         def preset_selection_change(preset):

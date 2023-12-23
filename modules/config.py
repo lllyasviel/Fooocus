@@ -90,6 +90,9 @@ def list_presets():
 
 available_presets = list_presets()
 
+def update_presets():
+    global available_presets
+    available_presets = list_presets()
 
 def try_get_preset_content(preset):
     if isinstance(preset, str):
