@@ -124,7 +124,7 @@ def worker():
         style_selections = args.pop()
         performance_selection = args.pop()
         aspect_ratios_selection = args.pop()
-        image_number = args.pop()
+        number_of_images = args.pop()
         image_seed = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
@@ -359,7 +359,7 @@ def worker():
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
-            for i in range(image_number):
+            for i in range(number_of_images):
                 task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
 
@@ -678,7 +678,7 @@ def worker():
                 advanced_parameters.freeu_s2
             )
 
-        all_steps = steps * image_number
+        all_steps = steps * number_of_images
 
         print(f'[Parameters] Denoising Strength = {denoising_strength}')
 
@@ -713,9 +713,14 @@ def worker():
 
         def callback(step, x0, x, total_steps, y):
             done_steps = current_task_id * steps + step
+            n = current_task_id + 1 ; suff = 'th'
+            if n < 4 or n > 20:
+                if   1 == n % 10: suff = 'st'
+                elif 2 == n % 10: suff = 'nd'
+                elif 3 == n % 10: suff = 'rd'
             async_task.yields.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
+                f'Step {step}/{total_steps} in the {n}{suff} Sampling',
                 y)])
 
         for current_task_id, task in enumerate(tasks):
