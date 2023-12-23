@@ -226,6 +226,10 @@ with shared.gradio_root:
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
+                preset_selection = gr.Radio(label='Preset',
+                                            choices=modules.config.available_presets,
+                                            value=args_manager.args.preset if args_manager.args.preset else "initial",
+                                            interactive=True)
                 performance_selection = gr.Radio(label='Performance',
                                                  choices=modules.flags.performance_selections,
                                                  value=modules.config.default_performance,
@@ -470,13 +474,16 @@ with shared.gradio_root:
 
                 def model_refresh_clicked():
                     modules.config.update_all_model_names()
+                    modules.config.update_presets()
                     results = []
-                    results += [gr.update(choices=modules.config.model_filenames), gr.update(choices=['None'] + modules.config.model_filenames)]
+                    results += [gr.update(choices=modules.config.model_filenames), 
+                                gr.update(choices=['None'] + modules.config.model_filenames),
+                                gr.update(choices=modules.config.available_presets)]
                     for i in range(5):
                         results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
                     return results
 
-                model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
+                model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model, preset_selection] + lora_ctrls,
                                     queue=False, show_progress=False)
 
             with gr.Tab(label='Audio'):
@@ -496,6 +503,36 @@ with shared.gradio_root:
 
                     play_notification.change(fn=play_notification_checked, inputs=[play_notification, notification], outputs=[notification_input], queue=False)
                     notification_input.change(fn=notification_input_changed, inputs=[notification_input, notification], outputs=[notification], queue=False)
+
+        def preset_selection_change(preset):
+            preset_content = modules.config.try_get_preset_content(preset) if preset != 'initial' else {}
+            return modules.meta_parser.parse_meta_from_preset(preset_content)
+
+        preset_selection.change(preset_selection_change, inputs=preset_selection, outputs=[
+            advanced_checkbox,
+            image_number,
+            prompt,
+            negative_prompt,
+            style_selections,
+            performance_selection,
+            aspect_ratios_selection,
+            overwrite_width,
+            overwrite_height,
+            sharpness,
+            guidance_scale,
+            adm_scaler_positive,
+            adm_scaler_negative,
+            adm_scaler_end,
+            base_model,
+            refiner_model,
+            refiner_switch,
+            sampler_name,
+            scheduler_name,
+            seed_random,
+            image_seed,
+            generate_button,
+            load_parameter_button
+        ] + lora_ctrls, queue=False, show_progress=False)
 
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
                                                [gr.update(visible=x != 'Extreme Speed')] * 1 +
