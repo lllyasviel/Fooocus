@@ -150,6 +150,12 @@ def parse_meta_from_preset(preset_content):
     for k, v in preset_content.items():
         if k in modules.config.possible_preset_keys:
             if modules.config.possible_preset_keys[k] is not None:
-                preset_prepared[modules.config.possible_preset_keys[k]] = v
+                if k != "default_loras":
+                    preset_prepared[modules.config.possible_preset_keys[k]] = v
+                else:
+                    lora_count = 1
+                    for lora_value in v[:5]:
+                        preset_prepared[f'LoRA {lora_count}'] = ' : '.join(map(str, lora_value))
+                        lora_count += 1
 
     return load_parameter_button_click(json.dumps(preset_prepared))

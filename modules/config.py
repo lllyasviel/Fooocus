@@ -350,7 +350,7 @@ possible_preset_keys = {
     "default_model": "Base Model",
     "default_refiner": "Refiner Model",
     "default_refiner_switch": "Refiner Switch",
-    "default_loras": "TODO",
+    "default_loras": "<processed>",
     "default_cfg_scale": "Guidance Scale",
     "default_sample_sharpness": "Sharpness",
     "default_sampler": "Sampler",
