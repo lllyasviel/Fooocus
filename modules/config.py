@@ -243,8 +243,8 @@ default_advanced_checkbox = get_config_item_or_set_default(
     default_value=False,
     validator=lambda x: isinstance(x, bool)
 )
-default_image_number = get_config_item_or_set_default(
-    key='default_image_number',
+default_num_images = get_config_item_or_set_default(
+    key='default_num_images',
     default_value=2,
     validator=lambda x: isinstance(x, int) and 1 <= x <= 32
 )

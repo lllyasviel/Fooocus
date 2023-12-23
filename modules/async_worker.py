@@ -124,7 +124,7 @@ def worker():
         style_selections = args.pop()
         performance_selection = args.pop()
         aspect_ratios_selection = args.pop()
-        image_number = args.pop()
+        number_of_images = args.pop()
         image_seed = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
@@ -359,7 +359,7 @@ def worker():
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
-            for i in range(image_number):
+            for i in range(number_of_images):
                 task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
 
@@ -678,7 +678,7 @@ def worker():
                 advanced_parameters.freeu_s2
             )
 
-        all_steps = steps * image_number
+        all_steps = steps * number_of_images
 
         print(f'[Parameters] Denoising Strength = {denoising_strength}')
 
