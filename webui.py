@@ -141,7 +141,7 @@ with shared.gradio_root:
                                 uov_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy')
                             with gr.Column():
                                 uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
-                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390" target="_blank">\U0001F4D4 Document</a>')
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390" target="_blank">\U0001F4D4 Documentation</a>')
                     with gr.TabItem(label='Image Prompt') as ip_tab:
                         with gr.Row():
                             ip_images = []
@@ -174,7 +174,7 @@ with shared.gradio_root:
                                         ip_type.change(lambda x: flags.default_parameters[x], inputs=[ip_type], outputs=[ip_stop, ip_weight], queue=False, show_progress=False)
                                     ip_ad_cols.append(ad_col)
                         ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
-                        gr.HTML('* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1). <a href="https://github.com/lllyasviel/Fooocus/discussions/557" target="_blank">\U0001F4D4 Document</a>')
+                        gr.HTML('* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1). <a href="https://github.com/lllyasviel/Fooocus/discussions/557" target="_blank">\U0001F4D4 Documentation</a>')
 
                         def ip_advance_checked(x):
                             return [gr.update(visible=x)] * len(ip_ad_cols) + \
@@ -192,7 +192,7 @@ with shared.gradio_root:
                             outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
                             inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
                         example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts, label='Additional Prompt Quick List', components=[inpaint_additional_prompt], visible=False)
-                        gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
+                        gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Documentation</a>')
                         example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
                     with gr.TabItem(label='Describe') as desc_tab:
                         with gr.Row():
@@ -204,7 +204,7 @@ with shared.gradio_root:
                                     choices=[flags.desc_type_photo, flags.desc_type_anime],
                                     value=flags.desc_type_photo)
                                 desc_btn = gr.Button(value='Describe this Image into Prompt')
-                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Document</a>')
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Documentation</a>')
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
 
@@ -325,7 +325,7 @@ with shared.gradio_root:
                 sharpness = gr.Slider(label='Image Sharpness', minimum=0.0, maximum=30.0, step=0.001,
                                       value=modules.config.default_sample_sharpness,
                                       info='Higher value means image and texture are sharper.')
-                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117" target="_blank">\U0001F4D4 Document</a>')
+                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117" target="_blank">\U0001F4D4 Documentation</a>')
                 dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
 
                 with gr.Column(visible=False) as dev_tools:
