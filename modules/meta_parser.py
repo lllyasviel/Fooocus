@@ -142,3 +142,14 @@ def load_parameter_button_click(raw_prompt_txt):
             results.append(gr.update())
 
     return results
+
+def parse_meta_from_preset(preset_content):
+    assert isinstance(preset_content, dict)
+    preset_prepared = {}
+
+    for k, v in preset_content.items():
+        if k in modules.config.possible_preset_keys:
+            if modules.config.possible_preset_keys[k] is not None:
+                preset_prepared[modules.config.possible_preset_keys[k]] = v
+
+    return load_parameter_button_click(json.dumps(preset_prepared))
