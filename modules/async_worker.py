@@ -291,9 +291,10 @@ def worker():
                 inpaint_image = HWC3(inpaint_image)
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
+                    progressbar(async_task, 1, 'Downloading upscale models ...')
+                    modules.config.downloading_upscale_model()
                     if inpaint_parameterized:
                         progressbar(async_task, 1, 'Downloading inpainter ...')
-                        modules.config.downloading_upscale_model()
                         inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
                             advanced_parameters.inpaint_engine)
                         base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
@@ -411,8 +412,8 @@ def worker():
                     uc=None,
                     positive_top_k=len(positive_basic_workloads),
                     negative_top_k=len(negative_basic_workloads),
-                    log_positive_prompt='; '.join([task_prompt] + task_extra_positive_prompts),
-                    log_negative_prompt='; '.join([task_negative_prompt] + task_extra_negative_prompts),
+                    log_positive_prompt='\n'.join([task_prompt] + task_extra_positive_prompts),
+                    log_negative_prompt='\n'.join([task_negative_prompt] + task_extra_negative_prompts),
                 ))
 
             if use_expansion:
@@ -793,9 +794,9 @@ def worker():
                         ('Scheduler', scheduler_name),
                         ('Seed', task['task_seed']),
                     ]
-                    for n, w in loras:
+                    for li, (n, w) in enumerate(loras):
                         if n != 'None':
-                            d.append((f'LoRA', f'{n} : {w}'))
+                            d.append((f'LoRA {li + 1}', f'{n} : {w}'))
                     d.append(('Version', 'v' + fooocus_version.version))
                     log(x, d)
 

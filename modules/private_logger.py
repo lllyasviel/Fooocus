@@ -1,6 +1,8 @@
 import os
 import args_manager
 import modules.config
+import json
+import urllib.parse
 
 from PIL import Image
 from modules.util import generate_temp_filename
@@ -36,10 +38,22 @@ def log(img, dic):
         ".image-container img { height: auto; max-width: 512px; display: block; padding-right:10px; } "
         ".image-container div { text-align: center; padding: 4px; } "
         "hr { border-color: gray; } "
+        "button { background-color: black; color: white; border: 1px solid grey; border-radius: 5px; padding: 5px 10px; text-align: center; display: inline-block; font-size: 16px; cursor: pointer; }"
+        "button:hover {background-color: grey; color: black;}"
         "</style>"
     )
 
-    begin_part = f"<html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body><p>Fooocus Log {date_string} (private)</p>\n<p>All images are clean, without any hidden data/meta, and safe to share with others.</p><!--fooocus-log-split-->\n\n"
+    js = (
+        "<script>"
+        "function to_clipboard(txt) { "
+        "txt = decodeURIComponent(txt);"
+        "navigator.clipboard.writeText(txt);"
+        "alert('Copied to Clipboard!\\nPaste to prompt area to load parameters.\\nCurrent clipboard content is:\\n\\n' + txt);"
+        "}"
+        "</script>"
+    )
+
+    begin_part = f"<html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>{js}<p>Fooocus Log {date_string} (private)</p>\n<p>All images are clean, without any hidden data/meta, and safe to share with others.</p><!--fooocus-log-split-->\n\n"
     end_part = f'\n<!--fooocus-log-split--></body></html>'
 
     middle_part = log_cache.get(html_name, "")
@@ -57,8 +71,13 @@ def log(img, dic):
     item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
     item += "<td><table class='metadata'>"
     for key, value in dic:
-        item += f"<tr><td class='key'>{key}</td><td class='value'>{value}</td></tr>\n"
+        value_txt = str(value).replace('\n', ' </br> ')
+        item += f"<tr><td class='key'>{key}</td><td class='value'>{value_txt}</td></tr>\n"
     item += "</table>"
+
+    js_txt = urllib.parse.quote(json.dumps({k: v for k, v in dic}, indent=0), safe='')
+    item += f"</br><button onclick=\"to_clipboard('{js_txt}')\">Copy to Clipboard</button>"
+
     item += "</td>"
     item += "</tr></table></div>\n\n"
 
