@@ -713,9 +713,14 @@ def worker():
 
         def callback(step, x0, x, total_steps, y):
             done_steps = current_task_id * steps + step
+            n = current_task_id + 1 ; suff = 'th'
+            if n < 4 or n > 20:
+                if   1 == n % 10: suff = 'st'
+                elif 2 == n % 10: suff = 'nd'
+                elif 3 == n % 10: suff = 'rd'
             async_task.yields.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
+                f'Step {step}/{total_steps} in the {n}{suff} Sampling',
                 y)])
 
         for current_task_id, task in enumerate(tasks):
