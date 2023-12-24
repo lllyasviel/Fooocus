@@ -379,6 +379,7 @@ possible_preset_keys = {
     "checkpoint_downloads": "checkpoint_downloads",
     "embeddings_downloads": "embeddings_downloads",
     "lora_downloads": "lora_downloads",
+    "default_overwrite_step": "Sampling Steps Override"
 }
 
 

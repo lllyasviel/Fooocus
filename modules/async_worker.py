@@ -792,6 +792,7 @@ def worker():
                         ('Refiner Switch', refiner_switch),
                         ('Sampler', sampler_name),
                         ('Scheduler', scheduler_name),
+                        ('Sampling Steps Override', advanced_parameters.overwrite_step),
                         ('Seed', task['task_seed']),
                     ]
                     for li, (n, w) in enumerate(loras):
