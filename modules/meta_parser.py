@@ -161,10 +161,8 @@ def parse_meta_from_preset(preset_content):
                 width, height = default_aspect_ratio.split('*')
             else:
                 default_aspect_ratio = getattr(modules.config, settings_key)
-                print(default_aspect_ratio)
                 width, height = default_aspect_ratio.split('×')
                 height = height[:height.index(" ")]
-            print(default_aspect_ratio)
             preset_prepared[meta_key] = (width, height)
         else:
             preset_prepared[meta_key] = items[settings_key] if settings_key in items and items[settings_key] is not None else getattr(modules.config, settings_key)

@@ -492,7 +492,6 @@ with shared.gradio_root:
             generate_button,
             load_parameter_button
         ] + lora_ctrls, queue=False, show_progress=False) \
-            .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
             .then(lambda: None, _js='()=>{refresh_style_localization();}')
 
