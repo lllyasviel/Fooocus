@@ -226,7 +226,7 @@ with shared.gradio_root:
             desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
-            with gr.Tab(label='Setting'):
+            with gr.Tab(label='Settings'):
                 preset_selection = gr.Radio(label='Preset',
                                             choices=modules.config.available_presets,
                                             value=args_manager.args.preset if args_manager.args.preset else "initial",
@@ -270,7 +270,7 @@ with shared.gradio_root:
                 if not args_manager.args.disable_image_log:
                     gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
 
-            with gr.Tab(label='Style'):
+            with gr.Tab(label='Styles'):
                 style_sorter.try_load_sorted_styles(
                     style_names=legal_style_names,
                     default_selected=modules.config.default_styles)
@@ -303,7 +303,7 @@ with shared.gradio_root:
                                                        show_progress=False).then(
                     lambda: None, _js='()=>{refresh_style_localization();}')
 
-            with gr.Tab(label='Model'):
+            with gr.Tab(label='Models'):
                 with gr.Group():
                     with gr.Row():
                         base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True)
