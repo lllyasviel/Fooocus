@@ -170,4 +170,4 @@ def parse_meta_from_preset(preset_content):
         if settings_key == "default_styles" or settings_key == "default_aspect_ratio":
             preset_prepared[meta_key] = str(preset_prepared[meta_key])
 
-    return load_parameter_button_click(json.dumps(preset_prepared))
+    return preset_prepared
