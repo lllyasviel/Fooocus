@@ -371,6 +371,7 @@ possible_preset_keys = {
     "default_sample_sharpness": "Sharpness",
     "default_sampler": "Sampler",
     "default_scheduler": "Scheduler",
+    "default_overwrite_step": "Sampling Steps Override",
     "default_performance": "Performance",
     "default_prompt": "Prompt",
     "default_prompt_negative": "Negative Prompt",
@@ -378,8 +379,7 @@ possible_preset_keys = {
     "default_aspect_ratio": "Resolution",
     "checkpoint_downloads": "checkpoint_downloads",
     "embeddings_downloads": "embeddings_downloads",
-    "lora_downloads": "lora_downloads",
-    "default_overwrite_step": "Sampling Steps Override"
+    "lora_downloads": "lora_downloads"
 }
 
 
