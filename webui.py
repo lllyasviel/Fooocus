@@ -228,7 +228,7 @@ with shared.gradio_root:
                                              elem_id='negative_prompt',
                                              value=modules.config.default_prompt_negative)
                 translate_prompts = gr.Checkbox(label='Translate Prompts',
-                                                          info='Uses the internet to translate prompts to English',
+                                                          info='Uses the internet to translate prompts to English.',
                                                           value=False)
                 seed_random = gr.Checkbox(label='Random', value=True)
                 image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
