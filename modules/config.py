@@ -376,9 +376,9 @@ possible_preset_keys = {
     "default_prompt_negative": "Negative Prompt",
     "default_styles": "Styles",
     "default_aspect_ratio": "Resolution",
-    "checkpoint_downloads": None,
-    "embeddings_downloads": None,
-    "lora_downloads": None,
+    "checkpoint_downloads": "checkpoint_downloads",
+    "embeddings_downloads": "embeddings_downloads",
+    "lora_downloads": "lora_downloads",
 }
 
 

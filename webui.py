@@ -16,6 +16,7 @@ import modules.style_sorter as style_sorter
 import modules.meta_parser
 import args_manager
 import copy
+import launch
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -506,7 +507,14 @@ with shared.gradio_root:
 
         def preset_selection_change(preset):
             preset_content = modules.config.try_get_preset_content(preset) if preset != 'initial' else {}
-            return modules.meta_parser.parse_meta_from_preset(preset_content)
+            preset_prepared = modules.meta_parser.parse_meta_from_preset(preset_content)
+
+            launch.checkpoint_downloads = preset_prepared['checkpoint_downloads']
+            launch.embeddings_downloads = preset_prepared['embeddings_downloads']
+            launch.lora_downloads = preset_prepared['lora_downloads']
+            launch.download_models()
+
+            return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared))
 
         preset_selection.change(preset_selection_change, inputs=preset_selection, outputs=[
             advanced_checkbox,
@@ -532,7 +540,10 @@ with shared.gradio_root:
             image_seed,
             generate_button,
             load_parameter_button
-        ] + lora_ctrls, queue=False, show_progress=False)
+        ] + lora_ctrls, queue=False, show_progress=True) \
+            .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
+            .then(lambda: None, _js='()=>{refresh_style_localization();}')
+
 
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
                                                [gr.update(visible=x != 'Extreme Speed')] * 1 +
