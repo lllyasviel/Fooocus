@@ -37,6 +37,7 @@
         "Fooocus Negative"
     ],
     "default_aspect_ratio": "896*1152",
+    "default_overwrite_step": -1,
     "checkpoint_downloads": {
         "realisticStockPhoto_v10.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/realisticStockPhoto_v10.safetensors"
     },

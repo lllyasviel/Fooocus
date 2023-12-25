@@ -40,6 +40,7 @@
         "SAI Fantasy Art"
     ],
     "default_aspect_ratio": "896*1152",
+    "default_overwrite_step": -1,
     "checkpoint_downloads": {
         "bluePencilXL_v050.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/bluePencilXL_v050.safetensors",
         "DreamShaper_8_pruned.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/DreamShaper_8_pruned.safetensors"
