@@ -364,7 +364,7 @@ entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
                       [--attention-split | --attention-quad | --attention-pytorch]
                       [--disable-xformers]
                       [--always-gpu | --always-high-vram | --always-normal-vram | 
-                       --always-low-vram | --always-no-vram | --always-cpu]
+                       --always-low-vram | --always-no-vram | --always-cpu [CPU_NUM_THREADS]]
                       [--always-offload-from-vram] [--disable-server-log]
                       [--debug-mode] [--is-windows-embedded-python]
                       [--disable-server-info] [--share] [--preset PRESET]
