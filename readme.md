@@ -1,3 +1,25 @@
+# Fooocus - mashb1t improvements
+
+The purpose of this fork is to add new features / fix bugs and contribute back to [Fooocus](https://github.com/lllyasviel/Fooocus).
+
+Included adjustments:
+
+* ✨ https://github.com/lllyasviel/Fooocus/pull/958 - NSFW image censoring (config and UI)
+* 🐛 https://github.com/lllyasviel/Fooocus/pull/981 - prevent users from skipping/stopping other users tasks in queue (multi-user capabilities)
+* ✨ https://github.com/lllyasviel/Fooocus/pull/985 - add list of 100 animals to wildcards
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1013 - add advanced parameter for disable_intermediate_results (progress_gallery, prevents UI lag when generation is too fast)
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1039 - add prompt translation
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1043 - add lcm realtime canvas painting
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1570 - add preset selection to Gradio UI (session based)
+* 🐛 https://github.com/lllyasviel/Fooocus/pull/1578 - add workaround for changing prompt while generating
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1580 - add preset for SDXL Turbo (model DreamShaperXL_Turbo)
+* 🐛 https://github.com/lllyasviel/Fooocus/pull/1608 - skip free_memory for describe (interrogate)
+* ✨ show more details for each performance setting, e.g. steps
+* ✨ add default_overwrite_step handling for meta data and gradio (allows turbo preset switching to set default_overwrite_step correctly)
+
+✨ = new feature<br>
+🐛 = bugfix
+
 <div align=center>
 <img src="https://github.com/lllyasviel/Fooocus/assets/19834515/483fb86d-c9a2-4c20-997c-46dafc124f25">
 
