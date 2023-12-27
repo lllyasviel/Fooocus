@@ -1,18 +1,5 @@
 onUiLoaded(async() => {
     // Helper functions
-    // Get active tab
-
-    /**
-     * Waits for an element to be present in the DOM.
-     */
-    const waitForElement = (id) => new Promise(resolve => {
-        const checkForElement = () => {
-            const element = document.querySelector(id);
-            if (element) return resolve(element);
-            setTimeout(checkForElement, 100);
-        };
-        checkForElement();
-    });
 
     // Detect whether the element has a horizontal scroll bar
     function hasHorizontalScrollbar(element) {
@@ -33,140 +20,40 @@ onUiLoaded(async() => {
         }
     }
 
-    // Check if hotkey is valid
-    function isValidHotkey(value) {
-        const specialKeys = ["Ctrl", "Alt", "Shift", "Disable"];
-        return (
-            (typeof value === "string" &&
-                value.length === 1 &&
-                /[a-z]/i.test(value)) ||
-            specialKeys.includes(value)
-        );
-    }
-
-    // Normalize hotkey
-    function normalizeHotkey(hotkey) {
-        return hotkey.length === 1 ? "Key" + hotkey.toUpperCase() : hotkey;
-    }
-
-    // Format hotkey for display
-    function formatHotkeyForDisplay(hotkey) {
-        return hotkey.startsWith("Key") ? hotkey.slice(3) : hotkey;
-    }
-
     // Create hotkey configuration with the provided options
     function createHotkeyConfig(defaultHotkeysConfig) {
         const result = {}; // Resulting hotkey configuration
-
         for (const key in defaultHotkeysConfig) {
             result[key] = defaultHotkeysConfig[key];
         }
-
         return result;
-    }
-
-    // Disables functions in the config object based on the provided list of function names
-    function disableFunctions(config, disabledFunctions) {
-        // Bind the hasOwnProperty method to the functionMap object to avoid errors
-        const hasOwnProperty =
-            Object.prototype.hasOwnProperty.bind(functionMap);
-
-        // Loop through the disabledFunctions array and disable the corresponding functions in the config object
-        disabledFunctions.forEach(funcName => {
-            if (hasOwnProperty(funcName)) {
-                const key = functionMap[funcName];
-                config[key] = "disable";
-            }
-        });
-
-        // Return the updated config object
-        return config;
-    }
-
-    /**
-     * The restoreImgRedMask function displays a red mask around an image to indicate the aspect ratio.
-     * If the image display property is set to 'none', the mask breaks. To fix this, the function
-     * temporarily sets the display property to 'block' and then hides the mask again after 300 milliseconds
-     * to avoid breaking the canvas. Additionally, the function adjusts the mask to work correctly on
-     * very long images.
-     */
-    function restoreImgRedMask(elements) {
-        const mainTabId = getTabId(elements);
-
-        if (!mainTabId) return;
-
-        const mainTab = gradioApp().querySelector(mainTabId);
-        const img = mainTab.querySelector("img");
-        const imageARPreview = gradioApp().querySelector("#imageARPreview");
-
-        if (!img || !imageARPreview) return;
-
-        imageARPreview.style.transform = "";
-        if (parseFloat(mainTab.style.width) > 865) {
-            const transformString = mainTab.style.transform;
-            const scaleMatch = transformString.match(
-                /scale\(([-+]?[0-9]*\.?[0-9]+)\)/
-            );
-            let zoom = 1; // default zoom
-
-            if (scaleMatch && scaleMatch[1]) {
-                zoom = Number(scaleMatch[1]);
-            }
-
-            imageARPreview.style.transformOrigin = "0 0";
-            imageARPreview.style.transform = `scale(${zoom})`;
-        }
-
-        if (img.style.display !== "none") return;
-
-        img.style.display = "block";
-
-        setTimeout(() => {
-            img.style.display = "none";
-        }, 400);
     }
 
     // Default config
     const defaultHotkeysConfig = {
-        canvas_hotkey_zoom: "Alt",
+        canvas_hotkey_zoom: "Shift",
         canvas_hotkey_adjust: "Ctrl",
+        canvas_zoom_undo_extra_key: "Ctrl",
+        canvas_zoom_hotkey_undo: "KeyZ",
         canvas_hotkey_reset: "KeyR",
         canvas_hotkey_fullscreen: "KeyS",
         canvas_hotkey_move: "KeyF",
-        canvas_hotkey_overlap: "KeyO",
-        canvas_disabled_functions: [],
         canvas_show_tooltip: true,
         canvas_auto_expand: true,
-        canvas_blur_prompt: false,
-    };
-
-    const functionMap = {
-        "Zoom": "canvas_hotkey_zoom",
-        "Adjust brush size": "canvas_hotkey_adjust",
-        "Moving canvas": "canvas_hotkey_move",
-        "Fullscreen": "canvas_hotkey_fullscreen",
-        "Reset Zoom": "canvas_hotkey_reset",
-        "Overlap": "canvas_hotkey_overlap"
+        canvas_blur_prompt: true,
     };
 
     // Loading the configuration from opts
-    const preHotkeysConfig = createHotkeyConfig(
+    const hotkeysConfig = createHotkeyConfig(
         defaultHotkeysConfig
     );
 
-    // Disable functions that are not needed by the user
-    const hotkeysConfig = disableFunctions(
-        preHotkeysConfig,
-        preHotkeysConfig.canvas_disabled_functions
-    );
-
     let isMoving = false;
-    let mouseX, mouseY;
     let activeElement;
 
     const elemData = {};
 
-    function applyZoomAndPan(elemId, isExtension = true) {
+    function applyZoomAndPan(elemId) {
         const targetElement = gradioApp().querySelector(elemId);
 
         if (!targetElement) {
@@ -181,6 +68,7 @@ onUiLoaded(async() => {
             panX: 0,
             panY: 0
         };
+
         let fullScreenMode = false;
 
         // Create tooltip
@@ -211,44 +99,46 @@ onUiLoaded(async() => {
                     action: "Adjust brush size",
                     keySuffix: " + wheel"
                 },
+                {configKey: "canvas_zoom_hotkey_undo", action: "Undo last action", keyPrefix: `${hotkeysConfig.canvas_zoom_undo_extra_key} + ` },
                 {configKey: "canvas_hotkey_reset", action: "Reset zoom"},
                 {
                     configKey: "canvas_hotkey_fullscreen",
                     action: "Fullscreen mode"
                 },
-                {configKey: "canvas_hotkey_move", action: "Move canvas"},
-                {configKey: "canvas_hotkey_overlap", action: "Overlap"}
+                {configKey: "canvas_hotkey_move", action: "Move canvas"}
             ];
 
-            // Create hotkeys array with disabled property based on the config values
-            const hotkeys = hotkeysInfo.map(info => {
+            // Create hotkeys array based on the config values
+            const hotkeys = hotkeysInfo.map((info) => {
                 const configValue = hotkeysConfig[info.configKey];
-                const key = info.keySuffix ?
-                    `${configValue}${info.keySuffix}` :
-                    configValue.charAt(configValue.length - 1);
-                return {
-                    key,
-                    action: info.action,
-                    disabled: configValue === "disable"
-                };
-            });
-
-            for (const hotkey of hotkeys) {
-                if (hotkey.disabled) {
-                    continue;
+        
+                let key = configValue.slice(-1);
+        
+                if (info.keySuffix) {
+                  key = `${configValue}${info.keySuffix}`;
                 }
+        
+                if (info.keyPrefix && info.keyPrefix !== "None + ") {
+                  key = `${info.keyPrefix}${configValue[3]}`;
+                }
+        
+                return {
+                  key,
+                  action: info.action,
+                };
+              });
+        
+              hotkeys
+                .forEach(hotkey => {
+                  const p = document.createElement("p");
+                  p.innerHTML = `<b>${hotkey.key}</b> - ${hotkey.action}`;
+                  tooltipContent.appendChild(p);
+                });
+        
+              tooltip.append(info, tooltipContent);
 
-                const p = document.createElement("p");
-                p.innerHTML = `<b>${hotkey.key}</b> - ${hotkey.action}`;
-                tooltipContent.appendChild(p);
-            }
-
-            // Add information and content elements to the tooltip element
-            tooltip.appendChild(info);
-            tooltip.appendChild(tooltipContent);
-
-            // Add a hint element to the target element
-            toolTipElemnt.appendChild(tooltip);
+              // Add a hint element to the target element
+              toolTipElemnt.appendChild(tooltip);
         }
 
         //Show tool tip if setting enable
@@ -264,9 +154,7 @@ onUiLoaded(async() => {
                 panY: 0
             };
 
-            if (isExtension) {
-                targetElement.style.overflow = "hidden";
-            }
+            targetElement.style.overflow = "hidden";
 
             targetElement.isZoomed = false;
 
@@ -284,7 +172,7 @@ onUiLoaded(async() => {
                 closeBtn.addEventListener("click", resetZoom);
             }
 
-            if (canvas && isExtension) {
+            if (canvas) {
                 const parentElement = targetElement.closest('[id^="component-"]');
                 if (
                     canvas &&
@@ -295,16 +183,6 @@ onUiLoaded(async() => {
                     return;
                 }
 
-            }
-
-            if (
-                canvas &&
-                !isExtension &&
-                parseFloat(canvas.style.width) > 865 &&
-                parseFloat(targetElement.style.width) > 865
-            ) {
-                fitToElement();
-                return;
             }
 
             targetElement.style.width = "";
@@ -372,12 +250,10 @@ onUiLoaded(async() => {
 
             targetElement.style.transformOrigin = "0 0";
             targetElement.style.transform = `translate(${elemData[elemId].panX}px, ${elemData[elemId].panY}px) scale(${newZoomLevel})`;
+            targetElement.style.overflow = "visible";
 
             toggleOverlap("on");
-            if (isExtension) {
-                targetElement.style.overflow = "visible";
-            }
-
+ 
             return newZoomLevel;
         }
 
@@ -388,6 +264,7 @@ onUiLoaded(async() => {
 
                 let zoomPosX, zoomPosY;
                 let delta = 0.2;
+
                 if (elemData[elemId].zoomLevel > 7) {
                     delta = 0.9;
                 } else if (elemData[elemId].zoomLevel > 2) {
@@ -421,12 +298,7 @@ onUiLoaded(async() => {
 
             let parentElement;
 
-            if (isExtension) {
-                parentElement = targetElement.closest('[id^="component-"]');
-            } else {
-                parentElement = targetElement.parentElement;
-            }
-
+            parentElement = targetElement.closest('[id^="component-"]');
 
             // Get element and screen dimensions
             const elementWidth = targetElement.offsetWidth;
@@ -455,6 +327,26 @@ onUiLoaded(async() => {
             toggleOverlap("off");
         }
 
+        // Undo last action
+        function undoLastAction(e) {
+            let isCtrlPressed = isModifierKey(e, hotkeysConfig.canvas_zoom_undo_extra_key)
+            const isAuxButton = e.button >= 3;
+            
+            if (isAuxButton) {
+              isCtrlPressed = true
+            } else {
+              if (!isModifierKey(e, hotkeysConfig.canvas_zoom_undo_extra_key)) return;
+            }
+
+            // Move undoBtn query outside the if statement to avoid unnecessary queries
+            const undoBtn = document.querySelector(`${activeElement} button[aria-label="Undo"]`);
+        
+            if ((isCtrlPressed) && undoBtn ) {
+                e.preventDefault();
+                undoBtn.click();
+            }
+        }
+
         /**
          * This function fits the target element to the screen by calculating
          * the required scale and offsets. It also updates the global variables
@@ -469,13 +361,8 @@ onUiLoaded(async() => {
 
             if (!canvas) return;
 
-            if (canvas.offsetWidth > 862 || isExtension) {
-                targetElement.style.width = (canvas.offsetWidth + 2) + "px";
-            }
-
-            if (isExtension) {
-                targetElement.style.overflow = "visible";
-            }
+            targetElement.style.width = (canvas.offsetWidth + 2) + "px";
+            targetElement.style.overflow = "visible";
 
             if (fullScreenMode) {
                 resetZoom();
@@ -549,11 +436,11 @@ onUiLoaded(async() => {
                 }
             }
 
-
             const hotkeyActions = {
                 [hotkeysConfig.canvas_hotkey_reset]: resetZoom,
                 [hotkeysConfig.canvas_hotkey_overlap]: toggleOverlap,
-                [hotkeysConfig.canvas_hotkey_fullscreen]: fitToScreen
+                [hotkeysConfig.canvas_hotkey_fullscreen]: fitToScreen,
+                [hotkeysConfig.canvas_zoom_hotkey_undo]: undoLastAction,
             };
 
             const action = hotkeyActions[event.code];
@@ -597,26 +484,27 @@ onUiLoaded(async() => {
         }
 
         targetElement.addEventListener("mousemove", getMousePosition);
+        targetElement.addEventListener("auxclick", undoLastAction);
 
         //observers
         // Creating an observer with a callback function to handle DOM changes
         const observer = new MutationObserver((mutationsList, observer) => {
             for (let mutation of mutationsList) {
-                // If the style attribute of the canvas has changed, by observation it happens only when the picture changes
-                if (mutation.type === 'attributes' && mutation.attributeName === 'style' &&
-                    mutation.target.tagName.toLowerCase() === 'canvas') {
-                    targetElement.isExpanded = false;
-                    setTimeout(resetZoom, 10);
-                }
+              // If the style attribute of the canvas has changed, by observation it happens only when the picture changes
+              if (mutation.type === 'attributes' && mutation.attributeName === 'style' &&
+                mutation.target.tagName.toLowerCase() === 'canvas') {
+                targetElement.isExpanded = false;
+                setTimeout(resetZoom, 10);
+              }
             }
-        });
-
-        // Apply auto expand if enabled
-        if (hotkeysConfig.canvas_auto_expand) {
+          });
+      
+          // Apply auto expand if enabled
+          if (hotkeysConfig.canvas_auto_expand) {
             targetElement.addEventListener("mousemove", autoExpand);
             // Set up an observer to track attribute changes
-            observer.observe(targetElement, {attributes: true, childList: true, subtree: true});
-        }
+            observer.observe(targetElement, { attributes: true, childList: true, subtree: true });
+          }
 
         // Handle events only inside the targetElement
         let isKeyDownHandlerAttached = false;
@@ -661,7 +549,7 @@ onUiLoaded(async() => {
         function handleMoveKeyDown(e) {
 
             // Disable key locks to make pasting from the buffer work correctly
-            if ((e.ctrlKey && e.code === 'KeyV') || (e.ctrlKey && event.code === 'KeyC') || e.code === "F5") {
+            if ((e.ctrlKey && e.code === 'KeyV') || (e.ctrlKey && e.code === 'KeyC') || e.code === "F5") {
                 return;
             }
 
@@ -713,11 +601,7 @@ onUiLoaded(async() => {
             if (isMoving && elemId === activeElement) {
                 updatePanPosition(e.movementX, e.movementY);
                 targetElement.style.pointerEvents = "none";
-
-                if (isExtension) {
-                    targetElement.style.overflow = "visible";
-                }
-
+                targetElement.style.overflow = "visible";
             } else {
                 targetElement.style.pointerEvents = "auto";
             }
@@ -745,18 +629,13 @@ onUiLoaded(async() => {
             }
         }
 
-        if (isExtension) {
-            targetElement.addEventListener("mousemove", checkForOutBox);
-        }
-
+        targetElement.addEventListener("mousemove", checkForOutBox);
 
         window.addEventListener('resize', (e) => {
             resetZoom();
 
-            if (isExtension) {
-                targetElement.isExpanded = false;
-                targetElement.isZoomed = false;
-            }
+            targetElement.isExpanded = false;
+            targetElement.isZoomed = false;
         });
 
         gradioApp().addEventListener("mousemove", handleMoveByKey);
