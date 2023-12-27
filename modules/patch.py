@@ -25,6 +25,8 @@ import modules.constants as constants
 from ldm_patched.modules.samplers import calc_cond_uncond_batch
 from ldm_patched.k_diffusion.sampling import BatchedBrownianTree
 from ldm_patched.ldm.modules.diffusionmodules.openaimodel import forward_timestep_embed, apply_control
+from modules.patch_precision import patch_all_precision
+from modules.patch_clip import patch_all_clip
 
 
 sharpness = 2.0
@@ -214,16 +216,20 @@ def compute_cfg(uncond, cond, cfg_scale, t):
 
 
 def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, model_options=None, seed=None):
-    if math.isclose(cond_scale, 1.0):
-        return calc_cond_uncond_batch(model, cond, None, x, timestep, model_options)[0]
-
     global eps_record
+
+    if math.isclose(cond_scale, 1.0):
+        final_x0 = calc_cond_uncond_batch(model, cond, None, x, timestep, model_options)[0]
+
+        if eps_record is not None:
+            eps_record = ((x - final_x0) / timestep).cpu()
+
+        return final_x0
 
     positive_x0, negative_x0 = calc_cond_uncond_batch(model, cond, uncond, x, timestep, model_options)
 
     positive_eps = x - positive_x0
     negative_eps = x - negative_x0
-    sigma = timestep
 
     alpha = 0.001 * sharpness * global_diffusion_progress
 
@@ -234,7 +240,7 @@ def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, mode
                             cfg_scale=cond_scale, t=global_diffusion_progress)
 
     if eps_record is not None:
-        eps_record = (final_eps / sigma).cpu()
+        eps_record = (final_eps / timestep).cpu()
 
     return x - final_eps
 
@@ -265,11 +271,11 @@ def sdxl_encode_adm_patched(self, **kwargs):
         height = float(height) * positive_adm_scale
 
     def embedder(number_list):
-        h = [self.embedder(torch.Tensor([number])) for number in number_list]
-        y = torch.flatten(torch.cat(h)).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
-        return y
+        h = self.embedder(torch.tensor(number_list, dtype=torch.float32))
+        h = torch.flatten(h).unsqueeze(dim=0).repeat(clip_pooled.shape[0], 1)
+        return h
 
-    width, height = round_to_64(width), round_to_64(height)
+    width, height = int(width), int(height)
     target_width, target_height = round_to_64(target_width), round_to_64(target_height)
 
     adm_emphasized = embedder([height, width, 0, 0, target_height, target_width])
@@ -279,46 +285,6 @@ def sdxl_encode_adm_patched(self, **kwargs):
     final_adm = torch.cat((clip_pooled, adm_emphasized, clip_pooled, adm_consistent), dim=1)
 
     return final_adm
-
-
-def encode_token_weights_patched_with_a1111_method(self, token_weight_pairs):
-    to_encode = list()
-    max_token_len = 0
-    has_weights = False
-    for x in token_weight_pairs:
-        tokens = list(map(lambda a: a[0], x))
-        max_token_len = max(len(tokens), max_token_len)
-        has_weights = has_weights or not all(map(lambda a: a[1] == 1.0, x))
-        to_encode.append(tokens)
-
-    sections = len(to_encode)
-    if has_weights or sections == 0:
-        to_encode.append(ldm_patched.modules.sd1_clip.gen_empty_tokens(self.special_tokens, max_token_len))
-
-    out, pooled = self.encode(to_encode)
-    if pooled is not None:
-        first_pooled = pooled[0:1].to(ldm_patched.modules.model_management.intermediate_device())
-    else:
-        first_pooled = pooled
-
-    output = []
-    for k in range(0, sections):
-        z = out[k:k + 1]
-        if has_weights:
-            original_mean = z.mean()
-            z_empty = out[-1]
-            for i in range(len(z)):
-                for j in range(len(z[i])):
-                    weight = token_weight_pairs[k][j][1]
-                    if weight != 1.0:
-                        z[i][j] = (z[i][j] - z_empty[j]) * weight + z_empty[j]
-            new_mean = z.mean()
-            z = z * (original_mean / new_mean)
-        output.append(z)
-
-    if len(output) == 0:
-        return out[-1:].to(ldm_patched.modules.model_management.intermediate_device()), first_pooled
-    return torch.cat(output, dim=-2).to(ldm_patched.modules.model_management.intermediate_device()), first_pooled
 
 
 def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, denoise_mask, model_options={}, seed=None):
@@ -514,6 +480,9 @@ def build_loaded(module, loader_name):
 
 
 def patch_all():
+    patch_all_precision()
+    patch_all_clip()
+
     if not hasattr(ldm_patched.modules.model_management, 'load_models_gpu_origin'):
         ldm_patched.modules.model_management.load_models_gpu_origin = ldm_patched.modules.model_management.load_models_gpu
 
@@ -522,7 +491,6 @@ def patch_all():
     ldm_patched.controlnet.cldm.ControlNet.forward = patched_cldm_forward
     ldm_patched.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
     ldm_patched.modules.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
-    ldm_patched.modules.sd1_clip.ClipTokenWeightEncoder.encode_token_weights = encode_token_weights_patched_with_a1111_method
     ldm_patched.modules.samplers.KSamplerX0Inpaint.forward = patched_KSamplerX0Inpaint_forward
     ldm_patched.k_diffusion.sampling.BrownianTreeNoiseSampler = BrownianTreeNoiseSamplerPatched
     ldm_patched.modules.samplers.sampling_function = patched_sampling_function
