@@ -32,6 +32,7 @@ def worker():
     import modules.inpaint_worker as inpaint_worker
     import modules.constants as constants
     import modules.advanced_parameters as advanced_parameters
+    import modules.private_logger_transaction as logger_transaction
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
     import fooocus_version
@@ -735,6 +736,7 @@ def worker():
                 f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
                 y)])
 
+        logger_transaction.LoggerTransactionManager.begin()
         for current_task_id, task in enumerate(tasks):
             execution_start_time = time.perf_counter()
 
@@ -812,6 +814,8 @@ def worker():
 
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
+
+        logger_transaction.LoggerTransactionManager.flush()
 
         return
 
