@@ -139,6 +139,7 @@ def worker():
         outpaint_selections = args.pop()
         inpaint_input_image = args.pop()
         inpaint_additional_prompt = args.pop()
+        realtime_input_image = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -312,6 +313,10 @@ def worker():
                     clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters(
                         'face')
                 progressbar(async_task, 1, 'Loading control models ...')
+            if current_tab == 'paint' and realtime_input_image is not None:
+                uov_input_image = HWC3(realtime_input_image)
+                goals.append('vary')
+                uov_method = 'strong'
 
         # Load or unload CNs
         pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path])

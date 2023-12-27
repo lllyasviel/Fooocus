@@ -194,6 +194,7 @@ with shared.gradio_root:
                         example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts, label='Additional Prompt Quick List', components=[inpaint_additional_prompt], visible=False)
                         gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
                         example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
+
                     with gr.TabItem(label='Describe') as desc_tab:
                         with gr.Row():
                             with gr.Column():
@@ -205,6 +206,16 @@ with shared.gradio_root:
                                     value=flags.desc_type_photo)
                                 desc_btn = gr.Button(value='Describe this Image into Prompt')
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Document</a>')
+
+                    with gr.TabItem(label='Realtime Canvas') as paint_tab:
+                        with gr.Row(equal_height=True):
+                            def aspect_ratios_selection_change(aspect_ratios_selection):
+                                width, height = aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
+                                width, height = int(int(width)/2), int(int(height)/2)
+                                return gr.Paint(shape=(width, height), width=width, height=height)
+
+                            realtime_input_image = aspect_ratios_selection_change(modules.config.default_aspect_ratio)
+
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
 
@@ -217,6 +228,7 @@ with shared.gradio_root:
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+            paint_tab.select(lambda: 'paint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
@@ -502,6 +514,9 @@ with shared.gradio_root:
             inpaint_strength, inpaint_respective_field
         ], show_progress=False, queue=False)
 
+        realtime_input_image.change(lambda: (gr.update(value='Extreme Speed'), gr.update(value=1), gr.update(value=False)), outputs=[performance_selection, image_number, seed_random], queue=False, show_progress=False, _js="() => {document.getElementById('generate_button').click();}")
+        aspect_ratios_selection.change(aspect_ratios_selection_change, inputs=aspect_ratios_selection, outputs=realtime_input_image, queue=False, show_progress=False)
+
         ctrls = [
             prompt, negative_prompt, style_selections,
             performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, guidance_scale
@@ -511,6 +526,7 @@ with shared.gradio_root:
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
+        ctrls += [realtime_input_image]
         ctrls += ip_ctrls
 
         def parse_meta(raw_prompt_txt):
@@ -557,11 +573,11 @@ with shared.gradio_root:
             load_parameter_button
         ] + lora_ctrls, queue=False, show_progress=False)
 
-        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False), []), outputs=[stop_button, skip_button, generate_button, gallery]) \
+        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), []), outputs=[stop_button, skip_button, generate_button, gallery]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
             .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
-            .then(lambda: (gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
+            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False), gr.update(visible=False)), outputs=[generate_button, stop_button, skip_button]) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
         for notification_file in ['notification.ogg', 'notification.mp3']:

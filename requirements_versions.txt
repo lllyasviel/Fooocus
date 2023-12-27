@@ -10,7 +10,7 @@ tqdm==4.64.1
 psutil==5.9.5
 pytorch_lightning==1.9.4
 omegaconf==2.2.3
-gradio==3.41.2
+gradio==3.45.0
 pygit2==1.12.2
 opencv-contrib-python==4.8.0.74
 httpx==0.24.1
