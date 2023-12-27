@@ -102,7 +102,7 @@ vram_group.add_argument("--always-cpu", action="store_true")
 
 
 parser.add_argument("--always-offload-from-vram", action="store_true")
-
+parser.add_argument("--pytorch-deterministic", action="store_true")
 
 parser.add_argument("--disable-server-log", action="store_true")
 parser.add_argument("--debug-mode", action="store_true")
