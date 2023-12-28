@@ -586,7 +586,7 @@ with shared.gradio_root:
             return mode, ["Fooocus V2"]
 
         desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
-                       outputs=[prompt, style_selections], show_progress=True, queue=False)
+                       outputs=[prompt, style_selections], show_progress=True, queue=True)
 
 
 def dump_default_english_config():
