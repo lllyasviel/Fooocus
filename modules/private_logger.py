@@ -43,7 +43,7 @@ def log(img, dic):
         "</style>"
     )
 
-js = (
+    js = (
         """<script>
         function to_clipboard(txt) { 
         txt = decodeURIComponent(txt);
