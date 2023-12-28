@@ -58,7 +58,7 @@ body:
     attributes:
       label: Operating System
       description: What operating system are you using?
-      placeholder: "Example: macOS Big Sur"
+      placeholder: "Example: Windows 10"
   - type: dropdown
     id: browsers
     attributes:
