@@ -238,8 +238,8 @@ def ui_wildcards_enhance(prompt):
 
         # 创建一个按钮点击事件处理器，点击“随机捏人”按钮，将__xhox_preset__预设中的随机一行提示词添加到提示框中
         def add_random_xhox_to_prompt(prompt):
-            # 先清空原有提示词，再将预设文件中的随机一行提示词添加到提示框中
-            prompt = "---" + random.choice(wildcard_artist_xhox_dropdown_choices['xhox_preset'])
+            # 先清空原有提示词，再将"xhox_preset预设文件"中的随机一行提示词添加到提示框中，为随机预设新增随机艺术家
+            prompt = "---" + random.choice(wildcard_artist_xhox_dropdown_choices['xhox_artist']) + ", " + random.choice(wildcard_artist_xhox_dropdown_choices['xhox_preset'])
             return prompt
 
         # 设置按钮点击事件处理器，点击，接受参数，执行函数，返回prompt，将 __通配符__ 添加到提示框
