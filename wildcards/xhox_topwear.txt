@@ -1,44 +1,43 @@
 Yoga vest
 blouse
-white_shirt
-collared_shirt
-dress_shirt
-sailor_shirt
-cropped_shirt
+white shirt
+collared shirt
+dress shirt
+sailor shirt
+cropped shirt
 t-shirt
 casual T-shirts
 short sleeve T-shirts
-off-shoulder_shirt
-shrug_(clothing)
+off-shoulder shirt
+shrug (clothing)
 cardigan
-criss-cross_halter
-frilled_shirt
+criss-cross halter
+frilled shirt
 sweatshirt
-hawaiian_shirt
+hawaiian shirt
 hoodie
 Impossible shirt
 kappougi
-plaid_shirt
-polo_shirt
-print_shirt
+plaid shirt
+polo shirt
+print shirt
 shirt
-sleeveless_hoodie
-sleeveless_shirt
-striped_shirt
-tank_top
+sleeveless hoodie
+sleeveless shirt
+striped shirt
+tank top
 vest
 waistcoat
 camisole
-tied_shirt
+tied shirt
 undershirt
-crop_top
+crop top
 highleg
-clothing_cutout
-back_cutout
-cleavage_cutout
-navel_cutout
+clothing cutout
+back cutout
+cleavage cutout
+navel cutout
 midriff
-heart_cutout
-torn_clothes
-torn_shirt
-
+heart cutout
+torn clothes
+torn shirt
