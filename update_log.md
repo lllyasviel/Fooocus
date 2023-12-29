@@ -1,3 +1,18 @@
+**(2023 Dec 21) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid or late Jan. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+
+# 2.1.854
+
+* Add a button to copy parameters to clipboard in log.
+* Allow users to load parameters directly by pasting parameters to prompt.
+
+# 2.1.853
+
+* Add Marc K3nt3L's styles. Thanks [Marc K3nt3L](https://github.com/K3nt3L)!
+
+# 2.1.852
+
+* New Log System: Log system now uses tables. If this is breaking some other browser extension or javascript developments, see also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
+
 # 2.1.846
 
 * Many users reported that image quality is different from 2.1.824. We reviewed all codes and fixed several precision problems in 2.1.846.
