@@ -17,6 +17,10 @@ import modules.meta_parser
 import args_manager
 import copy
 
+# 引入 ui_wildcards_enhance 文件
+import ui_wildcards_enhance
+# 引入 ui_wildcards_enhance 文件
+
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
@@ -456,6 +460,10 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
                                     queue=False, show_progress=False)
 
+    # xhoxye, 生成 ui_wildcards_enhance 选项卡
+            ui_wildcards_enhance.ui_wildcards_enhance(prompt)            
+    # 生成 ui_wildcards_enhance 选项卡  
+     
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
                                                [gr.update(visible=x != 'Extreme Speed')] * 1,
                                      inputs=performance_selection,
