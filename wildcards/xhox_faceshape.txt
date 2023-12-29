@@ -7,9 +7,9 @@ Baby-Faced
 Plump Cheeks
 Chubby Cheeks
 Long Face
-Triangle  Face
-Inverted Triangle  Face
-Pear-shaped  Face
-Oblong  Face
-Square Round  Face
-Square Oval  Face
+Triangle Face
+Inverted Triangle Face
+Pear-shaped Face
+Oblong Face
+Square Round Face
+Square Oval Face

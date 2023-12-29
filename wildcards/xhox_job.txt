@@ -1,8 +1,8 @@
-race_queen
+race queen
 queen
 maid
 housemaid
-wa_maid
+wa maid
 office lady
 waitress
 actress
@@ -11,7 +11,7 @@ stewardess
 nun
 dancer
 ballerina
-gym_leader
+gym leader
 idol
 lifeguard
 boxer

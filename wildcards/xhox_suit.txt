@@ -1,41 +1,41 @@
 suit
 tuxedo
-formal_dress
-evening_gown
+formal dress
+evening gown
 canonicals
-cocktail_dress
+cocktail dress
 gown
 sash
 cheongsam
-china_dress
-print_cheongsam
-pelvic_curtain
-wedding_dress
+china dress
+print cheongsam
+pelvic curtain
+wedding dress
 uchikake
-school_uniform
+school uniform
 sailor
 serafuku
-summer_uniform
-kindergarten_uniform
-police_uniform
-naval_uniform
-military_uniform
-ss_uniform/nazi_uniform
+summer uniform
+kindergarten uniform
+police uniform
+naval uniform
+military uniform
+ss uniform/nazi uniform
 maid
-stile_uniform
+stile uniform
 miko
 overalls
-business_suit
+business suit
 nurse
-chef_uniform
+chef uniform
 labcoat
 cheerleader
-band_uniform
-space_suit
+band uniform
+space suit
 leotard
 domineering
-japanese_clothes
+japanese clothes
 kimono
-sleeveless_kimono
-short_kimono
-print_kimono
+sleeveless kimono
+short kimono
+print kimono
