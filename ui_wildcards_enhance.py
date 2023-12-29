@@ -1,23 +1,24 @@
-import os
 import gradio as gr
+import os
+import random
 
 def ui_wildcards_enhance(prompt):
     # 创建一个选项卡 wildcards_enhance 通配符增强
-    with gr.Tab(label="wildcards_enhance"): # 选项卡标题为 wildcards_enhance
+    with gr.Tab(label="wildcards enhance"): # 选项卡标题为 wildcards_enhance
                  
         # 指定文件夹为当前目录下的一个子文件夹wildcards
         wildcards_path = './wildcards'
 
         # 读取wildcards文件夹内的所有txt文件名，不包含后缀txt
         wildcard_file_names = [os.path.splitext(file_name)[0] for file_name in os.listdir(wildcards_path) if file_name.endswith(".txt")]
-        # 给wildcard_file_names列表中的每一个字符串的前面和后面都加上"__"
+        # 给wildcard_file_names列表中的每一个字符串的前面和后面都加上"__"，形成 __xxx__ 这样的字符串
         wildcard_file_names = ["__" + file_name + "__" for file_name in wildcard_file_names]
 
         with gr.Row():
             # 创建一个点击按钮，标签为"将捏人数据添加到提示框里"
             add_xhox_artist_to_prompt_button = gr.Button(label="将自定义人物添加到提示框里", value="Add to Prompt", scale=2)
-            #创建一个复选框，标签为 用xhox_artist替换所有提示词 (未完成)
-            #replacepromptwithxhoxartist_checkbox = gr.Checkbox(label="Replace Prompt", value=False)
+            #创建一个复选框，标签为“添加前先清空原有提示词”
+            clear_before_add_prompt_checkbox = gr.Checkbox(label="Clear before add", value=True)
 
         # 定义文件名列表
         wildcard_artist_xhox_file_names = [
@@ -158,15 +159,15 @@ def ui_wildcards_enhance(prompt):
 
         with gr.Tab(label="Readme"): # Readme说明选项卡
             #创建一个文本说明
-            gr.HTML('Wildcards Artist - 通配符艺术捏人工具 by xhox <br>  这是一个提示词文本连接工具，通过选择各种元素来生成描述人物的提示词。然而，有些元素可能会互相冲突或互相影响，因此在开始之前，建议先取消所有风格样式的选择。此外，为了生成符合预期的画面，还需要考虑风格样式和图像尺寸比例的匹配。<p> 例如：<br>1、马尾通常与侧身视角绑定。 <br> 2、更多的头部细节可能会与肖像镜头绑定，从而与全身视角产生冲突。<br> 3、职业角色的选择可能会极大地影响整体的穿着打扮。<br>4、选择的元素越多，效果可能会越弱，冲突和影响也可能越大。<br>......<br>*灵感来源于“ComfyUI Portrait Master 肖像大师”。<br>*通配符数据收集自网络，包括但不限于青龙圣者、-ZHO-、all in one、oldsix、路过银河、Danbooru等。<br>Wildcards Artist 0.9')
+            gr.HTML('<div align=center><h3>Wildcards Artist - 通配符艺术捏人工具 V0.91</h3></div><br>这是一个提示词文本连接工具，通过选择各种元素来生成描述人物的提示词。然而，有些元素可能会互相冲突或互相影响，因此在开始之前，建议先取消所有风格样式的选择。此外，为了生成符合预期的画面，还需要考虑风格样式和图像尺寸比例的匹配。<p> 例如：<br>1、马尾通常与侧身视角绑定。 <br> 2、更多的头部细节可能会与肖像镜头绑定，从而与全身视角产生冲突。<br> 3、职业角色的选择可能会极大地影响整体的穿着打扮。<br>4、选择的元素越多，效果可能会越弱，冲突和影响也可能越大。<br>......<br>*灵感来源于“ComfyUI Portrait Master 肖像大师”。<br>*通配符数据收集自网络，包括但不限于青龙圣者、-ZHO-、all in one、oldsix、路过银河、Danbooru等。<br><div align=right>by xhox @NGA</div>')
                      
 
         #创建一个按钮点击事件处理器，拼接捏人数据提示词并添加到提示框中
-        def add_xhox_artist_to_prompt(prompt, *args):
+        def add_xhox_artist_to_prompt(prompt, clear_before_add_prompt_checkbox, *args):
 
-            # 如果替换提示词复选框为选中，则重置提示词为空  (未完成)
-            #if replacepromptwithxhoxartist_checkbox:
-            #    prompt = "---" 
+            # 如果“添加前先清空原有提示词”复选框为选中，则将prompt清空
+            if clear_before_add_prompt_checkbox:
+                prompt = "" 
                 
             # 单独处理"镜头类型 "wildcard_xhox_11_dropdown和wildcard_xhox_11_weight
             x_dropdown = args[0]
@@ -184,7 +185,7 @@ def ui_wildcards_enhance(prompt):
 
         # 设置按钮点击事件处理器，接受参数，并执行函数，最后返回 prompt，把捏人数据提示词添加到提示框中
         add_xhox_artist_to_prompt_button.click(add_xhox_artist_to_prompt, inputs=[
-            prompt, 
+            prompt, clear_before_add_prompt_checkbox,
             wildcard_xhox_11_dropdown, wildcard_xhox_11_weight,
             wildcard_xhox_12_dropdown, wildcard_xhox_12_weight,
             wildcard_xhox_13_dropdown, wildcard_xhox_13_weight,
@@ -228,19 +229,22 @@ def ui_wildcards_enhance(prompt):
 
 
         with gr.Row():
-            # 创建一个点击按钮，标签为"给我灵感，随机捏人"
-            add_random_xhox_to_prompt_button = gr.Button(label="给我灵感，随机捏人", value="Randomize Character", scale=3)
-            # 创建一个点击按钮，标签为"刷新选项"
+            # 创建一个点击按钮，标签为"给我灵感，随机捏人"，先清空原有提示词，再将随机预设添加到提示框中
+            add_randompreset_xhox_to_prompt_button = gr.Button(label="给我灵感，随机捏人", value="Randomize Character", scale=3)
+
+            # 创建一个点击按钮，标签为"重新读取通配符文件内容，刷新选项"（未完成）
             #wildcard_xhox_refresh_button = gr.Button(label="刷新捏人选项", value="刷新选项", scale=1, visible=False)
 
-            # 创建一个按钮点击事件处理器，点击“随机捏人”按钮，将__xhox_preset__添加到提示框中
-            def add_random_xhox_to_prompt(prompt):
-                # 把获取的下拉菜单选项值结果添加到提示框中
-                prompt = "__xhox_preset__"
-                return prompt
 
-            # 设置按钮点击事件处理器，点击，接受参数，执行函数，返回prompt，将 __通配符__ 添加到提示框
-            add_random_xhox_to_prompt_button.click(add_random_xhox_to_prompt, inputs=[prompt],outputs=[prompt])
+        # 创建一个按钮点击事件处理器，点击“随机捏人”按钮，将__xhox_preset__预设中的随机一行提示词添加到提示框中
+        def add_random_xhox_to_prompt(prompt):
+            # 先清空原有提示词，再将预设文件中的随机一行提示词添加到提示框中
+            prompt = "---" + random.choice(wildcard_artist_xhox_dropdown_choices['xhox_preset'])
+            return prompt
+
+        # 设置按钮点击事件处理器，点击，接受参数，执行函数，返回prompt，将 __通配符__ 添加到提示框
+        add_randompreset_xhox_to_prompt_button.click(add_random_xhox_to_prompt, inputs=[prompt],outputs=[prompt])
+
 
         
         with gr.Row():
@@ -258,10 +262,3 @@ def ui_wildcards_enhance(prompt):
 
         # 设置按钮点击事件处理器，点击，接受参数，执行函数，返回prompt，将 __通配符__ 添加到提示框
         add_wildcard_file_name_to_prompt_button.click(add_wildcard_file_name_to_prompt, inputs=[prompt,wildcard_file_names_dropdown],outputs=[prompt])
-
-
-
-
-
-
-
