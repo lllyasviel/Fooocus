@@ -1,0 +1,44 @@
+Yoga vest
+blouse
+white_shirt
+collared_shirt
+dress_shirt
+sailor_shirt
+cropped_shirt
+t-shirt
+casual T-shirts
+short sleeve T-shirts
+off-shoulder_shirt
+shrug_(clothing)
+cardigan
+criss-cross_halter
+frilled_shirt
+sweatshirt
+hawaiian_shirt
+hoodie
+Impossible shirt
+kappougi
+plaid_shirt
+polo_shirt
+print_shirt
+shirt
+sleeveless_hoodie
+sleeveless_shirt
+striped_shirt
+tank_top
+vest
+waistcoat
+camisole
+tied_shirt
+undershirt
+crop_top
+highleg
+clothing_cutout
+back_cutout
+cleavage_cutout
+navel_cutout
+midriff
+heart_cutout
+torn_clothes
+torn_shirt
+
