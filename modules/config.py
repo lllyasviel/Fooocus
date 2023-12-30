@@ -129,7 +129,7 @@ def try_load_preset_global(preset):
 preset = args_manager.args.preset
 try_load_preset_global(preset)
 
-def get_dir_or_set_default(key, default_value):
+def get_dir_or_set_default(key, default_value, make_directory=False):
     global config_dict, visited_keys, always_save_keys
 
     if key not in visited_keys:
@@ -139,15 +139,21 @@ def get_dir_or_set_default(key, default_value):
         always_save_keys.append(key)
 
     v = config_dict.get(key, None)
-    if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
-        return v
-    else:
-        if v is not None:
-            print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
-        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
-        os.makedirs(dp, exist_ok=True)
-        config_dict[key] = dp
-        return dp
+    if isinstance(v, str):
+        if make_directory:
+            try:
+                os.makedirs(v, exist_ok=True)
+            except OSError as error:
+                print(f'Directory {v} could not be created, reason: {error}')
+        if os.path.exists(v) and os.path.isdir(v):
+            return v
+
+    if v is not None:
+        print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
+    dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
+    os.makedirs(dp, exist_ok=True)
+    config_dict[key] = dp
+    return dp
 
 
 path_checkpoints = get_dir_or_set_default('path_checkpoints', '../models/checkpoints/')
@@ -159,7 +165,7 @@ path_inpaint = get_dir_or_set_default('path_inpaint', '../models/inpaint/')
 path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlnet/')
 path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vision/')
 path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
-path_outputs = get_dir_or_set_default('path_outputs', '../outputs/')
+path_outputs = get_dir_or_set_default('path_outputs', '../outputs/', True)
 path_safety_checker_models = get_dir_or_set_default('path_safety_checker_models', '../models/safety_checker_models/')
 
 
@@ -419,9 +425,6 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
                     + 'Remember to split the paths with "\\\\" rather than "\\", '
                       'and there is no "," before the last "}". \n\n\n')
     json.dump({k: config_dict[k] for k in visited_keys}, json_file, indent=4)
-
-
-os.makedirs(path_outputs, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []
