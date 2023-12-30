@@ -16,28 +16,10 @@ import ldm_patched.modules.samplers
 import ldm_patched.modules.sd
 import ldm_patched.modules.sd1_clip
 import ldm_patched.modules.clip_vision
-import ldm_patched.modules.model_management as model_management
 import ldm_patched.modules.ops as ops
-import contextlib
 
+from modules.ops import use_patched_ops
 from transformers import CLIPTextModel, CLIPTextConfig, modeling_utils, CLIPVisionConfig, CLIPVisionModelWithProjection
-
-
-@contextlib.contextmanager
-def use_patched_ops(operations):
-    op_names = ['Linear', 'Conv2d', 'Conv3d', 'GroupNorm', 'LayerNorm']
-    backups = {op_name: getattr(torch.nn, op_name) for op_name in op_names}
-
-    try:
-        for op_name in op_names:
-            setattr(torch.nn, op_name, getattr(operations, op_name))
-
-        yield
-
-    finally:
-        for op_name in op_names:
-            setattr(torch.nn, op_name, backups[op_name])
-    return
 
 
 def patched_encode_token_weights(self, token_weight_pairs):
