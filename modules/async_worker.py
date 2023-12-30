@@ -713,9 +713,22 @@ def worker():
 
         def callback(step, x0, x, total_steps, y):
             done_steps = current_task_id * steps + step
+            last_two_digits = (current_task_id+1) % 100
+            if last_two_digits in {11, 12, 13}:
+                suffix = "th"
+            else:
+                last_digit = (current_task_id+1) % 10
+                if last_digit == 1:
+                    suffix = "st"
+                elif last_digit == 2:
+                    suffix = "nd"
+                elif last_digit == 3:
+                    suffix = "rd"
+                else:
+                    suffix = "th"
             async_task.yields.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
+                f'Step {step}/{total_steps} in the {current_task_id + 1}{suffix} Sampling',
                 y)])
 
         for current_task_id, task in enumerate(tasks):
