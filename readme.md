@@ -245,19 +245,18 @@ See the guidelines [here](https://github.com/lllyasviel/Fooocus/discussions/1405
 
 Below is the minimal requirement for running Fooocus locally. If your device capability is lower than this spec, you may not be able to use Fooocus locally. (Please let us know, in any case, if your device capability is lower but Fooocus still works.)
 
-| Operating System  | GPU                          | Minimal GPU Memory        | Minimal System Memory     | [System Swap](troubleshoot.md) | Note                                  |
-|-------------------|------------------------------|---------------------------|---------------------------|--------------------------------|---------------------------------------|
-| Windows/Linux     | Nvidia RTX 4XXX              | 4GB                       | 8GB                       | Required                       | fastest                               |
-| Windows/Linux     | Nvidia RTX 3XXX              | 4GB                       | 8GB                       | Required                       | usually faster than RTX 2XXX          |
-| Windows/Linux     | Nvidia RTX 2XXX              | 4GB                       | 8GB                       | Required                       | usually faster than GTX 1XXX          |
-| Windows/Linux     | Nvidia GTX 1XXX              | 8GB (&ast; 6GB uncertain) | 8GB                       | Required                       | only marginally faster than CPU       |
-| Windows/Linux     | Nvidia GTX 9XX               | 8GB                       | 8GB                       | Required                       | faster or slower than CPU             |
-| Windows/Linux     | Nvidia GTX < 9XX             | Not supported             | /                         | /                              | /                                     |
-| Windows           | AMD GPU                      | 16GB                      | 8GB                       | Required                       | via DirectML                          |
-| Linux             | AMD GPU                      | 8GB                       | 8GB                       | Required                       | via ROCm                              |
-| Windows           | &ast; AMD GPU ROCm (on hold) | 8GB     (on hold)         | 8GB             (on hold) | Required           (on hold)   | via ROCm     (on hold)                |
-| Mac               | M1/M2 MPS                    | Shared                    | Shared                    | Shared                         | about 9x slower than Nvidia RTX 3XXX  |
-| Windows/Linux/Mac | only use CPU                 | 0GB                       | 32GB                      | Required                       | about 17x slower than Nvidia RTX 3XXX |
+| Operating System  | GPU                          | Minimal GPU Memory           | Minimal System Memory     | [System Swap](troubleshoot.md) | Note                                                                       |
+|-------------------|------------------------------|------------------------------|---------------------------|--------------------------------|----------------------------------------------------------------------------|
+| Windows/Linux     | Nvidia RTX 4XXX              | 4GB                          | 8GB                       | Required                       | fastest                                                                    |
+| Windows/Linux     | Nvidia RTX 3XXX              | 4GB                          | 8GB                       | Required                       | usually faster than RTX 2XXX                                               |
+| Windows/Linux     | Nvidia RTX 2XXX              | 4GB                          | 8GB                       | Required                       | usually faster than GTX 1XXX                                               |
+| Windows/Linux     | Nvidia GTX 1XXX              | 8GB (&ast; 6GB uncertain)    | 8GB                       | Required                       | only marginally faster than CPU                                            |
+| Windows/Linux     | Nvidia GTX 9XX               | 8GB                          | 8GB                       | Required                       | faster or slower than CPU                                                  |
+| Windows/Linux     | Nvidia GTX < 9XX             | Not supported                | /                         | /                              | /                                                                          |
+| Windows           | AMD GPU                      | 8GB    (updated 2023 Dec 30) | 8GB                       | Required                       | via DirectML (&ast; ROCm is on hold), about 3x slower than Nvidia RTX 3XXX |
+| Linux             | AMD GPU                      | 8GB                          | 8GB                       | Required                       | via ROCm, about 1.5x slower than Nvidia RTX 3XXX                           |
+| Mac               | M1/M2 MPS                    | Shared                       | Shared                    | Shared                         | about 9x slower than Nvidia RTX 3XXX                                       |
+| Windows/Linux/Mac | only use CPU                 | 0GB                          | 32GB                      | Required                       | about 17x slower than Nvidia RTX 3XXX                                      |
 
 &ast; AMD GPU ROCm (on hold): The AMD is still working on supporting ROCm on Windows.
 
