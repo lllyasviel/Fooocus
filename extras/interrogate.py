@@ -47,7 +47,7 @@ class Interrogator:
 
             self.blip_model = ModelPatcher(model, load_device=self.load_device, offload_device=self.offload_device)
 
-        model_management.load_model_gpu(self.blip_model, should_free_memory=False)
+        model_management.load_model_gpu(self.blip_model)
 
         gpu_image = transforms.Compose([
             transforms.ToTensor(),
