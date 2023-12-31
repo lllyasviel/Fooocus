@@ -1,10 +1,11 @@
-Slim
-Fit
 Skinny
-Chubby
-Plump
+Slim
 Underweight
 Normal weight
+Fit
+Plump
+Chubby
+Fat
 Overweight
 Obese
 Athletic
@@ -13,7 +14,6 @@ Toned
 Ripped
 Petite
 Curvy
-Fat
 abs, obliques, biceps, pectorals
 skinny, ribs, slim legs, narrow waist
 curvy, belly, stomach, thick thighs, wide hips

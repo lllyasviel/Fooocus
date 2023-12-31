@@ -1,20 +1,19 @@
+OOTD
+OOTD, Outfit of the Day
+OOTN,Outfit of the Night
 suit
 tuxedo
 formal dress
 evening gown
-canonicals
 cocktail dress
 gown
 sash
-cheongsam
-china dress
 print cheongsam
 pelvic curtain
 wedding dress
 uchikake
 school uniform
 sailor
-serafuku
 summer uniform
 kindergarten uniform
 police uniform
@@ -23,7 +22,6 @@ military uniform
 ss uniform/nazi uniform
 maid
 stile uniform
-miko
 overalls
 business suit
 nurse
@@ -33,7 +31,6 @@ cheerleader
 band uniform
 space suit
 leotard
-domineering
 japanese clothes
 kimono
 sleeveless kimono

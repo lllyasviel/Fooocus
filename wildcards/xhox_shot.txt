@@ -1,6 +1,11 @@
-Portrait
-Close Up Shot
-Full Shot
+a headshot portrait
+portrait
+an upper body portrait
+a half-length portrait
+a full-length portrait
+a full-length portrait photo
+close-up
+Head and shoulders portrait
 Waist Shot
 Medium Shot
 Macro Shot

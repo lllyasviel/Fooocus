@@ -13,8 +13,29 @@ Qun, Skirt for women and men
 Ku, Trousers or pants
 Tang suit, tangzhuang
 china dress, mandarin gown, cheongsam
-dudou
-changpao
-mian guan
-qixiong ruqun
-fengguan
+japanese_clothes
+ainu_clothes
+egyptian_clothes
+arabian_clothes
+korean_clothes
+german_clothes
+dirndl
+traditional_clothes
+greek_clothes
+indian_clothes
+european_clothes
+roman_clothes
+russian_clothes
+slavic_clothes
+indonesian_clothes
+renaissance_clothes
+vietnamese_clothes
+thai_clothes
+polish_clothes
+french_clothes
+tibetan_clothes
+mexican_clothes
+vintage_clothes
+mongolian_clothes
+miao_clothes
+uygur_clothes
