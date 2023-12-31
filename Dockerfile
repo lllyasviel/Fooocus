@@ -14,7 +14,7 @@ RUN curl -fsL -o /usr/local/lib/python3.10/dist-packages/gradio/frpc_linux_amd64
 	chmod +x /usr/local/lib/python3.10/dist-packages/gradio/frpc_linux_amd64_v0.2
 
 RUN adduser --disabled-password --gecos '' user && \
-	mkdir -p /content/app
+	mkdir -p /content/app /content/data
 
 COPY . /content/app
 RUN chown -R user:user /content
@@ -23,6 +23,5 @@ WORKDIR /content
 USER user
 
 RUN mv /content/app/models /content/app/models.org
-RUN python -m compileall .
 
 CMD /content/app/entrypoint.sh ${CMDARGS}
