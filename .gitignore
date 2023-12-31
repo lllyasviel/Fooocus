@@ -18,6 +18,7 @@ config.txt
 config_modification_tutorial.txt
 user_path_config.txt
 user_path_config-deprecated.txt
+/models/safety_checker_models
 /modules/*.png
 /repositories
 /venv
