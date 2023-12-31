@@ -182,15 +182,15 @@ def preprocess(img, ip_adapter_path):
     else:
         cond = outputs.image_embeds
 
+    cond = cond.to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
+
     ldm_patched.modules.model_management.load_model_gpu(image_proj_model)
-    cond = cond.to(device=image_proj_model.current_device, dtype=ip_adapter.dtype)
-    cond = image_proj_model.model(cond)
+    cond = image_proj_model.model(cond).to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
 
     ldm_patched.modules.model_management.load_model_gpu(ip_layers)
-    cond = cond.to(device=ip_layers.current_device, dtype=ip_adapter.dtype)
 
     if ip_unconds is None:
-        uncond = ip_negative.to(device=ip_layers.current_device, dtype=ip_adapter.dtype)
+        uncond = ip_negative.to(device=ip_adapter.load_device, dtype=ip_adapter.dtype)
         ip_unconds = [m(uncond).cpu() for m in ip_layers.model.to_kvs]
         entry['ip_unconds'] = ip_unconds
 
