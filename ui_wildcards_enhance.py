@@ -14,12 +14,6 @@ def ui_wildcards_enhance(prompt):
         # 给wildcard_file_names列表中的每一个字符串的前面和后面都加上"__"，形成 __xxx__ 这样的字符串
         wildcard_file_names = ["__" + file_name + "__" for file_name in wildcard_file_names]
 
-        with gr.Row():
-            # 创建一个点击按钮，标签为"将捏人数据添加到提示框里"
-            add_xhox_artist_to_prompt_button = gr.Button(label="将自定义人物添加到提示框里", value="Add to Prompt", scale=2)
-            #创建一个复选框，标签为“添加前先清空原有提示词”
-            clear_before_add_prompt_checkbox = gr.Checkbox(label="Clear before add", value=True)
-
         # 定义文件名列表
         wildcard_artist_xhox_file_names = [
             'xhox_shot', 'xhox_gender', 'xhox_region', 'xhox_age', 'xhox_bodytype', 'xhox_angle', 'xhox_job',
@@ -63,7 +57,7 @@ def ui_wildcards_enhance(prompt):
                 wildcard_xhox_15_dropdown = gr.Dropdown(label="Body Type", choices=wildcard_artist_xhox_dropdown_choices['xhox_bodytype'], scale=2)
                 wildcard_xhox_15_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=1.1, scale=1)
                 
-                wildcard_xhox_16_dropdown = gr.Dropdown(label="Angle and Gaze", choices=wildcard_artist_xhox_dropdown_choices['xhox_angle'], value=wildcard_artist_xhox_dropdown_choices['xhox_angle'][4], scale=2)
+                wildcard_xhox_16_dropdown = gr.Dropdown(label="Angle and Gaze", choices=wildcard_artist_xhox_dropdown_choices['xhox_angle'], value=wildcard_artist_xhox_dropdown_choices['xhox_angle'][0], scale=2)
                 wildcard_xhox_16_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=1.1, scale=1)
 
                 wildcard_xhox_17_dropdown = gr.Dropdown(label="Job", choices=wildcard_artist_xhox_dropdown_choices['xhox_job'], scale=2)
@@ -118,10 +112,10 @@ def ui_wildcards_enhance(prompt):
                 wildcard_xhox_40_dropdown = gr.Dropdown(label="Hanfu", choices=wildcard_artist_xhox_dropdown_choices['xhox_hanfu'], scale=2)
                 wildcard_xhox_40_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
 
-                wildcard_xhox_41_dropdown = gr.Dropdown(label="Suit", choices=wildcard_artist_xhox_dropdown_choices['xhox_suit'], scale=2)
+                wildcard_xhox_41_dropdown = gr.Dropdown(label="Suit", choices=wildcard_artist_xhox_dropdown_choices['xhox_suit'], value=wildcard_artist_xhox_dropdown_choices['xhox_suit'][0], scale=2)
                 wildcard_xhox_41_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
                 
-                wildcard_xhox_42_dropdown = gr.Dropdown(label="Topwear", choices=wildcard_artist_xhox_dropdown_choices['xhox_topwear'], value=wildcard_artist_xhox_dropdown_choices['xhox_topwear'][0], scale=2)
+                wildcard_xhox_42_dropdown = gr.Dropdown(label="Topwear", choices=wildcard_artist_xhox_dropdown_choices['xhox_topwear'], scale=2)
                 wildcard_xhox_42_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
                 
                 wildcard_xhox_43_dropdown = gr.Dropdown(label="Bottomwear", choices=wildcard_artist_xhox_dropdown_choices['xhox_bottomwear'], scale=2)
@@ -162,6 +156,13 @@ def ui_wildcards_enhance(prompt):
             gr.HTML('<div align=center><h3>Wildcards Artist - 通配符艺术角色大师 V0.91</h3></div><br>让你体验如游戏创建人物般的快乐，这是一个提示词文本连接工具，通过选择各种元素来生成描述人物角色的提示词。然而，有些元素可能会互相冲突或互相影响，因此在开始之前，建议先取消所有风格样式的选择。此外，为了生成符合预期的画面，还需要考虑风格样式和图像尺寸比例的匹配。<p> 例如：<br>1、更多的头部细节可能会与肖像镜头绑定，从而与全身视角产生冲突。马尾通常与侧身视角绑定。 <br> 2、职业角色的选择可能会极大地影响整体的穿着打扮。<br>3、选择的元素越多，效果可能会越弱，冲突和影响也可能越大。<p>使用说明：<br>1、通过点击下拉菜单进行选择元素，通过拉动数值滑块进行权重调节。<br>2、也可以在选项框中输入英文和数值进行搜索和调节。<br>......<br>*灵感来源于“ComfyUI Portrait Master 肖像大师”。<br>*通配符数据收集自网络，包括但不限于青龙圣者、-ZHO-、all in one、oldsix、路过银河、Danbooru等。<br><div align=right>by xhox @NGA</div>')
                      
 
+        with gr.Row():
+            # 创建一个点击按钮，标签为"将捏人数据添加到提示框里"
+            add_xhox_artist_to_prompt_button = gr.Button(label="将自定义人物添加到提示框里", value="Add to Prompt", scale=2)
+            #创建一个复选框，标签为“添加前先清空原有提示词”
+            clear_before_add_prompt_checkbox = gr.Checkbox(label="Clear before add", value=True)
+
+
         #创建一个按钮点击事件处理器，拼接捏人数据提示词并添加到提示框中
         def add_xhox_artist_to_prompt(prompt, clear_before_add_prompt_checkbox, *args):
 
@@ -173,14 +174,14 @@ def ui_wildcards_enhance(prompt):
             x_dropdown = args[0]
             x_weight = args[1]
             if f"{x_dropdown}" != "None" and x_dropdown != "" and f"{x_weight}" != "None" and x_weight != "":
-                prompt = f"a masterpiece of ({x_dropdown}:{x_weight}) " + prompt
+                prompt = f"a masterpiece of ({x_dropdown}:{x_weight}) of " + prompt
             
             # 拼接捏人数据提示词并添加到提示框中
             for i in range(2, len(args), 2):
                 x_dropdown = args[i]
                 x_weight = args[i+1]
                 if f"{x_dropdown}" != "None" and x_dropdown != "" and f"{x_weight}" != "None" and x_weight != "":
-                    prompt += f", ({x_dropdown}:{x_weight})"
+                    prompt += f"({x_dropdown}:{x_weight}), "
             return prompt
 
         # 设置按钮点击事件处理器，接受参数，并执行函数，最后返回 prompt，把捏人数据提示词添加到提示框中
