@@ -62,7 +62,7 @@ def generate_clicked(*args):
             if flag == 'results':
                 yield gr.update(visible=True), \
                     gr.update(visible=True), \
-                    gr.update(visible=True, value=product), \
+                    gr.update(visible=True, value=product) if not advanced_parameters.disable_intermediate_results else gr.update(), \
                     gr.update(visible=False)
             if flag == 'finish':
                 yield gr.update(visible=False), \
@@ -378,6 +378,10 @@ with shared.gradio_root:
                                                                info='Set as negative number to disable. For developer debugging.')
                         disable_preview = gr.Checkbox(label='Disable Preview', value=False,
                                                       info='Disable preview during generation.')
+                        disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', 
+                                                      value=modules.config.default_performance == 'Extreme Speed',
+                                                      interactive=modules.config.default_performance != 'Extreme Speed',
+                                                      info='Disable intermediate results during generation, only show final gallery.')
 
                     with gr.Tab(label='Control'):
                         debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessors', value=False,
@@ -429,7 +433,7 @@ with shared.gradio_root:
                         freeu_s2 = gr.Slider(label='S2', minimum=0, maximum=4, step=0.01, value=0.95)
                         freeu_ctrls = [freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2]
 
-                adps = [disable_preview, adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name,
+                adps = [disable_preview, disable_intermediate_results, adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name,
                         scheduler_name, generate_image_grid, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
                         overwrite_vary_strength, overwrite_upscale_strength,
                         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
@@ -457,12 +461,13 @@ with shared.gradio_root:
                                     queue=False, show_progress=False)
 
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
-                                               [gr.update(visible=x != 'Extreme Speed')] * 1,
+                                               [gr.update(visible=x != 'Extreme Speed')] * 1 +
+                                               [gr.update(interactive=x != 'Extreme Speed', value=x == 'Extreme Speed', )] * 1,
                                      inputs=performance_selection,
                                      outputs=[
                                          guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
                                          adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
-                                         scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt
+                                         scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt, disable_intermediate_results
                                      ], queue=False, show_progress=False)
 
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
