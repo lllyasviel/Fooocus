@@ -108,8 +108,7 @@ class Resampler(nn.Module):
             )
 
     def forward(self, x):
-        
-        latents = self.latents.repeat(x.size(0), 1, 1)
+        latents = self.latents.repeat(x.size(0), 1, 1).to(x)
         
         x = self.proj_in(x)
         

@@ -1,7 +1,29 @@
-# 2.1.847
+
+
+**(2023 Dec 21) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid or late Jan. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+
+# New Version Number for PR 1503
 
 * Added support for arrays in the main prompt.
 * Added "Freeze Seed" option.
+* 
+# 2.1.857 (requested update)
+
+* Begin to support 8GB AMD GPU on Windows.
+
+# 2.1.854
+
+* Add a button to copy parameters to clipboard in log.
+* Allow users to load parameters directly by pasting parameters to prompt.
+
+# 2.1.853
+
+* Add Marc K3nt3L's styles. Thanks [Marc K3nt3L](https://github.com/K3nt3L)!
+
+# 2.1.852
+
+* New Log System: Log system now uses tables. If this is breaking some other browser extension or javascript developments, see also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
+
 
 # 2.1.846
 
