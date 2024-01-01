@@ -3,7 +3,7 @@ import gradio as gr
 import modules.config
 
 
-def load_parameter_button_click(raw_prompt_txt):
+def load_parameter_button_click(raw_prompt_txt, is_generating):
     loaded_parameter_dict = json.loads(raw_prompt_txt)
     assert isinstance(loaded_parameter_dict, dict)
 
@@ -128,7 +128,11 @@ def load_parameter_button_click(raw_prompt_txt):
         results.append(gr.update())
         results.append(gr.update())
 
-    results.append(gr.update(visible=True))
+    if is_generating:
+        results.append(gr.update())
+    else:
+        results.append(gr.update(visible=True))
+    
     results.append(gr.update(visible=False))
 
     for i in range(1, 6):

@@ -38,7 +38,7 @@ Using Fooocus is as easy as (probably easier than) Midjourney – but this does 
 
 | Midjourney | Fooocus |
 | - | - |
-| High-quality text-to-image without needing much prompt engineering or parameter tuning. <br> (Unknown method) | High-quality text-to-image without needing much prompt engineering or parameter tuning. <br> (Fooocus has offline GPT-2 based prompt processing engine and lots of sampling improvements so that results are always beautiful, no matter your prompt is as short as “house in garden” or as long as 1000 words) |
+| High-quality text-to-image without needing much prompt engineering or parameter tuning. <br> (Unknown method) | High-quality text-to-image without needing much prompt engineering or parameter tuning. <br> (Fooocus has an offline GPT-2 based prompt processing engine and lots of sampling improvements so that results are always beautiful, no matter if your prompt is as short as “house in garden” or as long as 1000 words) |
 | V1 V2 V3 V4 | Input Image -> Upscale or Variation -> Vary (Subtle) / Vary (Strong)|
 | U1 U2 U3 U4 | Input Image -> Upscale or Variation -> Upscale (1.5x) / Upscale (2x) |
 | Inpaint / Up / Down / Left / Right (Pan) | Input Image -> Inpaint or Outpaint -> Inpaint / Up / Down / Left / Right <br> (Fooocus uses its own inpaint algorithm and inpaint models so that results are more satisfying than all other software that uses standard SDXL inpaint method/model) |
@@ -73,16 +73,16 @@ You can directly download Fooocus with:
 
 **[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_2-1-831.7z)**
 
-After you download the file, please uncompress it, and then run the "run.bat".
+After you download the file, please uncompress it and then run the "run.bat".
 
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/c49269c4-c274-4893-b368-047c401cc58c)
 
-In the first time you launch the software, it will automatically download models:
+The first time you launch the software, it will automatically download models:
 
 1. It will download [default models](#models) to the folder "Fooocus\models\checkpoints" given different presets. You can download them in advance if you do not want automatic download.
 2. Note that if you use inpaint, at the first time you inpaint an image, it will download [Fooocus's own inpaint control model from here](https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint_v26.fooocus.patch) as the file "Fooocus\models\inpaint\inpaint_v26.fooocus.patch" (the size of this file is 1.28GB).
 
-After Fooocus 2.1.60, you will also have `run_anime.bat` and `run_realistic.bat`. They are different model presets (and requires different models, but they will be automatically downloaded). [Check here for more details](https://github.com/lllyasviel/Fooocus/discussions/679).
+After Fooocus 2.1.60, you will also have `run_anime.bat` and `run_realistic.bat`. They are different model presets (and require different models, but they will be automatically downloaded). [Check here for more details](https://github.com/lllyasviel/Fooocus/discussions/679).
 
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/d386f817-4bd7-490c-ad89-c1e228c23447)
 
@@ -99,7 +99,7 @@ Besides, recently many other software report that Nvidia driver above 532 is som
 Note that the minimal requirement is **4GB Nvidia GPU memory (4GB VRAM)** and **8GB system memory (8GB RAM)**. This requires using Microsoft’s Virtual Swap technique, which is automatically enabled by your Windows installation in most cases, so you often do not need to do anything about it. However, if you are not sure, or if you manually turned it off (would anyone really do that?), or **if you see any "RuntimeError: CPUAllocator"**, you can enable it here:
 
 <details>
-<summary>Click here to the see the image instruction. </summary>
+<summary>Click here to see the image instructions. </summary>
 
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/2a06b130-fe9b-4504-94f1-2763be4476e9)
 
@@ -123,7 +123,7 @@ See also the common problems and troubleshoots [here](troubleshoot.md).
 
 In Colab, you can modify the last line to `!python entry_with_update.py --share` or `!python entry_with_update.py --preset anime --share` or `!python entry_with_update.py --preset realistic --share` for Fooocus Default/Anime/Realistic Edition.
 
-Note that this Colab will disable refiner by default because Colab free's resource is relatively limited (and some "big" features like image prompt may cause free-tier Colab to disconnect). We make sure that basic text-to-image is always working on free-tier Colab.
+Note that this Colab will disable refiner by default because Colab free's resources are relatively limited (and some "big" features like image prompt may cause free-tier Colab to disconnect). We make sure that basic text-to-image is always working on free-tier Colab.
 
 Thanks to [camenduru](https://github.com/camenduru)!
 
@@ -142,7 +142,7 @@ Then download the models: download [default models](#models) to the folder "Fooo
     conda activate fooocus
     python entry_with_update.py
 
-Or if you want to open a remote port, use
+Or, if you want to open a remote port, use
 
     conda activate fooocus
     python entry_with_update.py --listen
@@ -151,7 +151,7 @@ Use `python entry_with_update.py --preset anime` or `python entry_with_update.py
 
 ### Linux (Using Python Venv)
 
-Your Linux needs to have **Python 3.10** installed, and lets say your Python can be called with command **python3** with your venv system working, you can
+Your Linux needs to have **Python 3.10** installed, and let's say your Python can be called with the command **python3** with your venv system working; you can
 
     git clone https://github.com/lllyasviel/Fooocus.git
     cd Fooocus
@@ -164,7 +164,7 @@ See the above sections for model downloads. You can launch the software with:
     source fooocus_env/bin/activate
     python entry_with_update.py
 
-Or if you want to open a remote port, use
+Or, if you want to open a remote port, use
 
     source fooocus_env/bin/activate
     python entry_with_update.py --listen
@@ -173,7 +173,7 @@ Use `python entry_with_update.py --preset anime` or `python entry_with_update.py
 
 ### Linux (Using native system Python)
 
-If you know what you are doing, and your Linux already has **Python 3.10** installed, and your Python can be called with command **python3** (and Pip with **pip3**), you can
+If you know what you are doing, and your Linux already has **Python 3.10** installed, and your Python can be called with the command **python3** (and Pip with **pip3**), you can
 
     git clone https://github.com/lllyasviel/Fooocus.git
     cd Fooocus
@@ -183,7 +183,7 @@ See the above sections for model downloads. You can launch the software with:
 
     python3 entry_with_update.py
 
-Or if you want to open a remote port, use
+Or, if you want to open a remote port, use
 
     python3 entry_with_update.py --listen
 
@@ -193,7 +193,7 @@ Use `python entry_with_update.py --preset anime` or `python entry_with_update.py
 
 Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
 
-Same with the above instructions. You need to change torch to AMD version
+Same with the above instructions. You need to change torch to the AMD version
 
     pip uninstall torch torchvision torchaudio torchtext functorch xformers 
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
@@ -206,7 +206,7 @@ Use `python entry_with_update.py --preset anime` or `python entry_with_update.py
 
 Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
 
-Same with Windows. Download the software, edit the content of `run.bat` as:
+Same with Windows. Download the software and edit the content of `run.bat` as:
 
     .\python_embeded\python.exe -m pip uninstall torch torchvision torchaudio torchtext functorch xformers -y
     .\python_embeded\python.exe -m pip install torch-directml
@@ -233,7 +233,7 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 1. Create a new conda environment, `conda env create -f environment.yaml`.
 1. Activate your new conda environment, `conda activate fooocus`.
 1. Install the packages required by Fooocus, `pip install -r requirements_versions.txt`.
-1. Launch Fooocus by running `python entry_with_update.py`. (Some Mac M2 users may need `python entry_with_update.py --disable-offload-from-vram` to speed up model loading/unloading.) The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant time, depending on your internet connection.
+1. Launch Fooocus by running `python entry_with_update.py`. (Some Mac M2 users may need `python entry_with_update.py --disable-offload-from-vram` to speed up model loading/unloading.) The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant amount of time, depending on your internet connection.
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
@@ -245,23 +245,22 @@ See the guidelines [here](https://github.com/lllyasviel/Fooocus/discussions/1405
 
 Below is the minimal requirement for running Fooocus locally. If your device capability is lower than this spec, you may not be able to use Fooocus locally. (Please let us know, in any case, if your device capability is lower but Fooocus still works.)
 
-| Operating System  | GPU                          | Minimal GPU Memory        | Minimal System Memory     | [System Swap](troubleshoot.md) | Note                                  |
-|-------------------|------------------------------|---------------------------|---------------------------|--------------------------------|---------------------------------------|
-| Windows/Linux     | Nvidia RTX 4XXX              | 4GB                       | 8GB                       | Required                       | fastest                               |
-| Windows/Linux     | Nvidia RTX 3XXX              | 4GB                       | 8GB                       | Required                       | usually faster than RTX 2XXX          |
-| Windows/Linux     | Nvidia RTX 2XXX              | 4GB                       | 8GB                       | Required                       | usually faster than GTX 1XXX          |
-| Windows/Linux     | Nvidia GTX 1XXX              | 8GB (&ast; 6GB uncertain) | 8GB                       | Required                       | only marginally faster than CPU       |
-| Windows/Linux     | Nvidia GTX 9XX               | 8GB                       | 8GB                       | Required                       | faster or slower than CPU             |
-| Windows/Linux     | Nvidia GTX < 9XX             | Not supported             | /                         | /                              | /                                     |
-| Windows           | AMD GPU                      | 16GB                      | 8GB                       | Required                       | via DirectML                          |
-| Linux             | AMD GPU                      | 8GB                       | 8GB                       | Required                       | via ROCm                              |
-| Windows           | &ast; AMD GPU ROCm (on hold) | 8GB     (on hold)         | 8GB             (on hold) | Required           (on hold)   | via ROCm     (on hold)                |
-| Mac               | M1/M2 MPS                    | Shared                    | Shared                    | Shared                         | about 9x slower than Nvidia RTX 3XXX  |
-| Windows/Linux/Mac | only use CPU                 | 0GB                       | 32GB                      | Required                       | about 17x slower than Nvidia RTX 3XXX |
+| Operating System  | GPU                          | Minimal GPU Memory           | Minimal System Memory     | [System Swap](troubleshoot.md) | Note                                                                       |
+|-------------------|------------------------------|------------------------------|---------------------------|--------------------------------|----------------------------------------------------------------------------|
+| Windows/Linux     | Nvidia RTX 4XXX              | 4GB                          | 8GB                       | Required                       | fastest                                                                    |
+| Windows/Linux     | Nvidia RTX 3XXX              | 4GB                          | 8GB                       | Required                       | usually faster than RTX 2XXX                                               |
+| Windows/Linux     | Nvidia RTX 2XXX              | 4GB                          | 8GB                       | Required                       | usually faster than GTX 1XXX                                               |
+| Windows/Linux     | Nvidia GTX 1XXX              | 8GB (&ast; 6GB uncertain)    | 8GB                       | Required                       | only marginally faster than CPU                                            |
+| Windows/Linux     | Nvidia GTX 9XX               | 8GB                          | 8GB                       | Required                       | faster or slower than CPU                                                  |
+| Windows/Linux     | Nvidia GTX < 9XX             | Not supported                | /                         | /                              | /                                                                          |
+| Windows           | AMD GPU                      | 8GB    (updated 2023 Dec 30) | 8GB                       | Required                       | via DirectML (&ast; ROCm is on hold), about 3x slower than Nvidia RTX 3XXX |
+| Linux             | AMD GPU                      | 8GB                          | 8GB                       | Required                       | via ROCm, about 1.5x slower than Nvidia RTX 3XXX                           |
+| Mac               | M1/M2 MPS                    | Shared                       | Shared                    | Shared                         | about 9x slower than Nvidia RTX 3XXX                                       |
+| Windows/Linux/Mac | only use CPU                 | 0GB                          | 32GB                      | Required                       | about 17x slower than Nvidia RTX 3XXX                                      |
 
 &ast; AMD GPU ROCm (on hold): The AMD is still working on supporting ROCm on Windows.
 
-&ast; Nvidia GTX 1XXX 6GB uncertain: Some people reports 6GB success on GTX 10XX but some other people reports failure cases.
+&ast; Nvidia GTX 1XXX 6GB uncertain: Some people report 6GB success on GTX 10XX, but some other people report failure cases.
 
 *Note that Fooocus is only for extremely high quality image generating. We will not support smaller models to reduce the requirement and sacrifice result quality.*
 
@@ -272,7 +271,7 @@ See the common problems [here](troubleshoot.md).
 ## Default Models
 <a name="models"></a>
 
-Given different goals, the default models and configs of Fooocus is different:
+Given different goals, the default models and configs of Fooocus are different:
 
 | Task | Windows | Linux args | Main Model | Refiner | Config |
 | --- | --- | --- | --- | --- | --- |
@@ -285,26 +284,26 @@ Note that the download is **automatic** - you do not need to do anything if the 
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>
 
-Below things are already inside the software, and **users do not need to do anything about these**.
+The below things are already inside the software, and **users do not need to do anything about these**.
 
 1. GPT2-based [prompt expansion as a dynamic style "Fooocus V2".](https://github.com/lllyasviel/Fooocus/discussions/117#raw) (similar to Midjourney's hidden pre-processsing and "raw" mode, or the LeonardoAI's Prompt Magic).
-2. Native refiner swap inside one single k-sampler. The advantage is that now the refiner model can reuse the base model's momentum (or ODE's history parameters) collected from k-sampling to achieve more coherent sampling. In Automatic1111's high-res fix and ComfyUI's node system, the base model and refiner use two independent k-samplers, which means the momentum is largely wasted, and the sampling continuity is broken. Fooocus uses its own advanced k-diffusion sampling that ensures seamless, native, and continuous swap in a refiner setup. (Update Aug 13: Actually I discussed this with Automatic1111 several days ago and it seems that the “native refiner swap inside one single k-sampler” is [merged]( https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/12371) into the dev branch of webui. Great!)
-3. Negative ADM guidance. Because the highest resolution level of XL Base does not have cross attentions, the positive and negative signals for XL's highest resolution level cannot receive enough contrasts during the CFG sampling, causing the results look a bit plastic or overly smooth in certain cases. Fortunately, since the XL's highest resolution level is still conditioned on image aspect ratios (ADM), we can modify the adm on the positive/negative side to compensate for the lack of CFG contrast in the highest resolution level. (Update Aug 16, the IOS App [Drawing Things](https://apps.apple.com/us/app/draw-things-ai-generation/id6444050820) will support Negative ADM Guidance. Great!)
-4. We implemented a carefully tuned variation of the Section 5.1 of ["Improving Sample Quality of Diffusion Models Using Self-Attention Guidance"](https://arxiv.org/pdf/2210.00939.pdf). The weight is set to very low, but this is Fooocus's final guarantee to make sure that the XL will never yield overly smooth or plastic appearance (examples [here](https://github.com/lllyasviel/Fooocus/discussions/117#sharpness)). This can almostly eliminate all cases that XL still occasionally produce overly smooth results even with negative ADM guidance. (Update 2023 Aug 18, the Gaussian kernel of SAG is changed to an anisotropic kernel for better structure preservation and fewer artifacts.)
+2. Native refiner swap inside one single k-sampler. The advantage is that the refiner model can now reuse the base model's momentum (or ODE's history parameters) collected from k-sampling to achieve more coherent sampling. In Automatic1111's high-res fix and ComfyUI's node system, the base model and refiner use two independent k-samplers, which means the momentum is largely wasted, and the sampling continuity is broken. Fooocus uses its own advanced k-diffusion sampling that ensures seamless, native, and continuous swap in a refiner setup. (Update Aug 13: Actually, I discussed this with Automatic1111 several days ago, and it seems that the “native refiner swap inside one single k-sampler” is [merged]( https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/12371) into the dev branch of webui. Great!)
+3. Negative ADM guidance. Because the highest resolution level of XL Base does not have cross attentions, the positive and negative signals for XL's highest resolution level cannot receive enough contrasts during the CFG sampling, causing the results to look a bit plastic or overly smooth in certain cases. Fortunately, since the XL's highest resolution level is still conditioned on image aspect ratios (ADM), we can modify the adm on the positive/negative side to compensate for the lack of CFG contrast in the highest resolution level. (Update Aug 16, the IOS App [Drawing Things](https://apps.apple.com/us/app/draw-things-ai-generation/id6444050820) will support Negative ADM Guidance. Great!)
+4. We implemented a carefully tuned variation of Section 5.1 of ["Improving Sample Quality of Diffusion Models Using Self-Attention Guidance"](https://arxiv.org/pdf/2210.00939.pdf). The weight is set to very low, but this is Fooocus's final guarantee to make sure that the XL will never yield an overly smooth or plastic appearance (examples [here](https://github.com/lllyasviel/Fooocus/discussions/117#sharpness)). This can almost eliminate all cases for which XL still occasionally produces overly smooth results, even with negative ADM guidance. (Update 2023 Aug 18, the Gaussian kernel of SAG is changed to an anisotropic kernel for better structure preservation and fewer artifacts.)
 5. We modified the style templates a bit and added the "cinematic-default".
 6. We tested the "sd_xl_offset_example-lora_1.0.safetensors" and it seems that when the lora weight is below 0.5, the results are always better than XL without lora.
 7. The parameters of samplers are carefully tuned.
-8. Because XL uses positional encoding for generation resolution, images generated by several fixed resolutions look a bit better than that from arbitrary resolutions (because the positional encoding is not very good at handling int numbers that are unseen during training). This suggests that the resolutions in UI may be hard coded for best results.
-9. Separated prompts for two different text encoders seem unnecessary. Separated prompts for base model and refiner may work but the effects are random, and we refrain from implement this.
-10. DPM family seems well-suited for XL, since XL sometimes generates overly smooth texture but DPM family sometimes generate overly dense detail in texture. Their joint effect looks neutral and appealing to human perception.
+8. Because XL uses positional encoding for generation resolution, images generated by several fixed resolutions look a bit better than those from arbitrary resolutions (because the positional encoding is not very good at handling int numbers that are unseen during training). This suggests that the resolutions in UI may be hard coded for best results.
+9. Separated prompts for two different text encoders seem unnecessary. Separated prompts for the base model and refiner may work, but the effects are random, and we refrain from implementing this.
+10. The DPM family seems well-suited for XL since XL sometimes generates overly smooth texture, but the DPM family sometimes generates overly dense detail in texture. Their joint effect looks neutral and appealing to human perception.
 11. A carefully designed system for balancing multiple styles as well as prompt expansion.
-12. Using automatic1111's method to normalize prompt emphasizing. This significantly improve results when users directly copy prompts from civitai.
-13. The joint swap system of refiner now also support img2img and upscale in a seamless way.
+12. Using automatic1111's method to normalize prompt emphasizing. This significantly improves results when users directly copy prompts from civitai.
+13. The joint swap system of the refiner now also supports img2img and upscale in a seamless way.
 14. CFG Scale and TSNR correction (tuned for SDXL) when CFG is bigger than 10.
 
 ## Customization
 
-After the first time you run Fooocus, a config file will be generated at `Fooocus\config.txt`. This file can be edited for changing the model path or default parameters.
+After the first time you run Fooocus, a config file will be generated at `Fooocus\config.txt`. This file can be edited to change the model path or default parameters.
 
 For example, an edited `Fooocus\config.txt` (this file will be generated after the first launch) may look like this:
 
@@ -340,7 +339,7 @@ Many other keys, formats, and examples are in `Fooocus\config_modification_tutor
 
 Consider twice before you really change the config. If you find yourself breaking things, just delete `Fooocus\config.txt`. Fooocus will go back to default.
 
-A safter way is just to try "run_anime.bat" or "run_realistic.bat" - they should be already good enough for different tasks.
+A safer way is just to try "run_anime.bat" or "run_realistic.bat" - they should already be good enough for different tasks.
 
 ~Note that `user_path_config.txt` is deprecated and will be removed soon.~ (Edit: it is already removed.)
 
@@ -394,7 +393,7 @@ The log is [here](update_log.md).
 
 ## Localization/Translation/I18N
 
-**We need your help!** Please help with translating Fooocus to international languages.
+**We need your help!** Please help translate Fooocus into international languages.
 
 You can put json files in the `language` folder to translate the user interface.
 
