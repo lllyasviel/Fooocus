@@ -1,5 +1,8 @@
 version: '3.9'
 
+volumes:
+  fooocus-data:
+
 services:
   app:
     build: .
@@ -7,8 +10,8 @@ services:
     #ports:
      #- 7865:7865
     environment:
-      - CMDARGS=--share    # arguments for entry_with_updte.py
-      - DATADIR=/content/data   # directory which stores models, outputs dir
+      - CMDARGS=--share    # Arguments for entry_with_updte.py. Using '--share' is convenient, but may make a security problem, please change it to '--listen' if you want to use for a long time.
+      - DATADIR=/content/data   # Directory which stores models, outputs dir
       - config_path=/content/data/config.txt
       - config_example_path=/content/data/config_modification_tutorial.txt
       - path_checkpoints=/content/data/models/checkpoints/
@@ -24,7 +27,7 @@ services:
       - default_model=juggernautXL_version6Rundiffusion.safetensors
       - default_performance=Speed
     volumes:
-      - ./data:/content/data
+      - fooocus-data:/content/data
     tty: true
     deploy:
       resources:
