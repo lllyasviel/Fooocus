@@ -464,7 +464,9 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model, preset_selection] + lora_ctrls,
                                     queue=False, show_progress=False)
 
-        def preset_selection_change(preset):
+        state_is_generating = gr.State(False)
+
+        def preset_selection_change(preset, is_generating):
             preset_content = modules.config.try_get_preset_content(preset) if preset != 'initial' else {}
             preset_prepared = modules.meta_parser.parse_meta_from_preset(preset_content)
 
@@ -473,9 +475,9 @@ with shared.gradio_root:
             launch.lora_downloads = preset_prepared['lora_downloads']
             launch.download_models()
 
-            return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared))
+            return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
 
-        preset_selection.change(preset_selection_change, inputs=preset_selection, outputs=[
+        preset_selection.change(preset_selection_change, inputs=[preset_selection, state_is_generating], outputs=[
             advanced_checkbox,
             image_number,
             prompt,
@@ -560,8 +562,6 @@ with shared.gradio_root:
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
         ctrls += ip_ctrls
-
-        state_is_generating = gr.State(False)
 
         def parse_meta(raw_prompt_txt, is_generating):
             loaded_json = None
