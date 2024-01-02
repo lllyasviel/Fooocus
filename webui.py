@@ -535,7 +535,7 @@ with shared.gradio_root:
 
             return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
 
-        preset_selection.change(preset_selection_change, inputs=[preset_selection, state_is_generating], outputs=[
+        load_parameter_outputs = [
             advanced_checkbox,
             image_number,
             prompt,
@@ -560,7 +560,9 @@ with shared.gradio_root:
             image_seed,
             generate_button,
             load_parameter_button
-        ] + lora_ctrls, queue=False, show_progress=True) \
+        ] + lora_ctrls
+
+        preset_selection.change(preset_selection_change, inputs=[preset_selection, state_is_generating], outputs=load_parameter_outputs, queue=False, show_progress=True) \
             .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
             .then(lambda: None, _js='()=>{refresh_style_localization();}')
 
@@ -644,32 +646,7 @@ with shared.gradio_root:
 
         prompt.input(parse_meta, inputs=[prompt, state_is_generating], outputs=[prompt, generate_button, load_parameter_button], queue=False, show_progress=False)
 
-        load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=[prompt, state_is_generating], outputs=[
-            advanced_checkbox,
-            image_number,
-            prompt,
-            negative_prompt,
-            style_selections,
-            performance_selection,
-            aspect_ratios_selection,
-            overwrite_width,
-            overwrite_height,
-            sharpness,
-            guidance_scale,
-            adm_scaler_positive,
-            adm_scaler_negative,
-            adm_scaler_end,
-            base_model,
-            refiner_model,
-            refiner_switch,
-            sampler_name,
-            scheduler_name,
-            overwrite_step,
-            seed_random,
-            image_seed,
-            generate_button,
-            load_parameter_button
-        ] + lora_ctrls, queue=False, show_progress=False)
+        load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=[prompt, state_is_generating], outputs=load_parameter_outputs, queue=False, show_progress=False)
 
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
