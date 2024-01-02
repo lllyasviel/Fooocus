@@ -186,12 +186,28 @@ with shared.gradio_root:
                                            outputs=ip_ad_cols + ip_types + ip_stops + ip_weights,
                                            queue=False, show_progress=False)
                     with gr.TabItem(label='Inpaint or Outpaint') as inpaint_tab:
-                        inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+                        # xhoxye1
+                        #inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+
+                        with gr.Row():
+                            inpaint_input_image = grh.Image(label='Drag inpaint or outpaint image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+                                
+                            inpaint_mask_image = grh.Image(label='Drag inpaint mask image to here', source='upload', type='numpy', height=500,visible=False)                              
+                        # xhoxye1
+                                
                         with gr.Row():
                             inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                             outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
                             inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
                         example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts, label='Additional Prompt Quick List', components=[inpaint_additional_prompt], visible=False)
+                        
+                        # xhoxye2
+                        with gr.TabItem(label='Inpaint advanced') as inpaint_advanced:
+                            inpaint_mask_image_checkbox = gr.Checkbox(label='Enable upload mask', value=False, container=False)
+                            inpaint_mask_image_checkbox.change(lambda x: gr.update(visible=x), inputs=inpaint_mask_image_checkbox, outputs=inpaint_mask_image, queue=False)  
+                            invert_mask_checkbox = gr.Checkbox(label='Invert hand-drawn mask', value=False, container=False)                       
+                        # xhoxye2
+                        
                         gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
                         example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
                     with gr.TabItem(label='Describe') as desc_tab:
@@ -510,7 +526,10 @@ with shared.gradio_root:
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
-        ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
+        # xhoxye3
+        #ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
+        ctrls += [outpaint_selections, inpaint_input_image, inpaint_mask_image, inpaint_mask_image_checkbox, invert_mask_checkbox, inpaint_additional_prompt]
+        # xhoxye3
         ctrls += ip_ctrls
 
         state_is_generating = gr.State(False)
