@@ -186,7 +186,10 @@ with shared.gradio_root:
                                            outputs=ip_ad_cols + ip_types + ip_stops + ip_weights,
                                            queue=False, show_progress=False)
                     with gr.TabItem(label='Inpaint or Outpaint') as inpaint_tab:
-                        inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+                        with gr.Row():
+                            inpaint_input_image = grh.Image(label='Drag inpaint or outpaint image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+                            inpaint_mask_image = grh.Image(label='Mask Upload', source='upload', type='numpy', height=500, visible=False)
+
                         with gr.Row():
                             inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                             outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
@@ -419,7 +422,21 @@ with shared.gradio_root:
                                                                   'Value 1 is same as "Whole Image" in A1111. '
                                                                   'Only used in inpaint, not used in outpaint. '
                                                                   '(Outpaint always use 1.0)')
-                        inpaint_ctrls = [debugging_inpaint_preprocessor, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field]
+                        inpaint_erode_or_dilate = gr.Slider(label='Mask Erode or Dilate',
+                                                            minimum=-64, maximum=64, step=1, value=0,
+                                                            info='Positive value will make white area in the mask larger, '
+                                                                 'negative value will make white area smaller.'
+                                                                 '(default is 0, always process before any mask invert)')
+                        inpaint_mask_upload_checkbox = gr.Checkbox(label='Enable Mask Upload', value=False)
+                        invert_mask_checkbox = gr.Checkbox(label='Invert Mask', value=False)
+                        
+                        inpaint_ctrls = [debugging_inpaint_preprocessor, inpaint_disable_initial_latent, inpaint_engine,
+                                         inpaint_strength, inpaint_respective_field,
+                                         inpaint_mask_upload_checkbox, invert_mask_checkbox, inpaint_erode_or_dilate]
+
+                        inpaint_mask_upload_checkbox.change(lambda x: gr.update(visible=x),
+                                                           inputs=inpaint_mask_upload_checkbox,
+                                                           outputs=inpaint_mask_image, queue=False, show_progress=False)
 
                     with gr.Tab(label='FreeU'):
                         freeu_enabled = gr.Checkbox(label='Enabled', value=False)
@@ -510,7 +527,7 @@ with shared.gradio_root:
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
-        ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
+        ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
         ctrls += ip_ctrls
 
         state_is_generating = gr.State(False)
