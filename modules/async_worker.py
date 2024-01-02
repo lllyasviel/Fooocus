@@ -22,12 +22,6 @@ def worker():
     import shared
     import random
     import copy
-    
-    # xhoxye4
-    # 导入 OpenCV 库
-    import cv2
-    # xhoxye4
-    
     import modules.default_pipeline as pipeline
     import modules.core as core
     import modules.flags as flags
@@ -46,7 +40,7 @@ def worker():
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image
+        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
     from modules.upscaler import perform_upscale
 
     try:
@@ -144,15 +138,8 @@ def worker():
         uov_input_image = args.pop()
         outpaint_selections = args.pop()
         inpaint_input_image = args.pop()
-        
-        # xhoxye5
-        # 接收参数
-        inpaint_mask_image = args.pop()
-        inpaint_mask_image_checkbox =  args.pop()
-        invert_mask_checkbox = args.pop()
-        # xhoxye5
-        
         inpaint_additional_prompt = args.pop()
+        inpaint_mask_image_upload = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -287,22 +274,22 @@ def worker():
                     current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint)) \
                     and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
-                        
-                # xhoxye6
-                #inpaint_mask = inpaint_input_image['mask'][:, :, 0]
-                # use uploaded inpaint mask image, if not brush for inpaint.
-                # 如果没有手涂蒙版，则使用上传蒙版，并缩放。调换判断条件，尝试修复和外部扩充绘制配合时出现的问题.
-                # 添加反转手涂蒙版的判断
-                if inpaint_mask_image_checkbox and not np.any(inpaint_input_image['mask'] == [255, 255, 255]) and inpaint_mask_image is not None:
-                    inpaint_height, inpaint_width = inpaint_image.shape[:2]
-                    resized_mask_image = cv2.resize(inpaint_mask_image, (inpaint_width, inpaint_height))
+                inpaint_mask = inpaint_input_image['mask'][:, :, 0]
+                
+                if advanced_parameters.inpaint_mask_upload_checkbox:
+                    if isinstance(inpaint_mask_image_upload, np.ndarray):
+                        if inpaint_mask_image_upload.ndim == 3:
+                            H, W, C = inpaint_image.shape
+                            inpaint_mask_image_upload = resample_image(inpaint_mask_image_upload, width=W, height=H)
+                            inpaint_mask_image_upload = np.mean(inpaint_mask_image_upload, axis=2)
+                            inpaint_mask_image_upload = (inpaint_mask_image_upload > 127).astype(np.uint8) * 255
+                            inpaint_mask = np.maximum(inpaint_mask, inpaint_mask_image_upload)
 
-                    inpaint_mask = resized_mask_image[:, :, 0]
-                else:
-                    inpaint_mask = inpaint_input_image['mask'][:, :, 0]
-                    if invert_mask_checkbox:
-                        inpaint_mask = np.invert(inpaint_mask)
-                # xhoxye6
+                if int(advanced_parameters.inpaint_erode_or_dilate) != 0:
+                    inpaint_mask = erode_or_dilate(inpaint_mask, advanced_parameters.inpaint_erode_or_dilate)
+
+                if advanced_parameters.invert_mask_checkbox:
+                    inpaint_mask = 255 - inpaint_mask
 
                 inpaint_image = HWC3(inpaint_image)
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
