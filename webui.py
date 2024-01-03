@@ -17,7 +17,7 @@ import modules.meta_parser
 import args_manager
 import copy
 
-# 引入 ui_wildcards_enhance 文件
+# xhoxye，引入 ui_wildcards_enhance 文件
 import ui_wildcards_enhance
 # 引入 ui_wildcards_enhance 文件
 
@@ -480,7 +480,7 @@ with shared.gradio_root:
     # xhoxye, 生成 ui_wildcards_enhance 选项卡
             ui_wildcards_enhance.ui_wildcards_enhance(prompt)            
     # 生成 ui_wildcards_enhance 选项卡  
-     
+            
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
                                                [gr.update(visible=x != 'Extreme Speed')] * 1,
                                      inputs=performance_selection,
