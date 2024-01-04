@@ -86,7 +86,9 @@ if isinstance(preset, str):
     try:
         if os.path.exists(preset_path):
             with open(preset_path, "r", encoding="utf-8") as json_file:
-                config_dict.update(json.load(json_file))
+                preset_dict = json.load(json_file)
+                preset_dict.update(config_dict)
+                config_dict = preset_dict
                 print(f'Loaded preset: {preset_path}')
         else:
             raise FileNotFoundError
