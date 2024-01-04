@@ -44,13 +44,28 @@ def log(img, dic):
     )
 
     js = (
-        "<script>"
-        "function to_clipboard(txt) { "
-        "txt = decodeURIComponent(txt);"
-        "navigator.clipboard.writeText(txt);"
-        "alert('Copied to Clipboard!\\nPaste to prompt area to load parameters.\\nCurrent clipboard content is:\\n\\n' + txt);"
-        "}"
-        "</script>"
+        """<script>
+        function to_clipboard(txt) { 
+        txt = decodeURIComponent(txt);
+        if (navigator.clipboard && navigator.permissions) {
+            navigator.clipboard.writeText(txt)
+        } else {
+            const textArea = document.createElement('textArea')
+            textArea.value = txt
+            textArea.style.width = 0
+            textArea.style.position = 'fixed'
+            textArea.style.left = '-999px'
+            textArea.style.top = '10px'
+            textArea.setAttribute('readonly', 'readonly')
+            document.body.appendChild(textArea)
+
+            textArea.select()
+            document.execCommand('copy')
+            document.body.removeChild(textArea)
+        }
+        alert('Copied to Clipboard!\\nPaste to prompt area to load parameters.\\nCurrent clipboard content is:\\n\\n' + txt);
+        }
+        </script>"""
     )
 
     begin_part = f"<html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>{js}<p>Fooocus Log {date_string} (private)</p>\n<p>All images are clean, without any hidden data/meta, and safe to share with others.</p><!--fooocus-log-split-->\n\n"

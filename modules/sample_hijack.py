@@ -99,6 +99,13 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
     calculate_start_end_timesteps(model, negative)
     calculate_start_end_timesteps(model, positive)
 
+    if latent_image is not None:
+        latent_image = model.process_latent_in(latent_image)
+
+    if hasattr(model, 'extra_conds'):
+        positive = encode_model_conds(model.extra_conds, positive, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask)
+        negative = encode_model_conds(model.extra_conds, negative, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask)
+
     #make sure each cond area has an opposite one with the same area
     for c in positive:
         create_cond_with_same_area_if_none(negative, c)
@@ -110,13 +117,6 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
 
     apply_empty_x_to_equal_area(list(filter(lambda c: c.get('control_apply_to_uncond', False) == True, positive)), negative, 'control', lambda cond_cnets, x: cond_cnets[x])
     apply_empty_x_to_equal_area(positive, negative, 'gligen', lambda cond_cnets, x: cond_cnets[x])
-
-    if latent_image is not None:
-        latent_image = model.process_latent_in(latent_image)
-
-    if hasattr(model, 'extra_conds'):
-        positive = encode_model_conds(model.extra_conds, positive, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask)
-        negative = encode_model_conds(model.extra_conds, negative, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask)
 
     extra_args = {"cond":positive, "uncond":negative, "cond_scale": cfg, "model_options": model_options, "seed":seed}
 
@@ -174,7 +174,7 @@ def calculate_sigmas_scheduler_hacked(model, scheduler_name, steps):
     elif scheduler_name == "sgm_uniform":
         sigmas = normal_scheduler(model, steps, sgm=True)
     elif scheduler_name == "turbo":
-        sigmas = SDTurboScheduler().get_sigmas(namedtuple('Patcher', ['model'])(model=model), steps)[0]
+        sigmas = SDTurboScheduler().get_sigmas(namedtuple('Patcher', ['model'])(model=model), steps=steps, denoise=1.0)[0]
     else:
         raise TypeError("error invalid scheduler")
     return sigmas
