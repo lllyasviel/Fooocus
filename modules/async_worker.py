@@ -382,6 +382,7 @@ def worker():
             tasks = []
             for i in range(image_number):
 
+                #代码来自 刁璐璐
                 # xhoxye 判断在通配符场景下，如果是通配符情境，这个种子不会自动添加。
                 placeholders = re.findall(r'__([\w-]+)__', prompt)
                 random_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not

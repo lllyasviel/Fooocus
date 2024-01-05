@@ -72,6 +72,7 @@ def apply_wildcards(wildcard_text, rng, i, read_wildcard_in_order_checkbox, dire
                 words = [x for x in words if x != '']
                 assert len(words) > 0
                 #wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
+                #代码来自 刁璐璐
                 #xhoxye,如果勾选，则按顺序读取，如果没有勾选，则随机读取
                 if len(words) > i and read_wildcard_in_order_checkbox:
                     wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[i % len(words)], 1)
