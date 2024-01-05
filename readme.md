@@ -13,14 +13,14 @@ Included adjustments:
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1570 - add preset selection to Gradio UI (session based)
 * 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1578 - add workaround for changing prompt while generating~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1580 - add preset for SDXL Turbo (model DreamShaperXL_Turbo)
-* 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1608 - skip free_memory for describe (interrogate)~~
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1616 - add config setting for default_max_image_number~~
 * 🐛 https://github.com/lllyasviel/Fooocus/pull/1668 - fix path_outputs directory creation if it doesn't exist
 * ✨ show more details for each performance setting, e.g. steps
 * ✨ add default_overwrite_step handling for meta data and gradio (allows turbo preset switching to set default_overwrite_step correctly)
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1762 - add style preview on mouseover 
 
 ✨ = new feature<br>
-🐛 = bugfix
+🐛 = bugfix<br>
 ~~abc~~ = merged
 
 <div align=center>
