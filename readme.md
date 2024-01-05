@@ -16,7 +16,7 @@ The installation assumes CUDA 11.8.  If you need a different version, please upd
 1. `.\venv\Scripts\activate`
 2. `python launch.py`
 
-
+https://github.com/machineminded/Fooocus-inswapper/assets/155763297/68f69e95-8306-4c7b-8f9b-0013352460b6
 
 ## Issues
 
