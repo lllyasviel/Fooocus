@@ -255,8 +255,7 @@ with shared.gradio_root:
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed],
                                    queue=False, show_progress=False)
 
-                # xhoxye，创建一个复选框，切换通配符的读取方法，1是原版随机读取，2是勾选后按顺序读取且使用相同种子
-                read_wildcard_in_order_checkbox = gr.Checkbox(label="read wildcard in order with same seed", value=False, visible=True)
+                read_wildcard_in_order_checkbox = gr.Checkbox(label="Read wildcard in order with same seed", value=False)
 
                 if not args_manager.args.disable_image_log:
                     gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
@@ -524,17 +523,13 @@ with shared.gradio_root:
 
         ctrls = [
             prompt, negative_prompt, style_selections,
-            performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, guidance_scale
+            performance_selection, aspect_ratios_selection, image_number, image_seed, read_wildcard_in_order_checkbox, sharpness, guidance_scale
         ]
 
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
-
-        # xhoxye 传递参数 read_wildcard_in_order_checkbox 复选框
-        ctrls += [read_wildcard_in_order_checkbox]
-        
         ctrls += ip_ctrls
 
         state_is_generating = gr.State(False)

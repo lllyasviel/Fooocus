@@ -128,6 +128,7 @@ def worker():
         aspect_ratios_selection = args.pop()
         image_number = args.pop()
         image_seed = args.pop()
+        read_wildcard_in_order_checkbox = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
         base_model_name = args.pop()
@@ -142,8 +143,6 @@ def worker():
         inpaint_input_image = args.pop()
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
-        # xhoxye 传递参数 read_wildcard_in_order_checkbox 复选框
-        read_wildcard_in_order_checkbox = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -381,16 +380,15 @@ def worker():
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
             for i in range(image_number):
-
-                #代码来自 刁璐璐
-                # xhoxye 判断在通配符场景下，如果是通配符情境，这个种子不会自动添加。
+                
+                # determines that if prompt includes wildcard, this seed will not be increased automatically
                 placeholders = re.findall(r'__([\w-]+)__', prompt)
                 random_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
-                # 判断是否存在通配符，并且复选框的值为True
+                # Determine whether there is a wildcard and the value of the checkbox is True
                 if len(placeholders) > 0 and read_wildcard_in_order_checkbox:
-                    task_seed = seed % (constants.MAX_SEED + 1) # 如果提示词中有通配符，并且复选框的值为True，这个种子不会自增。
+                    task_seed = seed % (constants.MAX_SEED + 1) # If there are wildcard characters in the prompt and the value of the check box is True, the seed will not increase automatically.
                 else:
-                    task_seed = random_seed # 否则，使用随机种子。
+                    task_seed = random_seed 
                 task_rng = random.Random(random_seed)  # may bind to inpaint noise in the future
                 task_prompt = apply_wildcards(prompt, task_rng,i,read_wildcard_in_order_checkbox)
                 task_negative_prompt = apply_wildcards(negative_prompt, task_rng,i,read_wildcard_in_order_checkbox)
