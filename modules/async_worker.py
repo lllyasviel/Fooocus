@@ -1,4 +1,6 @@
 import threading
+# xhoxye
+import re
 
 
 class AsyncTask:
@@ -140,6 +142,8 @@ def worker():
         inpaint_input_image = args.pop()
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
+        # xhoxye 传递参数 read_wildcard_in_order_checkbox 复选框
+        read_wildcard_in_order_checkbox = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -377,13 +381,21 @@ def worker():
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
             for i in range(image_number):
-                task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
-                task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
 
-                task_prompt = apply_wildcards(prompt, task_rng)
-                task_negative_prompt = apply_wildcards(negative_prompt, task_rng)
-                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
-                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
+                # xhoxye 判断在通配符场景下，如果是通配符情境，这个种子不会自动添加。
+                placeholders = re.findall(r'__([\w-]+)__', prompt)
+                random_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
+                # 判断是否存在通配符，并且复选框的值为True
+                if len(placeholders) > 0 and read_wildcard_in_order_checkbox:
+                    task_seed = seed % (constants.MAX_SEED + 1) # 如果提示词中有通配符，并且复选框的值为True，这个种子不会自增。
+                else:
+                    task_seed = random_seed # 否则，使用随机种子。
+                task_rng = random.Random(random_seed)  # may bind to inpaint noise in the future
+                task_prompt = apply_wildcards(prompt, task_rng,i,read_wildcard_in_order_checkbox)
+                task_negative_prompt = apply_wildcards(negative_prompt, task_rng,i,read_wildcard_in_order_checkbox)
+                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng,i,read_wildcard_in_order_checkbox) for pmt in extra_positive_prompts]
+                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng,i,read_wildcard_in_order_checkbox) for pmt in extra_negative_prompts]
+
 
                 positive_basic_workloads = []
                 negative_basic_workloads = []
