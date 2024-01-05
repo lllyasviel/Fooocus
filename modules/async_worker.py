@@ -43,6 +43,8 @@ def worker():
         get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
     from modules.upscaler import perform_upscale
 
+    from modules.face_swap import perform_face_swap
+
     try:
         async_gradio_app = shared.gradio_root
         flag = f'''App started successful. Use the app with {str(async_gradio_app.local_url)} or {str(async_gradio_app.server_name)}:{str(async_gradio_app.server_port)}'''
@@ -58,7 +60,7 @@ def worker():
 
     def yield_result(async_task, imgs, do_not_show_finished_images=False):
         if not isinstance(imgs, list):
-            imgs = [imgs]
+            imgs = [imgs]        
 
         async_task.results = async_task.results + imgs
 
@@ -72,7 +74,7 @@ def worker():
         if not advanced_parameters.generate_image_grid:
             return
 
-        results = async_task.results
+        results = async_task.results        
 
         if len(results) < 2:
             return
@@ -81,7 +83,7 @@ def worker():
             if not isinstance(img, np.ndarray):
                 return
             if img.ndim != 3:
-                return
+                return            
 
         H, W, C = results[0].shape
 
@@ -114,7 +116,7 @@ def worker():
     @torch.no_grad()
     @torch.inference_mode()
     def handler(async_task):
-        execution_start_time = time.perf_counter()
+        execution_start_time = time.perf_counter()        
 
         args = async_task.args
         args.reverse()
@@ -149,6 +151,11 @@ def worker():
             cn_type = args.pop()
             if cn_img is not None:
                 cn_tasks[cn_type].append([cn_img, cn_stop, cn_weight])
+
+        inswapper_enabled = args.pop()
+        inswapper_source_image = args.pop()
+
+        print(f"Inswapper enabled: {inswapper_enabled}")
 
         outpaint_selections = [o.lower() for o in outpaint_selections]
         base_model_additional_loras = []
@@ -800,6 +807,10 @@ def worker():
                             d.append((f'LoRA {li + 1}', f'{n} : {w}'))
                     d.append(('Version', 'v' + fooocus_version.version))
                     log(x, d)
+
+                if inswapper_enabled:
+                    print("Lets swap some faces!")
+                    imgs = perform_face_swap(imgs, inswapper_source_image)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
