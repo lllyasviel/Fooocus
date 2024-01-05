@@ -1,7 +1,7 @@
 {
     "default_model": "realisticStockPhoto_v10.safetensors",
     "default_refiner": "None",
-    "default_refiner_switch": 0.7,
+    "default_refiner_switch": 0.5,
     "default_loras": [
         [
             "SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors",
