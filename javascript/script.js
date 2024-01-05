@@ -119,6 +119,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
     mutationObserver.observe(gradioApp(), {childList: true, subtree: true});
+    initStylePreviewOverlay();
 });
 
 /**
@@ -144,6 +145,38 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+function initStylePreviewOverlay() {
+    let overlayVisible = false;
+    const samplesPath = document.querySelector("meta[name='samples-path']").getAttribute("content")
+    const overlay = document.createElement('div');
+    overlay.id = 'stylePreviewOverlay';
+    document.body.appendChild(overlay);
+    document.addEventListener('mouseover', function(e) {
+        const label = e.target.closest('.style_selections label');
+        if (!label) return;
+        label.removeEventListener("mouseout", onMouseLeave);
+        label.addEventListener("mouseout", onMouseLeave);
+        overlayVisible = true;
+        overlay.style.display = "block";
+        const name = label.querySelector("span").textContent;
+        overlay.style.backgroundImage = `url("${samplesPath.replace(
+          "Fooocus V2",
+          name
+        )}")`;
+        function onMouseLeave() {
+            overlayVisible = false;
+            overlay.style.display = "none";
+            overlay.style.backgroundImage = "";
+            label.removeEventListener("mouseout", onMouseLeave);
+        }
+    });
+    document.addEventListener('mousemove', function(e) {
+        if(!overlayVisible) return;
+        overlay.style.left = `${e.clientX}px`;
+        overlay.style.top = `${e.clientY}px`;
+    });
+}
 
 /**
  * checks that a UI element is not in another hidden element or tab content

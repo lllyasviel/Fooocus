@@ -196,3 +196,17 @@
     pointer-events: none;
     display: none;
 }
+
+#stylePreviewOverlay {
+    display: none;
+    width: 120px;
+    height: 100px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    border: solid 1px lightgrey;
+    transform: translate(-140px, 20px);
+    background-size: cover;
+    background-position: center;
+    border-radius: 5px;
+}
