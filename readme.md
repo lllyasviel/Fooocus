@@ -8,7 +8,7 @@ A standalone installation does not exist for this repository.
 
 The installation assumes CUDA 11.8.  If you need a different version, please update `configure.bat` with the correct URL to the desired CUDA version.
 
-1. Run `git clone https://github.com/haofanwang/inswapper.git`
+1. Run `git clone https://github.com/machineminded/Fooocus-inswapper.git`
 2. Execute `configure.bat`
 
 ## Usage
