@@ -230,10 +230,11 @@ with shared.gradio_root:
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Settings'):
-                preset_selection = gr.Radio(label='Preset',
-                                            choices=modules.config.available_presets,
-                                            value=args_manager.args.preset if args_manager.args.preset else "initial",
-                                            interactive=True)
+                if not args_manager.args.disable_preset_selection:
+                    preset_selection = gr.Radio(label='Preset',
+                                                choices=modules.config.available_presets,
+                                                value=args_manager.args.preset if args_manager.args.preset else "initial",
+                                                interactive=True)
                 performance_selection = gr.Radio(label='Performance',
                                                  choices=modules.flags.performance_selections,
                                                  value=modules.config.default_performance,
@@ -495,13 +496,17 @@ with shared.gradio_root:
                     modules.config.update_presets()
                     results = []
                     results += [gr.update(choices=modules.config.model_filenames), 
-                                gr.update(choices=['None'] + modules.config.model_filenames),
-                                gr.update(choices=modules.config.available_presets)]
+                                gr.update(choices=['None'] + modules.config.model_filenames)]
+                    if not args_manager.args.disable_preset_selection:
+                        results += [gr.update(choices=modules.config.available_presets)]
                     for i in range(5):
                         results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
                     return results
 
-                model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model, preset_selection] + lora_ctrls,
+                model_refresh_output = [base_model, refiner_model]
+                if not args_manager.args.disable_preset_selection:
+                    model_refresh_output += [preset_selection]
+                model_refresh.click(model_refresh_clicked, [],  model_refresh_output + lora_ctrls,
                                     queue=False, show_progress=False)
 
             with gr.Tab(label='Audio'):
@@ -523,17 +528,6 @@ with shared.gradio_root:
                     notification_input.change(fn=notification_input_changed, inputs=[notification_input, notification], outputs=[notification], queue=False)
 
         state_is_generating = gr.State(False)
-
-        def preset_selection_change(preset, is_generating):
-            preset_content = modules.config.try_get_preset_content(preset) if preset != 'initial' else {}
-            preset_prepared = modules.meta_parser.parse_meta_from_preset(preset_content)
-
-            launch.checkpoint_downloads = preset_prepared['checkpoint_downloads']
-            launch.embeddings_downloads = preset_prepared['embeddings_downloads']
-            launch.lora_downloads = preset_prepared['lora_downloads']
-            launch.download_models()
-
-            return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
 
         load_parameter_outputs = [
             advanced_checkbox,
@@ -562,9 +556,21 @@ with shared.gradio_root:
             load_parameter_button
         ] + lora_ctrls
 
-        preset_selection.change(preset_selection_change, inputs=[preset_selection, state_is_generating], outputs=load_parameter_outputs, queue=False, show_progress=True) \
-            .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
-            .then(lambda: None, _js='()=>{refresh_style_localization();}')
+        if not args_manager.args.disable_preset_selection:
+            def preset_selection_change(preset, is_generating):
+                preset_content = modules.config.try_get_preset_content(preset) if preset != 'initial' else {}
+                preset_prepared = modules.meta_parser.parse_meta_from_preset(preset_content)
+
+                launch.checkpoint_downloads = preset_prepared['checkpoint_downloads']
+                launch.embeddings_downloads = preset_prepared['embeddings_downloads']
+                launch.lora_downloads = preset_prepared['lora_downloads']
+                launch.download_models()
+
+                return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
+
+            preset_selection.change(preset_selection_change, inputs=[preset_selection, state_is_generating], outputs=load_parameter_outputs, queue=False, show_progress=True) \
+                .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
+                .then(lambda: None, _js='()=>{refresh_style_localization();}')
 
 
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
