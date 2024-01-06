@@ -45,6 +45,9 @@ function processTextNode(node) {
     var tl = getTranslation(text);
     if (tl !== undefined) {
         node.textContent = tl;
+        if (text && node.parentElement) {
+          node.parentElement.setAttribute("data-original-text", text);
+        }
     }
 }
 

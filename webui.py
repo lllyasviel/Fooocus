@@ -267,6 +267,9 @@ with shared.gradio_root:
                                               placeholder="\U0001F50E Type here to search styles ...",
                                               value="",
                                               label='Search Styles')
+
+                gr.HTML(f'<a href="/file=sdxl_styles/samples/log.html" target="_blank">\U0001F4DA Styles samples</a>')
+
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
                                                     choices=copy.deepcopy(style_sorter.all_styles),
                                                     value=copy.deepcopy(modules.config.default_styles),
