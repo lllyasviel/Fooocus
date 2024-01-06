@@ -7,10 +7,10 @@ services:
   app:
     build: .
     image: whitehara/fooocus
-    #ports:
-     #- 7865:7865
+    ports:
+     - 7865:7865
     environment:
-      - CMDARGS=--share    # Arguments for entry_with_updte.py. Using '--share' is convenient, but may make a security problem, please change it to '--listen' if you want to use for a long time.
+      - CMDARGS=--listen    # Arguments for entry_with_updte.py.
       - DATADIR=/content/data   # Directory which stores models, outputs dir
       - config_path=/content/data/config.txt
       - config_example_path=/content/data/config_modification_tutorial.txt
@@ -36,4 +36,3 @@ services:
               - driver: nvidia
                 device_ids: ['0']
                 capabilities: [compute, utility]
-
