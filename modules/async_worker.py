@@ -1,5 +1,7 @@
 import threading
 
+from modules.camera import apply_camera_preset
+
 
 class AsyncTask:
     def __init__(self, args):
@@ -122,6 +124,10 @@ def worker():
         prompt = args.pop()
         negative_prompt = args.pop()
         style_selections = args.pop()
+        camera_angle = args.pop()
+        camera_angle_weight = args.pop()
+        camera_distance = args.pop()
+        camera_distance_weight = args.pop()
         performance_selection = args.pop()
         aspect_ratios_selection = args.pop()
         image_number = args.pop()
@@ -162,6 +168,8 @@ def worker():
             use_expansion = False
 
         use_style = len(style_selections) > 0
+        use_camera_angle = len(camera_angle) > 0
+        use_camera_distance = len(camera_distance) > 0
 
         if base_model_name == refiner_model_name:
             print(f'Refiner disabled because base model and refiner are same.')
@@ -387,6 +395,12 @@ def worker():
 
                 positive_basic_workloads = []
                 negative_basic_workloads = []
+
+                if use_camera_angle:
+                    task_prompt = apply_camera_preset(preset='angle', name=camera_angle, weight=camera_angle_weight, positive=task_prompt)
+
+                if use_camera_distance:
+                    task_prompt = apply_camera_preset(preset='distance', name=camera_distance, weight=camera_distance_weight, positive=task_prompt)
 
                 if use_style:
                     for s in style_selections:
