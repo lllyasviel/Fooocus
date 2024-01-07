@@ -10,6 +10,7 @@ Included adjustments:
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1013 - add advanced parameter for disable_intermediate_results (progress_gallery, prevents UI lag when generation is too fast)
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1039 - add prompt translation
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1043 - add lcm realtime canvas painting
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1167 - update model BluePencil XL v0.5 to v2.0
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1570 - add preset selection to Gradio UI (session based)
 * 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1578 - add workaround for changing prompt while generating~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1580 - add preset for SDXL Turbo (model DreamShaperXL_Turbo)
