@@ -32,7 +32,7 @@ class LoggerTransactionManager:
     def flush() -> None:
         LoggerTransactionManager._transaction = False
         for filepath, content in LoggerTransactionManager._cache.items():
-            with open(filepath, "w") as f:
+            with open(filepath, "w", encoding='utf8') as f:
                 f.write(content)
             print(f'Private log flushing to: {filepath}')
 
