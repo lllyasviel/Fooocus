@@ -18,6 +18,7 @@ Included adjustments:
 * ✨ show more details for each performance setting, e.g. steps
 * ✨ add default_overwrite_step handling for meta data and gradio (allows turbo preset switching to set default_overwrite_step correctly)
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1762 - add style preview on mouseover 
+* 🐛 https://github.com/lllyasviel/Fooocus/pull/1784 - correctly sort files, display deepest directory level first
 
 ✨ = new feature<br>
 🐛 = bugfix<br>
