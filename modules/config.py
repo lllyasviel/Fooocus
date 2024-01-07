@@ -194,7 +194,7 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
 
 default_base_model_name = default_model = get_config_item_or_set_default(
     key='default_model',
-    default_value='juggernautXL_version6Rundiffusion.safetensors',
+    default_value='juggernautXL_v8Rundiffusion.safetensors',
     validator=lambda x: isinstance(x, str)
 )
 default_refiner_model_name = default_refiner = get_config_item_or_set_default(
@@ -297,7 +297,7 @@ default_image_number = get_config_item_or_set_default(
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
     default_value={
-        "juggernautXL_version6Rundiffusion.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors"
+        "juggernautXL_v8Rundiffusion.safetensors": "https://civitai.com/api/download/models/288982?type=Model&format=SafeTensor&size=full&fp=fp16"
     },
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
