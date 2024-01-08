@@ -488,6 +488,9 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [],  model_refresh_output + lora_ctrls,
                                     queue=False, show_progress=False)
 
+
+
+        
         state_is_generating = gr.State(False)
 
         load_parameter_outputs = [
