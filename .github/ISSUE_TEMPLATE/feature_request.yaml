@@ -1,0 +1,34 @@
+name: Feature request
+description: Suggest an idea for this project
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this feature request form!
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      options:
+        - label: I have checked that this is not a duplicate of an already existing [feature request](https://github.com/lllyasviel/Fooocus/issues)
+          required: true
+  - type: textarea
+    id: relation-to-problem
+    attributes:
+      label: Is your feature request related to a problem? Please describe.
+      placeholder: "A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+."
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the idea you'd like
+      placeholder: "A clear and concise description of what you want to happen."
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: "Thank you for completing our form!"
