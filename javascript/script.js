@@ -164,7 +164,7 @@ function initStylePreviewOverlay() {
         overlay.style.backgroundImage = `url("${samplesPath.replace(
           "fooocus_v2",
           name.toLowerCase().replaceAll(" ", "_")
-        )}")`;
+        ).replaceAll("\\", "\\\\")}")`;
         function onMouseLeave() {
             overlayVisible = false;
             overlay.style.display = "none";
