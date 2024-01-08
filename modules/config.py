@@ -79,21 +79,55 @@ def try_load_deprecated_user_path_config():
 
 try_load_deprecated_user_path_config()
 
+def list_presets():
+    preset_folder = 'presets'
+    presets = ['initial']
+    if not os.path.exists(preset_folder):
+        print('No presets found.')
+        return presets;
+
+    return presets + [f[:f.index(".json")] for f in os.listdir(preset_folder) if f.endswith('.json')]
+
+available_presets = list_presets()
+
+def update_presets():
+    global available_presets
+    available_presets = list_presets()
+
+def try_get_preset_content(preset):
+    if isinstance(preset, str):
+        preset_path = os.path.abspath(f'./presets/{preset}.json')
+        try:
+            if os.path.exists(preset_path):
+                with open(preset_path, "r", encoding="utf-8") as json_file:
+                    json_content = json.load(json_file)
+                    print(f'Loaded preset: {preset_path}')
+                    return json_content
+            else:
+                raise FileNotFoundError
+        except Exception as e:
+            print(f'Load preset [{preset_path}] failed')
+            print(e)
+    return {}
+
+def try_load_preset_global(preset):
+    global config_dict
+
+    if isinstance(preset, str):
+        preset_path = os.path.abspath(f'./presets/{preset}.json')
+        try:
+            if os.path.exists(preset_path):
+                with open(preset_path, "r", encoding="utf-8") as json_file:
+                    config_dict.update(json.load(json_file))
+                    print(f'Loaded preset: {preset_path}')
+            else:
+                raise FileNotFoundError
+        except Exception as e:
+            print(f'Load preset [{preset_path}] failed')
+            print(e)
+
 preset = args_manager.args.preset
-
-if isinstance(preset, str):
-    preset_path = os.path.abspath(f'./presets/{preset}.json')
-    try:
-        if os.path.exists(preset_path):
-            with open(preset_path, "r", encoding="utf-8") as json_file:
-                config_dict.update(json.load(json_file))
-                print(f'Loaded preset: {preset_path}')
-        else:
-            raise FileNotFoundError
-    except Exception as e:
-        print(f'Load preset [{preset_path}] failed')
-        print(e)
-
+try_load_preset_global(preset)
 
 def get_dir_or_set_default(key, default_value):
     global config_dict, visited_keys, always_save_keys
@@ -151,12 +185,12 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
         return default_value
 
 
-default_base_model_name = get_config_item_or_set_default(
+default_base_model_name = default_model = get_config_item_or_set_default(
     key='default_model',
     default_value='juggernautXL_version6Rundiffusion.safetensors',
     validator=lambda x: isinstance(x, str)
 )
-default_refiner_model_name = get_config_item_or_set_default(
+default_refiner_model_name = default_refiner = get_config_item_or_set_default(
     key='default_refiner',
     default_value='None',
     validator=lambda x: isinstance(x, str)
@@ -320,24 +354,25 @@ example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 
 config_dict["default_loras"] = default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
 
-possible_preset_keys = [
-    "default_model",
-    "default_refiner",
-    "default_refiner_switch",
-    "default_loras",
-    "default_cfg_scale",
-    "default_sample_sharpness",
-    "default_sampler",
-    "default_scheduler",
-    "default_performance",
-    "default_prompt",
-    "default_prompt_negative",
-    "default_styles",
-    "default_aspect_ratio",
-    "checkpoint_downloads",
-    "embeddings_downloads",
-    "lora_downloads",
-]
+# mapping config to meta parameter 
+possible_preset_keys = {
+    "default_model": "Base Model",
+    "default_refiner": "Refiner Model",
+    "default_refiner_switch": "Refiner Switch",
+    "default_loras": "<processed>",
+    "default_cfg_scale": "Guidance Scale",
+    "default_sample_sharpness": "Sharpness",
+    "default_sampler": "Sampler",
+    "default_scheduler": "Scheduler",
+    "default_performance": "Performance",
+    "default_prompt": "Prompt",
+    "default_prompt_negative": "Negative Prompt",
+    "default_styles": "Styles",
+    "default_aspect_ratio": "Resolution",
+    "checkpoint_downloads": "checkpoint_downloads",
+    "embeddings_downloads": "embeddings_downloads",
+    "lora_downloads": "lora_downloads",
+}
 
 
 REWRITE_PRESET = False
