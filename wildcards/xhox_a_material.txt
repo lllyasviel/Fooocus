@@ -1,0 +1,14 @@
+cashmere
+cotton
+fur
+latex
+leather
+linen
+neoprene
+nylon
+polyester
+rayon
+silk
+spandex
+suede
+wool

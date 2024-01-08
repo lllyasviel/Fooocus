@@ -18,6 +18,9 @@ import args_manager
 import copy
 import launch
 
+
+import ui_wildcards_enhance
+
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
@@ -488,9 +491,10 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [],  model_refresh_output + lora_ctrls,
                                     queue=False, show_progress=False)
 
+            # ui_wildcards_enhance tab. Annotation tags for searching xhoxye
+            ui_wildcards_enhance.ui_wildcards_enhance(prompt) 
 
 
-        
         state_is_generating = gr.State(False)
 
         load_parameter_outputs = [
@@ -534,6 +538,7 @@ with shared.gradio_root:
             preset_selection.change(preset_selection_change, inputs=[preset_selection, state_is_generating], outputs=load_parameter_outputs, queue=False, show_progress=True) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
+
 
 
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +

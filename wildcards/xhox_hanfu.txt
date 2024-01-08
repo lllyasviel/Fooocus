@@ -1,0 +1,41 @@
+chinese clothes
+chinese armor
+Hanfu, Han clothing made of Chinese silk.
+Ru skirt, Ru skirt is composed of short jacket and long skirt.
+Curving-front robe
+Coat skirt, The lined clothes in the Ming Dynasty generally were called "coat". Cuffs are narrow and the bottoms are sewn to bring things. The skirt front is flat, shaped like the horse face, and named "horse face skirt".
+Sleeved over-dress
+Half-arm shawl
+Yi, Any open cross-collar garment, and worn by both sexes
+Pao, Any closed full-body garment, worn only by men in Hanfu
+Shan, Open cross-collar shirt or jacket that is worn over the Yi
+Qun, Skirt for women and men
+Ku, Trousers or pants
+Tang suit, tangzhuang
+china dress, mandarin gown, cheongsam
+japanese_clothes
+ainu_clothes
+egyptian_clothes
+arabian_clothes
+korean_clothes
+german_clothes
+dirndl
+traditional_clothes
+greek_clothes
+indian_clothes
+european_clothes
+roman_clothes
+russian_clothes
+slavic_clothes
+indonesian_clothes
+renaissance_clothes
+vietnamese_clothes
+thai_clothes
+polish_clothes
+french_clothes
+tibetan_clothes
+mexican_clothes
+vintage_clothes
+mongolian_clothes
+miao_clothes
+uygur_clothes
