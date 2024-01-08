@@ -59,7 +59,7 @@ def apply_style(style, positive):
     return p.replace('{prompt}', positive).splitlines(), n.splitlines()
 
 
-def apply_wildcards(wildcard_text, rng, directory=wildcards_path):
+def apply_wildcards(wildcard_text, rng, i, read_wildcard_in_order_checkbox, directory=wildcards_path):
     for _ in range(wildcards_max_bfs_depth):
         placeholders = re.findall(r'__([\w-]+)__', wildcard_text)
         if len(placeholders) == 0:
@@ -71,7 +71,15 @@ def apply_wildcards(wildcard_text, rng, directory=wildcards_path):
                 words = open(os.path.join(directory, f'{placeholder}.txt'), encoding='utf-8').read().splitlines()
                 words = [x for x in words if x != '']
                 assert len(words) > 0
-                wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
+                #wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
+                # if checked, read in order, if not checked, read randomly
+                if len(words) > i and read_wildcard_in_order_checkbox:
+                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[i % len(words)], 1)
+                elif len(words) <= i and read_wildcard_in_order_checkbox:
+                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[i % len(words)], 1)
+                else:
+                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
+
             except:
                 print(f'[Wildcards] Warning: {placeholder}.txt missing or empty. '
                       f'Using "{placeholder}" as a normal word.')
