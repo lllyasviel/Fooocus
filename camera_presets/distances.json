@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Extreme Close-up",
+        "prompt": "{prompt}, (extreme close-up:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Close-up",
+        "prompt": "{prompt}, (close-up:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Medium Close-up",
+        "prompt": "{prompt}, (medium close-up:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Medium Shot",
+        "prompt": "{prompt}, (medium shot:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Long Shot",
+        "prompt": "{prompt}, (long shot:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Full Shot",
+        "prompt": "{prompt}, (full shot:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Medium Full Shot",
+        "prompt": "{prompt}, (medium full shot:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Establishing Shot",
+        "prompt": "{prompt}, (establishing shot:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Point of View",
+        "prompt": "{prompt}, (point-of-view:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Cowboy Shot",
+        "prompt": "{prompt}, (cowboy shot:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Upper Body",
+        "prompt": "{prompt}, (upper body:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Full Body",
+        "prompt": "{prompt}, (full body:{weight})",
+        "default": "1.5"
+    }
+]

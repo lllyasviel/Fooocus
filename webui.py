@@ -18,6 +18,7 @@ import args_manager
 import copy
 
 from modules.sdxl_styles import legal_style_names
+from modules.camera import camera_angle_names, camera_distance_names, get_preset_weight
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
@@ -230,6 +231,26 @@ with shared.gradio_root:
                                                    value=modules.config.default_aspect_ratio, info='width × height',
                                                    elem_classes='aspect_ratios')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
+
+                with gr.Group():
+                    # TODO: refactor UI
+                    with gr.Row():
+                        camera_angle = gr.Dropdown(label=f'Camera Angle',
+                                                 choices=camera_angle_names, value=None, scale=2)
+                        camera_angle_weight = gr.Number(label='Weight', minimum=0, maximum=2, step=0.01, value=0, scale=1)
+
+                        camera_angle.change(lambda x: camera_angle_weight.update(value=get_preset_weight('angle', x)),
+                                            inputs=[camera_angle], outputs=[camera_angle_weight],
+                                            queue=False, show_progress=False)
+
+                    with gr.Row():
+                        camera_distance = gr.Dropdown(label=f'Camera Distance', choices=camera_distance_names, value=None, scale=2)
+                        camera_distance_weight = gr.Number(label='Weight', minimum=0, maximum=2, step=0.01, value=0, scale=1)
+
+                        camera_distance.change(lambda x: camera_distance_weight.update(value=get_preset_weight('distance', x)),
+                                            inputs=[camera_distance], outputs=[camera_distance_weight],
+                                            queue=False, show_progress=False)
+
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
                                              elem_id='negative_prompt',
@@ -321,6 +342,7 @@ with shared.gradio_root:
 
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
+
             with gr.Tab(label='Advanced'):
                 guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01,
                                            value=modules.config.default_cfg_scale,
@@ -521,6 +543,7 @@ with shared.gradio_root:
 
         ctrls = [
             prompt, negative_prompt, style_selections,
+            camera_angle, camera_angle_weight, camera_distance, camera_distance_weight,
             performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, guidance_scale
         ]
 
@@ -559,6 +582,10 @@ with shared.gradio_root:
             prompt,
             negative_prompt,
             style_selections,
+            camera_angle,
+            camera_angle_weight,
+            camera_distance,
+            camera_distance_weight,
             performance_selection,
             aspect_ratios_selection,
             overwrite_width,

@@ -2,7 +2,7 @@ import os
 import re
 import json
 
-from modules.util import get_files_from_folder
+from modules.util import get_files_from_folder, normalize_key
 
 
 # cannot use modules.config - validators causing circular imports
@@ -11,11 +11,8 @@ wildcards_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../wil
 wildcards_max_bfs_depth = 64
 
 
-def normalize_key(k):
-    k = k.replace('-', ' ')
-    words = k.split(' ')
-    words = [w[:1].upper() + w[1:].lower() for w in words]
-    k = ' '.join(words)
+def normalize_style_key(k):
+    k = normalize_key(k)
     k = k.replace('3d', '3D')
     k = k.replace('Sai', 'SAI')
     k = k.replace('Mre', 'MRE')
@@ -41,7 +38,7 @@ for styles_file in styles_files:
     try:
         with open(os.path.join(styles_path, styles_file), encoding='utf-8') as f:
             for entry in json.load(f):
-                name = normalize_key(entry['name'])
+                name = normalize_style_key(entry['name'])
                 prompt = entry['prompt'] if 'prompt' in entry else ''
                 negative_prompt = entry['negative_prompt'] if 'negative_prompt' in entry else ''
                 styles[name] = (prompt, negative_prompt)
