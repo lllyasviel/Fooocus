@@ -1,0 +1,47 @@
+{
+    "default_model": "sd_xl_base_1.0_0.9vae.safetensors",
+    "default_refiner": "sd_xl_refiner_1.0_0.9vae.safetensors",
+    "default_refiner_switch": 0.75,
+    "default_loras": [
+        [
+            "sd_xl_offset_example-lora_1.0.safetensors",
+            0.5
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ]
+    ],
+    "default_cfg_scale": 7.0,
+    "default_sample_sharpness": 2.0,
+    "default_sampler": "dpmpp_2m_sde_gpu",
+    "default_scheduler": "karras",
+    "default_performance": "Speed",
+    "default_prompt": "",
+    "default_prompt_negative": "",
+    "default_styles": [
+        "Fooocus V2",
+        "Fooocus Cinematic"
+    ],
+    "default_aspect_ratio": "1152*896",
+    "checkpoint_downloads": {
+        "sd_xl_base_1.0_0.9vae.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors",
+        "sd_xl_refiner_1.0_0.9vae.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors"
+    },
+    "embeddings_downloads": {},
+    "lora_downloads": {
+        "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors"
+    }
+}

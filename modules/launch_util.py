@@ -1,15 +1,11 @@
 import os
 import importlib
 import importlib.util
-import shutil
 import subprocess
 import sys
 import re
 import logging
-import pygit2
 
-
-pygit2.option(pygit2.GIT_OPT_SET_OWNER_VALIDATION, 0)
 
 logging.getLogger("torch.distributed.nn").setLevel(logging.ERROR)  # sshh...
 logging.getLogger("xformers").addFilter(lambda record: 'A matching Triton is not available' not in record.getMessage())

@@ -1,25 +1,4 @@
-
-// localization = {} -- the dict with translations is created by the backend
-
-var ignore_ids_for_localization = {
-    setting_sd_hypernetwork: 'OPTION',
-    setting_sd_model_checkpoint: 'OPTION',
-    modelmerger_primary_model_name: 'OPTION',
-    modelmerger_secondary_model_name: 'OPTION',
-    modelmerger_tertiary_model_name: 'OPTION',
-    train_embedding: 'OPTION',
-    train_hypernetwork: 'OPTION',
-    txt2img_styles: 'OPTION',
-    img2img_styles: 'OPTION',
-    setting_random_artist_categories: 'OPTION',
-    setting_face_restoration_model: 'OPTION',
-    setting_realesrgan_enabled_models: 'OPTION',
-    extras_upscaler_1: 'OPTION',
-    extras_upscaler_2: 'OPTION',
-};
-
 var re_num = /^[.\d]+$/;
-var re_emoji = /[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{1F9B0}-\u{1F9B3}]/u;
 
 var original_lines = {};
 var translated_lines = {};
@@ -37,22 +16,9 @@ function textNodesUnder(el) {
 function canBeTranslated(node, text) {
     if (!text) return false;
     if (!node.parentElement) return false;
-
     var parentType = node.parentElement.nodeName;
     if (parentType == 'SCRIPT' || parentType == 'STYLE' || parentType == 'TEXTAREA') return false;
-
-    if (parentType == 'OPTION' || parentType == 'SPAN') {
-        var pnode = node;
-        for (var level = 0; level < 4; level++) {
-            pnode = pnode.parentElement;
-            if (!pnode) break;
-
-            if (ignore_ids_for_localization[pnode.id] == parentType) return false;
-        }
-    }
-
     if (re_num.test(text)) return false;
-    if (re_emoji.test(text)) return false;
     return true;
 }
 
@@ -79,6 +45,9 @@ function processTextNode(node) {
     var tl = getTranslation(text);
     if (tl !== undefined) {
         node.textContent = tl;
+        if (text && node.parentElement) {
+          node.parentElement.setAttribute("data-original-text", text);
+        }
     }
 }
 
@@ -105,6 +74,10 @@ function processNode(node) {
     textNodesUnder(node).forEach(function(node) {
         processTextNode(node);
     });
+}
+
+function refresh_style_localization() {
+    processNode(document.querySelector('.style_selections'));
 }
 
 function localizeWholePage() {
@@ -134,40 +107,6 @@ function localizeWholePage() {
             }
         }
     }
-}
-
-function dumpTranslations() {
-    if (!hasLocalization()) {
-        // If we don't have any localization,
-        // we will not have traversed the app to find
-        // original_lines, so do that now.
-        localizeWholePage();
-    }
-    var dumped = {};
-    if (localization.rtl) {
-        dumped.rtl = true;
-    }
-
-    for (const text in original_lines) {
-        if (dumped[text] !== undefined) continue;
-        dumped[text] = localization[text] || text;
-    }
-
-    return dumped;
-}
-
-function download_localization() {
-    var text = JSON.stringify(dumpTranslations(), null, 4);
-
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', "localization.json");
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
 }
 
 document.addEventListener("DOMContentLoaded", function() {

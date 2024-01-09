@@ -1,30 +1,31 @@
 import torch
-import fcbh.samplers
-import fcbh.model_management
+import ldm_patched.modules.samplers
+import ldm_patched.modules.model_management
 
-from fcbh.model_base import SDXLRefiner, SDXL
-from fcbh.sample import get_additional_models, get_models_from_cond, cleanup_additional_models
-from fcbh.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
-    create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_adm, \
-    encode_cond
+from collections import namedtuple
+from ldm_patched.contrib.external_custom_sampler import SDTurboScheduler
+from ldm_patched.k_diffusion import sampling as k_diffusion_sampling
+from ldm_patched.modules.samplers import normal_scheduler, simple_scheduler, ddim_scheduler
+from ldm_patched.modules.model_base import SDXLRefiner, SDXL
+from ldm_patched.modules.conds import CONDRegular
+from ldm_patched.modules.sample import get_additional_models, get_models_from_cond, cleanup_additional_models
+from ldm_patched.modules.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
+    create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_model_conds
 
 
 current_refiner = None
 refiner_switch_step = -1
-history_record = None
 
 
 @torch.no_grad()
 @torch.inference_mode()
-def clip_separate(cond, target_model=None, target_clip=None):
-    c, p = cond[0]
+def clip_separate_inner(c, p, target_model=None, target_clip=None):
     if target_model is None or isinstance(target_model, SDXLRefiner):
         c = c[..., -1280:].clone()
-        p = {"pooled_output": p["pooled_output"].clone()}
     elif isinstance(target_model, SDXL):
         c = c.clone()
-        p = {"pooled_output": p["pooled_output"].clone()}
     else:
+        p = None
         c = c[..., :768].clone()
 
         final_layer_norm = target_clip.cond_stage_model.clip_l.transformer.text_model.final_layer_norm
@@ -44,9 +45,42 @@ def clip_separate(cond, target_model=None, target_clip=None):
 
         final_layer_norm.to(device=final_layer_norm_origin_device, dtype=final_layer_norm_origin_dtype)
         c = c.to(device=c_origin_device, dtype=c_origin_dtype)
+    return c, p
 
-        p = {}
-    return [[c, p]]
+
+@torch.no_grad()
+@torch.inference_mode()
+def clip_separate(cond, target_model=None, target_clip=None):
+    results = []
+
+    for c, px in cond:
+        p = px.get('pooled_output', None)
+        c, p = clip_separate_inner(c, p, target_model=target_model, target_clip=target_clip)
+        p = {} if p is None else {'pooled_output': p.clone()}
+        results.append([c, p])
+
+    return results
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def clip_separate_after_preparation(cond, target_model=None, target_clip=None):
+    results = []
+
+    for x in cond:
+        p = x.get('pooled_output', None)
+        c = x['model_conds']['c_crossattn'].cond
+
+        c, p = clip_separate_inner(c, p, target_model=target_model, target_clip=target_clip)
+
+        result = {'model_conds': {'c_crossattn': CONDRegular(c)}}
+
+        if p is not None:
+            result['pooled_output'] = p.clone()
+
+        results.append(result)
+
+    return results
 
 
 @torch.no_grad()
@@ -62,8 +96,15 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
 
     model_wrap = wrap_model(model)
 
-    calculate_start_end_timesteps(model_wrap, negative)
-    calculate_start_end_timesteps(model_wrap, positive)
+    calculate_start_end_timesteps(model, negative)
+    calculate_start_end_timesteps(model, positive)
+
+    if latent_image is not None:
+        latent_image = model.process_latent_in(latent_image)
+
+    if hasattr(model, 'extra_conds'):
+        positive = encode_model_conds(model.extra_conds, positive, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask)
+        negative = encode_model_conds(model.extra_conds, negative, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask)
 
     #make sure each cond area has an opposite one with the same area
     for c in positive:
@@ -71,34 +112,20 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
     for c in negative:
         create_cond_with_same_area_if_none(positive, c)
 
-    # pre_run_control(model_wrap, negative + positive)
-    pre_run_control(model_wrap, positive)  # negative is not necessary in Fooocus, 0.5s faster.
+    # pre_run_control(model, negative + positive)
+    pre_run_control(model, positive)  # negative is not necessary in Fooocus, 0.5s faster.
 
-    apply_empty_x_to_equal_area(list(filter(lambda c: c[1].get('control_apply_to_uncond', False) == True, positive)), negative, 'control', lambda cond_cnets, x: cond_cnets[x])
+    apply_empty_x_to_equal_area(list(filter(lambda c: c.get('control_apply_to_uncond', False) == True, positive)), negative, 'control', lambda cond_cnets, x: cond_cnets[x])
     apply_empty_x_to_equal_area(positive, negative, 'gligen', lambda cond_cnets, x: cond_cnets[x])
-
-    if latent_image is not None:
-        latent_image = model.process_latent_in(latent_image)
-
-    if model.is_adm():
-        positive = encode_adm(model, positive, noise.shape[0], noise.shape[3], noise.shape[2], device, "positive")
-        negative = encode_adm(model, negative, noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")
-
-    if hasattr(model, 'cond_concat'):
-        positive = encode_cond(model.cond_concat, "concat", positive, device, noise=noise, latent_image=latent_image, denoise_mask=denoise_mask)
-        negative = encode_cond(model.cond_concat, "concat", negative, device, noise=noise, latent_image=latent_image, denoise_mask=denoise_mask)
 
     extra_args = {"cond":positive, "uncond":negative, "cond_scale": cfg, "model_options": model_options, "seed":seed}
 
-    if current_refiner is not None and current_refiner.model.is_adm():
-        positive_refiner = clip_separate(positive, target_model=current_refiner.model)
-        negative_refiner = clip_separate(negative, target_model=current_refiner.model)
+    if current_refiner is not None and hasattr(current_refiner.model, 'extra_conds'):
+        positive_refiner = clip_separate_after_preparation(positive, target_model=current_refiner.model)
+        negative_refiner = clip_separate_after_preparation(negative, target_model=current_refiner.model)
 
-        positive_refiner = encode_adm(current_refiner.model, positive_refiner, noise.shape[0], noise.shape[3], noise.shape[2], device, "positive")
-        negative_refiner = encode_adm(current_refiner.model, negative_refiner, noise.shape[0], noise.shape[3], noise.shape[2], device, "negative")
-
-        positive_refiner[0][1]['adm_encoded'].to(positive[0][1]['adm_encoded'])
-        negative_refiner[0][1]['adm_encoded'].to(negative[0][1]['adm_encoded'])
+        positive_refiner = encode_model_conds(current_refiner.model.extra_conds, positive_refiner, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask)
+        negative_refiner = encode_model_conds(current_refiner.model.extra_conds, negative_refiner, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask)
 
     def refiner_switch():
         cleanup_additional_models(set(get_models_from_cond(positive, "control") + get_models_from_cond(negative, "control")))
@@ -110,17 +137,15 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
         extra_args['model_options'] = {k: {} if k == 'transformer_options' else v for k, v in extra_args['model_options'].items()}
 
         models, inference_memory = get_additional_models(positive_refiner, negative_refiner, current_refiner.model_dtype())
-        fcbh.model_management.load_models_gpu([current_refiner] + models, fcbh.model_management.batch_area_memory(
-            noise.shape[0] * noise.shape[2] * noise.shape[3]) + inference_memory)
+        ldm_patched.modules.model_management.load_models_gpu(
+            [current_refiner] + models,
+            model.memory_required([noise.shape[0] * 2] + list(noise.shape[1:])) + inference_memory)
 
-        model_wrap.inner_model.inner_model = current_refiner.model
+        model_wrap.inner_model = current_refiner.model
         print('Refiner Swapped')
         return
 
     def callback_wrap(step, x0, x, total_steps):
-        global history_record
-        if isinstance(history_record, list):
-            history_record.append((step, x0, x))
         if step == refiner_switch_step and current_refiner is not None:
             refiner_switch()
         if callback is not None:
@@ -133,4 +158,27 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
     return model.process_latent_out(samples.to(torch.float32))
 
 
-fcbh.samplers.sample = sample_hacked
+@torch.no_grad()
+@torch.inference_mode()
+def calculate_sigmas_scheduler_hacked(model, scheduler_name, steps):
+    if scheduler_name == "karras":
+        sigmas = k_diffusion_sampling.get_sigmas_karras(n=steps, sigma_min=float(model.model_sampling.sigma_min), sigma_max=float(model.model_sampling.sigma_max))
+    elif scheduler_name == "exponential":
+        sigmas = k_diffusion_sampling.get_sigmas_exponential(n=steps, sigma_min=float(model.model_sampling.sigma_min), sigma_max=float(model.model_sampling.sigma_max))
+    elif scheduler_name == "normal":
+        sigmas = normal_scheduler(model, steps)
+    elif scheduler_name == "simple":
+        sigmas = simple_scheduler(model, steps)
+    elif scheduler_name == "ddim_uniform":
+        sigmas = ddim_scheduler(model, steps)
+    elif scheduler_name == "sgm_uniform":
+        sigmas = normal_scheduler(model, steps, sgm=True)
+    elif scheduler_name == "turbo":
+        sigmas = SDTurboScheduler().get_sigmas(namedtuple('Patcher', ['model'])(model=model), steps=steps, denoise=1.0)[0]
+    else:
+        raise TypeError("error invalid scheduler")
+    return sigmas
+
+
+ldm_patched.modules.samplers.calculate_sigmas_scheduler = calculate_sigmas_scheduler_hacked
+ldm_patched.modules.samplers.sample = sample_hacked

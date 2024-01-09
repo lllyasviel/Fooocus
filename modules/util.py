@@ -3,6 +3,7 @@ import datetime
 import random
 import math
 import os
+import cv2
 
 from PIL import Image
 
@@ -10,9 +11,18 @@ from PIL import Image
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 
 
+def erode_or_dilate(x, k):
+    k = int(k)
+    if k > 0:
+        return cv2.dilate(x, kernel=np.ones(shape=(3, 3), dtype=np.uint8), iterations=k)
+    if k < 0:
+        return cv2.erode(x, kernel=np.ones(shape=(3, 3), dtype=np.uint8), iterations=-k)
+    return x
+
+
 def resample_image(im, width, height):
     im = Image.fromarray(im)
-    im = im.resize((width, height), resample=LANCZOS)
+    im = im.resize((int(width), int(height)), resample=LANCZOS)
     return np.array(im)
 
 
@@ -79,16 +89,27 @@ def get_shape_ceil(h, w):
 
 
 def get_image_shape_ceil(im):
-    H, W, _ = im.shape
+    H, W = im.shape[:2]
     return get_shape_ceil(H, W)
 
 
 def set_image_shape_ceil(im, shape_ceil):
-    H, W, _ = im.shape
-    shape_ceil_before = get_shape_ceil(H, W)
-    k = float(shape_ceil) / shape_ceil_before
-    H = int(round(float(H) * k / 64.0) * 64)
-    W = int(round(float(W) * k / 64.0) * 64)
+    shape_ceil = float(shape_ceil)
+
+    H_origin, W_origin, _ = im.shape
+    H, W = H_origin, W_origin
+    
+    for _ in range(256):
+        current_shape_ceil = get_shape_ceil(H, W)
+        if abs(current_shape_ceil - shape_ceil) < 0.1:
+            break
+        k = shape_ceil / current_shape_ceil
+        H = int(round(float(H) * k / 64.0) * 64)
+        W = int(round(float(W) * k / 64.0) * 64)
+
+    if H == H_origin and W == W_origin:
+        return im
+
     return resample_image(im, width=W, height=H)
 
 
