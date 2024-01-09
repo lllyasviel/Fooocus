@@ -1,0 +1,37 @@
+OOTD
+OOTN,Outfit of the Night
+springwear
+summerwear 
+autumnwear
+winterwear 
+formalwear
+casualwear 
+loungewear
+sleepwear
+nightwear
+nightgown
+pajamas
+bridalwear 
+sportwear
+gym wear
+swimwear
+underwear
+outerwear
+suit
+business suit
+dress_suit
+waistcoat
+tailcoat
+tuxedo_jacket
+coattails
+tuxedo
+gown
+evening_gown
+cocktail_dress
+costume
+sweater
+leotard
+bodysuit
+unitard
+jumpsuit
+romper

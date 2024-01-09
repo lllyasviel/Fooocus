@@ -1,0 +1,17 @@
+cap_sleeve
+batwing_sleeve
+cape_sleeve
+bell_sleeve
+flutter_sleeve
+butterfly_sleeve
+ruffle_sleeve
+layered_sleeve
+frilled_sleeve
+cold_shoulder_sleeve
+off-the-shoulder_sleeve
+cuff_sleeve
+bishop_sleeve
+puffy_sleeves
+lantern_sleeve
+balloon_sleeve
+raglan_sleeve
