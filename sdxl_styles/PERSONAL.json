@@ -1,0 +1,16 @@
+[
+    {
+        "name": "PERSONAL for_person",
+        "prompt": "{prompt}, beautiful, model, beautiful hands, beautiful legs, beautiful eyes, beautiful skin, beautiful ears, beautiful hair, beautiful foot, beautiful teeth, symmetric eyes",
+        "negative_prompt": "heterochromia, cock-eyed, uneven pupils, uneven eyes, syndrome, facial asymmetry, squint-eyed, squint, cross-eyed, swivel-eyed, ugly hands, missing fingers, three hands, three legs, mutant human, mutated, missing arms, ugly face, face fusion, ugly feet, one armed, three armed, missing limbs, extra limb, missing fingers, missing toe, extra fingers, six fingers, long fingers, short fingers, ugly fingers, amputation, cartoon, animate, deformed, bad anatomy, disfigured, long neck, malformed hands, mutated hands, cropped, huge calf, abnormal eye proportion, cartoon, drawing, painting, crayon, sketch, graphite, impressionist, noisy, blurry, soft, deformed, ugly, anime, painting, crayon, graphite, abstract, glitch, conjoined, scary, demonic, horror"
+    },
+    {
+        "name": "PERSONAL only_negative",
+        "negative_prompt": "heterochromia, cock-eyed, uneven pupils, uneven eyes, syndrome, facial asymmetry, squint-eyed, squint, cross-eyed, swivel-eyed, ugly hands, missing fingers, three hands, three legs, mutant human, mutated, missing arms, ugly face, face fusion, ugly feet, one armed, three armed, missing limbs, extra limb, missing fingers, missing toe, extra fingers, six fingers, long fingers, short fingers, ugly fingers, amputation, cartoon, animate, deformed, bad anatomy, disfigured, long neck, malformed hands, mutated hands, cropped, huge calf, abnormal eye proportion, cartoon, drawing, painting, crayon, sketch, graphite, impressionist, noisy, blurry, soft, deformed, ugly, anime, painting, crayon, graphite, abstract, glitch, conjoined, scary, demonic, horror"
+    },
+    {
+        "name": "PERSONAL for_portrait",
+        "prompt": "{prompt}, beautiful, model, beautiful eyes, beautiful skin, beautiful ears, beautiful hair, beautiful teeth, symmetric eyes",
+        "negative_prompt": "heterochromia, cock-eyed, uneven pupils, uneven eyes, syndrome, facial asymmetry, squint-eyed, squint, cross-eyed, swivel-eyed, ugly hands, missing fingers, three hands, three legs, mutant human, mutated, missing arms, ugly face, face fusion, ugly feet, one armed, three armed, missing limbs, extra limb, missing fingers, missing toe, extra fingers, six fingers, long fingers, short fingers, ugly fingers, amputation, cartoon, animate, deformed, bad anatomy, disfigured, long neck, malformed hands, mutated hands, cropped, huge calf, abnormal eye proportion, cartoon, drawing, painting, crayon, sketch, graphite, impressionist, noisy, blurry, soft, deformed, ugly, anime, painting, crayon, graphite, abstract, glitch, conjoined, scary, demonic, horror"
+    }
+]
