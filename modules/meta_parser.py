@@ -146,3 +146,32 @@ def load_parameter_button_click(raw_prompt_txt, is_generating):
             results.append(gr.update())
 
     return results
+
+def parse_meta_from_preset(preset_content):
+    assert isinstance(preset_content, dict)
+    preset_prepared = {}
+    items = preset_content
+
+    for settings_key, meta_key in modules.config.possible_preset_keys.items():
+        if settings_key == "default_loras":
+            loras = getattr(modules.config, settings_key)
+            if settings_key in items:
+                loras = items[settings_key]
+            for index, lora in enumerate(loras[:5]):
+                preset_prepared[f'LoRA {index + 1}'] = ' : '.join(map(str, lora))
+        elif settings_key == "default_aspect_ratio":
+            if settings_key in items and items[settings_key] is not None:
+                default_aspect_ratio = items[settings_key]
+                width, height = default_aspect_ratio.split('*')
+            else:
+                default_aspect_ratio = getattr(modules.config, settings_key)
+                width, height = default_aspect_ratio.split('×')
+                height = height[:height.index(" ")]
+            preset_prepared[meta_key] = (width, height)
+        else:
+            preset_prepared[meta_key] = items[settings_key] if settings_key in items and items[settings_key] is not None else getattr(modules.config, settings_key)
+        
+        if settings_key == "default_styles" or settings_key == "default_aspect_ratio":
+            preset_prepared[meta_key] = str(preset_prepared[meta_key])
+
+    return preset_prepared

@@ -1,0 +1,31 @@
+warm color tone
+cold color tone
+pastel color tone
+vivid color tone
+vibrant color tone
+cyberpunk color tone
+steampunk color tone
+red
+blue
+yellow
+orange
+green
+purple
+cyan
+pink
+brown
+black
+white
+grey
+aqua
+gold
+silver
+beige
+tan
+lavender
+maroon
+olive
+two-tone
+multicolored
+gradient
+camouflage

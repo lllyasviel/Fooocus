@@ -1,0 +1,26 @@
+argyle
+plaid
+checkered
+gingham
+striped
+3-stripe
+pinstripe
+multicolored_stripes
+tiger_stripes
+houndstooth
+print
+ribbed
+polka_dot
+animal print
+cartoon
+chevron
+floral
+fruits
+geometric
+hearts
+herringbone
+letter print
+moire
+paisley
+solid
+stars
