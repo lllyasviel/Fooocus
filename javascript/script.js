@@ -162,9 +162,9 @@ function initStylePreviewOverlay() {
         const originalText = label.querySelector("span").getAttribute("data-original-text");
         const name = originalText || label.querySelector("span").textContent;
         overlay.style.backgroundImage = `url("${samplesPath.replace(
-          "Fooocus V2",
-          name
-        )}")`;
+          "fooocus_v2",
+          name.toLowerCase().replaceAll(" ", "_")
+        ).replaceAll("\\", "\\\\")}")`;
         function onMouseLeave() {
             overlayVisible = false;
             overlay.style.display = "none";

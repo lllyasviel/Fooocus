@@ -199,8 +199,8 @@
 
 #stylePreviewOverlay {
     display: none;
-    width: 130px;
-    height: 100px;
+    width: 128px;
+    height: 128px;
     position: fixed;
     top: 0px;
     left: 0px;
@@ -209,4 +209,5 @@
     background-size: cover;
     background-position: center;
     border-radius: 5px;
+    z-index: 100;
 }
