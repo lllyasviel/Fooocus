@@ -23,13 +23,38 @@ from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 
 
+QUEUE_PROMPT = []
+FINISHED_IMG = []
+
+
+def queue_prompt_add(*args):
+    QUEUE_PROMPT.append(args)
+
+
+def queue_prompt_start(*args):
+    FINISHED_IMG.clear()
+    if not QUEUE_PROMPT:
+        yield from generate_clicked(*args)
+    else:
+        while True:
+            try:
+                yield from generate_clicked(*QUEUE_PROMPT.pop(0))
+            except IndexError:
+                break
+    yield gr.update(visible=False), \
+        gr.update(visible=False), \
+        gr.update(visible=False), \
+        gr.update(visible=True, value=FINISHED_IMG), \
+        gr.update(value=f"Queue ({len(QUEUE_PROMPT)})")
+
+
 def generate_clicked(*args):
     import ldm_patched.modules.model_management as model_management
 
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
 
-    # outputs=[progress_html, progress_window, progress_gallery, gallery]
+    # outputs=[progress_html, progress_window, progress_gallery, gallery, queue_button]
 
     execution_start_time = time.perf_counter()
     task = worker.AsyncTask(args=list(args))
@@ -37,8 +62,9 @@ def generate_clicked(*args):
 
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
         gr.update(visible=True, value=None), \
-        gr.update(visible=False, value=None), \
-        gr.update(visible=False)
+        gr.update(visible=bool(FINISHED_IMG), value=FINISHED_IMG), \
+        gr.update(visible=False), \
+        gr.update()
 
     worker.async_tasks.append(task)
 
@@ -50,7 +76,7 @@ def generate_clicked(*args):
 
                 # help bad internet connection by skipping duplicated preview
                 if len(task.yields) > 0:  # if we have the next item
-                    if task.yields[0][0] == 'preview':   # if the next item is also a preview
+                    if task.yields[0][0] == 'preview':  # if the next item is also a preview
                         # print('Skipped one preview for better internet connection.')
                         continue
 
@@ -58,17 +84,21 @@ def generate_clicked(*args):
                 yield gr.update(visible=True, value=modules.html.make_progress_html(percentage, title)), \
                     gr.update(visible=True, value=image) if image is not None else gr.update(), \
                     gr.update(), \
-                    gr.update(visible=False)
+                    gr.update(visible=False), \
+                    gr.update()
             if flag == 'results':
+                FINISHED_IMG.append(product[-1])
                 yield gr.update(visible=True), \
                     gr.update(visible=True), \
-                    gr.update(visible=True, value=product), \
-                    gr.update(visible=False)
+                    gr.update(visible=True, value=FINISHED_IMG), \
+                    gr.update(visible=False), \
+                    gr.update()
             if flag == 'finish':
-                yield gr.update(visible=False), \
+                yield gr.update(visible=True), \
+                    gr.update(visible=True), \
+                    gr.update(visible=True, value=FINISHED_IMG), \
                     gr.update(visible=False), \
-                    gr.update(visible=False), \
-                    gr.update(visible=True, value=product)
+                    gr.update(value=f"Queue ({len(QUEUE_PROMPT)})")
                 finished = True
 
     execution_time = time.perf_counter() - execution_start_time
@@ -110,8 +140,9 @@ with shared.gradio_root:
                         shared.gradio_root.load(lambda: default_prompt, outputs=prompt)
 
                 with gr.Column(scale=3, min_width=0):
-                    generate_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', elem_id='generate_button', visible=True)
-                    load_parameter_button = gr.Button(label="Load Parameters", value="Load Parameters", elem_classes='type_row', elem_id='load_parameter_button', visible=False)
+                    generate_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row_half', elem_id='generate_button', visible=True)
+                    queue_button = gr.Button(label="Queue", value="Queue (0)", elem_classes='type_row_half', elem_id='queue_button', visible=True)
+                    load_parameter_button = gr.Button(label="Load Parameters", value="Load Parameters", elem_classes='type_row_half', elem_id='load_parameter_button', visible=False)
                     skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', visible=False)
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
 
@@ -583,10 +614,13 @@ with shared.gradio_root:
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
-            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+            .then(fn=queue_prompt_start, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery, queue_button]) \
             .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
                   outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
+
+        queue_button.click(fn=queue_prompt_add, inputs=ctrls) \
+            .then(lambda: (gr.update(value=f"Queue ({len(QUEUE_PROMPT)})")), outputs=[queue_button])
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):
