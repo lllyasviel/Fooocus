@@ -237,6 +237,10 @@ You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
+### Docker
+
+See [docker.md](docker.md)
+
 ### Download Previous Version
 
 See the guidelines [here](https://github.com/lllyasviel/Fooocus/discussions/1405).
