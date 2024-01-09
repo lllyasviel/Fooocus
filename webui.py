@@ -22,17 +22,19 @@ from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 
+def get_task(*args):
+    args = list(args)
+    currentTask = args.pop(0)
+    currentTask = worker.AsyncTask(args=args)
+    return currentTask
 
-def generate_clicked(*args):
+def generate_clicked(task):
     import ldm_patched.modules.model_management as model_management
 
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
-
     # outputs=[progress_html, progress_window, progress_gallery, gallery]
-
     execution_start_time = time.perf_counter()
-    task = worker.AsyncTask(args=list(args))
     finished = False
 
     yield gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')), \
@@ -88,6 +90,7 @@ shared.gradio_root = gr.Blocks(
     css=modules.html.css).queue()
 
 with shared.gradio_root:
+    currentTask = gr.State(worker.AsyncTask(args=[]))
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Row():
@@ -115,21 +118,22 @@ with shared.gradio_root:
                     skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', visible=False)
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
 
-                    def stop_clicked():
+                    def stop_clicked(currentTask):
                         import ldm_patched.modules.model_management as model_management
-                        shared.last_stop = 'stop'
-                        model_management.interrupt_current_processing()
-                        return [gr.update(interactive=False)] * 2
+                        currentTask.last_stop = 'stop'
+                        if (currentTask.processing):
+                            model_management.interrupt_current_processing()
+                        return currentTask
 
-                    def skip_clicked():
+                    def skip_clicked(currentTask):
                         import ldm_patched.modules.model_management as model_management
-                        shared.last_stop = 'skip'
-                        model_management.interrupt_current_processing()
-                        return
+                        currentTask.last_stop = 'skip'
+                        if (currentTask.processing):
+                            model_management.interrupt_current_processing()
+                        return currentTask
 
-                    stop_button.click(stop_clicked, outputs=[skip_button, stop_button],
-                                      queue=False, show_progress=False, _js='cancelGenerateForever')
-                    skip_button.click(skip_clicked, queue=False, show_progress=False)
+                    stop_button.click(stop_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False, _js='cancelGenerateForever')
+                    skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
@@ -520,7 +524,7 @@ with shared.gradio_root:
         ], show_progress=False, queue=False)
 
         ctrls = [
-            prompt, negative_prompt, style_selections,
+            currentTask, prompt, negative_prompt, style_selections,
             performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, guidance_scale
         ]
 
@@ -583,7 +587,8 @@ with shared.gradio_root:
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
-            .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
+            .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
+            .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
                   outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
