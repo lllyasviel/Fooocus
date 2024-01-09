@@ -1,0 +1,15 @@
+fitted
+loose
+straight
+tight-fitting
+mini
+micro
+large
+plus size
+oversize
+long
+short
+croped
+highleg
+lowleg
+high-waist

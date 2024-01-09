@@ -19,3 +19,7 @@ v-neck
 plunging neckline
 hooded neck
 henley neck
+collared
+strapless
+sailor collar
+tube

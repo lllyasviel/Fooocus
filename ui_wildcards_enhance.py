@@ -20,7 +20,8 @@ def ui_wildcards_enhance(prompt):
             'xhox_faceshape', 'xhox_hairstyle', 'xhox_haircolor', 'xhox_eye', 'xhox_bangs', 'xhox_beard', 'xhox_otherfeatures', 'xhox_faceexp', 
             'xhox_chest', 'xhox_waist','xhox_legs', 'xhox_gesture', 'xhox_pose', 
             'xhox_hanfu', 'xhox_suit', 'xhox_topwear', 'xhox_bottomwear', 'xhox_socks', 'xhox_shoes', 'xhox_accessories', 
-            'xhox_lighting', 'xhox_color', 'xhox_camera', 'xhox_quality', 'xhox_artist', 'xhox_preset'
+            'xhox_lighting', 'xhox_color', 'xhox_camera', 'xhox_quality', 'xhox_artist', 'xhox_preset',
+            'xhox_a_color', 'xhox_a_pattern', 'xhox_a_material', 'xhox_a_occasion', 'xhox_a_size', 'xhox_a_neckline', 'xhox_a_sleeve'
             ]
 
         # 初始化一个空字典来保存所有的下拉菜单选项
@@ -107,49 +108,75 @@ def ui_wildcards_enhance(prompt):
                 wildcard_xhox_35_dropdown = gr.Dropdown(label="Pose", choices=wildcard_artist_xhox_dropdown_choices['xhox_pose'], scale=2)
                 wildcard_xhox_35_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
 
-        with gr.Tab(label="Attire"): # Attire服装选项卡
+        with gr.Tab(label="A.Opt."): # Apparel Options服装前缀选项卡
             with gr.Row():
-                wildcard_xhox_40_dropdown = gr.Dropdown(label="Hanfu", choices=wildcard_artist_xhox_dropdown_choices['xhox_hanfu'], scale=2)
-                wildcard_xhox_40_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-
-                wildcard_xhox_41_dropdown = gr.Dropdown(label="Suit", choices=wildcard_artist_xhox_dropdown_choices['xhox_suit'], value=wildcard_artist_xhox_dropdown_choices['xhox_suit'][0], scale=2)
+                wildcard_xhox_41_dropdown = gr.Dropdown(label="Apparelcolor", choices=wildcard_artist_xhox_dropdown_choices['xhox_a_color'], scale=2)
                 wildcard_xhox_41_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-                
-                wildcard_xhox_42_dropdown = gr.Dropdown(label="Topwear", choices=wildcard_artist_xhox_dropdown_choices['xhox_topwear'], scale=2)
+
+                wildcard_xhox_42_dropdown = gr.Dropdown(label="Apparelpattern", choices=wildcard_artist_xhox_dropdown_choices['xhox_a_pattern'], scale=2)
                 wildcard_xhox_42_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-                
-                wildcard_xhox_43_dropdown = gr.Dropdown(label="Bottomwear", choices=wildcard_artist_xhox_dropdown_choices['xhox_bottomwear'], scale=2)
+
+                wildcard_xhox_43_dropdown = gr.Dropdown(label="Apparelmaterial", choices=wildcard_artist_xhox_dropdown_choices['xhox_a_material'], scale=2)
                 wildcard_xhox_43_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-                
-                wildcard_xhox_44_dropdown = gr.Dropdown(label="Socks", choices=wildcard_artist_xhox_dropdown_choices['xhox_socks'], scale=2)
+
+                wildcard_xhox_44_dropdown = gr.Dropdown(label="Appareloccasion", choices=wildcard_artist_xhox_dropdown_choices['xhox_a_occasion'], scale=2)
                 wildcard_xhox_44_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-                
-                wildcard_xhox_45_dropdown = gr.Dropdown(label="Shoes", choices=wildcard_artist_xhox_dropdown_choices['xhox_shoes'], scale=2)
+
+                wildcard_xhox_45_dropdown = gr.Dropdown(label="Apparelsize", choices=wildcard_artist_xhox_dropdown_choices['xhox_a_size'], scale=2)
                 wildcard_xhox_45_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-                
-                wildcard_xhox_46_dropdown = gr.Dropdown(label="Accessories", choices=wildcard_artist_xhox_dropdown_choices['xhox_accessories'], scale=2)
+
+                wildcard_xhox_46_dropdown = gr.Dropdown(label="Apparelneckline", choices=wildcard_artist_xhox_dropdown_choices['xhox_a_neckline'], scale=2)
                 wildcard_xhox_46_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_47_dropdown = gr.Dropdown(label="Apparelsleeve", choices=wildcard_artist_xhox_dropdown_choices['xhox_a_sleeve'], scale=2)
+                wildcard_xhox_47_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+
+        with gr.Tab(label="A."): # Apparel服装选项卡
+            with gr.Row():
+                wildcard_xhox_51_dropdown = gr.Dropdown(label="Hanfu", choices=wildcard_artist_xhox_dropdown_choices['xhox_hanfu'], scale=2)
+                wildcard_xhox_51_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_52_dropdown = gr.Dropdown(label="Suit", choices=wildcard_artist_xhox_dropdown_choices['xhox_suit'], value=wildcard_artist_xhox_dropdown_choices['xhox_suit'][0], scale=2)
+                wildcard_xhox_52_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_53_dropdown = gr.Dropdown(label="Topwear", choices=wildcard_artist_xhox_dropdown_choices['xhox_topwear'], scale=2)
+                wildcard_xhox_53_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_54_dropdown = gr.Dropdown(label="Bottomwear", choices=wildcard_artist_xhox_dropdown_choices['xhox_bottomwear'], scale=2)
+                wildcard_xhox_54_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_55_dropdown = gr.Dropdown(label="Socks", choices=wildcard_artist_xhox_dropdown_choices['xhox_socks'], scale=2)
+                wildcard_xhox_55_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_56_dropdown = gr.Dropdown(label="Shoes", choices=wildcard_artist_xhox_dropdown_choices['xhox_shoes'], scale=2)
+                wildcard_xhox_56_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_57_dropdown = gr.Dropdown(label="Accessories", choices=wildcard_artist_xhox_dropdown_choices['xhox_accessories'], scale=2)
+                wildcard_xhox_57_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
 
 
         with gr.Tab(label="Other"): # Other其他选项卡
             with gr.Row():
-                wildcard_xhox_51_dropdown = gr.Dropdown(label="Lighting", choices=wildcard_artist_xhox_dropdown_choices['xhox_lighting'], scale=2)
-                wildcard_xhox_51_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-                
-                wildcard_xhox_52_dropdown = gr.Dropdown(label="Color", choices=wildcard_artist_xhox_dropdown_choices['xhox_color'], scale=2)
-                wildcard_xhox_52_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-                
-                wildcard_xhox_53_dropdown = gr.Dropdown(label="Camera Parameters", choices=wildcard_artist_xhox_dropdown_choices['xhox_camera'], scale=2)
-                wildcard_xhox_53_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-                
-                wildcard_xhox_54_dropdown = gr.Dropdown(label="Quality Words", choices=wildcard_artist_xhox_dropdown_choices['xhox_quality'], scale=2)
-                wildcard_xhox_54_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-                
-                wildcard_xhox_55_dropdown = gr.Dropdown(label="Artist", choices=wildcard_artist_xhox_dropdown_choices['xhox_artist'], value=wildcard_artist_xhox_dropdown_choices['xhox_artist'][0], scale=2)
-                wildcard_xhox_55_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
-                
-                wildcard_xhox_56_dropdown = gr.Dropdown(label="Preset", choices=wildcard_artist_xhox_dropdown_choices['xhox_preset'], scale=2)
-                wildcard_xhox_56_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+                wildcard_xhox_61_dropdown = gr.Dropdown(label="Lighting", choices=wildcard_artist_xhox_dropdown_choices['xhox_lighting'], scale=2)
+                wildcard_xhox_61_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_62_dropdown = gr.Dropdown(label="Color", choices=wildcard_artist_xhox_dropdown_choices['xhox_color'], scale=2)
+                wildcard_xhox_62_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_63_dropdown = gr.Dropdown(label="Camera Parameters", choices=wildcard_artist_xhox_dropdown_choices['xhox_camera'], scale=2)
+                wildcard_xhox_63_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_64_dropdown = gr.Dropdown(label="Quality Words", choices=wildcard_artist_xhox_dropdown_choices['xhox_quality'], scale=2)
+                wildcard_xhox_64_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_65_dropdown = gr.Dropdown(label="Artist", choices=wildcard_artist_xhox_dropdown_choices['xhox_artist'], value=wildcard_artist_xhox_dropdown_choices['xhox_artist'][0], scale=2)
+                wildcard_xhox_65_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
+                wildcard_xhox_66_dropdown = gr.Dropdown(label="Preset", choices=wildcard_artist_xhox_dropdown_choices['xhox_preset'], scale=2)
+                wildcard_xhox_66_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.1, value=0.9, scale=1)
+
 
         with gr.Tab(label="Readme"): # Readme说明选项卡
             #创建一个文本说明
@@ -210,20 +237,28 @@ def ui_wildcards_enhance(prompt):
             wildcard_xhox_34_dropdown, wildcard_xhox_34_weight,
             wildcard_xhox_35_dropdown, wildcard_xhox_35_weight,
 
-            wildcard_xhox_40_dropdown, wildcard_xhox_40_weight,
             wildcard_xhox_41_dropdown, wildcard_xhox_41_weight,
             wildcard_xhox_42_dropdown, wildcard_xhox_42_weight,
             wildcard_xhox_43_dropdown, wildcard_xhox_43_weight,
             wildcard_xhox_44_dropdown, wildcard_xhox_44_weight,
             wildcard_xhox_45_dropdown, wildcard_xhox_45_weight,
             wildcard_xhox_46_dropdown, wildcard_xhox_46_weight,
+            wildcard_xhox_47_dropdown, wildcard_xhox_47_weight,
 
             wildcard_xhox_51_dropdown, wildcard_xhox_51_weight,
             wildcard_xhox_52_dropdown, wildcard_xhox_52_weight,
             wildcard_xhox_53_dropdown, wildcard_xhox_53_weight,
             wildcard_xhox_54_dropdown, wildcard_xhox_54_weight,
             wildcard_xhox_55_dropdown, wildcard_xhox_55_weight,
-            wildcard_xhox_56_dropdown, wildcard_xhox_56_weight
+            wildcard_xhox_56_dropdown, wildcard_xhox_56_weight,
+            wildcard_xhox_57_dropdown, wildcard_xhox_57_weight,
+
+            wildcard_xhox_61_dropdown, wildcard_xhox_61_weight,
+            wildcard_xhox_62_dropdown, wildcard_xhox_62_weight,
+            wildcard_xhox_63_dropdown, wildcard_xhox_63_weight,
+            wildcard_xhox_64_dropdown, wildcard_xhox_64_weight,
+            wildcard_xhox_65_dropdown, wildcard_xhox_65_weight,
+            wildcard_xhox_66_dropdown, wildcard_xhox_66_weight
 
             # 你可以继续添加更多的下拉菜单和权重
         ], outputs=[prompt])
