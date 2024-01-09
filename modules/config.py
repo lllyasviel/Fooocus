@@ -316,6 +316,12 @@ example_inpaint_prompts = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x)
 )
 
+enable_autoupdate = get_config_item_or_set_default(
+    key='enable_autoupdate',
+    default_value=True,
+    validator=lambda x: x in [True, False]
+)
+
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 
 config_dict["default_loras"] = default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
@@ -337,6 +343,7 @@ possible_preset_keys = [
     "checkpoint_downloads",
     "embeddings_downloads",
     "lora_downloads",
+    "enable_autoupdate"
 ]
 
 
