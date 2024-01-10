@@ -230,6 +230,9 @@ with shared.gradio_root:
                                                    value=modules.config.default_aspect_ratio, info='width × height',
                                                    elem_classes='aspect_ratios')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
+                image_extension = gr.Radio(label='Image Extension',
+                                                 choices=modules.flags.image_extensions,
+                                                 value=modules.config.default_image_extension)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
                                              elem_id='negative_prompt',
@@ -481,7 +484,15 @@ with shared.gradio_root:
                                          adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
                                          scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt
                                      ], queue=False, show_progress=False)
+        
+        def update_image_extension(value):
+            print(f'this is x: {value}\nthis is config: {modules.config.default_image_extension}')
+            modules.config.default_image_extension = value
+            print(f'updated config value: {modules.config.default_image_extension}')
 
+        image_extension.input(lambda x: update_image_extension(x), 
+                              inputs=image_extension)
+                              
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
                                  queue=False, show_progress=False) \
             .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)

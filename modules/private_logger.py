@@ -13,7 +13,7 @@ log_cache = {}
 
 def get_current_html_path():
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs,
-                                                                         extension='png')
+                                                                         extension=modules.config.default_image_extension)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
     return html_name
 
@@ -22,7 +22,7 @@ def log(img, dic):
     if args_manager.args.disable_image_log:
         return
 
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension=modules.config.default_image_extension)
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
     Image.fromarray(img).save(local_temp_filename)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
