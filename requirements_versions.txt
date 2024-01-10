@@ -16,3 +16,16 @@ opencv-contrib-python==4.8.0.74
 httpx==0.24.1
 onnxruntime==1.16.3
 timm==0.9.2
+
+protobuf>=4.23.2
+addict
+future
+lmdb
+numpy
+opencv-python
+requests
+scikit-image
+tb-nightly
+yapf
+lpips
+insightface>=0.7.3
