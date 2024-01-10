@@ -1,5 +1,5 @@
 {
-    "default_model": "blue_pencil-XL-v2.0.0.safetensors",
+    "default_model": "blue_pencil-XL-v3.1.0.safetensors",
     "default_refiner": "DreamShaper_8_pruned.safetensors",
     "default_refiner_switch": 0.667,
     "default_loras": [
@@ -41,7 +41,7 @@
     ],
     "default_aspect_ratio": "896*1152",
     "checkpoint_downloads": {
-        "blue_pencil-XL-v2.0.0.safetensors": "https://huggingface.co/bluepen5805/blue_pencil-XL/raw/main/blue_pencil-XL-v2.0.0.safetensors",
+        "blue_pencil-XL-v3.1.0.safetensors": "https://huggingface.co/bluepen5805/blue_pencil-XL/raw/main/blue_pencil-XL-v3.1.0.safetensors",
         "DreamShaper_8_pruned.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/DreamShaper_8_pruned.safetensors"
     },
     "embeddings_downloads": {
