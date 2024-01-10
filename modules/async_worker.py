@@ -789,11 +789,13 @@ def worker():
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
                 for x in imgs:
+                    camera_settings = str([x for x in [camera_angle, camera_distance] if len(x) > 0])
+                    camera_settings = len(camera_settings) > 0 and " | " + camera_settings or ''
                     d = [
                         ('Prompt', task['log_positive_prompt']),
                         ('Negative Prompt', task['log_negative_prompt']),
                         ('Fooocus V2 Expansion', task['expansion']),
-                        ('Styles', str(raw_style_selections)),
+                        ('Styles', str(raw_style_selections) + camera_settings),
                         ('Performance', performance_selection),
                         ('Resolution', str((width, height))),
                         ('Sharpness', sharpness),
