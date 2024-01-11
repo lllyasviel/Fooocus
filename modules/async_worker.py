@@ -380,11 +380,13 @@ def worker():
                 task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
                 wildcard_prompt = ''
-                
+
+                task_prompt = apply_wildcards(prompt, task_rng)
+
                 if use_wildcard:
                     wildcard_prompt = apply_wildcard_selections(wildcard_selections, task_rng)
-                task_prompt = ','.join([wildcard_prompt, prompt])
-
+                task_prompt = ', '.join([wildcard_prompt, task_prompt])
+                
                 task_negative_prompt = apply_wildcards(negative_prompt, task_rng)
                 task_extra_positive_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
                 task_extra_negative_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
