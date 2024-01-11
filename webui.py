@@ -485,12 +485,7 @@ with shared.gradio_root:
                                          scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt
                                      ], queue=False, show_progress=False)
         
-        def update_image_extension(value):
-            print(f'this is x: {value}\nthis is config: {modules.config.default_image_extension}')
-            modules.config.default_image_extension = value
-            print(f'updated config value: {modules.config.default_image_extension}')
-
-        image_extension.input(lambda x: update_image_extension(x), 
+        image_extension.input(lambda x: modules.config.update_image_extension(x), 
                               inputs=image_extension)
                               
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
