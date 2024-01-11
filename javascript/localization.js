@@ -77,6 +77,10 @@ function refresh_style_localization() {
     processNode(document.querySelector('.style_selections'));
 }
 
+function refresh_wildcard_localization() {
+    processNode(document.querySelector('.wildcard_selections'));
+}
+
 function localizeWholePage() {
     processNode(gradioApp());
 

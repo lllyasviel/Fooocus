@@ -1,15 +1,12 @@
 import threading
 
-
 class AsyncTask:
     def __init__(self, args):
         self.args = args
         self.yields = []
         self.results = []
 
-
 async_tasks = []
-
 
 def worker():
     global async_tasks
@@ -36,7 +33,7 @@ def worker():
     import extras.face_crop
     import fooocus_version
 
-    from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
+    from modules.sdxl_styles import apply_style, apply_wildcards, apply_wildcard_selections, fooocus_expansion
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
@@ -121,6 +118,7 @@ def worker():
 
         prompt = args.pop()
         negative_prompt = args.pop()
+        wildcard_selections = args.pop()
         style_selections = args.pop()
         performance_selection = args.pop()
         aspect_ratios_selection = args.pop()
@@ -153,6 +151,7 @@ def worker():
         outpaint_selections = [o.lower() for o in outpaint_selections]
         base_model_additional_loras = []
         raw_style_selections = copy.deepcopy(style_selections)
+        raw_wildcard_selections = copy.deepcopy(wildcard_selections)
         uov_method = uov_method.lower()
 
         if fooocus_expansion in style_selections:
@@ -162,6 +161,7 @@ def worker():
             use_expansion = False
 
         use_style = len(style_selections) > 0
+        use_wildcard = len(wildcard_selections) > 0
 
         if base_model_name == refiner_model_name:
             print(f'Refiner disabled because base model and refiner are same.')
@@ -379,8 +379,12 @@ def worker():
             for i in range(image_number):
                 task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
+                wildcard_prompt = ''
+                
+                if use_wildcard:
+                    wildcard_prompt = apply_wildcard_selections(wildcard_selections, task_rng)
+                task_prompt = ','.join([wildcard_prompt, prompt])
 
-                task_prompt = apply_wildcards(prompt, task_rng)
                 task_negative_prompt = apply_wildcards(negative_prompt, task_rng)
                 task_extra_positive_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
                 task_extra_negative_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
@@ -780,6 +784,7 @@ def worker():
                         ('Negative Prompt', task['log_negative_prompt']),
                         ('Fooocus V2 Expansion', task['expansion']),
                         ('Styles', str(raw_style_selections)),
+                        ('Wildcards', str(raw_wildcard_selections)),
                         ('Performance', performance_selection),
                         ('Resolution', str((width, height))),
                         ('Sharpness', sharpness),

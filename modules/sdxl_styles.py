@@ -24,8 +24,10 @@ def normalize_key(k):
 
 
 styles = {}
+wildcards = {}
 
 styles_files = get_files_from_folder(styles_path, ['.json'])
+wildcards_files = get_files_from_folder(wildcards_path, ['.txt'])
 
 for x in ['sdxl_styles_fooocus.json',
           'sdxl_styles_sai.json',
@@ -52,7 +54,7 @@ for styles_file in styles_files:
 style_keys = list(styles.keys())
 fooocus_expansion = "Fooocus V2"
 legal_style_names = [fooocus_expansion] + style_keys
-
+legal_wildcard_names = [os.path.splitext(file)[0] for file in wildcards_files]
 
 def apply_style(style, positive):
     p, n = styles[style]
@@ -80,3 +82,18 @@ def apply_wildcards(wildcard_text, rng, directory=wildcards_path):
 
     print(f'[Wildcards] BFS stack overflow. Current text: {wildcard_text}')
     return wildcard_text
+
+def apply_wildcard_selections(wildcard_selections, rng):
+    prompts = []
+
+    for wildcard_selection in wildcard_selections:
+        try:
+            wildcard_text = open(os.path.join(wildcards_path, f'{wildcard_selection}.txt'), encoding='utf-8').read().splitlines()
+            wildcard_text = [x for x in wildcard_text if x != '']
+            assert len(wildcard_text) > 0
+            prompts.append(rng.choice(wildcard_text))
+        except:
+            print(f'[Wildcards] Warning: {wildcard_selection}.txt missing or empty. ')
+
+    return ','.join(prompts)
+        
