@@ -258,7 +258,7 @@ with shared.gradio_root:
                 if not args_manager.args.disable_image_log:
                     gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
 
-            with gr.Tab(label='Style'):
+            with gr.Tab(label='Style', elem_classes=['style_selections_tab']):
                 style_sorter.try_load_sorted_styles(
                     style_names=legal_style_names,
                     default_selected=modules.config.default_styles)

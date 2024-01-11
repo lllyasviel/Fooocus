@@ -218,3 +218,49 @@
 #stylePreviewOverlay.lower-half {
     transform: translate(-140px, -140px);
 }
+
+/* scrollable box for style selections */
+.contain .tabs {
+  height: 100%;
+}
+
+  .contain .tabs .tabitem.style_selections_tab {
+      height: 100%;
+  }
+
+      .contain .tabs .tabitem.style_selections_tab > div:first-child {
+          height: 100%;
+      }
+
+      .contain .tabs .tabitem.style_selections_tab .style_selections {
+          min-height: 200px;
+          height: 100%;
+      }
+
+          .contain .tabs .tabitem.style_selections_tab .style_selections .wrap[data-testid="checkbox-group"] {
+              position: absolute; /* remove this to disable scrolling within the checkbox-group */
+              overflow: auto;
+              padding-right: 2px;
+              max-height: 100%;
+          }
+
+              .contain .tabs .tabitem.style_selections_tab .style_selections .wrap[data-testid="checkbox-group"] label {
+                  /* max-width: calc(35% - 15px) !important; */ /* add this to enable 3 columns layout */
+                  flex: calc(50% - 5px) !important;
+                  padding: 2px 5px;
+              }
+
+                  .contain .tabs .tabitem.style_selections_tab .style_selections .wrap[data-testid="checkbox-group"] label span {
+                      /* white-space:nowrap; */ /* add this to disable text wrapping (better choice for 3 columns layout) */
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                  }
+
+/* styles preview tooltip */
+.preview-tooltip {
+  background-color: #fff8;
+  font-family: monospace;
+  text-align: center;
+  border-radius-top: 5px;
+  display: none; /* remove this to enable tooltip in preview image */
+}
