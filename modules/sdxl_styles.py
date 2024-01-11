@@ -95,5 +95,5 @@ def apply_wildcard_selections(wildcard_selections, rng):
         except:
             print(f'[Wildcards] Warning: {wildcard_selection}.txt missing or empty. ')
 
-    return ','.join(prompts)
+    return ', '.join(prompts)
         
