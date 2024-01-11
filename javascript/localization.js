@@ -84,6 +84,10 @@ function refresh_wildcard_localization() {
     processNode(document.querySelector('.wildcard_selections'));
 }
 
+function refresh_wildprompt_localization() {
+    processNode(document.querySelector('.wildprompt_selections'));
+}
+
 function localizeWholePage() {
     processNode(gradioApp());
 

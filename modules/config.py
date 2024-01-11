@@ -226,6 +226,11 @@ default_wildcards = get_config_item_or_set_default(
     default_value=[],
     validator=lambda x: isinstance(x, list) and all(y in modules.sdxl_styles.legal_wildcard_names for y in x)
 )
+default_wildprompts = get_config_item_or_set_default(
+    key='default_wildprompts',
+    default_value=[],
+    validator=lambda x: isinstance(x, list) and all(y in modules.sdxl_styles.legal_wildprompt_names for y in x)
+)
 default_prompt_negative = get_config_item_or_set_default(
     key='default_prompt_negative',
     default_value='',
