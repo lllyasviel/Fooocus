@@ -1,6 +1,8 @@
 # Fooocus-inswapper
 
-This is a fork of [Fooocus](https://github.com/lllyasviel/Fooocus).  This fork integrates the popular Insightface/[inswapper](https://github.com/haofanwang/inswapper) library used by roop, ReActor, and others.  For more detailed and official documentation, please refer to lllyasviel's repository.
+This is a fork of [Fooocus](https://github.com/lllyasviel/Fooocus).  This fork integrates the popular Insightface/[inswapper](https://github.com/haofanwang/inswapper) library used by roop, ReActor, and others.  The goal of this repository is to stay up-to-date with the main repository, while also maintaining the inswapper integration.
+
+For more detailed and official documentation, please refer to [lllyasviel's repository](https://github.com/lllyasviel/Fooocus).
 
 A standalone installation does not exist for this repository.
 
