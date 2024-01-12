@@ -30,4 +30,3 @@ Please report any issues in the Issues tab.  I will try to help as much as I can
 
 1. 🚀 Allow changing of insightface parameters
 2. 🚀 Allow customizable target image
-3. 🐛 [Fix an issue with multiple faces](https://github.com/machineminded/Fooocus-inswapper/issues/2)
