@@ -54,3 +54,4 @@ user_path_config-deprecated.txt
 # Fooocus-inswapper
 inswapper
 checkpoints
+*.orig
