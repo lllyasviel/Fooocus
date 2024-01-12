@@ -15,6 +15,8 @@ The installation assumes CUDA 11.8.  If you need a different version, please upd
 
 ## Usage
 
+Inswapper will activate if "Input Image" and "Enabled" are both checked.
+
 1. `.\venv\Scripts\activate`
 2. `python launch.py`
 
