@@ -5,13 +5,14 @@ sys.path.append('../inswapper')
 
 from inswapper.swapper import process
 
-def perform_face_swap(images, inswapper_source_image):      
+def perform_face_swap(images, inswapper_source_image, inswapper_target_image_index):      
   swapped_images = []
 
   for item in images:
       print(type(item))
       source_image = Image.fromarray(inswapper_source_image)
-      result_image = process([source_image], item, -1, -1, "../inswapper/checkpoints/inswapper_128.onnx")      
+      print(f"Target index: {inswapper_target_image_index}")
+      result_image = process([source_image], item, "-1", f"{int(inswapper_target_image_index)}", "../inswapper/checkpoints/inswapper_128.onnx")      
 
   if True:
       from inswapper.restoration import face_restoration,check_ckpts,set_realesrgan,torch,ARCH_REGISTRY,cv2

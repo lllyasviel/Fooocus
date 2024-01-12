@@ -50,3 +50,8 @@ user_path_config-deprecated.txt
 /package-lock.json
 /.coverage*
 /auth.json
+
+# Fooocus-inswapper
+inswapper
+checkpoints
+*.orig

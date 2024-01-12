@@ -154,6 +154,7 @@ def worker():
 
         inswapper_enabled = args.pop()
         inswapper_source_image = args.pop()
+        inswapper_target_image_index = args.pop()
 
         print(f"Inswapper enabled: {inswapper_enabled}")
 
@@ -808,9 +809,9 @@ def worker():
                     d.append(('Version', 'v' + fooocus_version.version))
                     log(x, d)
 
-                if inswapper_enabled:
+                if inswapper_enabled and input_image_checkbox:
                     print("Lets swap some faces!")
-                    imgs = perform_face_swap(imgs, inswapper_source_image)
+                    imgs = perform_face_swap(imgs, inswapper_source_image, inswapper_target_image_index)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
