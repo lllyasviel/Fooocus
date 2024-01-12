@@ -8,7 +8,8 @@ from inswapper.swapper import process
 def perform_face_swap(images, inswapper_source_image, inswapper_target_image_index):      
   swapped_images = []
 
-  for item in images:      
+  for item in images:
+      print(type(item))
       source_image = Image.fromarray(inswapper_source_image)
       print(f"Target index: {inswapper_target_image_index}")
       result_image = process([source_image], item, "-1", f"{inswapper_target_image_index},", "../inswapper/checkpoints/inswapper_128.onnx")      
