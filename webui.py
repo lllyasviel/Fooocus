@@ -213,7 +213,7 @@ with shared.gradio_root:
                         with gr.Row():
                             with gr.Column():
                                 inswapper_enabled = gr.Checkbox(label="Enabled", value=False)
-                                inswapper_target_image_index = gr.Number(label = "Target Image Index")
+                                inswapper_target_image_index = gr.Number(label = "Target Image Index", info="-1 will swap all faces, otherwise provide the 0-based index of the face (0, 1, etc)")
                             with gr.Column():
                                 inswapper_source_image = grh.Image(label='Source Face Image', source='upload', type='numpy')                                
 
