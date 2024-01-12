@@ -12,7 +12,7 @@ def perform_face_swap(images, inswapper_source_image, inswapper_target_image_ind
       print(type(item))
       source_image = Image.fromarray(inswapper_source_image)
       print(f"Target index: {inswapper_target_image_index}")
-      result_image = process([source_image], item, "-1", f"{inswapper_target_image_index},", "../inswapper/checkpoints/inswapper_128.onnx")      
+      result_image = process([source_image], item, "-1", f"{int(inswapper_target_image_index)}", "../inswapper/checkpoints/inswapper_128.onnx")      
 
   if True:
       from inswapper.restoration import face_restoration,check_ckpts,set_realesrgan,torch,ARCH_REGISTRY,cv2
