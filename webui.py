@@ -87,7 +87,9 @@ def generate_clicked(*args):
                     gr.update(visible=False), \
                     gr.update()
             if flag == 'results':
+                global FINISHED_IMG
                 FINISHED_IMG.append(product[-1])
+                FINISHED_IMG = FINISHED_IMG[-32:]
                 yield gr.update(visible=True), \
                     gr.update(visible=True), \
                     gr.update(visible=True, value=FINISHED_IMG), \
@@ -123,7 +125,7 @@ with shared.gradio_root:
             with gr.Row():
                 progress_window = grh.Image(label='Preview', show_label=True, visible=False, height=768,
                                             elem_classes=['main_view'])
-                progress_gallery = gr.Gallery(label='Finished Images', show_label=True, object_fit='contain',
+                progress_gallery = gr.Gallery(label='Finished Images (max last 32)', show_label=True, object_fit='contain',
                                               height=768, visible=False, elem_classes=['main_view', 'image_gallery'])
             progress_html = gr.HTML(value=modules.html.make_progress_html(32, 'Progress 32%'), visible=False,
                                     elem_id='progress-bar', elem_classes='progress-bar')
