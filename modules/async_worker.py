@@ -125,6 +125,7 @@ def worker():
         performance_selection = args.pop()
         aspect_ratios_selection = args.pop()
         image_number = args.pop()
+        image_extension = args.pop()
         image_seed = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
@@ -376,6 +377,7 @@ def worker():
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
+            
             for i in range(image_number):
                 task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
@@ -511,7 +513,7 @@ def worker():
 
             if direct_return:
                 d = [('Upscale (Fast)', '2x')]
-                log(uov_input_image, d)
+                log(uov_input_image, d, image_extension)
                 yield_result(async_task, uov_input_image, do_not_show_finished_images=True)
                 return
 

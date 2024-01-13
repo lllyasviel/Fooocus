@@ -151,12 +151,6 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
         return default_value
 
 
-def update_image_extension(value):
-    '''Updating default image extension used for saving output image'''
-    modules.config.default_image_extension = value
-    print(f'[CONFIG] Updated image extension value: {modules.config.default_image_extension}')
-
-
 default_base_model_name = get_config_item_or_set_default(
     key='default_model',
     default_value='juggernautXL_version6Rundiffusion.safetensors',
