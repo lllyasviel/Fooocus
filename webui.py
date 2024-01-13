@@ -230,9 +230,7 @@ with shared.gradio_root:
                                                    value=modules.config.default_aspect_ratio, info='width × height',
                                                    elem_classes='aspect_ratios')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
-                image_extension = gr.Radio(label='Image Extension',
-                                                 choices=modules.flags.image_extensions,
-                                                 value=modules.config.default_image_extension)
+
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
                                              elem_id='negative_prompt',
@@ -259,6 +257,9 @@ with shared.gradio_root:
                                    queue=False, show_progress=False)
 
                 if not args_manager.args.disable_image_log:
+                    image_extension = gr.Radio(label='Image Extension',
+                                               choices=modules.flags.image_extensions,
+                                               value=modules.config.default_image_extension)
                     gr.HTML(f'<a href="/file={get_current_html_path(image_extension)}" target="_blank">\U0001F4DA History Log</a>')
 
             with gr.Tab(label='Style'):
