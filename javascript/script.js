@@ -186,7 +186,6 @@ function initStylePreviewOverlay() {
     });
 }
 
-
 /**
  * checks that a UI element is not in another hidden element or tab content
  */
