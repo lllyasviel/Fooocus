@@ -49,6 +49,7 @@ def queue_prompt_start(*args):
 
 
 def generate_clicked(*args):
+    global FINISHED_IMG
     import ldm_patched.modules.model_management as model_management
 
     with model_management.interrupt_processing_mutex:
@@ -87,7 +88,6 @@ def generate_clicked(*args):
                     gr.update(visible=False), \
                     gr.update()
             if flag == 'results':
-                global FINISHED_IMG
                 FINISHED_IMG.append(product[-1])
                 FINISHED_IMG = FINISHED_IMG[-32:]
                 yield gr.update(visible=True), \
