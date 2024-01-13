@@ -231,6 +231,13 @@ with shared.gradio_root:
                                                    elem_classes='aspect_ratios')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
+                image_extension = gr.Radio(label='Image Extension',
+                                            choices=modules.flags.image_extensions,
+                                            value=modules.config.default_image_extension,
+                                            # disable and hide if image log is disabled
+                                            visible=(not args_manager.args.disable_image_log),
+                                            interactive=(not args_manager.args.disable_image_log))
+
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
                                              elem_id='negative_prompt',
@@ -257,9 +264,6 @@ with shared.gradio_root:
                                    queue=False, show_progress=False)
 
                 if not args_manager.args.disable_image_log:
-                    image_extension = gr.Radio(label='Image Extension',
-                                               choices=modules.flags.image_extensions,
-                                               value=modules.config.default_image_extension)
                     gr.HTML(f'<a href="/file={get_current_html_path(image_extension)}" target="_blank">\U0001F4DA History Log</a>')
 
             with gr.Tab(label='Style'):
@@ -486,8 +490,7 @@ with shared.gradio_root:
                                          scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt
                                      ], queue=False, show_progress=False)
         
-        image_extension.input(lambda x: gr.update(image_extension=x), 
-                              inputs=image_extension)
+        image_extension.input(lambda x: gr.update(image_extension=x), inputs=image_extension)
         
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
                                  queue=False, show_progress=False) \
