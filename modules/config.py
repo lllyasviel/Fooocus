@@ -289,6 +289,11 @@ default_max_image_number = get_config_item_or_set_default(
     default_value=32,
     validator=lambda x: isinstance(x, int) and x >= 1
 )
+default_image_extension = get_config_item_or_set_default(
+    key='default_image_extension',
+    default_value='png',
+    validator=lambda x: x in modules.flags.image_extensions
+)
 default_image_number = get_config_item_or_set_default(
     key='default_image_number',
     default_value=2,
@@ -387,7 +392,6 @@ possible_preset_keys = {
     "embeddings_downloads": "embeddings_downloads",
     "lora_downloads": "lora_downloads"
 }
-
 
 REWRITE_PRESET = False
 

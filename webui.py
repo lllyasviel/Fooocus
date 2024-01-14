@@ -74,6 +74,11 @@ def generate_clicked(task):
                     gr.update(visible=True, value=product)
                 finished = True
 
+                # delete Fooocus temp images, only keep gradio temp images
+                if args_manager.args.disable_image_log:
+                    for filepath in product:
+                        os.remove(filepath)
+
     execution_time = time.perf_counter() - execution_start_time
     print(f'Total time: {execution_time:.2f} seconds')
     return
@@ -243,6 +248,11 @@ with shared.gradio_root:
                                                    value=modules.config.default_aspect_ratio, info='width × height',
                                                    elem_classes='aspect_ratios')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
+
+                image_extension = gr.Radio(label='Image Outputs Extension',
+                                            choices=modules.flags.image_extensions,
+                                            value=modules.config.default_image_extension)
+
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
                                              elem_id='negative_prompt',
@@ -272,7 +282,7 @@ with shared.gradio_root:
                                    queue=False, show_progress=False)
 
                 if not args_manager.args.disable_image_log:
-                    gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
+                    gr.HTML(f'<a href="/file={get_current_html_path(image_extension)}" target="_blank">\U0001F4DA History Log</a>')
 
             with gr.Tab(label='Styles'):
                 style_sorter.try_load_sorted_styles(
@@ -582,7 +592,9 @@ with shared.gradio_root:
                                          adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
                                          scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt, disable_intermediate_results
                                      ], queue=False, show_progress=False)
-
+        
+        image_extension.input(lambda x: gr.update(image_extension=x), inputs=image_extension)
+        
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
                                  queue=False, show_progress=False) \
             .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)
@@ -622,7 +634,7 @@ with shared.gradio_root:
 
         ctrls = [
             currentTask, prompt, negative_prompt, translate_prompts, style_selections,
-            performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, guidance_scale
+            performance_selection, aspect_ratios_selection, image_number, image_extension, image_seed, sharpness, guidance_scale
         ]
 
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls

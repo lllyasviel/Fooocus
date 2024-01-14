@@ -22,6 +22,8 @@ Included adjustments:
 * 🐛 https://github.com/lllyasviel/Fooocus/pull/1784 - correctly sort files, display deepest directory level first
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1785 - update model Juggernaut XL v6 to v8
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1809 - reduce file size of preview images
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1932 - use consistent file name in gradio
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1863 - image extension support (png, jpg, webp)
 
 ✨ = new feature<br>
 🐛 = bugfix<br>

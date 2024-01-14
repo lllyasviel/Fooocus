@@ -40,6 +40,8 @@ performance_selections = [
     ('Extreme Speed (LCM) <span style="color: grey;"> \U00002223 8 steps, intermediate results disabled</span>', 'Extreme Speed')
 ]
 
+image_extensions = ['png', 'jpg', 'webp']
+
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
 inpaint_option_modify = 'Modify Content (add objects, change background, etc.)'

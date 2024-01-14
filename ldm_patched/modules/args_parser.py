@@ -112,10 +112,7 @@ parser.add_argument("--is-windows-embedded-python", action="store_true")
 
 parser.add_argument("--disable-server-info", action="store_true")
 
-if ldm_patched.modules.options.args_parsing:
-    args = parser.parse_args([])
-else:
-    args = parser.parse_args([])
+args = parser.parse_args([])
 
 if args.is_windows_embedded_python:
     args.in_browser = True
