@@ -134,7 +134,7 @@ def worker():
         performance_selection = args.pop()
         aspect_ratios_selection = args.pop()
         image_number = args.pop()
-        image_extension = args.pop()
+        image_file_extension = args.pop()
         image_seed = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
@@ -527,7 +527,7 @@ def worker():
 
             if direct_return:
                 d = [('Upscale (Fast)', '2x')]
-                uov_input_image_path = log(uov_input_image, d, image_extension)
+                uov_input_image_path = log(uov_input_image, d, image_file_extension)
                 yield_result(async_task, uov_input_image_path, do_not_show_finished_images=True)
                 return
 
@@ -819,7 +819,7 @@ def worker():
                         if n != 'None':
                             d.append((f'LoRA {li + 1}', f'{n} : {w}'))
                     d.append(('Version', 'v' + fooocus_version.version))
-                    img_paths.append(log(x, d, image_extension))
+                    img_paths.append(log(x, d, image_file_extension))
 
                 yield_result(async_task, img_paths, do_not_show_finished_images=len(tasks) == 1, progressbar_index=int(15.0 + 85.0 * float((current_task_id + 1) * steps) / float(all_steps)))
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
