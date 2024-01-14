@@ -801,7 +801,7 @@ def worker():
                         if n != 'None':
                             d.append((f'LoRA {li + 1}', f'{n} : {w}'))
                     d.append(('Version', 'v' + fooocus_version.version))
-                    log(x, d)
+                    log(x, d, image_extension)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
