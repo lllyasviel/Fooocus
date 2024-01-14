@@ -231,12 +231,11 @@ with shared.gradio_root:
                                                    elem_classes='aspect_ratios')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
-                image_extension = gr.Radio(label='Image Extension',
+                image_extension = gr.Radio(label='Image Outputs Extension',
                                             choices=modules.flags.image_extensions,
                                             value=modules.config.default_image_extension,
-                                            # disable and hide if image log is disabled
-                                            visible=(not args_manager.args.disable_image_log),
-                                            interactive=(not args_manager.args.disable_image_log))
+                                            visible=not args_manager.args.disable_image_log,
+                                            interactive=not args_manager.args.disable_image_log)
 
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
