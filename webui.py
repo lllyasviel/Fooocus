@@ -236,9 +236,9 @@ with shared.gradio_root:
                                                    elem_classes='aspect_ratios')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
-                image_extension = gr.Radio(label='Image Outputs Extension',
-                                            choices=modules.flags.image_extensions,
-                                            value=modules.config.default_image_extension)
+                image_file_extension = gr.Radio(label='Image File Extension',
+                                            choices=modules.flags.image_file_extensions,
+                                            value=modules.config.default_image_file_extension)
 
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
@@ -266,7 +266,7 @@ with shared.gradio_root:
                                    queue=False, show_progress=False)
 
                 if not args_manager.args.disable_image_log:
-                    gr.HTML(f'<a href="/file={get_current_html_path(image_extension)}" target="_blank">\U0001F4DA History Log</a>')
+                    gr.HTML(f'<a href="/file={get_current_html_path(image_file_extension)}" target="_blank">\U0001F4DA History Log</a>')
 
             with gr.Tab(label='Style'):
                 style_sorter.try_load_sorted_styles(
@@ -492,7 +492,7 @@ with shared.gradio_root:
                                          scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt
                                      ], queue=False, show_progress=False)
         
-        image_extension.input(lambda x: gr.update(image_extension=x), inputs=image_extension)
+        image_file_extension.input(lambda x: gr.update(image_file_extension=x), inputs=image_file_extension)
         
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
                                  queue=False, show_progress=False) \
@@ -533,7 +533,7 @@ with shared.gradio_root:
 
         ctrls = [
             prompt, negative_prompt, style_selections,
-            performance_selection, aspect_ratios_selection, image_number, image_extension, image_seed, sharpness, guidance_scale
+            performance_selection, aspect_ratios_selection, image_number, image_file_extension, image_seed, sharpness, guidance_scale
         ]
 
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
