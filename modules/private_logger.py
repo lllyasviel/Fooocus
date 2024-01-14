@@ -3,11 +3,10 @@ import args_manager
 import modules.config
 import json
 import urllib.parse
-import tempfile
 
 from PIL import Image
 from modules.util import generate_temp_filename
-
+from tempfile import gettempdir
 
 log_cache = {}
 
@@ -20,7 +19,7 @@ def get_current_html_path():
 
 
 def log(img, dic) -> str:
-    path_outputs = tempfile.gettempdir() if args_manager.args.disable_image_log else modules.config.path_outputs
+    path_outputs = args_manager.args.temp_path if args_manager.args.disable_image_log else modules.config.path_outputs
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension='png')
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
     Image.fromarray(img).save(local_temp_filename)
