@@ -511,8 +511,8 @@ def worker():
 
             if direct_return:
                 d = [('Upscale (Fast)', '2x')]
-                log(uov_input_image, d)
-                yield_result(async_task, uov_input_image, do_not_show_finished_images=True)
+                uov_input_image_path = log(uov_input_image, d)
+                yield_result(async_task, uov_input_image_path, do_not_show_finished_images=True)
                 return
 
             tiled = True
@@ -774,6 +774,7 @@ def worker():
                 if inpaint_worker.current_task is not None:
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
+                img_paths = []
                 for x in imgs:
                     d = [
                         ('Prompt', task['log_positive_prompt']),
@@ -799,9 +800,9 @@ def worker():
                         if n != 'None':
                             d.append((f'LoRA {li + 1}', f'{n} : {w}'))
                     d.append(('Version', 'v' + fooocus_version.version))
-                    log(x, d)
+                    img_paths.append(log(x, d))
 
-                yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
+                yield_result(async_task, img_paths, do_not_show_finished_images=len(tasks) == 1)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
                 if shared.last_stop == 'skip':
                     print('User skipped')
