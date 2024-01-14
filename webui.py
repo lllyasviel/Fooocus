@@ -238,9 +238,7 @@ with shared.gradio_root:
 
                 image_extension = gr.Radio(label='Image Outputs Extension',
                                             choices=modules.flags.image_extensions,
-                                            value=modules.config.default_image_extension,
-                                            visible=not args_manager.args.disable_image_log,
-                                            interactive=not args_manager.args.disable_image_log)
+                                            value=modules.config.default_image_extension)
 
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
