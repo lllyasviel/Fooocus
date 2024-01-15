@@ -14,6 +14,7 @@ async_tasks = []
 def worker():
     global async_tasks
 
+    import os
     import traceback
     import math
     import json
@@ -42,7 +43,7 @@ def worker():
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
+        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, calculate_sha256, quote
     from modules.upscaler import perform_upscale
 
     try:
@@ -200,6 +201,17 @@ def worker():
             modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative = 1.0
             modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
             steps = 8
+
+        base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
+        base_model_hash = calculate_sha256(base_model_path)[0:10]
+
+        lora_hashes = []
+        for (n, w) in loras:
+            if n != 'None':
+                lora_path = os.path.join(modules.config.path_loras, n)
+                lora_hashes.append(f'{n.split('.')[0]}: {calculate_sha256(lora_path)[0:10]}')
+        lora_hashes_string = ", ".join(lora_hashes)
+        print(lora_hashes_string)
 
         modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
@@ -854,16 +866,17 @@ def worker():
                         "CFG scale": cfg_scale,
                         "Seed": task['task_seed'],
                         "Size": f"{width}x{height}",
-                        #"Model hash": p.sd_model_hash if opts.add_model_hash_to_info else None,
-                        "Model": base_model_name,
+                        "Model hash": base_model_hash,
+                        "Model": base_model_name.split('.')[0],
+                        "Lora hashes": lora_hashes_string,
                         "Denoising strength": denoising_strength,
                         "Version": f'Fooocus v{fooocus_version.version}',
-                        "User": 'mashb1t',
+                        "User": 'mashb1t'
                     }
 
-                    generation_params_text = ", ".join([k if k == v else f'{k}: {v}' for k, v in generation_params.items() if v is not None])
+                    generation_params_text = ", ".join([k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if v is not None])
                     negative_prompt_text = f"\nNegative prompt: {raw_negative_prompt}" if raw_negative_prompt else ""
-                    metadata_string = f"{raw_prompt}{raw_negative_prompt}\n{generation_params_text}".strip()
+                    metadata_string = f"{raw_prompt}{negative_prompt_text}\n{generation_params_text}".strip()
 
                 for x in imgs:
                     d = [
