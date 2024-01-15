@@ -875,8 +875,8 @@ def worker():
                     }
 
                     generation_params_text = ", ".join([k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if v is not None])
-                    negative_prompt_text = f"\nNegative prompt: {raw_negative_prompt}" if raw_negative_prompt else ""
-                    metadata_string = f"{raw_prompt}{negative_prompt_text}\n{generation_params_text}".strip()
+                    negative_prompt_text = f"\nNegative prompt: {task['negative']}" if raw_negative_prompt else ""
+                    metadata_string = f"{task['positive']}{negative_prompt_text}\n{generation_params_text}".strip()
 
                 for x in imgs:
                     d = [
