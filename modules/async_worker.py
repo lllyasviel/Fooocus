@@ -36,6 +36,7 @@ def worker():
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
     import fooocus_version
+    import args_manager
 
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
     from modules.private_logger import log
@@ -141,7 +142,7 @@ def worker():
         inpaint_input_image = args.pop()
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
-        save_metadata_to_images = args.pop()
+        save_metadata_to_images = args.pop() if not args_manager.args.disable_metadata else False
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -840,8 +841,8 @@ def worker():
                             }
                             cn_task_index += 1
 
-                    metadata |= {'software': f'Fooocus v{fooocus_version.version}'}
-                    metadata_string = json.dumps(metadata, ensure_ascii=False)
+                metadata |= {'software': f'Fooocus v{fooocus_version.version}'}
+                metadata_string = json.dumps(metadata, ensure_ascii=False)
 
                 for x in imgs:
                     d = [

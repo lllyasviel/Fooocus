@@ -381,8 +381,10 @@ with shared.gradio_root:
                                                                info='Set as negative number to disable. For developer debugging.')
                         disable_preview = gr.Checkbox(label='Disable Preview', value=False,
                                                       info='Disable preview during generation.')
-                        save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
-                                                      info='Adds parameters to generated images allowing manual regeneration.')
+
+                        if not args_manager.args.disable_metadata:
+                            save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
+                                                                  info='Adds parameters to generated images allowing manual regeneration.')
 
                     with gr.Tab(label='Control'):
                         debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessors', value=False,
@@ -530,7 +532,10 @@ with shared.gradio_root:
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
-        ctrls += [save_metadata_to_images]
+
+        if not args_manager.args.disable_metadata:
+            ctrls += [save_metadata_to_images]
+        
         ctrls += ip_ctrls
 
         state_is_generating = gr.State(False)
