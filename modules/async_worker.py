@@ -209,7 +209,7 @@ def worker():
         for (n, w) in loras:
             if n != 'None':
                 lora_path = os.path.join(modules.config.path_loras, n)
-                lora_hashes.append(f'{n.split('.')[0]}: {calculate_sha256(lora_path)[0:10]}')
+                lora_hashes.append(f'{n.split(".")[0]}: {calculate_sha256(lora_path)[0:10]}')
         lora_hashes_string = ", ".join(lora_hashes)
         print(lora_hashes_string)
 
@@ -817,13 +817,11 @@ def worker():
                     if 'vary' in goals:
                         metadata |= {
                             'uov_method': uov_method
-                            #'uov_input_image': raw_uov_input_image
                         }
 
                     if 'upscale' in goals:
                         metadata |= {
-                            'uov_method': uov_method, 'scale': f, 
-                            #'uov_input_image': uov_input_image
+                            'uov_method': uov_method, 'scale': f
                         }
 
                     if 'inpaint' in goals:
@@ -836,7 +834,6 @@ def worker():
                                 'inpaint_additional_prompt': inpaint_additional_prompt, 'inpaint_mask_upload': advanced_parameters.inpaint_mask_upload_checkbox, 'invert_mask': advanced_parameters.invert_mask_checkbox,
                                 'inpaint_disable_initial_latent': advanced_parameters.inpaint_disable_initial_latent, 'inpaint_engine': advanced_parameters.inpaint_engine,
                                 'inpaint_strength': advanced_parameters.inpaint_strength, 'inpaint_respective_field': advanced_parameters.inpaint_respective_field,
-                                #'inpaint_image': inpaint_image, 'inpaint_mask': inpaint_mask
                             }
 
                     if 'cn' in goals:
@@ -852,12 +849,13 @@ def worker():
                                 metadata |= {
                                     f'image_prompt_{cn_task_index}': {
                                         'cn_type': cn_type, 'cn_stop': cn_stop, 'cn_weight': cn_weight, 
-                                        #'cn_image': cn_img
                                     }
                                 }
                                 cn_task_index += 1
 
-                    metadata |= {'software': f'Fooocus v{fooocus_version.version}'}
+                    metadata |= {
+                        'software': f'Fooocus v{fooocus_version.version}',
+                    }
                     metadata_string = json.dumps(metadata, ensure_ascii=False)
                 elif save_metadata_to_images and metadata_schema == 'a1111':
                     generation_params = {
@@ -870,13 +868,14 @@ def worker():
                         "Model": base_model_name.split('.')[0],
                         "Lora hashes": lora_hashes_string,
                         "Denoising strength": denoising_strength,
-                        "Version": f'Fooocus v{fooocus_version.version}',
-                        "User": 'mashb1t'
+                        "Version": f'Fooocus v{fooocus_version.version}'
                     }
 
                     generation_params_text = ", ".join([k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if v is not None])
-                    negative_prompt_text = f"\nNegative prompt: {task['negative']}" if raw_negative_prompt else ""
-                    metadata_string = f"{task['positive']}{negative_prompt_text}\n{generation_params_text}".strip()
+                    positive_prompt_resolved = ', '.join(task['positive'])
+                    negative_prompt_resolved = ', '.join(task['negative'])
+                    negative_prompt_text = f"\nNegative prompt: {negative_prompt_resolved}" if negative_prompt_resolved else ""
+                    metadata_string = f"{positive_prompt_resolved}{negative_prompt_text}\n{generation_params_text}".strip()
 
                 for x in imgs:
                     d = [
