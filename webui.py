@@ -386,9 +386,10 @@ with shared.gradio_root:
                             save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
                                                                   info='Adds parameters to generated images allowing manual regeneration.')
                             metadata_schema = gr.Radio(label='Metadata Schema', choices=flags.metadata_schema, value=modules.config.default_metadata_schema,
-                                                       info='Use A1111 for compatibility with Civitai.')
+                                                       info='Use A1111 for compatibility with Civitai.',
+                                                       visible=modules.config.default_save_metadata_to_images)
 
-                            save_metadata_to_images.change(lambda x: gr.update(visible=not x), inputs=[save_metadata_to_images], outputs=[metadata_schema], 
+                            save_metadata_to_images.change(lambda x: gr.update(visible=x), inputs=[save_metadata_to_images], outputs=[metadata_schema], 
                                                            queue=False, show_progress=False)
 
                     with gr.Tab(label='Control'):
