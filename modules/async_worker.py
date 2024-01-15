@@ -141,6 +141,7 @@ def worker():
         inpaint_input_image = args.pop()
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
+        save_metadata_to_images = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -839,8 +840,8 @@ def worker():
                             }
                             cn_task_index += 1
 
-                metadata |= {'software': f'Fooocus v{fooocus_version.version}'}
-                metadata_string = json.dumps(metadata, ensure_ascii=False)
+                    metadata |= {'software': f'Fooocus v{fooocus_version.version}'}
+                    metadata_string = json.dumps(metadata, ensure_ascii=False)
 
                 for x in imgs:
                     d = [
@@ -867,7 +868,7 @@ def worker():
                         if n != 'None':
                             d.append((f'LoRA {li + 1}', f'{n} : {w}'))
                     d.append(('Version', 'v' + fooocus_version.version))
-                    log(x, d, metadata_string, True)
+                    log(x, d, metadata_string, save_metadata_to_images)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:

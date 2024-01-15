@@ -315,6 +315,11 @@ example_inpaint_prompts = get_config_item_or_set_default(
     ],
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x)
 )
+default_save_metadata_to_images = get_config_item_or_set_default(
+    key='default_save_metadata_to_images',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool)
+)
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 
@@ -334,6 +339,7 @@ possible_preset_keys = [
     "default_prompt_negative",
     "default_styles",
     "default_aspect_ratio",
+    "default_save_metadata_to_images",
     "checkpoint_downloads",
     "embeddings_downloads",
     "lora_downloads",
