@@ -202,16 +202,16 @@ def worker():
             modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
             steps = 8
 
-        base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
-        base_model_hash = calculate_sha256(base_model_path)[0:10]
+        if not args_manager.args.disable_metadata:
+            base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
+            base_model_hash = calculate_sha256(base_model_path)[0:10]
 
-        lora_hashes = []
-        for (n, w) in loras:
-            if n != 'None':
-                lora_path = os.path.join(modules.config.path_loras, n)
-                lora_hashes.append(f'{n.split(".")[0]}: {calculate_sha256(lora_path)[0:10]}')
-        lora_hashes_string = ", ".join(lora_hashes)
-        print(lora_hashes_string)
+            lora_hashes = []
+            for (n, w) in loras:
+                if n != 'None':
+                    lora_path = os.path.join(modules.config.path_loras, n)
+                    lora_hashes.append(f'{n.split(".")[0]}: {calculate_sha256(lora_path)[0:10]}')
+            lora_hashes_string = ", ".join(lora_hashes)
 
         modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
