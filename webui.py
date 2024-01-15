@@ -385,11 +385,11 @@ with shared.gradio_root:
                         if not args_manager.args.disable_metadata:
                             save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
                                                                   info='Adds parameters to generated images allowing manual regeneration.')
-                            metadata_schema = gr.Radio(label='Metadata Schema', choices=flags.metadata_schema, value=modules.config.default_metadata_schema,
+                            metadata_scheme = gr.Radio(label='Metadata Scheme', choices=flags.metadata_scheme, value=modules.config.default_metadata_scheme,
                                                        info='Use A1111 for compatibility with Civitai.',
                                                        visible=modules.config.default_save_metadata_to_images)
 
-                            save_metadata_to_images.change(lambda x: gr.update(visible=x), inputs=[save_metadata_to_images], outputs=[metadata_schema], 
+                            save_metadata_to_images.change(lambda x: gr.update(visible=x), inputs=[save_metadata_to_images], outputs=[metadata_scheme], 
                                                            queue=False, show_progress=False)
 
                     with gr.Tab(label='Control'):
@@ -540,7 +540,7 @@ with shared.gradio_root:
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
 
         if not args_manager.args.disable_metadata:
-            ctrls += [save_metadata_to_images, metadata_schema]
+            ctrls += [save_metadata_to_images, metadata_scheme]
         
         ctrls += ip_ctrls
 

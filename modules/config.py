@@ -320,10 +320,10 @@ default_save_metadata_to_images = get_config_item_or_set_default(
     default_value=False,
     validator=lambda x: isinstance(x, bool)
 )
-default_metadata_schema = get_config_item_or_set_default(
-    key='default_metadata_schema',
+default_metadata_scheme = get_config_item_or_set_default(
+    key='default_metadata_scheme',
     default_value='fooocus',
-    validator=lambda x: x in [y[1] for y in modules.flags.metadata_schema if y[1] == x]
+    validator=lambda x: x in [y[1] for y in modules.flags.metadata_scheme if y[1] == x]
 )
 metadata_created_by = get_config_item_or_set_default(
     key='metadata_created_by',

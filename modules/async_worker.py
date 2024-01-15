@@ -144,7 +144,7 @@ def worker():
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
         save_metadata_to_images = args.pop() if not args_manager.args.disable_metadata else False
-        metadata_schema = args.pop() if not args_manager.args.disable_metadata else 'fooocus'
+        metadata_scheme = args.pop() if not args_manager.args.disable_metadata else 'fooocus'
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -794,7 +794,7 @@ def worker():
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
                 metadata_string = ''
-                if save_metadata_to_images and metadata_schema == 'fooocus':
+                if save_metadata_to_images and metadata_scheme == 'fooocus':
                     metadata = {
                         'prompt': raw_prompt, 'negative_prompt': raw_negative_prompt, 'styles': str(raw_style_selections),
                         'real_prompt': task['log_positive_prompt'], 'real_negative_prompt': task['log_negative_prompt'],
@@ -861,7 +861,7 @@ def worker():
                             'created_by': modules.config.metadata_created_by
                         }
                     metadata_string = json.dumps(metadata, ensure_ascii=False)
-                elif save_metadata_to_images and metadata_schema == 'a1111':
+                elif save_metadata_to_images and metadata_scheme == 'a1111':
                     generation_params = {
                         "Steps": steps,
                         "Sampler": sampler_name,
