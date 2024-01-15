@@ -877,7 +877,7 @@ def worker():
 
                     if modules.config.metadata_created_by != 'None':
                         generation_params |= {
-                            'Created By': quote(modules.config.metadata_created_by)
+                            'Created By': f'{modules.config.metadata_created_by}'
                         }
 
                     generation_params_text = ", ".join([k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if v is not None])
