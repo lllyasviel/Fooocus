@@ -24,6 +24,7 @@ Included adjustments:
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1809 - reduce file size of preview images
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1932 - use consistent file name in gradio
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1863 - image extension support (png, jpg, webp)
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1938 - automatically describe image on uov image upload if prompt is empty
 
 ✨ = new feature<br>
 🐛 = bugfix<br>
