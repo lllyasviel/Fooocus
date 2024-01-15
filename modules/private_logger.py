@@ -5,6 +5,7 @@ import json
 import urllib.parse
 
 from PIL import Image
+from PIL.PngImagePlugin import PngInfo
 from modules.util import generate_temp_filename
 
 
@@ -18,13 +19,20 @@ def get_current_html_path():
     return html_name
 
 
-def log(img, dic):
+def log(img, dic, metadata=None, save_metadata_to_image=False):
     if args_manager.args.disable_image_log:
         return
 
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
-    Image.fromarray(img).save(local_temp_filename)
+
+    if save_metadata_to_image:
+        pnginfo = PngInfo()
+        pnginfo.add_text("Comment", metadata)
+    else:
+        pnginfo = None
+    Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
+
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
 
     css_styles = (
