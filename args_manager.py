@@ -25,6 +25,9 @@ args_parser.parser.add_argument("--disable-image-log", action='store_true',
 args_parser.parser.add_argument("--disable-analytics", action='store_true',
                                 help="Disables analytics for Gradio.")
 
+args_parser.parser.add_argument("--disable-metadata", action='store_true',
+                                help="Disables saving metadata to images.")
+
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
     in_browser=True,

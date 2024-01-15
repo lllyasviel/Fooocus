@@ -5,6 +5,7 @@ import json
 import urllib.parse
 
 from PIL import Image
+from PIL.PngImagePlugin import PngInfo
 from modules.util import generate_temp_filename
 from tempfile import gettempdir
 
@@ -19,12 +20,27 @@ def get_current_html_path(image_extension=None):
     return html_name
 
 
-def log(img, dic, image_extension=None) -> str:
+def log(img, dic, metadata=None, save_metadata_to_image=False, image_file_extension=None) -> str:
     path_outputs = args_manager.args.temp_path if args_manager.args.disable_image_log else modules.config.path_outputs
-    _image_extension = image_extension if image_extension else modules.config.default_image_extension
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=_image_extension)
+    image_file_extension = image_file_extension if image_file_extension else modules.config.default_image_file_extension
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=image_file_extension)
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
-    Image.fromarray(img).save(local_temp_filename)
+
+    if image_file_extension == 'png':
+        if save_metadata_to_image:
+            pnginfo = PngInfo()
+            pnginfo.add_text("parameters", metadata)
+        else:
+            pnginfo = None
+        Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
+    elif image_file_extension == 'jpg':
+        # TODO check if metadata works correctly here
+        Image.fromarray(img).save(local_temp_filename, quality=95, optimize=True, progressive=True, comment=metadata if save_metadata_to_image else None)
+    elif image_file_extension == 'webp':
+        # TODO test exif handling
+        Image.fromarray(img).save(local_temp_filename, quality=95, lossless=False)
+    else:
+        Image.fromarray(img).save(local_temp_filename)
 
     if args_manager.args.disable_image_log:
         return local_temp_filename

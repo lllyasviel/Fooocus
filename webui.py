@@ -421,6 +421,16 @@ with shared.gradio_root:
                         black_out_nsfw.change(lambda x: gr.update(value=x, interactive=not x),
                                      inputs=black_out_nsfw, outputs=disable_preview, queue=False, show_progress=False)
 
+                        if not args_manager.args.disable_metadata:
+                            save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
+                                                                  info='Adds parameters to generated images allowing manual regeneration.')
+                            metadata_scheme = gr.Radio(label='Metadata Scheme', choices=flags.metadata_scheme, value=modules.config.default_metadata_scheme,
+                                                       info='Use A1111 for compatibility with Civitai.',
+                                                       visible=modules.config.default_save_metadata_to_images)
+
+                            save_metadata_to_images.change(lambda x: gr.update(visible=x), inputs=[save_metadata_to_images], outputs=[metadata_scheme], 
+                                                           queue=False, show_progress=False)
+
                     with gr.Tab(label='Control'):
                         debugging_cn_preprocessor = gr.Checkbox(label='Debug Preprocessors', value=False,
                                                                 info='See the results from preprocessors.')
@@ -641,6 +651,10 @@ with shared.gradio_root:
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
+
+        if not args_manager.args.disable_metadata:
+            ctrls += [save_metadata_to_images, metadata_scheme]
+        
         ctrls += ip_ctrls
 
         def parse_meta(raw_prompt_txt, is_generating):

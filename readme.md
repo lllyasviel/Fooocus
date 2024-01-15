@@ -25,6 +25,7 @@ Included adjustments:
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1932 - use consistent file name in gradio
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1863 - image extension support (png, jpg, webp)
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1938 - automatically describe image on uov image upload if prompt is empty
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1940 - meta data handling, schemes: Fooocus (json) and A1111 (plain text). Compatible with Civitai.
 
 ✨ = new feature<br>
 🐛 = bugfix<br>

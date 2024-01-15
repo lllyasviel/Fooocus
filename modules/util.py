@@ -4,8 +4,10 @@ import random
 import math
 import os
 import cv2
+import json
 
 from PIL import Image
+from hashlib import sha256
 
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
@@ -174,4 +176,20 @@ def get_files_from_folder(folder_path, exensions=None, name_filter=None):
                 path = os.path.join(relative_path, filename)
                 filenames.append(path)
 
-    return filenames
+    return sorted(filenames, key=lambda x: -1 if os.sep in x else 1)
+
+def calculate_sha256(filename):
+    hash_sha256 = sha256()
+    blksize = 1024 * 1024
+
+    with open(filename, "rb") as f:
+        for chunk in iter(lambda: f.read(blksize), b""):
+            hash_sha256.update(chunk)
+
+    return hash_sha256.hexdigest()
+
+def quote(text):
+    if ',' not in str(text) and '\n' not in str(text) and ':' not in str(text):
+        return text
+
+    return json.dumps(text, ensure_ascii=False)

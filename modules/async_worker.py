@@ -15,8 +15,11 @@ async_tasks = []
 
 def worker():
     global async_tasks
+
+    import os
     import traceback
     import math
+    import json
     import numpy as np
     import torch
     import time
@@ -36,6 +39,7 @@ def worker():
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
     import fooocus_version
+    import args_manager
 
     from modules.censor import censor_batch
 
@@ -43,7 +47,7 @@ def worker():
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
+        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, calculate_sha256, quote
     from modules.upscaler import perform_upscale
 
     try:
@@ -150,6 +154,8 @@ def worker():
         inpaint_input_image = args.pop()
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
+        save_metadata_to_images = args.pop() if not args_manager.args.disable_metadata else False
+        metadata_scheme = args.pop() if not args_manager.args.disable_metadata else 'fooocus'
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -211,6 +217,17 @@ def worker():
             from modules.translator import translate2en
             prompt = translate2en(prompt, 'prompt')
             negative_prompt = translate2en(negative_prompt, 'negative prompt')
+
+        if not args_manager.args.disable_metadata:
+            base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
+            base_model_hash = calculate_sha256(base_model_path)[0:10]
+
+            lora_hashes = []
+            for (n, w) in loras:
+                if n != 'None':
+                    lora_path = os.path.join(modules.config.path_loras, n)
+                    lora_hashes.append(f'{n.split(".")[0]}: {calculate_sha256(lora_path)[0:10]}')
+            lora_hashes_string = ", ".join(lora_hashes)
 
         modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
@@ -368,6 +385,9 @@ def worker():
         print(f'[Parameters] Steps = {steps} - {switch}')
 
         progressbar(async_task, 1, 'Initializing ...')
+
+        raw_prompt = prompt
+        raw_negative_prompt = negative_prompt
 
         if not skip_prompt_processing:
 
@@ -527,7 +547,7 @@ def worker():
 
             if direct_return:
                 d = [('Upscale (Fast)', '2x')]
-                uov_input_image_path = log(uov_input_image, d, image_file_extension)
+                uov_input_image_path = log(uov_input_image, d, image_file_extension=image_file_extension)
                 yield_result(async_task, uov_input_image_path, do_not_show_finished_images=True)
                 return
 
@@ -793,6 +813,99 @@ def worker():
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
                 img_paths = []
+                metadata_string = ''
+                if save_metadata_to_images and metadata_scheme == 'fooocus':
+                    metadata = {
+                        'prompt': raw_prompt, 'negative_prompt': raw_negative_prompt, 'styles': str(raw_style_selections),
+                        'real_prompt': task['log_positive_prompt'], 'real_negative_prompt': task['log_negative_prompt'],
+                        'seed': task['task_seed'], 'width': width, 'height': height,
+                        'sampler': sampler_name, 'scheduler': scheduler_name, 'performance': performance_selection,
+                        'steps': steps, 'refiner_switch': refiner_switch, 'sharpness': sharpness, 'cfg': cfg_scale,
+                        'base_model': base_model_name, 'refiner_model': refiner_model_name,
+                        'denoising_strength': denoising_strength,
+                        'freeu': advanced_parameters.freeu_enabled,
+                        'img2img': input_image_checkbox,
+                        'prompt_expansion': task['expansion']
+                    }
+
+
+                    if advanced_parameters.freeu_enabled:
+                        metadata |= {
+                            'freeu_b1': advanced_parameters.freeu_b1, 'freeu_b2': advanced_parameters.freeu_b2, 'freeu_s1': advanced_parameters.freeu_s1, 'freeu_s2': advanced_parameters.freeu_s2
+                        }
+
+                    if 'vary' in goals:
+                        metadata |= {
+                            'uov_method': uov_method
+                        }
+
+                    if 'upscale' in goals:
+                        metadata |= {
+                            'uov_method': uov_method, 'scale': f
+                        }
+
+                    if 'inpaint' in goals:
+                        if len(outpaint_selections) > 0:
+                            metadata |= {
+                                'outpaint_selections': outpaint_selections
+                            }
+                        else:
+                            metadata |= {
+                                'inpaint_additional_prompt': inpaint_additional_prompt, 'inpaint_mask_upload': advanced_parameters.inpaint_mask_upload_checkbox, 'invert_mask': advanced_parameters.invert_mask_checkbox,
+                                'inpaint_disable_initial_latent': advanced_parameters.inpaint_disable_initial_latent, 'inpaint_engine': advanced_parameters.inpaint_engine,
+                                'inpaint_strength': advanced_parameters.inpaint_strength, 'inpaint_respective_field': advanced_parameters.inpaint_respective_field,
+                            }
+
+                    if 'cn' in goals:
+                        metadata |= {
+                            'canny_low_threshold': advanced_parameters.canny_low_threshold, 'canny_high_threshold': advanced_parameters.canny_high_threshold,
+                        }
+
+                        ip_list = {x: [] for x in flags.ip_list}
+                        cn_task_index = 1
+                        for cn_type in ip_list:
+                            for cn_task in cn_tasks[cn_type]:
+                                cn_img, cn_stop, cn_weight = cn_task
+                                metadata |= {
+                                    f'image_prompt_{cn_task_index}': {
+                                        'cn_type': cn_type, 'cn_stop': cn_stop, 'cn_weight': cn_weight, 
+                                    }
+                                }
+                                cn_task_index += 1
+
+                    metadata |= {
+                        'software': f'Fooocus v{fooocus_version.version}',
+                    }
+                    if modules.config.metadata_created_by != 'None':
+                        metadata |= {
+                            'created_by': modules.config.metadata_created_by
+                        }
+                    metadata_string = json.dumps(metadata, ensure_ascii=False)
+                elif save_metadata_to_images and metadata_scheme == 'a1111':
+                    generation_params = {
+                        "Steps": steps,
+                        "Sampler": sampler_name,
+                        "CFG scale": cfg_scale,
+                        "Seed": task['task_seed'],
+                        "Size": f"{width}x{height}",
+                        "Model hash": base_model_hash,
+                        "Model": base_model_name.split('.')[0],
+                        "Lora hashes": lora_hashes_string,
+                        "Denoising strength": denoising_strength,
+                        "Version": f'Fooocus v{fooocus_version.version}'
+                    }
+
+                    if modules.config.metadata_created_by != 'None':
+                        generation_params |= {
+                            'Created By': f'{modules.config.metadata_created_by}'
+                        }
+
+                    generation_params_text = ", ".join([k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if v is not None])
+                    positive_prompt_resolved = ', '.join(task['positive'])
+                    negative_prompt_resolved = ', '.join(task['negative'])
+                    negative_prompt_text = f"\nNegative prompt: {negative_prompt_resolved}" if negative_prompt_resolved else ""
+                    metadata_string = f"{positive_prompt_resolved}{negative_prompt_text}\n{generation_params_text}".strip()
+
                 for x in imgs:
                     d = [
                         ('Prompt', task['log_positive_prompt']),
@@ -819,7 +932,7 @@ def worker():
                         if n != 'None':
                             d.append((f'LoRA {li + 1}', f'{n} : {w}'))
                     d.append(('Version', 'v' + fooocus_version.version))
-                    img_paths.append(log(x, d, image_file_extension))
+                    img_paths.append(log(x, d, metadata_string, save_metadata_to_images, image_file_extension))
 
                 yield_result(async_task, img_paths, do_not_show_finished_images=len(tasks) == 1, progressbar_index=int(15.0 + 85.0 * float((current_task_id + 1) * steps) / float(all_steps)))
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
