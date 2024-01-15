@@ -325,6 +325,11 @@ default_metadata_schema = get_config_item_or_set_default(
     default_value='fooocus',
     validator=lambda x: x in [y[1] for y in modules.flags.metadata_schema if y[1] == x]
 )
+metadata_created_by = get_config_item_or_set_default(
+    key='metadata_created_by',
+    default_value='',
+    validator=lambda x: isinstance(x, str)
+)
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 

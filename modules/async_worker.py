@@ -856,6 +856,10 @@ def worker():
                     metadata |= {
                         'software': f'Fooocus v{fooocus_version.version}',
                     }
+                    if modules.config.metadata_created_by != 'None':
+                        metadata |= {
+                            'created_by': modules.config.metadata_created_by
+                        }
                     metadata_string = json.dumps(metadata, ensure_ascii=False)
                 elif save_metadata_to_images and metadata_schema == 'a1111':
                     generation_params = {
@@ -870,6 +874,11 @@ def worker():
                         "Denoising strength": denoising_strength,
                         "Version": f'Fooocus v{fooocus_version.version}'
                     }
+
+                    if modules.config.metadata_created_by != 'None':
+                        generation_params |= {
+                            'Created By': quote(modules.config.metadata_created_by)
+                        }
 
                     generation_params_text = ", ".join([k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if v is not None])
                     positive_prompt_resolved = ', '.join(task['positive'])
