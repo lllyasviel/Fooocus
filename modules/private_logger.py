@@ -24,7 +24,11 @@ def log(img, dic, image_extension=None) -> str:
     _image_extension = image_extension if image_extension else modules.config.default_image_extension
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=_image_extension)
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
-    Image.fromarray(img).save(local_temp_filename)
+    
+    if _image_extension == 'jpg':
+        Image.fromarray(img).save(local_temp_filename, quality=95, optimize=True, progressive=True)
+    else:
+        Image.fromarray(img).save(local_temp_filename)
 
     if args_manager.args.disable_image_log:
         return local_temp_filename
