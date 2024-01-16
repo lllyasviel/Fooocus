@@ -158,7 +158,7 @@ function initStylePreviewOverlay() {
         label.removeEventListener("mouseout", onMouseLeave);
         label.addEventListener("mouseout", onMouseLeave);
         overlayVisible = true;
-        overlay.style.display = "block";
+        overlay.style.opacity = "1";
         const originalText = label.querySelector("span").getAttribute("data-original-text");
         const name = originalText || label.querySelector("span").textContent;
         overlay.style.backgroundImage = `url("${samplesPath.replace(
@@ -167,7 +167,7 @@ function initStylePreviewOverlay() {
         ).replaceAll("\\", "\\\\")}")`;
         function onMouseLeave() {
             overlayVisible = false;
-            overlay.style.display = "none";
+            overlay.style.opacity = "0";
             overlay.style.backgroundImage = "";
             label.removeEventListener("mouseout", onMouseLeave);
         }
@@ -176,6 +176,7 @@ function initStylePreviewOverlay() {
         if(!overlayVisible) return;
         overlay.style.left = `${e.clientX}px`;
         overlay.style.top = `${e.clientY}px`;
+        overlay.className = e.clientY > window.innerHeight / 2 ? "lower-half" : "upper-half";
     });
 }
 
