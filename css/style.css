@@ -196,3 +196,25 @@
     pointer-events: none;
     display: none;
 }
+
+#stylePreviewOverlay {
+    opacity: 0;
+    pointer-events: none;
+    width: 128px;
+    height: 128px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    border: solid 1px lightgrey;
+    transform: translate(-140px, 20px);
+    background-size: cover;
+    background-position: center;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    z-index: 100;
+    transition: transform 0.1s ease, opacity 0.3s ease;
+}
+
+#stylePreviewOverlay.lower-half {
+    transform: translate(-140px, -140px);
+}
