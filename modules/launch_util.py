@@ -5,6 +5,9 @@ import subprocess
 import sys
 import re
 import logging
+import re
+import importlib.metadata
+import packaging.version
 
 
 logging.getLogger("torch.distributed.nn").setLevel(logging.ERROR)  # sshh...
@@ -74,34 +77,41 @@ def run_pip(command, desc=None, live=default_command_live):
 
 def requirements_met(requirements_file):
     """
-    Does a simple parse of a requirements.txt file to determine if all rerqirements in it
+    Does a simple parse of a requirements.txt file to determine if all requirements in it
     are already installed. Returns True if so, False if not installed or parsing fails.
     """
-
-    import importlib.metadata
-    import packaging.version
+    # Regex pattern for parsing requirements.txt
+    re_requirement = re.compile(r"([^=<>!]+)([=<>!]*)([^=<>!]+)?")
 
     with open(requirements_file, "r", encoding="utf8") as file:
         for line in file:
-            if line.strip() == "":
+            line = line.strip()
+            if line == "" or line.startswith('#'):  # Skip empty lines and comments
                 continue
 
             m = re.match(re_requirement, line)
             if m is None:
+                print(f"Warning: Unable to parse line: '{line}'")
                 return False
 
             package = m.group(1).strip()
-            version_required = (m.group(2) or "").strip()
+            version_required = (m.group(3) or "").strip()
 
             if version_required == "":
+                # If no specific version is required, skip version check
                 continue
 
             try:
+                if package not in importlib.metadata.distributions():
+                    print(f"Package not installed: {package}")
+                    return False
                 version_installed = importlib.metadata.version(package)
-            except Exception:
+            except Exception as e:
+                print(f"Error checking version for {package}: {e}")
                 return False
 
             if packaging.version.parse(version_required) != packaging.version.parse(version_installed):
+                print(f"Version mismatch for {package}: Required {version_required}, Installed {version_installed}")
                 return False
 
     return True
