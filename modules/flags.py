@@ -34,7 +34,7 @@ default_parameters = {
 
 inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 performance_selections = ['Speed', 'Quality', 'Extreme Speed']
-image_file_extensions = ['png', 'jpg', 'webp']
+output_formats = ['png', 'jpg', 'webp']
 
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'

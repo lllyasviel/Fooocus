@@ -248,10 +248,10 @@ default_max_image_number = get_config_item_or_set_default(
     default_value=32,
     validator=lambda x: isinstance(x, int) and x >= 1
 )
-default_image_file_extension = get_config_item_or_set_default(
-    key='default_image_file_extension',
+default_output_format = get_config_item_or_set_default(
+    key='default_output_format',
     default_value='png',
-    validator=lambda x: x in modules.flags.image_file_extensions
+    validator=lambda x: x in modules.flags.output_formats
 )
 default_image_number = get_config_item_or_set_default(
     key='default_image_number',
