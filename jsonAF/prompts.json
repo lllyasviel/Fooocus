@@ -1,0 +1,22 @@
+{
+  "Prompts": [
+    {
+      "title": "Title of Prompt 1",
+      "text": "This is the text for Prompt 1. It can be up to 500 characters long. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    },
+    {
+      "title": "Title of Prompt 2",
+      "text": "Text for Prompt 2. Each prompt includes a title and a text block, both with specified character limits. Ut enim ad minim veniam, quis nostrud exercitation ullamco."
+    }
+  ],
+  "Negatives": [
+    {
+      "title": "Title of Negative 1",
+      "text": "Text for Negative 1. This section contains 'Negative' prompts. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    },
+    {
+      "title": "Title of Negative 2",
+      "text": "This is the second negative prompt. Each entry is structured similarly to the 'Prompts' category, with a title and text block. Ut enim ad minim veniam, quis nostrud exercitation ullamco."
+    }
+  ]
+}
