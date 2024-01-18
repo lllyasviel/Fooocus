@@ -12,31 +12,31 @@ from tempfile import gettempdir
 log_cache = {}
 
 
-def get_current_html_path(image_extension=None):
-    _image_extension = image_extension if image_extension else modules.config.default_image_extension
+def get_current_html_path(output_format=None):
+    output_format = output_format if output_format else modules.config.default_output_format
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs,
-                                                                         extension=_image_extension)
+                                                                         extension=output_format)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
     return html_name
 
 
-def log(img, dic, metadata=None, save_metadata_to_image=False, image_file_extension=None) -> str:
+def log(img, dic, metadata=None, save_metadata_to_image=False, output_format=None) -> str:
     path_outputs = args_manager.args.temp_path if args_manager.args.disable_image_log else modules.config.path_outputs
-    image_file_extension = image_file_extension if image_file_extension else modules.config.default_image_file_extension
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=image_file_extension)
+    output_format = output_format if output_format else modules.config.default_output_format
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=output_format)
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
 
-    if image_file_extension == 'png':
+    if output_format == 'png':
         if save_metadata_to_image:
             pnginfo = PngInfo()
             pnginfo.add_text("parameters", metadata)
         else:
             pnginfo = None
         Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
-    elif image_file_extension == 'jpg':
+    elif output_format == 'jpg':
         # TODO check if metadata works correctly here
         Image.fromarray(img).save(local_temp_filename, quality=95, optimize=True, progressive=True, comment=metadata if save_metadata_to_image else None)
-    elif image_file_extension == 'webp':
+    elif output_format == 'webp':
         # TODO test exif handling
         Image.fromarray(img).save(local_temp_filename, quality=95, lossless=False)
     else:
