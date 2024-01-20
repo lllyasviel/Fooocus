@@ -5,7 +5,6 @@ import subprocess
 import sys
 import re
 import logging
-import re
 import importlib.metadata
 import packaging.version
 
