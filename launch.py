@@ -40,7 +40,7 @@ def cleanup_temp(folder_path):
 if bool(gradio_temp_path):
     try:
         os.makedirs(gradio_temp_path, exist_ok=True)
-        os.environ['GRADIO_DATA_DIR'] = gradio_temp_path
+        os.environ['GRADIO_TEMP_DIR'] = gradio_temp_path
         print("Using custom path for Gradio Temp.")
     except Exception as e:
         print(f"Error: {e}\nUsing default path for Gradio Temp.")
