@@ -23,37 +23,35 @@ from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
 from modules.config import path_checkpoints, path_loras, path_vae_approx, path_fooocus_expansion, \
-    checkpoint_downloads, path_embeddings, embeddings_downloads, lora_downloads, path_cache, clear_cache
+    checkpoint_downloads, path_embeddings, embeddings_downloads, lora_downloads, gradio_temp_path, gradio_temp_clear
 
 
 REINSTALL_ALL = False
 TRY_INSTALL_XFORMERS = False
 
-print(str(path_cache))
 
 def cleanup_temp(folder_path):
     try:
         shutil.rmtree(folder_path)
-        print("All subfolders deleted successfully.")
+        print("Gradio Temp deleted successfully.")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {e}\nGradio Temp not deleted.")
 
-if bool(path_cache):
+if bool(gradio_temp_path):
     try:
-        os.makedirs(path_cache, exist_ok=True)
-        os.environ['GRADIO_DATA_DIR'] = path_cache
-        print("Using a custom path for cache.")
+        os.makedirs(gradio_temp_path, exist_ok=True)
+        os.environ['GRADIO_DATA_DIR'] = gradio_temp_path
+        print("Using custom path for Gradio Temp.")
     except Exception as e:
-        print(f"Error: {e}\nUsing the default path for Gradio cache.")
-        clear_cache = False
-    if bool(clear_cache):
-        cleanup_temp(path_cache)
-    else:
-        print("Cache is not cleared on load.")
+        print(f"Error: {e}\nUsing default path for Gradio Temp.")
+        gradio_temp_clear = False
+    if bool(gradio_temp_clear):
+        cleanup_temp(gradio_temp_path)
 else:
-    print("Using the default path for Gradio cache.")
-    if bool(clear_cache):
-        print('You must use a custom path to clear cache on load.\nAdd a path to path_cache in config.txt')
+    print("Using default path for Gradio Temp.")
+    if bool(gradio_temp_clear):
+        print('You must use a custom path to clear Gradio Temp on load.\nAdd a path to gradio_temp_path in config.txt')
+
 
 def prepare_environment():
     torch_index_url = os.environ.get('TORCH_INDEX_URL', "https://download.pytorch.org/whl/cu121")

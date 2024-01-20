@@ -315,14 +315,14 @@ example_inpaint_prompts = get_config_item_or_set_default(
     ],
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x)
 )
-path_cache = get_config_item_or_set_default(
-    key='path_cache',
+gradio_temp_path = get_config_item_or_set_default(
+    key='gradio_temp_path',
     default_value='',
     validator=lambda x: isinstance(x, str),
     disable_empty_as_none=True
 )
-clear_cache = get_config_item_or_set_default(
-    key='clear_cache',
+gradio_temp_clear = get_config_item_or_set_default(
+    key='gradio_temp_clear',
     default_value=False,
     validator=lambda x: isinstance(x, bool)
 )
