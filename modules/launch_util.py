@@ -7,6 +7,9 @@ import re
 import logging
 import importlib.metadata
 import packaging.version
+from packaging.requirements import Requirement
+
+
 
 
 logging.getLogger("torch.distributed.nn").setLevel(logging.ERROR)  # sshh...
@@ -75,42 +78,26 @@ def run_pip(command, desc=None, live=default_command_live):
 
 
 def requirements_met(requirements_file):
-    """
-    Does a simple parse of a requirements.txt file to determine if all requirements in it
-    are already installed. Returns True if so, False if not installed or parsing fails.
-    """
-    # Regex pattern for parsing requirements.txt
-    re_requirement = re.compile(r"([^=<>!]+)([=<>!]*)([^=<>!]+)?")
-
     with open(requirements_file, "r", encoding="utf8") as file:
         for line in file:
             line = line.strip()
-            if line == "" or line.startswith('#'):  # Skip empty lines and comments
+            if line == "" or line.startswith('#'):
                 continue
 
-            m = re.match(re_requirement, line)
-            if m is None:
-                print(f"Warning: Unable to parse line: '{line}'")
-                return False
-
-            package = m.group(1).strip()
-            version_required = (m.group(3) or "").strip()
-
-            if version_required == "":
-                # If no specific version is required, skip version check
-                continue
+            requirement = Requirement(line)
+            package = requirement.name
 
             try:
-                if package not in importlib.metadata.distributions():
-                    print(f"Package not installed: {package}")
-                    return False
                 version_installed = importlib.metadata.version(package)
+                installed_version = packaging.version.parse(version_installed)
+
+                # Check if the installed version satisfies the requirement
+                if installed_version not in requirement.specifier:
+                    print(f"Version mismatch for {package}: Installed version {version_installed} does not meet requirement {requirement}")
+                    return False
             except Exception as e:
                 print(f"Error checking version for {package}: {e}")
                 return False
 
-            if packaging.version.parse(version_required) != packaging.version.parse(version_installed):
-                print(f"Version mismatch for {package}: Required {version_required}, Installed {version_installed}")
-                return False
-
     return True
+
