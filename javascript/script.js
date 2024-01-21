@@ -119,26 +119,66 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
     mutationObserver.observe(gradioApp(), {childList: true, subtree: true});
+    initStylePreviewOverlay();
 });
 
 /**
  * Add a ctrl+enter as a shortcut to start a generation
  */
 document.addEventListener('keydown', function(e) {
-    var handled = false;
-    if (e.key !== undefined) {
-        if ((e.key == "Enter" && (e.metaKey || e.ctrlKey || e.altKey))) handled = true;
-    } else if (e.keyCode !== undefined) {
-        if ((e.keyCode == 13 && (e.metaKey || e.ctrlKey || e.altKey))) handled = true;
-    }
-    if (handled) {
-        var button = gradioApp().querySelector('button[id=generate_button]');
-        if (button) {
-            button.click();
+    const isModifierKey = (e.metaKey || e.ctrlKey || e.altKey);
+    const isEnterKey = (e.key == "Enter" || e.keyCode == 13);
+
+    if(isModifierKey && isEnterKey) {
+        const generateButton = gradioApp().querySelector('button:not(.hidden)[id=generate_button]');
+        if (generateButton) {
+            generateButton.click();
+            e.preventDefault();
+            return;
         }
-        e.preventDefault();
+
+        const stopButton = gradioApp().querySelector('button:not(.hidden)[id=stop_button]')
+        if(stopButton) {
+            stopButton.click();
+            e.preventDefault();
+            return;
+        }
     }
 });
+
+function initStylePreviewOverlay() {
+    let overlayVisible = false;
+    const samplesPath = document.querySelector("meta[name='samples-path']").getAttribute("content")
+    const overlay = document.createElement('div');
+    overlay.id = 'stylePreviewOverlay';
+    document.body.appendChild(overlay);
+    document.addEventListener('mouseover', function(e) {
+        const label = e.target.closest('.style_selections label');
+        if (!label) return;
+        label.removeEventListener("mouseout", onMouseLeave);
+        label.addEventListener("mouseout", onMouseLeave);
+        overlayVisible = true;
+        overlay.style.opacity = "1";
+        const originalText = label.querySelector("span").getAttribute("data-original-text");
+        const name = originalText || label.querySelector("span").textContent;
+        overlay.style.backgroundImage = `url("${samplesPath.replace(
+          "fooocus_v2",
+          name.toLowerCase().replaceAll(" ", "_")
+        ).replaceAll("\\", "\\\\")}")`;
+        function onMouseLeave() {
+            overlayVisible = false;
+            overlay.style.opacity = "0";
+            overlay.style.backgroundImage = "";
+            label.removeEventListener("mouseout", onMouseLeave);
+        }
+    });
+    document.addEventListener('mousemove', function(e) {
+        if(!overlayVisible) return;
+        overlay.style.left = `${e.clientX}px`;
+        overlay.style.top = `${e.clientY}px`;
+        overlay.className = e.clientY > window.innerHeight / 2 ? "lower-half" : "upper-half";
+    });
+}
 
 /**
  * checks that a UI element is not in another hidden element or tab content

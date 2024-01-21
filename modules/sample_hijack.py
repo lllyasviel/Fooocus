@@ -1,11 +1,15 @@
 import torch
-import fcbh.samplers
-import fcbh.model_management
+import ldm_patched.modules.samplers
+import ldm_patched.modules.model_management
 
-from fcbh.model_base import SDXLRefiner, SDXL
-from fcbh.conds import CONDRegular
-from fcbh.sample import get_additional_models, get_models_from_cond, cleanup_additional_models
-from fcbh.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
+from collections import namedtuple
+from ldm_patched.contrib.external_custom_sampler import SDTurboScheduler
+from ldm_patched.k_diffusion import sampling as k_diffusion_sampling
+from ldm_patched.modules.samplers import normal_scheduler, simple_scheduler, ddim_scheduler
+from ldm_patched.modules.model_base import SDXLRefiner, SDXL
+from ldm_patched.modules.conds import CONDRegular
+from ldm_patched.modules.sample import get_additional_models, get_models_from_cond, cleanup_additional_models
+from ldm_patched.modules.samplers import resolve_areas_and_cond_masks, wrap_model, calculate_start_end_timesteps, \
     create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_model_conds
 
 
@@ -95,6 +99,13 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
     calculate_start_end_timesteps(model, negative)
     calculate_start_end_timesteps(model, positive)
 
+    if latent_image is not None:
+        latent_image = model.process_latent_in(latent_image)
+
+    if hasattr(model, 'extra_conds'):
+        positive = encode_model_conds(model.extra_conds, positive, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask)
+        negative = encode_model_conds(model.extra_conds, negative, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask)
+
     #make sure each cond area has an opposite one with the same area
     for c in positive:
         create_cond_with_same_area_if_none(negative, c)
@@ -106,13 +117,6 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
 
     apply_empty_x_to_equal_area(list(filter(lambda c: c.get('control_apply_to_uncond', False) == True, positive)), negative, 'control', lambda cond_cnets, x: cond_cnets[x])
     apply_empty_x_to_equal_area(positive, negative, 'gligen', lambda cond_cnets, x: cond_cnets[x])
-
-    if latent_image is not None:
-        latent_image = model.process_latent_in(latent_image)
-
-    if hasattr(model, 'extra_conds'):
-        positive = encode_model_conds(model.extra_conds, positive, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask)
-        negative = encode_model_conds(model.extra_conds, negative, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask)
 
     extra_args = {"cond":positive, "uncond":negative, "cond_scale": cfg, "model_options": model_options, "seed":seed}
 
@@ -133,7 +137,9 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
         extra_args['model_options'] = {k: {} if k == 'transformer_options' else v for k, v in extra_args['model_options'].items()}
 
         models, inference_memory = get_additional_models(positive_refiner, negative_refiner, current_refiner.model_dtype())
-        fcbh.model_management.load_models_gpu([current_refiner] + models, current_refiner.memory_required(noise.shape) + inference_memory)
+        ldm_patched.modules.model_management.load_models_gpu(
+            [current_refiner] + models,
+            model.memory_required([noise.shape[0] * 2] + list(noise.shape[1:])) + inference_memory)
 
         model_wrap.inner_model = current_refiner.model
         print('Refiner Swapped')
@@ -152,4 +158,27 @@ def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas
     return model.process_latent_out(samples.to(torch.float32))
 
 
-fcbh.samplers.sample = sample_hacked
+@torch.no_grad()
+@torch.inference_mode()
+def calculate_sigmas_scheduler_hacked(model, scheduler_name, steps):
+    if scheduler_name == "karras":
+        sigmas = k_diffusion_sampling.get_sigmas_karras(n=steps, sigma_min=float(model.model_sampling.sigma_min), sigma_max=float(model.model_sampling.sigma_max))
+    elif scheduler_name == "exponential":
+        sigmas = k_diffusion_sampling.get_sigmas_exponential(n=steps, sigma_min=float(model.model_sampling.sigma_min), sigma_max=float(model.model_sampling.sigma_max))
+    elif scheduler_name == "normal":
+        sigmas = normal_scheduler(model, steps)
+    elif scheduler_name == "simple":
+        sigmas = simple_scheduler(model, steps)
+    elif scheduler_name == "ddim_uniform":
+        sigmas = ddim_scheduler(model, steps)
+    elif scheduler_name == "sgm_uniform":
+        sigmas = normal_scheduler(model, steps, sgm=True)
+    elif scheduler_name == "turbo":
+        sigmas = SDTurboScheduler().get_sigmas(namedtuple('Patcher', ['model'])(model=model), steps=steps, denoise=1.0)[0]
+    else:
+        raise TypeError("error invalid scheduler")
+    return sigmas
+
+
+ldm_patched.modules.samplers.calculate_sigmas_scheduler = calculate_sigmas_scheduler_hacked
+ldm_patched.modules.samplers.sample = sample_hacked
