@@ -151,6 +151,7 @@ def worker():
         overwrite_vary_strength = args.pop()
         overwrite_upscale_strength = args.pop()
         mixing_image_prompt_and_vary_upscale = args.pop()
+        mixing_image_prompt_and_inpaint = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -279,7 +280,7 @@ def worker():
                     progressbar(async_task, 1, 'Downloading upscale models ...')
                     modules.config.downloading_upscale_model()
             if (current_tab == 'inpaint' or (
-                    current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint)) \
+                    current_tab == 'ip' and mixing_image_prompt_and_inpaint)) \
                     and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
                 inpaint_mask = inpaint_input_image['mask'][:, :, 0]
@@ -324,7 +325,7 @@ def worker():
                     goals.append('inpaint')
             if current_tab == 'ip' or \
                     mixing_image_prompt_and_vary_upscale or \
-                    advanced_parameters.mixing_image_prompt_and_inpaint:
+                    mixing_image_prompt_and_inpaint:
                 goals.append('cn')
                 progressbar(async_task, 1, 'Downloading control models ...')
                 if len(cn_tasks[flags.cn_canny]) > 0:
