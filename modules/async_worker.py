@@ -142,6 +142,7 @@ def worker():
         inpaint_mask_image_upload = args.pop()
         disable_preview = args.pop()
         adm_scaler_positive = args.pop()
+        adm_scaler_negative = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -195,7 +196,7 @@ def worker():
             modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg = 1.0
             refiner_switch = 1.0
             modules.patch.positive_adm_scale = adm_scaler_positive = 1.0
-            modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative = 1.0
+            modules.patch.negative_adm_scale = adm_scaler_negative = 1.0
             modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
             steps = 8
 
@@ -206,7 +207,7 @@ def worker():
         print(f'[Parameters] Sharpness = {modules.patch.sharpness}')
 
         modules.patch.positive_adm_scale = adm_scaler_positive
-        modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative
+        modules.patch.negative_adm_scale = adm_scaler_negative
         modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end
         print(f'[Parameters] ADM Scale = '
               f'{modules.patch.positive_adm_scale} : '
