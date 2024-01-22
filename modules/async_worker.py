@@ -145,6 +145,7 @@ def worker():
         adm_scaler_negative = args.pop()
         adm_scaler_end = args.pop()
         adaptive_cfg = args.pop()
+        sampler_name = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -191,7 +192,7 @@ def worker():
                 print(f'Refiner disabled in LCM mode.')
 
             refiner_model_name = 'None'
-            sampler_name = advanced_parameters.sampler_name = 'lcm'
+            sampler_name = 'lcm'
             scheduler_name = advanced_parameters.scheduler_name = 'lcm'
             modules.patch.sharpness = sharpness = 0.0
             cfg_scale = guidance_scale = 1.0
@@ -244,7 +245,6 @@ def worker():
         seed = int(image_seed)
         print(f'[Parameters] Seed = {seed}')
 
-        sampler_name = advanced_parameters.sampler_name
         scheduler_name = advanced_parameters.scheduler_name
 
         goals = []
