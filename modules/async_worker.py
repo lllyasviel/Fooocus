@@ -156,6 +156,7 @@ def worker():
         skipping_cn_preprocessor = args.pop()
         canny_low_threshold = args.pop()
         canny_high_threshold = args.pop()
+        refiner_swap_method = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -238,7 +239,6 @@ def worker():
         width, height = int(width), int(height)
 
         skip_prompt_processing = False
-        refiner_swap_method = advanced_parameters.refiner_swap_method
 
         inpaint_worker.current_task = None
         inpaint_parameterized = advanced_parameters.inpaint_engine != 'None'
