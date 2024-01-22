@@ -869,7 +869,7 @@ def worker():
                 task.yields.append(['finish', task.results])
             finally:
                 if pid in modules.patch.patch_settings:
-                    del modules.patch.patch_settings[os.getpid()]
+                    del modules.patch.patch_settings[pid]
     pass
 
 
