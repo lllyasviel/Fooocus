@@ -31,7 +31,6 @@ def worker():
     import extras.preprocessors as preprocessors
     import modules.inpaint_worker as inpaint_worker
     import modules.constants as constants
-    import modules.advanced_parameters as advanced_parameters
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
     import fooocus_version
@@ -218,13 +217,13 @@ def worker():
             refiner_model_name = 'None'
             sampler_name = 'lcm'
             scheduler_name = 'lcm'
-            modules.patch.sharpness = sharpness = 0.0
-            cfg_scale = guidance_scale = 1.0
-            modules.patch.adaptive_cfg = adaptive_cfg = 1.0
+            sharpness = 0.0
+            guidance_scale = 1.0
+            adaptive_cfg = 1.0
             refiner_switch = 1.0
-            modules.patch.positive_adm_scale = adm_scaler_positive = 1.0
-            modules.patch.negative_adm_scale = adm_scaler_negative = 1.0
-            modules.patch.adm_scaler_end = adm_scaler_end = 0.0
+            adm_scaler_positive = 1.0
+            adm_scaler_negative = 1.0
+            adm_scaler_end = 0.0
             steps = 8
 
         modules.patch.adaptive_cfg = adaptive_cfg
