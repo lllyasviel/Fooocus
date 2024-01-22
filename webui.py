@@ -446,7 +446,7 @@ with shared.gradio_root:
                         freeu_s2 = gr.Slider(label='S2', minimum=0, maximum=4, step=0.01, value=0.95)
                         freeu_ctrls = [freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2]
 
-                adps = [generate_image_grid, overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
+                adps = [overwrite_step, overwrite_switch, overwrite_width, overwrite_height,
                         overwrite_vary_strength, overwrite_upscale_strength,
                         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
                         debugging_cn_preprocessor, skipping_cn_preprocessor, controlnet_softness,
@@ -518,7 +518,8 @@ with shared.gradio_root:
             inpaint_strength, inpaint_respective_field
         ], show_progress=False, queue=False)
 
-        ctrls = [
+        ctrls = [generate_image_grid]
+        ctrls += [
             prompt, negative_prompt, style_selections,
             performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, guidance_scale
         ]

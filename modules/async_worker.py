@@ -69,9 +69,6 @@ def worker():
         return
 
     def build_image_wall(async_task):
-        if not advanced_parameters.generate_image_grid:
-            return
-
         results = async_task.results
 
         if len(results) < 2:
@@ -279,7 +276,7 @@ def worker():
                     and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
                 inpaint_mask = inpaint_input_image['mask'][:, :, 0]
-                
+
                 if advanced_parameters.inpaint_mask_upload_checkbox:
                     if isinstance(inpaint_mask_image_upload, np.ndarray):
                         if inpaint_mask_image_upload.ndim == 3:
@@ -824,9 +821,12 @@ def worker():
         time.sleep(0.01)
         if len(async_tasks) > 0:
             task = async_tasks.pop(0)
+            generate_image_grid = task.args.pop(0)
+
             try:
                 handler(task)
-                build_image_wall(task)
+                if generate_image_grid:
+                    build_image_wall(task)
                 task.yields.append(['finish', task.results])
                 pipeline.prepare_text_encoder(async_call=True)
             except:
