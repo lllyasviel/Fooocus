@@ -1,8 +1,5 @@
 # modified version of https://github.com/AUTOMATIC1111/stable-diffusion-webui-nsfw-censor/blob/master/scripts/censor.py
-
 import numpy as np
-import torch
-import modules.core as core
 
 from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
 from transformers import AutoFeatureExtractor
@@ -16,8 +13,6 @@ safety_checker = None
 
 def numpy_to_pil(image):
     image = (image * 255).round().astype("uint8")
-
-    #pil_image = Image.fromarray(image, 'RGB')
     pil_image = Image.fromarray(image)
 
     return pil_image
