@@ -149,6 +149,7 @@ def worker():
         overwrite_width = args.pop()
         overwrite_height = args.pop()
         overwrite_vary_strength = args.pop()
+        overwrite_upscale_strength = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -524,8 +525,8 @@ def worker():
             tiled = True
             denoising_strength = 0.382
 
-            if advanced_parameters.overwrite_upscale_strength > 0:
-                denoising_strength = advanced_parameters.overwrite_upscale_strength
+            if overwrite_upscale_strength > 0:
+                denoising_strength = overwrite_upscale_strength
 
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
             progressbar(async_task, 13, 'VAE encoding ...')
