@@ -147,6 +147,7 @@ def worker():
         overwrite_step = args.pop()
         overwrite_switch = args.pop()
         overwrite_width = args.pop()
+        overwrite_height = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -350,8 +351,8 @@ def worker():
         if overwrite_width > 0:
             width = overwrite_width
 
-        if advanced_parameters.overwrite_height > 0:
-            height = advanced_parameters.overwrite_height
+        if overwrite_height > 0:
+            height = overwrite_height
 
         print(f'[Parameters] Sampler = {sampler_name} - {scheduler_name}')
         print(f'[Parameters] Steps = {steps} - {switch}')
