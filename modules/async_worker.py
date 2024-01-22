@@ -157,6 +157,11 @@ def worker():
         canny_low_threshold = args.pop()
         canny_high_threshold = args.pop()
         refiner_swap_method = args.pop()
+        freeu_enabled = args.pop()
+        freeu_b1 = args.pop()
+        freeu_b2 = args.pop()
+        freeu_s1 = args.pop()
+        freeu_s2 = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -698,14 +703,14 @@ def worker():
             if len(all_ip_tasks) > 0:
                 pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, all_ip_tasks)
 
-        if advanced_parameters.freeu_enabled:
+        if freeu_enabled:
             print(f'FreeU is enabled!')
             pipeline.final_unet = core.apply_freeu(
                 pipeline.final_unet,
-                advanced_parameters.freeu_b1,
-                advanced_parameters.freeu_b2,
-                advanced_parameters.freeu_s1,
-                advanced_parameters.freeu_s2
+                freeu_b1,
+                freeu_b2,
+                freeu_s1,
+                freeu_s2
             )
 
         all_steps = steps * image_number
