@@ -152,6 +152,7 @@ def worker():
         overwrite_upscale_strength = args.pop()
         mixing_image_prompt_and_vary_upscale = args.pop()
         mixing_image_prompt_and_inpaint = args.pop()
+        debugging_cn_preprocessor = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -648,7 +649,7 @@ def worker():
 
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
-                if advanced_parameters.debugging_cn_preprocessor:
+                if debugging_cn_preprocessor:
                     yield_result(async_task, cn_img, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_cpds]:
@@ -660,7 +661,7 @@ def worker():
 
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
-                if advanced_parameters.debugging_cn_preprocessor:
+                if debugging_cn_preprocessor:
                     yield_result(async_task, cn_img, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_ip]:
@@ -671,7 +672,7 @@ def worker():
                 cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
 
                 task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_path)
-                if advanced_parameters.debugging_cn_preprocessor:
+                if debugging_cn_preprocessor:
                     yield_result(async_task, cn_img, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_ip_face]:
@@ -685,7 +686,7 @@ def worker():
                 cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
 
                 task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_face_path)
-                if advanced_parameters.debugging_cn_preprocessor:
+                if debugging_cn_preprocessor:
                     yield_result(async_task, cn_img, do_not_show_finished_images=True)
                     return
 
