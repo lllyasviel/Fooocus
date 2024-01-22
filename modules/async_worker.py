@@ -140,6 +140,7 @@ def worker():
         inpaint_input_image = args.pop()
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
+        disable_preview = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -766,7 +767,8 @@ def worker():
                     denoise=denoising_strength,
                     tiled=tiled,
                     cfg_scale=cfg_scale,
-                    refiner_swap_method=refiner_swap_method
+                    refiner_swap_method=refiner_swap_method,
+                    disable_preview=disable_preview
                 )
 
                 del task['c'], task['uc'], positive_cond, negative_cond  # Save memory
