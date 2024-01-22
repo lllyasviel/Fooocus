@@ -28,6 +28,8 @@ from ldm_patched.ldm.modules.diffusionmodules.openaimodel import forward_timeste
 from modules.patch_precision import patch_all_precision
 from modules.patch_clip import patch_all_clip
 
+# TODO make these parameters dynamic:
+# TODO sharpness, adm_scaler_end, positive_adm_scale, negative_adm_scale, adaptive_cfg + controlnet_softness
 
 sharpness = 2.0
 
