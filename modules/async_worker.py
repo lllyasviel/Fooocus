@@ -153,6 +153,7 @@ def worker():
         mixing_image_prompt_and_vary_upscale = args.pop()
         mixing_image_prompt_and_inpaint = args.pop()
         debugging_cn_preprocessor = args.pop()
+        skipping_cn_preprocessor = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -644,7 +645,7 @@ def worker():
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
 
-                if not advanced_parameters.skipping_cn_preprocessor:
+                if not skipping_cn_preprocessor:
                     cn_img = preprocessors.canny_pyramid(cn_img)
 
                 cn_img = HWC3(cn_img)
@@ -656,7 +657,7 @@ def worker():
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
 
-                if not advanced_parameters.skipping_cn_preprocessor:
+                if not skipping_cn_preprocessor:
                     cn_img = preprocessors.cpds(cn_img)
 
                 cn_img = HWC3(cn_img)
@@ -679,7 +680,7 @@ def worker():
                 cn_img, cn_stop, cn_weight = task
                 cn_img = HWC3(cn_img)
 
-                if not advanced_parameters.skipping_cn_preprocessor:
+                if not skipping_cn_preprocessor:
                     cn_img = extras.face_crop.crop_image(cn_img)
 
                 # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
