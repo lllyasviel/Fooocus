@@ -11,7 +11,6 @@ import modules.async_worker as worker
 import modules.constants as constants
 import modules.flags as flags
 import modules.gradio_hijack as grh
-import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
 import modules.meta_parser
 import args_manager
@@ -446,8 +445,6 @@ with shared.gradio_root:
                         freeu_s2 = gr.Slider(label='S2', minimum=0, maximum=4, step=0.01, value=0.95)
                         freeu_ctrls = [freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2]
 
-                adps = [controlnet_softness]
-
                 def dev_mode_checked(r):
                     return gr.update(visible=r)
 
@@ -527,7 +524,7 @@ with shared.gradio_root:
         ctrls += [overwrite_step, overwrite_switch, overwrite_width, overwrite_height, overwrite_vary_strength]
         ctrls += [overwrite_upscale_strength, mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint]
         ctrls += [debugging_cn_preprocessor, skipping_cn_preprocessor, canny_low_threshold, canny_high_threshold]
-        ctrls += [refiner_swap_method]
+        ctrls += [refiner_swap_method, controlnet_softness]
         ctrls += freeu_ctrls
         ctrls += inpaint_ctrls
         ctrls += ip_ctrls
@@ -584,7 +581,6 @@ with shared.gradio_root:
         generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
                               outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
-            .then(advanced_parameters.set_all_advanced_parameters, inputs=adps) \
             .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
                   outputs=[generate_button, stop_button, skip_button, state_is_generating]) \

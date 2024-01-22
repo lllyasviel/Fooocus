@@ -156,6 +156,7 @@ def worker():
         canny_low_threshold = args.pop()
         canny_high_threshold = args.pop()
         refiner_swap_method = args.pop()
+        controlnet_softness = args.pop()
         freeu_enabled = args.pop()
         freeu_b1 = args.pop()
         freeu_b2 = args.pop()
@@ -231,6 +232,9 @@ def worker():
 
         modules.patch.sharpness = sharpness
         print(f'[Parameters] Sharpness = {modules.patch.sharpness}')
+
+        modules.patch.controlnet_softness = controlnet_softness
+        print(f'[Parameters] ControlNet Softness = {modules.patch.controlnet_softness}')
 
         modules.patch.positive_adm_scale = adm_scaler_positive
         modules.patch.negative_adm_scale = adm_scaler_negative

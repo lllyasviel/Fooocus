@@ -16,7 +16,6 @@ import ldm_patched.modules.controlnet
 import modules.sample_hijack
 import ldm_patched.modules.samplers
 import ldm_patched.modules.latent_formats
-import modules.advanced_parameters
 
 from ldm_patched.modules.sd import load_checkpoint_guess_config
 from ldm_patched.contrib.external import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, \

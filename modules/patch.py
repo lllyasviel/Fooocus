@@ -17,7 +17,6 @@ import ldm_patched.controlnet.cldm
 import ldm_patched.modules.model_patcher
 import ldm_patched.modules.samplers
 import ldm_patched.modules.args_parser
-import modules.advanced_parameters as advanced_parameters
 import warnings
 import safetensors.torch
 import modules.constants as constants
@@ -37,10 +36,11 @@ adm_scaler_end = 0.3
 positive_adm_scale = 1.5
 negative_adm_scale = 0.8
 
+controlnet_softness = 0.25
+
 adaptive_cfg = 7.0
 global_diffusion_progress = 0
 eps_record = None
-
 
 def calculate_weight_patched(self, patches, weight, key):
     for p in patches:
@@ -359,10 +359,10 @@ def patched_cldm_forward(self, x, hint, timesteps, context, y=None, **kwargs):
     h = self.middle_block(h, emb, context)
     outs.append(self.middle_block_out(h, emb, context))
 
-    if advanced_parameters.controlnet_softness > 0:
+    if controlnet_softness > 0:
         for i in range(10):
             k = 1.0 - float(i) / 9.0
-            outs[i] = outs[i] * (1.0 - advanced_parameters.controlnet_softness * k)
+            outs[i] = outs[i] * (1.0 - controlnet_softness * k)
 
     return outs
 

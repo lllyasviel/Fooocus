@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import modules.advanced_parameters as advanced_parameters
 
 
 def centered_canny(x: np.ndarray, canny_low_threshold, canny_high_threshold):
