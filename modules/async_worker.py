@@ -144,6 +144,7 @@ def worker():
         adaptive_cfg = args.pop()
         sampler_name = args.pop()
         scheduler_name = args.pop()
+        overwrite_step = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -338,8 +339,8 @@ def worker():
 
         switch = int(round(steps * refiner_switch))
 
-        if advanced_parameters.overwrite_step > 0:
-            steps = advanced_parameters.overwrite_step
+        if overwrite_step > 0:
+            steps = overwrite_step
 
         if advanced_parameters.overwrite_switch > 0:
             switch = advanced_parameters.overwrite_switch
