@@ -26,6 +26,7 @@ Included adjustments:
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1863 - image extension support (png, jpg, webp)
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1938 - automatically describe image on uov image upload if prompt is empty
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1940 - meta data handling, schemes: Fooocus (json) and A1111 (plain text). Compatible with Civitai.
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1979 - prevent outdated history log link after midnight
 
 ✨ = new feature<br>
 🐛 = bugfix<br>
