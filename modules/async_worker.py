@@ -1,6 +1,9 @@
 import threading
 import os
-from modules.patch import PatchSettings, patch_settings
+from modules.patch import PatchSettings, patch_settings, patch_all
+
+patch_all()
+
 
 class AsyncTask:
     def __init__(self, args):
