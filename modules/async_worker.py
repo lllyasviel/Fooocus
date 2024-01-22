@@ -154,6 +154,7 @@ def worker():
         mixing_image_prompt_and_inpaint = args.pop()
         debugging_cn_preprocessor = args.pop()
         skipping_cn_preprocessor = args.pop()
+        canny_low_threshold = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -646,7 +647,7 @@ def worker():
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
 
                 if not skipping_cn_preprocessor:
-                    cn_img = preprocessors.canny_pyramid(cn_img)
+                    cn_img = preprocessors.canny_pyramid(cn_img, canny_low_threshold)
 
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
