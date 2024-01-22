@@ -150,6 +150,7 @@ def worker():
         overwrite_height = args.pop()
         overwrite_vary_strength = args.pop()
         overwrite_upscale_strength = args.pop()
+        mixing_image_prompt_and_vary_upscale = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -254,7 +255,7 @@ def worker():
 
         if input_image_checkbox:
             if (current_tab == 'uov' or (
-                    current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_vary_upscale)) \
+                    current_tab == 'ip' and mixing_image_prompt_and_vary_upscale)) \
                     and uov_method != flags.disabled and uov_input_image is not None:
                 uov_input_image = HWC3(uov_input_image)
                 if 'vary' in uov_method:
@@ -322,8 +323,8 @@ def worker():
                             prompt = inpaint_additional_prompt + '\n' + prompt
                     goals.append('inpaint')
             if current_tab == 'ip' or \
-                    advanced_parameters.mixing_image_prompt_and_inpaint or \
-                    advanced_parameters.mixing_image_prompt_and_vary_upscale:
+                    mixing_image_prompt_and_vary_upscale or \
+                    advanced_parameters.mixing_image_prompt_and_inpaint:
                 goals.append('cn')
                 progressbar(async_task, 1, 'Downloading control models ...')
                 if len(cn_tasks[flags.cn_canny]) > 0:
