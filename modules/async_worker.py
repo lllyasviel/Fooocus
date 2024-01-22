@@ -1,5 +1,6 @@
 import threading
-
+import os
+from modules.patch import PatchSettings, patch_settings
 
 class AsyncTask:
     def __init__(self, args):
@@ -41,6 +42,9 @@ def worker():
     from modules.util import remove_empty_str, HWC3, resize_image, \
         get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
     from modules.upscaler import perform_upscale
+
+    pid = os.getpid()
+    print(f'Started worker with PID {pid}')
 
     try:
         async_gradio_app = shared.gradio_root
@@ -227,22 +231,22 @@ def worker():
             adm_scaler_end = 0.0
             steps = 8
 
-        modules.patch.adaptive_cfg = adaptive_cfg
-        print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
-
-        modules.patch.sharpness = sharpness
-        print(f'[Parameters] Sharpness = {modules.patch.sharpness}')
-
-        modules.patch.controlnet_softness = controlnet_softness
-        print(f'[Parameters] ControlNet Softness = {modules.patch.controlnet_softness}')
-
-        modules.patch.positive_adm_scale = adm_scaler_positive
-        modules.patch.negative_adm_scale = adm_scaler_negative
-        modules.patch.adm_scaler_end = adm_scaler_end
+        print(f'[Parameters] Adaptive CFG = {adaptive_cfg}')
+        print(f'[Parameters] Sharpness = {sharpness}')
+        print(f'[Parameters] ControlNet Softness = {controlnet_softness}')
         print(f'[Parameters] ADM Scale = '
-              f'{modules.patch.positive_adm_scale} : '
-              f'{modules.patch.negative_adm_scale} : '
-              f'{modules.patch.adm_scaler_end}')
+              f'{adm_scaler_positive} : '
+              f'{adm_scaler_negative} : '
+              f'{adm_scaler_end}')
+
+        patch_settings[pid] = PatchSettings(
+            sharpness,
+            adm_scaler_end,
+            adm_scaler_positive,
+            adm_scaler_negative,
+            controlnet_softness,
+            adaptive_cfg
+        )
 
         cfg_scale = float(guidance_scale)
         print(f'[Parameters] CFG = {cfg_scale}')
@@ -815,9 +819,9 @@ def worker():
                         ('Sharpness', sharpness),
                         ('Guidance Scale', guidance_scale),
                         ('ADM Guidance', str((
-                            modules.patch.positive_adm_scale,
-                            modules.patch.negative_adm_scale,
-                            modules.patch.adm_scaler_end))),
+                            modules.patch.patch_settings[pid].positive_adm_scale,
+                            modules.patch.patch_settings[pid].negative_adm_scale,
+                            modules.patch.patch_settings[pid].adm_scaler_end))),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
                         ('Refiner Switch', refiner_switch),
@@ -860,6 +864,9 @@ def worker():
             except:
                 traceback.print_exc()
                 task.yields.append(['finish', task.results])
+            finally:
+                if pid in modules.patch.patch_settings:
+                    del modules.patch.patch_settings[os.getpid()]
     pass
 
 

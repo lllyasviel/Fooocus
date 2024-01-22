@@ -425,7 +425,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
 
     if refiner_swap_method == 'vae':
-        modules.patch.eps_record = 'vae'
+        modules.patch.patch_settings[os.getpid()].eps_record = 'vae'
 
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.unswap()
@@ -463,7 +463,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
                                   denoise=denoise)[switch:] * k_sigmas
         len_sigmas = len(sigmas) - 1
 
-        noise_mean = torch.mean(modules.patch.eps_record, dim=1, keepdim=True)
+        noise_mean = torch.mean(modules.patch.patch_settings[os.getpid()].eps_record, dim=1, keepdim=True)
 
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.swap()
@@ -493,5 +493,5 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
 
     images = core.pytorch_to_numpy(decoded_latent)
-    modules.patch.eps_record = None
+    modules.patch.patch_settings[os.getpid()].eps_record = None
     return images
