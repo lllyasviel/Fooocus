@@ -162,6 +162,14 @@ def worker():
         freeu_b2 = args.pop()
         freeu_s1 = args.pop()
         freeu_s2 = args.pop()
+        debugging_inpaint_preprocessor = args.pop()
+        inpaint_disable_initial_latent = args.pop()
+        inpaint_engine = args.pop()
+        inpaint_strength = args.pop()
+        inpaint_respective_field = args.pop()
+        inpaint_mask_upload_checkbox = args.pop()
+        invert_mask_checkbox = args.pop()
+        inpaint_erode_or_dilate = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -246,7 +254,7 @@ def worker():
         skip_prompt_processing = False
 
         inpaint_worker.current_task = None
-        inpaint_parameterized = advanced_parameters.inpaint_engine != 'None'
+        inpaint_parameterized = inpaint_engine != 'None'
         inpaint_image = None
         inpaint_mask = None
         inpaint_head_model_path = None
@@ -294,7 +302,7 @@ def worker():
                 inpaint_image = inpaint_input_image['image']
                 inpaint_mask = inpaint_input_image['mask'][:, :, 0]
 
-                if advanced_parameters.inpaint_mask_upload_checkbox:
+                if inpaint_mask_upload_checkbox:
                     if isinstance(inpaint_mask_image_upload, np.ndarray):
                         if inpaint_mask_image_upload.ndim == 3:
                             H, W, C = inpaint_image.shape
@@ -303,10 +311,10 @@ def worker():
                             inpaint_mask_image_upload = (inpaint_mask_image_upload > 127).astype(np.uint8) * 255
                             inpaint_mask = np.maximum(inpaint_mask, inpaint_mask_image_upload)
 
-                if int(advanced_parameters.inpaint_erode_or_dilate) != 0:
-                    inpaint_mask = erode_or_dilate(inpaint_mask, advanced_parameters.inpaint_erode_or_dilate)
+                if int(inpaint_erode_or_dilate) != 0:
+                    inpaint_mask = erode_or_dilate(inpaint_mask, inpaint_erode_or_dilate)
 
-                if advanced_parameters.invert_mask_checkbox:
+                if invert_mask_checkbox:
                     inpaint_mask = 255 - inpaint_mask
 
                 inpaint_image = HWC3(inpaint_image)
@@ -317,7 +325,7 @@ def worker():
                     if inpaint_parameterized:
                         progressbar(async_task, 1, 'Downloading inpainter ...')
                         inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
-                            advanced_parameters.inpaint_engine)
+                            inpaint_engine)
                         base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
                         print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
                         if refiner_model_name == 'None':
@@ -581,19 +589,19 @@ def worker():
 
                 inpaint_image = np.ascontiguousarray(inpaint_image.copy())
                 inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
-                advanced_parameters.inpaint_strength = 1.0
-                advanced_parameters.inpaint_respective_field = 1.0
+                inpaint_strength = 1.0
+                inpaint_respective_field = 1.0
 
-            denoising_strength = advanced_parameters.inpaint_strength
+            denoising_strength = inpaint_strength
 
             inpaint_worker.current_task = inpaint_worker.InpaintWorker(
                 image=inpaint_image,
                 mask=inpaint_mask,
                 use_fill=denoising_strength > 0.99,
-                k=advanced_parameters.inpaint_respective_field
+                k=inpaint_respective_field
             )
 
-            if advanced_parameters.debugging_inpaint_preprocessor:
+            if debugging_inpaint_preprocessor:
                 yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(),
                              do_not_show_finished_images=True)
                 return
@@ -639,7 +647,7 @@ def worker():
                     model=pipeline.final_unet
                 )
 
-            if not advanced_parameters.inpaint_disable_initial_latent:
+            if not inpaint_disable_initial_latent:
                 initial_latent = {'samples': latent_fill}
 
             B, C, H, W = latent_fill.shape

@@ -447,7 +447,6 @@ with shared.gradio_root:
                         freeu_ctrls = [freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2]
 
                 adps = [controlnet_softness]
-                adps += inpaint_ctrls
 
                 def dev_mode_checked(r):
                     return gr.update(visible=r)
@@ -530,6 +529,7 @@ with shared.gradio_root:
         ctrls += [debugging_cn_preprocessor, skipping_cn_preprocessor, canny_low_threshold, canny_high_threshold]
         ctrls += [refiner_swap_method]
         ctrls += freeu_ctrls
+        ctrls += inpaint_ctrls
         ctrls += ip_ctrls
 
         state_is_generating = gr.State(False)
