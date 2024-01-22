@@ -1,4 +1,4 @@
-overwrite_width, overwrite_height, \
+overwrite_height, \
     overwrite_vary_strength, overwrite_upscale_strength, \
     mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, \
     debugging_cn_preprocessor, skipping_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold, \
@@ -9,7 +9,7 @@ overwrite_width, overwrite_height, \
 
 
 def set_all_advanced_parameters(*args):
-    global overwrite_width, overwrite_height, \
+    global overwrite_height, \
         overwrite_vary_strength, overwrite_upscale_strength, \
         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, \
         debugging_cn_preprocessor, skipping_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold, \
@@ -18,7 +18,7 @@ def set_all_advanced_parameters(*args):
         debugging_inpaint_preprocessor, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field, \
         inpaint_mask_upload_checkbox, invert_mask_checkbox, inpaint_erode_or_dilate
 
-    overwrite_width, overwrite_height, \
+    overwrite_height, \
         overwrite_vary_strength, overwrite_upscale_strength, \
         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint, \
         debugging_cn_preprocessor, skipping_cn_preprocessor, controlnet_softness, canny_low_threshold, canny_high_threshold, \
