@@ -148,6 +148,7 @@ def worker():
         overwrite_switch = args.pop()
         overwrite_width = args.pop()
         overwrite_height = args.pop()
+        overwrite_vary_strength = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -451,8 +452,8 @@ def worker():
                 denoising_strength = 0.5
             if 'strong' in uov_method:
                 denoising_strength = 0.85
-            if advanced_parameters.overwrite_vary_strength > 0:
-                denoising_strength = advanced_parameters.overwrite_vary_strength
+            if overwrite_vary_strength > 0:
+                denoising_strength = overwrite_vary_strength
 
             shape_ceil = get_image_shape_ceil(uov_input_image)
             if shape_ceil < 1024:

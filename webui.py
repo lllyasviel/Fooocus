@@ -446,7 +446,7 @@ with shared.gradio_root:
                         freeu_s2 = gr.Slider(label='S2', minimum=0, maximum=4, step=0.01, value=0.95)
                         freeu_ctrls = [freeu_enabled, freeu_b1, freeu_b2, freeu_s1, freeu_s2]
 
-                adps = [overwrite_vary_strength, overwrite_upscale_strength,
+                adps = [overwrite_upscale_strength,
                         mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint,
                         debugging_cn_preprocessor, skipping_cn_preprocessor, controlnet_softness,
                         canny_low_threshold, canny_high_threshold, refiner_swap_method]
@@ -527,8 +527,9 @@ with shared.gradio_root:
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
-        ctrls += [disable_preview, adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg, sampler_name]
-        ctrls += [scheduler_name, overwrite_step, overwrite_switch, overwrite_width, overwrite_height]
+        ctrls += [disable_preview, adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg]
+        ctrls += [sampler_name, scheduler_name]
+        ctrls += [overwrite_step, overwrite_switch, overwrite_width, overwrite_height, overwrite_vary_strength]
         ctrls += ip_ctrls
 
         state_is_generating = gr.State(False)
