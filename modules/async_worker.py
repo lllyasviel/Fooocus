@@ -144,6 +144,7 @@ def worker():
         adm_scaler_positive = args.pop()
         adm_scaler_negative = args.pop()
         adm_scaler_end = args.pop()
+        adaptive_cfg = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -194,14 +195,14 @@ def worker():
             scheduler_name = advanced_parameters.scheduler_name = 'lcm'
             modules.patch.sharpness = sharpness = 0.0
             cfg_scale = guidance_scale = 1.0
-            modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg = 1.0
+            modules.patch.adaptive_cfg = adaptive_cfg = 1.0
             refiner_switch = 1.0
             modules.patch.positive_adm_scale = adm_scaler_positive = 1.0
             modules.patch.negative_adm_scale = adm_scaler_negative = 1.0
             modules.patch.adm_scaler_end = adm_scaler_end = 0.0
             steps = 8
 
-        modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
+        modules.patch.adaptive_cfg = adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
 
         modules.patch.sharpness = sharpness
