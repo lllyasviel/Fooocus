@@ -194,6 +194,19 @@ with shared.gradio_root:
                             inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                             outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
                             inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
+                        with gr.Row(visible=False) as inpaint_mask_generation_row:
+                            inpaint_mask_model = gr.Dropdown(label='Mask generation model',
+                                                             choices=flags.inpaint_mask_models,
+                                                             value=modules.config.default_inpaint_mask_model, visible=False)
+                            generate_mask_button = gr.Button(value='Generate mask from image', visible=False)
+
+                            def generate_mask(image, mask_model):
+                                from extras.inpaint_mask import generate_mask_from_image
+                                return generate_mask_from_image(image, mask_model)
+
+                            generate_mask_button.click(fn=generate_mask, inputs=[inpaint_input_image, inpaint_mask_model],
+                                                       outputs=inpaint_mask_image)
+
                         example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts, label='Additional Prompt Quick List', components=[inpaint_additional_prompt], visible=False)
                         gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
                         example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
@@ -434,9 +447,11 @@ with shared.gradio_root:
                                          inpaint_strength, inpaint_respective_field,
                                          inpaint_mask_upload_checkbox, invert_mask_checkbox, inpaint_erode_or_dilate]
 
-                        inpaint_mask_upload_checkbox.change(lambda x: gr.update(visible=x),
-                                                           inputs=inpaint_mask_upload_checkbox,
-                                                           outputs=inpaint_mask_image, queue=False, show_progress=False)
+                        inpaint_mask_upload_checkbox.change(lambda x: [gr.update(visible=x)] * 4,
+                                                            inputs=inpaint_mask_upload_checkbox,
+                                                            outputs=[inpaint_mask_image, generate_mask_button,
+                                                                     inpaint_mask_model, inpaint_mask_generation_row],
+                                                            queue=False, show_progress=False)
 
                     with gr.Tab(label='FreeU'):
                         freeu_enabled = gr.Checkbox(label='Enabled', value=False)
