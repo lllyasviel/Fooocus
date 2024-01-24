@@ -321,7 +321,7 @@ example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 default_inpaint_mask_model = get_config_item_or_set_default(
     key='default_inpaint_mask_model',
     default_value='isnet-general-use',
-    validator=lambda x: isinstance(x, str)
+    validator=lambda x: x in modules.flags.inpaint_mask_models
 )
 
 config_dict["default_loras"] = default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
