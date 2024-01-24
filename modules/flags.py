@@ -48,7 +48,7 @@ performance_selections = [
 output_formats = ['png', 'jpg', 'webp']
 
 inpaint_mask_models = [
-    'u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam'
+    'u2net', 'u2netp', 'silueta', 'isnet-general-use', 'isnet-anime'
 ]
 
 inpaint_option_default = 'Inpaint or Outpaint (default)'
