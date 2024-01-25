@@ -204,7 +204,7 @@ with shared.gradio_root:
                             with gr.Column():
                                 desc_method = gr.Radio(
                                     label='Content Type',
-                                    choices=[flags.desc_type_photo, flags.desc_type_anime],
+                                    choices=[flags.desc_type_photo, flags.desc_type_anime, flags.desc_type_all],
                                     value=flags.desc_type_photo)
                                 desc_btn = gr.Button(value='Describe this Image into Prompt')
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Document</a>')
@@ -592,19 +592,53 @@ with shared.gradio_root:
             if os.path.exists(notification_file):
                 gr.Audio(interactive=False, value=notification_file, elem_id='audio_notification', visible=False)
                 break
+            
+        def describe_photo(img):
+            from extras.interrogate import default_interrogator as default_interrogator_photo
+            return default_interrogator_photo(img), ["Fooocus V2", "Fooocus Enhance", "Fooocus Sharp"]
+        
+        def describe_anime(img):
+            from extras.wd14tagger import default_interrogator as default_interrogator_anime
+            return default_interrogator_anime(img), ["Fooocus V2", "Fooocus Masterpiece"]
+        
+        def merge_unique(arrays):
+            # Flatten the list of lists and convert to a set to remove duplicates
+            unique_values = set(item for arr in arrays for item in arr)
+            # Convert the set back to a list, if you need a list format
+            merged_list = list(unique_values)
+            return merged_list
+        
+        def merge_prompts(*prompts):
+            # Split each prompt into a list, merge and remove duplicates
+            split_prompts = [prompt.split(", ") for prompt in prompts]
+            merged = merge_unique(split_prompts)
+            return ", ".join(merged)
 
-        def trigger_describe(mode, img):
+        def merge_styles(*style_lists):
+            # Merge and remove duplicates from style lists
+            return merge_unique(style_lists)
+
+        def trigger_describe(mode, img, current_prompt, current_style_selections):
+            if mode == flags.desc_type_all:
+                anime_desc, anime_styles = describe_anime(img)
+                photo_desc, photo_styles = describe_photo(img)
+                
+                # Merge prompts and styles
+                merged_prompts = merge_prompts(current_prompt, anime_desc, photo_desc)
+                merged_style_selections = merge_styles(current_style_selections, anime_styles, photo_styles)
+
+                return merged_prompts, merged_style_selections
+
             if mode == flags.desc_type_photo:
-                from extras.interrogate import default_interrogator as default_interrogator_photo
-                return default_interrogator_photo(img), ["Fooocus V2", "Fooocus Enhance", "Fooocus Sharp"]
+                return describe_photo(img)
+
             if mode == flags.desc_type_anime:
-                from extras.wd14tagger import default_interrogator as default_interrogator_anime
-                return default_interrogator_anime(img), ["Fooocus V2", "Fooocus Masterpiece"]
+                return describe_anime(img)
+
             return mode, ["Fooocus V2"]
 
-        desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
+        desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image, prompt, style_selections],
                        outputs=[prompt, style_selections], show_progress=True, queue=True)
-
 
 def dump_default_english_config():
     from modules.localization import dump_english_config
