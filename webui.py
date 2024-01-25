@@ -187,29 +187,48 @@ with shared.gradio_root:
                                            queue=False, show_progress=False)
                     with gr.TabItem(label='Inpaint or Outpaint') as inpaint_tab:
                         with gr.Row():
-                            inpaint_input_image = grh.Image(label='Drag inpaint or outpaint image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
-                            inpaint_mask_image = grh.Image(label='Mask Upload', source='upload', type='numpy', height=500, visible=False)
+                            with gr.Column():
+                                inpaint_input_image = grh.Image(label='Drag inpaint or outpaint image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+                                inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
+                                inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
+                                outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
+                                example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts,
+                                                                     label='Additional Prompt Quick List',
+                                                                     components=[inpaint_additional_prompt],
+                                                                     visible=False)
+                                gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
+                                example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
 
-                        with gr.Row():
-                            inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
-                            outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
-                            inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
-                        with gr.Row(visible=False) as inpaint_mask_generation_row:
-                            inpaint_mask_model = gr.Dropdown(label='Mask generation model',
-                                                             choices=flags.inpaint_mask_models,
-                                                             value=modules.config.default_inpaint_mask_model, visible=False)
-                            generate_mask_button = gr.Button(value='Generate mask from image', visible=False)
+                            with gr.Column(visible=False) as inpaint_mask_generation_col:
+                                inpaint_mask_image = grh.Image(label='Mask Upload', source='upload', type='numpy',
+                                                               height=500, visible=False)
+                                inpaint_mask_model = gr.Dropdown(label='Mask generation model',
+                                                                 choices=flags.inpaint_mask_models,
+                                                                 value=modules.config.default_inpaint_mask_model,
+                                                                 visible=False)
+                                cloth_category = gr.Dropdown(label='Cloth category',
+                                                             choices=flags.inpaint_mask_cloth_category,
+                                                             value=modules.config.default_inpaint_mask_cloth_category,
+                                                             visible=False)
+                                generate_mask_button = gr.Button(value='Generate mask from image', visible=False)
 
-                            def generate_mask(image, mask_model):
-                                from extras.inpaint_mask import generate_mask_from_image
-                                return generate_mask_from_image(image, mask_model)
 
-                            generate_mask_button.click(fn=generate_mask, inputs=[inpaint_input_image, inpaint_mask_model],
-                                                       outputs=inpaint_mask_image)
+                                def generate_mask(image, mask_model, cloth_category):
+                                    from extras.inpaint_mask import generate_mask_from_image
+                                    return generate_mask_from_image(image, mask_model, extras={"cloth_category": cloth_category})
 
-                        example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts, label='Additional Prompt Quick List', components=[inpaint_additional_prompt], visible=False)
-                        gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
-                        example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
+
+                                generate_mask_button.click(fn=generate_mask,
+                                                           inputs=[
+                                                               inpaint_input_image, inpaint_mask_model,
+                                                               cloth_category
+                                                           ],
+                                                           outputs=inpaint_mask_image)
+
+                            inpaint_mask_model.change(lambda x: gr.update(visible=x == 'u2net_cloth_seg'),
+                                                      inputs=inpaint_mask_model,
+                                                      outputs=cloth_category,
+                                                      queue=False, show_progress=False)
                     with gr.TabItem(label='Describe') as desc_tab:
                         with gr.Row():
                             with gr.Column():
@@ -450,7 +469,7 @@ with shared.gradio_root:
                         inpaint_mask_upload_checkbox.change(lambda x: [gr.update(visible=x)] * 4,
                                                             inputs=inpaint_mask_upload_checkbox,
                                                             outputs=[inpaint_mask_image, generate_mask_button,
-                                                                     inpaint_mask_model, inpaint_mask_generation_row],
+                                                                     inpaint_mask_model, inpaint_mask_generation_col],
                                                             queue=False, show_progress=False)
 
                     with gr.Tab(label='FreeU'):

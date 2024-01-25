@@ -36,8 +36,10 @@ inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 performance_selections = ['Speed', 'Quality', 'Extreme Speed']
 
 inpaint_mask_models = [
-    'u2net', 'u2netp', 'silueta', 'isnet-general-use', 'isnet-anime'
+    'u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime'
 ]
+
+inpaint_mask_cloth_category = ['full', 'upper', 'lower']
 
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
