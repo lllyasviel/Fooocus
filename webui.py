@@ -206,7 +206,7 @@ with shared.gradio_root:
                                                                  choices=flags.inpaint_mask_models,
                                                                  value=modules.config.default_inpaint_mask_model,
                                                                  visible=False)
-                                cloth_category = gr.Dropdown(label='Cloth category',
+                                inpaint_mask_cloth_category = gr.Dropdown(label='Cloth category',
                                                              choices=flags.inpaint_mask_cloth_category,
                                                              value=modules.config.default_inpaint_mask_cloth_category,
                                                              visible=False)
@@ -215,20 +215,20 @@ with shared.gradio_root:
 
                                 def generate_mask(image, mask_model, cloth_category):
                                     from extras.inpaint_mask import generate_mask_from_image
-                                    return generate_mask_from_image(image, mask_model, extras={"cloth_category": cloth_category})
+                                    return generate_mask_from_image(image, mask_model, {"cloth_category": cloth_category})
 
 
                                 generate_mask_button.click(fn=generate_mask,
                                                            inputs=[
                                                                inpaint_input_image, inpaint_mask_model,
-                                                               cloth_category
+                                                               inpaint_mask_cloth_category
                                                            ],
                                                            outputs=inpaint_mask_image)
 
-                            inpaint_mask_model.change(lambda x: gr.update(visible=x == 'u2net_cloth_seg'),
-                                                      inputs=inpaint_mask_model,
-                                                      outputs=cloth_category,
-                                                      queue=False, show_progress=False)
+                                inpaint_mask_model.change(lambda x: gr.update(visible=x == 'u2net_cloth_seg'),
+                                                          inputs=inpaint_mask_model,
+                                                          outputs=inpaint_mask_cloth_category,
+                                                          queue=False, show_progress=False)
                     with gr.TabItem(label='Describe') as desc_tab:
                         with gr.Row():
                             with gr.Column():
