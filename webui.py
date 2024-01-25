@@ -313,11 +313,12 @@ with shared.gradio_root:
 
                     for i, (n, v) in enumerate(modules.config.default_loras):
                         with gr.Row():
+                            lora_enable = gr.Checkbox(label='Enable', value=True, elem_classes='lora_enable', container=True)
                             lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
                                                      choices=['None'] + modules.config.lora_filenames, value=n)
                             lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=v,
                                                     elem_classes='lora_weight')
-                            lora_ctrls += [lora_model, lora_weight]
+                            lora_ctrls += [lora_model, lora_weight, lora_enable]
 
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
@@ -467,7 +468,7 @@ with shared.gradio_root:
                     results = []
                     results += [gr.update(choices=modules.config.model_filenames), gr.update(choices=['None'] + modules.config.model_filenames)]
                     for i in range(5):
-                        results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
+                        results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update(), gr.update(interactive=True)]
                     return results
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,

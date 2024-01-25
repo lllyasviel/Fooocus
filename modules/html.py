@@ -112,6 +112,22 @@ progress::after {
     margin-left: -5px !important;
 }
 
+.lora_enable {
+  min-width: min(0px, 100%) !important;
+}
+
+.lora_enable label {
+  height: 100%;
+}
+
+.lora_enable label input {
+  margin: auto;
+}
+
+.lora_enable label span {
+  display: none;
+}
+
 '''
 progress_html = '''
 <div class="loader-container">

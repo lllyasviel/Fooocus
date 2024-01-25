@@ -139,10 +139,12 @@ def load_parameter_button_click(raw_prompt_txt, is_generating):
         try:
             n, w = loaded_parameter_dict.get(f'LoRA {i}').split(' : ')
             w = float(w)
-            results.append(n)
-            results.append(w)
+            results.append(n)  # Update LoRA model
+            results.append(w)  # Update LoRA weight
+            results.append(True)  # Enable the LoRA setting by default
         except:
-            results.append(gr.update())
-            results.append(gr.update())
+            results.append("None")  # Update LoRA model
+            results.append(1.0)  # Update LoRA weight
+            results.append(True)  # Enable the LoRA setting by default
 
     return results
