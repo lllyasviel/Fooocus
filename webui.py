@@ -206,7 +206,7 @@ with shared.gradio_root:
                                                                  choices=flags.inpaint_mask_models,
                                                                  value=modules.config.default_inpaint_mask_model,
                                                                  visible=False)
-                                cloth_category = gr.Dropdown(label='Cloth category',
+                                inpaint_mask_cloth_category = gr.Dropdown(label='Cloth category',
                                                              choices=flags.inpaint_mask_cloth_category,
                                                              value=modules.config.default_inpaint_mask_cloth_category,
                                                              visible=False)
@@ -222,13 +222,13 @@ with shared.gradio_root:
                                 def generate_mask(image, mask_model, cloth_category, sam_prompt_text, sam_model, sam_quant, box_threshold, text_threshold):
                                     from extras.inpaint_mask import generate_mask_from_image
                                     return generate_mask_from_image(image, mask_model,
-                                                                    extras={"cloth_category": cloth_category, "sam_prompt_text": sam_prompt_text, "sam_model": sam_model, "sam_quant": sam_quant, "box_threshold": box_threshold, "text_threshold": text_threshold})
+                                                                    {"cloth_category": cloth_category, "sam_prompt_text": sam_prompt_text, "sam_model": sam_model, "sam_quant": sam_quant, "box_threshold": box_threshold, "text_threshold": text_threshold})
 
 
                                 generate_mask_button.click(fn=generate_mask,
                                                            inputs=[
                                                                inpaint_input_image, inpaint_mask_model,
-                                                               cloth_category,
+                                                               inpaint_mask_cloth_category,
                                                                inpaint_mask_sam_prompt_text,
                                                                inpaint_mask_sam_model,
                                                                inpaint_mask_sam_quant,
@@ -239,7 +239,7 @@ with shared.gradio_root:
 
                             inpaint_mask_model.change(lambda x: [gr.update(visible=x == 'u2net_cloth_seg'), gr.update(visible=x == 'sam'), gr.update(visible=x == 'sam')],
                                                       inputs=inpaint_mask_model,
-                                                      outputs=[cloth_category, inpaint_mask_sam_prompt_text, inpaint_mask_advanced_options],
+                                                      outputs=[inpaint_mask_cloth_category, inpaint_mask_sam_prompt_text, inpaint_mask_advanced_options],
                                                       queue=False, show_progress=False)
                     with gr.TabItem(label='Describe') as desc_tab:
                         with gr.Row():
