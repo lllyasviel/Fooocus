@@ -135,14 +135,20 @@ def load_parameter_button_click(raw_prompt_txt, is_generating):
     
     results.append(gr.update(visible=False))
 
-    for i in range(1, 6):
-        try:
-            n, w = loaded_parameter_dict.get(f'LoRA {i}').split(' : ')
-            w = float(w)
-            results.append(n)
-            results.append(w)
-        except:
-            results.append(gr.update())
-            results.append(gr.update())
+    for i in range(1, modules.config.default_loras_max_number + 1):
+        lora_key = f'LoRA {i}'
+        if lora_key in loaded_parameter_dict:
+            try:
+                n, w = loaded_parameter_dict[lora_key].split(' : ')
+                w = float(w)
+                results.append(n)  # Update LoRA model
+                results.append(w)  # Update LoRA weight
+            except Exception as e:
+                # If there's an error parsing, log it or handle it as needed
+                print(f"Error parsing {lora_key}: {e}")
+                results.extend([gr.update(), gr.update()])  # Keep existing settings unchanged
+        else:
+            # If the LoRA setting is not in the JSON, keep the existing settings unchanged
+            results.extend([gr.update(), gr.update()])
 
     return results
