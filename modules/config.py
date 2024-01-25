@@ -166,6 +166,16 @@ default_refiner_switch = get_config_item_or_set_default(
     default_value=0.5,
     validator=lambda x: isinstance(x, numbers.Number) and 0 <= x <= 1
 )
+default_loras_min_weight = get_config_item_or_set_default(
+    key='default_loras_min_weight',
+    default_value=-2,
+    validator=lambda x: isinstance(x, numbers.Number) and -10 <= x <= 10
+)
+default_loras_max_weight = get_config_item_or_set_default(
+    key='default_loras_max_weight',
+    default_value=2,
+    validator=lambda x: isinstance(x, numbers.Number) and -10 <= x <= 10
+)
 default_loras = get_config_item_or_set_default(
     key='default_loras',
     default_value=[
@@ -324,6 +334,8 @@ possible_preset_keys = [
     "default_model",
     "default_refiner",
     "default_refiner_switch",
+    "default_loras_min_weight",
+    "default_loras_max_weight",
     "default_loras",
     "default_cfg_scale",
     "default_sample_sharpness",
