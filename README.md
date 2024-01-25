@@ -14,6 +14,10 @@ Fooocus-MindOfMatter-Edition is a fork of the original [Fooocus](https://github.
 - Add a new "Combine all" description of image methods (uncluding current prompt)
 - Propose a new (beta experimental) test generation for each available model (base and/or refiner and/or lora)
 
+
+From this request
+https://github.com/lllyasviel/Fooocus/issues/1989
+
 ## Installation
 
 Follow the standard installation instructions for Fooocus, available at the [original repo](https://github.com/lllyasviel/Fooocus).
