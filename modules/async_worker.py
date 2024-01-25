@@ -860,7 +860,7 @@ def worker():
                     metadata |= {
                         'software': f'Fooocus v{fooocus_version.version}',
                     }
-                    if modules.config.metadata_created_by != 'None':
+                    if modules.config.metadata_created_by != '':
                         metadata |= {
                             'created_by': modules.config.metadata_created_by
                         }
@@ -879,7 +879,7 @@ def worker():
                         "Version": f'Fooocus v{fooocus_version.version}'
                     }
 
-                    if modules.config.metadata_created_by != 'None':
+                    if modules.config.metadata_created_by != '':
                         generation_params |= {
                             'Created By': f'{modules.config.metadata_created_by}'
                         }
