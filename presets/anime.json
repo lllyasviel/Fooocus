@@ -1,0 +1,53 @@
+{
+    "default_model": "bluePencilXL_v050.safetensors",
+    "default_refiner": "DreamShaper_8_pruned.safetensors",
+    "default_refiner_switch": 0.667,
+    "default_loras": [
+        [
+            "sd_xl_offset_example-lora_1.0.safetensors",
+            0.5
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ]
+    ],
+    "default_cfg_scale": 7.0,
+    "default_sample_sharpness": 2.0,
+    "default_sampler": "dpmpp_2m_sde_gpu",
+    "default_scheduler": "karras",
+    "default_performance": "Speed",
+    "default_prompt": "1girl, ",
+    "default_prompt_negative": "(embedding:unaestheticXLv31:0.8), low quality, watermark",
+    "default_styles": [
+        "Fooocus V2",
+        "Fooocus Masterpiece",
+        "SAI Anime",
+        "SAI Digital Art",
+        "SAI Enhance",
+        "SAI Fantasy Art"
+    ],
+    "default_aspect_ratio": "896*1152",
+    "checkpoint_downloads": {
+        "bluePencilXL_v050.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/bluePencilXL_v050.safetensors",
+        "DreamShaper_8_pruned.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/DreamShaper_8_pruned.safetensors"
+    },
+    "embeddings_downloads": {
+        "unaestheticXLv31.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/unaestheticXLv31.safetensors"
+    },
+    "lora_downloads": {
+        "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors"
+    }
+}

@@ -1,0 +1,220 @@
+/* based on https://github.com/AUTOMATIC1111/stable-diffusion-webui/blob/v1.6.0/style.css */
+
+#context-menu{
+    z-index:9999;
+    position:absolute;
+    display:block;
+    padding:0px 0;
+    border:2px solid #a55000;
+    border-radius:8px;
+    box-shadow:1px 1px 2px #CE6400;
+    width: 200px;
+}
+
+.context-menu-items{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.context-menu-items a{
+    display:block;
+    padding:5px;
+    cursor:pointer;
+}
+
+.context-menu-items a:hover{
+    background: #a55000;
+}
+
+.canvas-tooltip-info {
+  position: absolute;
+  top: 28px;
+  left: 2px;
+  cursor: help;
+  background-color: rgba(0, 0, 0, 0.3);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  z-index: 100;
+}
+
+.canvas-tooltip-info::after {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 7px;
+  background-color: white;
+  margin-top: 2px;
+}
+
+.canvas-tooltip-info::before {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 2px;
+  background-color: white;
+}
+
+.canvas-tooltip-content {
+  display: none;
+  background-color: #f9f9f9;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 15px;
+  position: absolute;
+  top: 40px;
+  left: 10px;
+  width: 250px;
+  font-size: 16px;
+  opacity: 0;
+  border-radius: 8px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+
+  z-index: 100;
+}
+
+.canvas-tooltip:hover .canvas-tooltip-content {
+  display: block;
+  animation: fadeIn 0.5s;
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+.styler {
+  overflow:inherit !important;
+}
+
+.gradio-container{
+  overflow: visible;
+}
+
+/* fullpage image viewer */
+
+#lightboxModal{
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(20, 20, 20, 0.95);
+    user-select: none;
+    -webkit-user-select: none;
+    flex-direction: column;
+}
+
+.modalControls {
+    display: flex;
+    position: absolute;
+    right: 0px;
+    left: 0px;
+    gap: 1em;
+    padding: 1em;
+    background-color:rgba(0,0,0,0);
+    z-index: 1;
+    transition: 0.2s ease background-color;
+}
+.modalControls:hover {
+    background-color:rgba(0,0,0,0.9);
+}
+.modalClose {
+    margin-left: auto;
+}
+.modalControls span{
+    color: white;
+    text-shadow: 0px 0px 0.25em black;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 1em;
+}
+
+.modalControls span:hover, .modalControls span:focus{
+    color: #999;
+    text-decoration: none;
+}
+
+#lightboxModal > img {
+    display: block;
+    margin: auto;
+    width: auto;
+}
+
+#lightboxModal > img.modalImageFullscreen{
+    object-fit: contain;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+}
+
+.modalPrev,
+.modalNext {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  padding: 16px;
+  margin-top: -50px;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.modalNext {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+.modalPrev:hover,
+.modalNext:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+#imageARPreview {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border: 2px solid red;
+    background: rgba(255, 0, 0, 0.3);
+    z-index: 900;
+    pointer-events: none;
+    display: none;
+}
+
+#stylePreviewOverlay {
+    opacity: 0;
+    pointer-events: none;
+    width: 128px;
+    height: 128px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    border: solid 1px lightgrey;
+    transform: translate(-140px, 20px);
+    background-size: cover;
+    background-position: center;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    z-index: 100;
+    transition: transform 0.1s ease, opacity 0.3s ease;
+}
+
+#stylePreviewOverlay.lower-half {
+    transform: translate(-140px, -140px);
+}

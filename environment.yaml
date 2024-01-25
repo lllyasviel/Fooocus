@@ -1,0 +1,7 @@
+name: fooocus
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - pip=23.0
+  - packaging
