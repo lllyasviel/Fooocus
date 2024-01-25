@@ -202,7 +202,7 @@ def worker():
             modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
             steps = 8
 
-        if not args_manager.args.disable_metadata:
+        if save_metadata_to_images:
             base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
             base_model_hash = calculate_sha256(base_model_path)[0:10]
 
@@ -796,18 +796,22 @@ def worker():
                 metadata_string = ''
                 if save_metadata_to_images and metadata_scheme == 'fooocus':
                     metadata = {
-                        'prompt': raw_prompt, 'negative_prompt': raw_negative_prompt, 'styles': str(raw_style_selections),
+                        # prompt with wildcards
+                        'prompt': raw_prompt, 'negative_prompt': raw_negative_prompt,
+                        # prompt with resolved wildcards
                         'real_prompt': task['log_positive_prompt'], 'real_negative_prompt': task['log_negative_prompt'],
+                        # prompt with resolved wildcards, styles and prompt expansion
+                        'complete_prompt_positive': task['positive'], 'complete_prompt_negative': task['negative'],
+                        'styles': str(raw_style_selections),
                         'seed': task['task_seed'], 'width': width, 'height': height,
                         'sampler': sampler_name, 'scheduler': scheduler_name, 'performance': performance_selection,
                         'steps': steps, 'refiner_switch': refiner_switch, 'sharpness': sharpness, 'cfg': cfg_scale,
-                        'base_model': base_model_name, 'refiner_model': refiner_model_name,
+                        'base_model': base_model_name, 'base_model_hash': base_model_hash, 'refiner_model': refiner_model_name,
                         'denoising_strength': denoising_strength,
                         'freeu': advanced_parameters.freeu_enabled,
                         'img2img': input_image_checkbox,
                         'prompt_expansion': task['expansion']
                     }
-
 
                     if advanced_parameters.freeu_enabled:
                         metadata |= {
@@ -829,12 +833,12 @@ def worker():
                             metadata |= {
                                 'outpaint_selections': outpaint_selections
                             }
-                        else:
-                            metadata |= {
-                                'inpaint_additional_prompt': inpaint_additional_prompt, 'inpaint_mask_upload': advanced_parameters.inpaint_mask_upload_checkbox, 'invert_mask': advanced_parameters.invert_mask_checkbox,
-                                'inpaint_disable_initial_latent': advanced_parameters.inpaint_disable_initial_latent, 'inpaint_engine': advanced_parameters.inpaint_engine,
-                                'inpaint_strength': advanced_parameters.inpaint_strength, 'inpaint_respective_field': advanced_parameters.inpaint_respective_field,
-                            }
+
+                        metadata |= {
+                            'inpaint_additional_prompt': inpaint_additional_prompt, 'inpaint_mask_upload': advanced_parameters.inpaint_mask_upload_checkbox, 'invert_mask': advanced_parameters.invert_mask_checkbox,
+                            'inpaint_disable_initial_latent': advanced_parameters.inpaint_disable_initial_latent, 'inpaint_engine': advanced_parameters.inpaint_engine,
+                            'inpaint_strength': advanced_parameters.inpaint_strength, 'inpaint_respective_field': advanced_parameters.inpaint_respective_field,
+                        }
 
                     if 'cn' in goals:
                         metadata |= {
