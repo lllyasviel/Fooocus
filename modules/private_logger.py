@@ -28,7 +28,7 @@ def log(img, dic, metadata=None, save_metadata_to_image=False):
 
     if save_metadata_to_image:
         pnginfo = PngInfo()
-        pnginfo.add_text("Comment", metadata)
+        pnginfo.add_text('parameters', metadata)
     else:
         pnginfo = None
     Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
