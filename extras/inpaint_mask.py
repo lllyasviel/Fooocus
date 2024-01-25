@@ -1,7 +1,7 @@
 from rembg import remove, new_session
 
 
-def generate_mask_from_image(image, mask_model):
+def generate_mask_from_image(image, mask_model, extras):
     if image is None:
         return
 
@@ -11,5 +11,6 @@ def generate_mask_from_image(image, mask_model):
     return remove(
         image,
         session=new_session(mask_model),
-        only_mask=True
+        only_mask=True,
+        **extras
     )
