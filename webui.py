@@ -210,24 +210,36 @@ with shared.gradio_root:
                                                              choices=flags.inpaint_mask_cloth_category,
                                                              value=modules.config.default_inpaint_mask_cloth_category,
                                                              visible=False)
+                                inpaint_mask_sam_prompt_text = gr.Textbox(label='Segmentation prompt', value='', visible=False)
+                                with gr.Accordion("Advanced options", visible=False, open=False) as inpaint_mask_advanced_options:
+                                    inpaint_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
+                                    inpaint_mask_sam_quant = gr.Checkbox(label='Quantization', value=False)
+                                    inpaint_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05)
+                                    inpaint_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05)
                                 generate_mask_button = gr.Button(value='Generate mask from image', visible=False)
 
 
-                                def generate_mask(image, mask_model, cloth_category):
+                                def generate_mask(image, mask_model, cloth_category, sam_prompt_text, sam_model, sam_quant, box_threshold, text_threshold):
                                     from extras.inpaint_mask import generate_mask_from_image
-                                    return generate_mask_from_image(image, mask_model, extras={"cloth_category": cloth_category})
+                                    return generate_mask_from_image(image, mask_model,
+                                                                    extras={"cloth_category": cloth_category, "sam_prompt_text": sam_prompt_text, "sam_model": sam_model, "sam_quant": sam_quant, "box_threshold": box_threshold, "text_threshold": text_threshold})
 
 
                                 generate_mask_button.click(fn=generate_mask,
                                                            inputs=[
                                                                inpaint_input_image, inpaint_mask_model,
-                                                               cloth_category
+                                                               cloth_category,
+                                                               inpaint_mask_sam_prompt_text,
+                                                               inpaint_mask_sam_model,
+                                                               inpaint_mask_sam_quant,
+                                                               inpaint_mask_box_threshold,
+                                                               inpaint_mask_text_threshold
                                                            ],
                                                            outputs=inpaint_mask_image)
 
-                            inpaint_mask_model.change(lambda x: gr.update(visible=x == 'u2net_cloth_seg'),
+                            inpaint_mask_model.change(lambda x: [gr.update(visible=x == 'u2net_cloth_seg'), gr.update(visible=x == 'sam'), gr.update(visible=x == 'sam')],
                                                       inputs=inpaint_mask_model,
-                                                      outputs=cloth_category,
+                                                      outputs=[cloth_category, inpaint_mask_sam_prompt_text, inpaint_mask_advanced_options],
                                                       queue=False, show_progress=False)
                     with gr.TabItem(label='Describe') as desc_tab:
                         with gr.Row():
