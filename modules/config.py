@@ -202,6 +202,11 @@ default_loras = get_config_item_or_set_default(
     ],
     validator=lambda x: isinstance(x, list) and all(len(y) == 2 and isinstance(y[0], str) and isinstance(y[1], numbers.Number) for y in x)
 )
+default_loras_max_number = get_config_item_or_set_default(
+    key='default_loras_max_number',
+    default_value=len(default_loras),
+    validator=lambda x: isinstance(x, numbers.Number) and x >= 1
+)
 default_cfg_scale = get_config_item_or_set_default(
     key='default_cfg_scale',
     default_value=4.0,
@@ -328,7 +333,7 @@ example_inpaint_prompts = get_config_item_or_set_default(
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 
-config_dict["default_loras"] = default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
+config_dict["default_loras"] = default_loras = default_loras[:default_loras_max_number] + [['None', 1.0] for _ in range(default_loras_max_number - len(default_loras))]
 
 possible_preset_keys = [
     "default_model",
@@ -337,6 +342,7 @@ possible_preset_keys = [
     "default_loras_min_weight",
     "default_loras_max_weight",
     "default_loras",
+    "default_loras_max_number",
     "default_cfg_scale",
     "default_sample_sharpness",
     "default_sampler",
