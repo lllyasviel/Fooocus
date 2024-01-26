@@ -22,8 +22,9 @@ from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
 from modules.config import path_checkpoints, path_loras, path_vae_approx, path_fooocus_expansion, \
-    checkpoint_downloads, path_embeddings, embeddings_downloads, lora_downloads
+    path_inpaint, checkpoint_downloads, path_embeddings, embeddings_downloads, lora_downloads
 
+os.environ["U2NET_HOME"] = path_inpaint
 
 REINSTALL_ALL = False
 TRY_INSTALL_XFORMERS = False
