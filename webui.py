@@ -201,34 +201,54 @@ with shared.gradio_root:
 
                             with gr.Column(visible=False) as inpaint_mask_generation_col:
                                 inpaint_mask_image = grh.Image(label='Mask Upload', source='upload', type='numpy',
-                                                               height=500, visible=False)
+                                                               height=500)
                                 inpaint_mask_model = gr.Dropdown(label='Mask generation model',
                                                                  choices=flags.inpaint_mask_models,
-                                                                 value=modules.config.default_inpaint_mask_model,
-                                                                 visible=False)
+                                                                 value=modules.config.default_inpaint_mask_model)
                                 inpaint_mask_cloth_category = gr.Dropdown(label='Cloth category',
                                                              choices=flags.inpaint_mask_cloth_category,
                                                              value=modules.config.default_inpaint_mask_cloth_category,
                                                              visible=False)
-                                generate_mask_button = gr.Button(value='Generate mask from image', visible=False)
+                                inpaint_mask_sam_prompt_text = gr.Textbox(label='Segmentation prompt', value='', visible=False)
+                                with gr.Accordion("Advanced options", visible=False, open=False) as inpaint_mask_advanced_options:
+                                    inpaint_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
+                                    inpaint_mask_sam_quant = gr.Checkbox(label='Quantization', value=False)
+                                    inpaint_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05)
+                                    inpaint_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05)
+                                generate_mask_button = gr.Button(value='Generate mask from image')
 
 
-                                def generate_mask(image, mask_model, cloth_category):
+                                def generate_mask(image, mask_model, cloth_category, sam_prompt_text, sam_model, sam_quant, box_threshold, text_threshold):
                                     from extras.inpaint_mask import generate_mask_from_image
-                                    return generate_mask_from_image(image, mask_model, {"cloth_category": cloth_category})
 
+                                    extras = {}
+                                    if mask_model == 'u2net_cloth_seg':
+                                        extras['cloth_category'] = cloth_category
+                                    elif mask_model == 'sam':
+                                        extras['sam_prompt_text'] = sam_prompt_text
+                                        extras['sam_model'] = sam_model
+                                        extras['sam_quant'] = sam_quant
+                                        extras['box_threshold'] = box_threshold
+                                        extras['text_threshold'] = text_threshold
+
+                                    return generate_mask_from_image(image, mask_model, extras)
 
                                 generate_mask_button.click(fn=generate_mask,
                                                            inputs=[
                                                                inpaint_input_image, inpaint_mask_model,
-                                                               inpaint_mask_cloth_category
+                                                               inpaint_mask_cloth_category,
+                                                               inpaint_mask_sam_prompt_text,
+                                                               inpaint_mask_sam_model,
+                                                               inpaint_mask_sam_quant,
+                                                               inpaint_mask_box_threshold,
+                                                               inpaint_mask_text_threshold
                                                            ],
-                                                           outputs=inpaint_mask_image)
+                                                           outputs=inpaint_mask_image, show_progress=True, queue=True)
 
-                                inpaint_mask_model.change(lambda x: gr.update(visible=x == 'u2net_cloth_seg'),
-                                                          inputs=inpaint_mask_model,
-                                                          outputs=inpaint_mask_cloth_category,
-                                                          queue=False, show_progress=False)
+                            inpaint_mask_model.change(lambda x: [gr.update(visible=x == 'u2net_cloth_seg'), gr.update(visible=x == 'sam'), gr.update(visible=x == 'sam')],
+                                                      inputs=inpaint_mask_model,
+                                                      outputs=[inpaint_mask_cloth_category, inpaint_mask_sam_prompt_text, inpaint_mask_advanced_options],
+                                                      queue=False, show_progress=False)
                     with gr.TabItem(label='Describe') as desc_tab:
                         with gr.Row():
                             with gr.Column():
@@ -466,10 +486,9 @@ with shared.gradio_root:
                                          inpaint_strength, inpaint_respective_field,
                                          inpaint_mask_upload_checkbox, invert_mask_checkbox, inpaint_erode_or_dilate]
 
-                        inpaint_mask_upload_checkbox.change(lambda x: [gr.update(visible=x)] * 4,
+                        inpaint_mask_upload_checkbox.change(lambda x: [gr.update(visible=x)] * 2,
                                                             inputs=inpaint_mask_upload_checkbox,
-                                                            outputs=[inpaint_mask_image, generate_mask_button,
-                                                                     inpaint_mask_model, inpaint_mask_generation_col],
+                                                            outputs=[inpaint_mask_image, inpaint_mask_generation_col],
                                                             queue=False, show_progress=False)
 
                     with gr.Tab(label='FreeU'):
