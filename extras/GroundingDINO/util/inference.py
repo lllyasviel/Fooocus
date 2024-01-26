@@ -18,7 +18,6 @@ class GroundingDinoModel(Model):
         self.model = None
         self.load_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.offload_device = torch.device('cpu')
-        self.dtype = torch.float32
 
     def predict_with_caption(
             self,
@@ -36,13 +35,8 @@ class GroundingDinoModel(Model):
 
             self.load_device = model_management.text_encoder_device()
             self.offload_device = model_management.text_encoder_offload_device()
-            self.dtype = torch.float32
 
             model.to(self.offload_device)
-
-            if model_management.should_use_fp16(device=self.load_device):
-                model.half()
-                self.dtype = torch.float16
 
             self.model = ModelPatcher(model, load_device=self.load_device, offload_device=self.offload_device)
 
