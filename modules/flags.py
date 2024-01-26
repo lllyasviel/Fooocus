@@ -48,10 +48,12 @@ performance_selections = [
 output_formats = ['png', 'jpg', 'webp']
 
 inpaint_mask_models = [
-    'u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime'
+    'u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam'
 ]
 
 inpaint_mask_cloth_category = ['full', 'upper', 'lower']
+
+inpaint_mask_sam_model = ['sam_vit_b_01ec64', 'sam_vit_h_4b8939', 'sam_vit_l_0b3195']
 
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
