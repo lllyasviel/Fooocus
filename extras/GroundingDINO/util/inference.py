@@ -16,7 +16,7 @@ class GroundingDinoModel(Model):
     def __init__(self):
         self.config_file = 'extras/GroundingDINO/config/GroundingDINO_SwinT_OGC.py'
         self.model = None
-        self.load_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.load_device = torch.device('cpu')
         self.offload_device = torch.device('cpu')
 
     def predict_with_caption(
