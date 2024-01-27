@@ -29,6 +29,7 @@ def generate_mask_from_image(image, mask_model, extras):
 
     if mask_model == 'sam':
         boxes = run_grounded_sam(Image.fromarray(image), extras['sam_prompt_text'], box_threshold=extras['box_threshold'], text_threshold=extras['text_threshold'])
+        boxes = np.array([[0, 0, image.shape[1], image.shape[0]]]) if len(boxes) == 0 else boxes
         extras['sam_prompt'] = []
         for idx, box in enumerate(boxes):
             extras['sam_prompt'] += [{"type": "rectangle", "data": box.tolist()}]
