@@ -103,12 +103,12 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
         if not os.path.exists(os.path.join(config.path_checkpoints, default_model)):
             for alternative_model_name in previous_default_models:
                 if os.path.exists(os.path.join(config.path_checkpoints, alternative_model_name)):
-                    print(f'You do not have [{config.default_base_model_name}] but you have [{alternative_model_name}].')
+                    print(f'You do not have [{default_model}] but you have [{alternative_model_name}].')
                     print(f'Fooocus will use [{alternative_model_name}] to avoid downloading new models, '
-                          f'but you are not using latest models.')
+                          f'but you are not using the latest models.')
                     print('Use --always-download-new-model to avoid fallback and always get new models.')
-                    config.checkpoint_downloads = {}
-                    config.default_base_model_name = alternative_model_name
+                    checkpoint_downloads = {}
+                    default_model = alternative_model_name
                     break
 
     for file_name, url in checkpoint_downloads.items():
@@ -118,10 +118,11 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
     for file_name, url in lora_downloads.items():
         load_file_from_url(url=url, model_dir=config.path_loras, file_name=file_name)
 
-    return
+    return default_model, checkpoint_downloads
 
 
-download_models(config.default_base_model_name, config.previous_default_models, config.checkpoint_downloads,
-                config.embeddings_downloads, config.lora_downloads)
+config.default_base_model_name, config.checkpoint_downloads = download_models(
+    config.default_base_model_name, config.previous_default_models, config.checkpoint_downloads,
+    config.embeddings_downloads, config.lora_downloads)
 
 from webui import *

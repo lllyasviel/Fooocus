@@ -634,7 +634,9 @@ with shared.gradio_root:
                 checkpoint_downloads = preset_prepared['checkpoint_downloads']
                 embeddings_downloads = preset_prepared['embeddings_downloads']
                 lora_downloads = preset_prepared['lora_downloads']
-                launch.download_models(default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads)
+
+                preset_prepared['Base Model'], preset_prepared['lora_downloads'] = launch.download_models(
+                    default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads)
 
                 return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
 
