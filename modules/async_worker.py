@@ -42,6 +42,7 @@ def worker():
     from modules.util import remove_empty_str, HWC3, resize_image, \
         get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
     from modules.upscaler import perform_upscale
+    from modules.model_previewer import add_preview_by_attempt
 
     try:
         async_gradio_app = shared.gradio_root
@@ -799,7 +800,10 @@ def worker():
                         if n != 'None':
                             d.append((f'LoRA {li + 1}', f'{n} : {w}'))
                     d.append(('Version', 'v' + fooocus_version.version))
-                    log(x, d)
+                    image_location = log(x, d)
+
+                    if modules.config.use_add_model_previews:
+                        add_preview_by_attempt(base_model_name, refiner_model_name, loras, image_location)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:

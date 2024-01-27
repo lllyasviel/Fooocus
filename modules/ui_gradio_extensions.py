@@ -3,6 +3,8 @@
 import os
 import gradio as gr
 import args_manager
+import json
+from modules.model_previewer import get_all_previews_for_checkpoints, get_all_previews_for_loras
 
 from modules.localization import localization_js
 
@@ -40,12 +42,29 @@ def javascript_html():
     head += f'<script type="text/javascript" src="{viewer_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{image_viewer_js_path}"></script>\n'
     head += f'<meta name="samples-path" content="{samples_path}"></meta>\n'
+    
+    js_code = get_js_code_from_updated_previews()
+    head += f"<script>{js_code}</script>\n"
 
     if args_manager.args.theme:
         head += f'<script type="text/javascript">set_theme(\"{args_manager.args.theme}\");</script>\n'
 
     return head
 
+def get_js_code_from_updated_previews():
+    # Fetch the updated previews data
+    updated_previews_checkpoint = get_all_previews_for_checkpoints()
+    updated_previews_lora = get_all_previews_for_loras()
+
+    # Convert to JSON strings
+    updated_previews_checkpoint_json = json.dumps(updated_previews_checkpoint)
+    updated_previews_lora_json = json.dumps(updated_previews_lora)
+
+    # Inject updated data into JavaScript
+    return f"""
+        previewsCheckpoint = {updated_previews_checkpoint_json};
+        previewsLora = {updated_previews_lora_json};
+    """
 
 def css_html():
     style_css_path = webpath('css/style.css')

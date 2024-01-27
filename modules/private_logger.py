@@ -105,4 +105,5 @@ def log(img, dic):
 
     log_cache[html_name] = middle_part
 
-    return
+    image_location = date_string + "/" + only_name
+    return image_location
