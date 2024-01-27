@@ -33,6 +33,7 @@ def prepare_environment():
     torch_command = os.environ.get('TORCH_COMMAND',
                                    f"pip install torch==2.1.0 torchvision==0.16.0 --extra-index-url {torch_index_url}")
     requirements_file = os.environ.get('REQS_FILE', "requirements_versions.txt")
+    conflicting_old_reqs_file = os.environ.get('CONF_REQS_FILE', "conflicting_old_reqs.txt")
 
     print(f"Python {sys.version}")
     print(f"Fooocus version: {fooocus_version.version}")
@@ -56,7 +57,12 @@ def prepare_environment():
                 run_pip(f"install -U -I --no-deps {xformers_package}", "xformers")
 
     if REINSTALL_ALL or not requirements_met(requirements_file):
-        run_pip(f"install -r \"{requirements_file}\"", "requirements")
+        run(
+            f'{python} -m pip uninstall -yr "{conflicting_old_reqs_file}"',
+            "Uninstalling old conflicting dependencies",
+            "Couldn't uninstall old conflicting dependencies"
+        )
+        run_pip(f'install -r "{requirements_file}"', "requirements")
 
     return
 
