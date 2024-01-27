@@ -262,7 +262,7 @@ with shared.gradio_root:
                                    queue=False, show_progress=False)
 
                 if not args_manager.args.disable_image_log:
-                    gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
+                    gr.HTML(f'<a href="file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
 
             with gr.Tab(label='Style'):
                 style_sorter.try_load_sorted_styles(
@@ -519,10 +519,13 @@ with shared.gradio_root:
                 preset_content = modules.config.try_get_preset_content(preset) if preset != 'initial' else {}
                 preset_prepared = modules.meta_parser.parse_meta_from_preset(preset_content)
 
-                launch.checkpoint_downloads = preset_prepared['checkpoint_downloads']
-                launch.embeddings_downloads = preset_prepared['embeddings_downloads']
-                launch.lora_downloads = preset_prepared['lora_downloads']
-                launch.download_models()
+                default_model = preset_prepared['Base Model']
+                previous_default_models = preset_prepared['previous_default_models']
+                checkpoint_downloads = preset_prepared['checkpoint_downloads']
+                embeddings_downloads = preset_prepared['embeddings_downloads']
+                lora_downloads = preset_prepared['lora_downloads']
+                preset_prepared['Base Model'], preset_prepared['lora_downloads'] = launch.download_models(
+                    default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads)
 
                 return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
 

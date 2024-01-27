@@ -84,7 +84,7 @@ def list_presets():
     presets = ['initial']
     if not os.path.exists(preset_folder):
         print('No presets found.')
-        return presets;
+        return presets
 
     return presets + [f[:f.index(".json")] for f in os.listdir(preset_folder) if f.endswith('.json')]
 
@@ -125,6 +125,13 @@ def try_load_preset_global(preset):
         except Exception as e:
             print(f'Load preset [{preset_path}] failed')
             print(e)
+
+try:
+    with open(os.path.abspath(f'./presets/default.json'), "r", encoding="utf-8") as json_file:
+        config_dict.update(json.load(json_file))
+except Exception as e:
+    print(f'Load default preset failed.')
+    print(e)
 
 preset = args_manager.args.preset
 try_load_preset_global(preset)
@@ -187,8 +194,13 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
 
 default_base_model_name = default_model = get_config_item_or_set_default(
     key='default_model',
-    default_value='juggernautXL_version6Rundiffusion.safetensors',
+    default_value='model.safetensors',
     validator=lambda x: isinstance(x, str)
+)
+previous_default_models = get_config_item_or_set_default(
+    key='previous_default_models',
+    default_value=[],
+    validator=lambda x: isinstance(x, list) and all(isinstance(k, str) for k in x)
 )
 default_refiner_model_name = default_refiner = get_config_item_or_set_default(
     key='default_refiner',
@@ -197,15 +209,15 @@ default_refiner_model_name = default_refiner = get_config_item_or_set_default(
 )
 default_refiner_switch = get_config_item_or_set_default(
     key='default_refiner_switch',
-    default_value=0.5,
+    default_value=0.8,
     validator=lambda x: isinstance(x, numbers.Number) and 0 <= x <= 1
 )
 default_loras = get_config_item_or_set_default(
     key='default_loras',
     default_value=[
         [
-            "sd_xl_offset_example-lora_1.0.safetensors",
-            0.1
+            "None",
+            1.0
         ],
         [
             "None",
@@ -228,7 +240,7 @@ default_loras = get_config_item_or_set_default(
 )
 default_cfg_scale = get_config_item_or_set_default(
     key='default_cfg_scale',
-    default_value=4.0,
+    default_value=7.0,
     validator=lambda x: isinstance(x, numbers.Number)
 )
 default_sample_sharpness = get_config_item_or_set_default(
@@ -289,16 +301,12 @@ default_image_number = get_config_item_or_set_default(
 )
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
-    default_value={
-        "juggernautXL_version6Rundiffusion.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors"
-    },
+    default_value={},
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
 lora_downloads = get_config_item_or_set_default(
     key='lora_downloads',
-    default_value={
-        "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors"
-    },
+    default_value={},
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
 embeddings_downloads = get_config_item_or_set_default(
@@ -359,6 +367,7 @@ possible_preset_keys = {
     "default_model": "Base Model",
     "default_refiner": "Refiner Model",
     "default_refiner_switch": "Refiner Switch",
+    "previous_default_models": "previous_default_models",
     "default_loras": "<processed>",
     "default_cfg_scale": "Guidance Scale",
     "default_sample_sharpness": "Sharpness",

@@ -21,8 +21,7 @@ import fooocus_version
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
-from modules.config import path_checkpoints, path_loras, path_vae_approx, path_fooocus_expansion, \
-    checkpoint_downloads, path_embeddings, embeddings_downloads, lora_downloads
+from modules import config
 
 
 REINSTALL_ALL = False
@@ -70,25 +69,6 @@ vae_approx_filenames = [
 ]
 
 
-def download_models():
-    for file_name, url in checkpoint_downloads.items():
-        load_file_from_url(url=url, model_dir=path_checkpoints, file_name=file_name)
-    for file_name, url in embeddings_downloads.items():
-        load_file_from_url(url=url, model_dir=path_embeddings, file_name=file_name)
-    for file_name, url in lora_downloads.items():
-        load_file_from_url(url=url, model_dir=path_loras, file_name=file_name)
-    for file_name, url in vae_approx_filenames:
-        load_file_from_url(url=url, model_dir=path_vae_approx, file_name=file_name)
-
-    load_file_from_url(
-        url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_expansion.bin',
-        model_dir=path_fooocus_expansion,
-        file_name='pytorch_model.bin'
-    )
-
-    return
-
-
 def ini_args():
     from args_manager import args
     return args
@@ -104,6 +84,44 @@ if args.gpu_device_id is not None:
     print("Set device to:", args.gpu_device_id)
 
 
-download_models()
+def download_models(default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads):
+    for file_name, url in vae_approx_filenames:
+        load_file_from_url(url=url, model_dir=config.path_vae_approx, file_name=file_name)
+
+    load_file_from_url(
+        url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_expansion.bin',
+        model_dir=config.path_fooocus_expansion,
+        file_name='pytorch_model.bin'
+    )
+
+    if args.disable_preset_download:
+        print('Skipped model download.')
+        return
+
+    if not args.always_download_new_model:
+        if not os.path.exists(os.path.join(config.path_checkpoints, default_model)):
+            for alternative_model_name in previous_default_models:
+                if os.path.exists(os.path.join(config.path_checkpoints, alternative_model_name)):
+                    print(f'You do not have [{default_model}] but you have [{alternative_model_name}].')
+                    print(f'Fooocus will use [{alternative_model_name}] to avoid downloading new models, '
+                          f'but you are not using the latest models.')
+                    print('Use --always-download-new-model to avoid fallback and always get new models.')
+                    checkpoint_downloads = {}
+                    default_model = alternative_model_name
+                    break
+
+    for file_name, url in checkpoint_downloads.items():
+        load_file_from_url(url=url, model_dir=config.path_checkpoints, file_name=file_name)
+    for file_name, url in embeddings_downloads.items():
+        load_file_from_url(url=url, model_dir=config.path_embeddings, file_name=file_name)
+    for file_name, url in lora_downloads.items():
+        load_file_from_url(url=url, model_dir=config.path_loras, file_name=file_name)
+
+    return default_model, checkpoint_downloads
+
+
+config.default_base_model_name, config.checkpoint_downloads = download_models(
+    config.default_base_model_name, config.previous_default_models, config.checkpoint_downloads,
+    config.embeddings_downloads, config.lora_downloads)
 
 from webui import *
