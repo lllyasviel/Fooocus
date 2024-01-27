@@ -155,6 +155,7 @@ def load_parameter_button_click(raw_prompt_txt, is_generating):
 
     return results
 
+
 def parse_meta_from_preset(preset_content):
     assert isinstance(preset_content, dict)
     preset_prepared = {}
