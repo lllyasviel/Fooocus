@@ -1,3 +1,5 @@
+from modules.metadata import MetadataScheme
+
 disabled = 'Disabled'
 enabled = 'Enabled'
 subtle_variation = 'Vary (Subtle)'
@@ -32,9 +34,10 @@ default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0)
 }  # stop, weight
 
-metadata_scheme =[
-    ('Fooocus (json)', 'fooocus'),
-    ('A1111 (plain text)', 'a1111'),
+# TODO use translation here
+metadata_scheme = [
+    ('Fooocus (json)', MetadataScheme.FOOOCUS.value),
+    ('A1111 (plain text)', MetadataScheme.A1111.value),
 ]
 
 inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']

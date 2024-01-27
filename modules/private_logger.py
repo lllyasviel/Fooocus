@@ -7,6 +7,7 @@ import urllib.parse
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 from modules.util import generate_temp_filename
+from modules.metadata import MetadataScheme
 
 
 log_cache = {}
@@ -19,7 +20,9 @@ def get_current_html_path():
     return html_name
 
 
-def log(img, dic, metadata=None, save_metadata_to_image=False):
+def log(img, metadata, save_metadata_to_image=False, metadata_scheme: str = MetadataScheme.FOOOCUS.value):
+    assert metadata_scheme in [item.value for item in MetadataScheme]
+
     if args_manager.args.disable_image_log:
         return
 
@@ -27,8 +30,12 @@ def log(img, dic, metadata=None, save_metadata_to_image=False):
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
 
     if save_metadata_to_image:
+        metadata_parser = modules.metadata.get_metadata_parser(metadata_scheme)
+        parsed_parameters = metadata_parser.parse_string(metadata)
+
         pnginfo = PngInfo()
-        pnginfo.add_text('parameters', metadata)
+        pnginfo.add_text('parameters', parsed_parameters)
+        pnginfo.add_text('fooocus_scheme', metadata_scheme)
     else:
         pnginfo = None
     Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
@@ -40,7 +47,7 @@ def log(img, dic, metadata=None, save_metadata_to_image=False):
         "body { background-color: #121212; color: #E0E0E0; } "
         "a { color: #BB86FC; } "
         ".metadata { border-collapse: collapse; width: 100%; } "
-        ".metadata .key { width: 15%; } "
+        ".metadata .label { width: 15%; } "
         ".metadata .value { width: 85%; font-weight: bold; } "
         ".metadata th, .metadata td { border: 1px solid #4d4d4d; padding: 4px; } "
         ".image-container img { height: auto; max-width: 512px; display: block; padding-right:10px; } "
@@ -93,12 +100,13 @@ def log(img, dic, metadata=None, save_metadata_to_image=False):
     item = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
     item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
     item += "<td><table class='metadata'>"
-    for key, value in dic:
-        value_txt = str(value).replace('\n', ' </br> ')
-        item += f"<tr><td class='key'>{key}</td><td class='value'>{value_txt}</td></tr>\n"
+    for label, key, value, showable, copyable in metadata:
+        if showable:
+            value_txt = str(value).replace('\n', ' </br> ')
+            item += f"<tr><td class='label'>{label}</td><td class='value'>{value_txt}</td></tr>\n"
     item += "</table>"
 
-    js_txt = urllib.parse.quote(json.dumps({k: v for k, v in dic}, indent=0), safe='')
+    js_txt = urllib.parse.quote(json.dumps({k: v for _, k, v, _, copyable in metadata if copyable}, indent=0), safe='')
     item += f"</br><button onclick=\"to_clipboard('{js_txt}')\">Copy to Clipboard</button>"
 
     item += "</td>"

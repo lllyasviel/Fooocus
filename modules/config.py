@@ -6,6 +6,7 @@ import args_manager
 import modules.flags
 import modules.sdxl_styles
 
+from modules.metadata import MetadataScheme
 from modules.model_loader import load_file_from_url
 from modules.util import get_files_from_folder
 
@@ -322,7 +323,7 @@ default_save_metadata_to_images = get_config_item_or_set_default(
 )
 default_metadata_scheme = get_config_item_or_set_default(
     key='default_metadata_scheme',
-    default_value='fooocus',
+    default_value=MetadataScheme.FOOOCUS.value,
     validator=lambda x: x in [y[1] for y in modules.flags.metadata_scheme if y[1] == x]
 )
 metadata_created_by = get_config_item_or_set_default(

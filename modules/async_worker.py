@@ -17,7 +17,6 @@ def worker():
     import os
     import traceback
     import math
-    import json
     import numpy as np
     import torch
     import time
@@ -43,8 +42,9 @@ def worker():
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, calculate_sha256, quote
+        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, calculate_sha256
     from modules.upscaler import perform_upscale
+    from modules.metadata import MetadataScheme
 
     try:
         async_gradio_app = shared.gradio_root
@@ -144,7 +144,8 @@ def worker():
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
         save_metadata_to_images = args.pop() if not args_manager.args.disable_metadata else False
-        metadata_scheme = args.pop() if not args_manager.args.disable_metadata else 'fooocus'
+        metadata_scheme = args.pop() if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS.value
+        assert metadata_scheme in [item.value for item in MetadataScheme]
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -793,129 +794,37 @@ def worker():
                 if inpaint_worker.current_task is not None:
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
-                metadata_string = ''
-                if save_metadata_to_images and metadata_scheme == 'fooocus':
-                    metadata = {
-                        # prompt with wildcards
-                        'prompt': raw_prompt, 'negative_prompt': raw_negative_prompt,
-                        # prompt with resolved wildcards
-                        'real_prompt': task['log_positive_prompt'], 'real_negative_prompt': task['log_negative_prompt'],
-                        # prompt with resolved wildcards, styles and prompt expansion
-                        'complete_prompt_positive': task['positive'], 'complete_prompt_negative': task['negative'],
-                        'styles': str(raw_style_selections),
-                        'seed': task['task_seed'], 'width': width, 'height': height,
-                        'sampler': sampler_name, 'scheduler': scheduler_name, 'performance': performance_selection,
-                        'steps': steps, 'refiner_switch': refiner_switch, 'sharpness': sharpness, 'cfg': cfg_scale,
-                        'base_model': base_model_name, 'base_model_hash': base_model_hash, 'refiner_model': refiner_model_name,
-                        'denoising_strength': denoising_strength,
-                        'freeu': advanced_parameters.freeu_enabled,
-                        'img2img': input_image_checkbox,
-                        'prompt_expansion': task['expansion']
-                    }
-
-                    if advanced_parameters.freeu_enabled:
-                        metadata |= {
-                            'freeu_b1': advanced_parameters.freeu_b1, 'freeu_b2': advanced_parameters.freeu_b2, 'freeu_s1': advanced_parameters.freeu_s1, 'freeu_s2': advanced_parameters.freeu_s2
-                        }
-
-                    if 'vary' in goals:
-                        metadata |= {
-                            'uov_method': uov_method
-                        }
-
-                    if 'upscale' in goals:
-                        metadata |= {
-                            'uov_method': uov_method, 'scale': f
-                        }
-
-                    if 'inpaint' in goals:
-                        if len(outpaint_selections) > 0:
-                            metadata |= {
-                                'outpaint_selections': outpaint_selections
-                            }
-
-                        metadata |= {
-                            'inpaint_additional_prompt': inpaint_additional_prompt, 'inpaint_mask_upload': advanced_parameters.inpaint_mask_upload_checkbox, 'invert_mask': advanced_parameters.invert_mask_checkbox,
-                            'inpaint_disable_initial_latent': advanced_parameters.inpaint_disable_initial_latent, 'inpaint_engine': advanced_parameters.inpaint_engine,
-                            'inpaint_strength': advanced_parameters.inpaint_strength, 'inpaint_respective_field': advanced_parameters.inpaint_respective_field,
-                        }
-
-                    if 'cn' in goals:
-                        metadata |= {
-                            'canny_low_threshold': advanced_parameters.canny_low_threshold, 'canny_high_threshold': advanced_parameters.canny_high_threshold,
-                        }
-
-                        ip_list = {x: [] for x in flags.ip_list}
-                        cn_task_index = 1
-                        for cn_type in ip_list:
-                            for cn_task in cn_tasks[cn_type]:
-                                cn_img, cn_stop, cn_weight = cn_task
-                                metadata |= {
-                                    f'image_prompt_{cn_task_index}': {
-                                        'cn_type': cn_type, 'cn_stop': cn_stop, 'cn_weight': cn_weight, 
-                                    }
-                                }
-                                cn_task_index += 1
-
-                    metadata |= {
-                        'software': f'Fooocus v{fooocus_version.version}',
-                    }
-                    if modules.config.metadata_created_by != '':
-                        metadata |= {
-                            'created_by': modules.config.metadata_created_by
-                        }
-                    metadata_string = json.dumps(metadata, ensure_ascii=False)
-                elif save_metadata_to_images and metadata_scheme == 'a1111':
-                    generation_params = {
-                        "Steps": steps,
-                        "Sampler": sampler_name,
-                        "CFG scale": cfg_scale,
-                        "Seed": task['task_seed'],
-                        "Size": f"{width}x{height}",
-                        "Model hash": base_model_hash,
-                        "Model": base_model_name.split('.')[0],
-                        "Lora hashes": lora_hashes_string,
-                        "Denoising strength": denoising_strength,
-                        "Version": f'Fooocus v{fooocus_version.version}'
-                    }
-
-                    if modules.config.metadata_created_by != '':
-                        generation_params |= {
-                            'Created By': f'{modules.config.metadata_created_by}'
-                        }
-
-                    generation_params_text = ", ".join([k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if v is not None])
-                    positive_prompt_resolved = ', '.join(task['positive'])
-                    negative_prompt_resolved = ', '.join(task['negative'])
-                    negative_prompt_text = f"\nNegative prompt: {negative_prompt_resolved}" if negative_prompt_resolved else ""
-                    metadata_string = f"{positive_prompt_resolved}{negative_prompt_text}\n{generation_params_text}".strip()
-
                 for x in imgs:
                     d = [
-                        ('Prompt', task['log_positive_prompt']),
-                        ('Negative Prompt', task['log_negative_prompt']),
-                        ('Fooocus V2 Expansion', task['expansion']),
-                        ('Styles', str(raw_style_selections)),
-                        ('Performance', performance_selection),
-                        ('Resolution', str((width, height))),
-                        ('Sharpness', sharpness),
-                        ('Guidance Scale', guidance_scale),
-                        ('ADM Guidance', str((
+                        ('Prompt', 'prompt', task['log_positive_prompt'], True, True),
+                        ('Full Positive Prompt', 'full_prompt', task['positive'], False, False),
+                        ('Negative Prompt', 'negative_prompt', task['log_negative_prompt'], True, True),
+                        ('Full Negative Prompt', 'full_negative_prompt', task['negative'], False, False),
+                        ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion'], True, True),
+                        ('Styles', 'styles', str(raw_style_selections), True, True),
+                        ('Performance', 'performance', performance_selection, True, True),
+                        ('Steps', 'steps', steps, False, False),
+                        ('Resolution', 'resolution', str((width, height)), True, True),
+                        ('Sharpness', 'sharpness', sharpness, True, True),
+                        ('Guidance Scale', 'guidance_scale', guidance_scale, True, True),
+                        ('ADM Guidance', 'adm_guidance', str((
                             modules.patch.positive_adm_scale,
                             modules.patch.negative_adm_scale,
-                            modules.patch.adm_scaler_end))),
-                        ('Base Model', base_model_name),
-                        ('Refiner Model', refiner_model_name),
-                        ('Refiner Switch', refiner_switch),
-                        ('Sampler', sampler_name),
-                        ('Scheduler', scheduler_name),
-                        ('Seed', task['task_seed']),
+                            modules.patch.adm_scaler_end)), True, True),
+                        ('Base Model', 'base_model', base_model_name, True, True),
+                        ('Refiner Model', 'refiner_model', refiner_model_name, True, True),
+                        ('Refiner Switch', 'refiner_switch', refiner_switch, True, True),
+                        ('Sampler', 'sampler', sampler_name, True, True),
+                        ('Scheduler', 'scheduler', scheduler_name, True, True),
+                        ('Seed', 'seed', task['task_seed'], True, True)
                     ]
                     for li, (n, w) in enumerate(loras):
                         if n != 'None':
-                            d.append((f'LoRA {li + 1}', f'{n} : {w}'))
-                    d.append(('Version', 'v' + fooocus_version.version))
-                    log(x, d, metadata_string, save_metadata_to_images)
+                            d.append((f'LoRA {li + 1}', f'lora{li + 1}_combined', f'{n} : {w}', True, True))
+                            # d.append((f'LoRA {li + 1} Name', f'lora{li + 1}_name', n, False, False))
+                            # d.append((f'LoRA {li + 1} Weight', f'lora{li + 1}_weight', n, False, False))
+                    d.append(('Version', 'version', 'v' + fooocus_version.version, True, True))
+                    log(x, d, save_metadata_to_images, metadata_scheme)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:

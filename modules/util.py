@@ -178,6 +178,7 @@ def get_files_from_folder(folder_path, exensions=None, name_filter=None):
 
     return sorted(filenames, key=lambda x: -1 if os.sep in x else 1)
 
+
 def calculate_sha256(filename):
     hash_sha256 = sha256()
     blksize = 1024 * 1024
@@ -188,8 +189,18 @@ def calculate_sha256(filename):
 
     return hash_sha256.hexdigest()
 
+
 def quote(text):
     if ',' not in str(text) and '\n' not in str(text) and ':' not in str(text):
         return text
 
     return json.dumps(text, ensure_ascii=False)
+
+
+def is_json(data: str) -> bool:
+    try:
+        loaded_json = json.loads(data)
+        assert isinstance(loaded_json, dict)
+    except ValueError:
+        return False
+    return True
