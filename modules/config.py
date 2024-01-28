@@ -10,7 +10,6 @@ from modules.model_loader import load_file_from_url
 from modules.util import get_files_from_folder
 from modules.flags import Performance, MetadataScheme
 
-
 config_path = os.path.abspath("./config.txt")
 config_example_path = os.path.abspath("config_modification_tutorial.txt")
 config_dict = {}
