@@ -6,7 +6,7 @@ from PIL import Image
 import modules.config
 import fooocus_version
 # import advanced_parameters
-from modules.util import quote, unquote, is_json
+from modules.util import quote, unquote, extract_styles_from_prompt, is_json
 from modules.flags import MetadataScheme, Performance, Steps
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
@@ -65,17 +65,10 @@ class A1111MetadataParser(MetadataParser):
                 prompt += ('' if prompt == '' else "\n") + line
 
         # set defaults
-        data = {
-            'styles': '[]'
-        }
-        # if shared.opts.infotext_styles != "Ignore":
-        #     found_styles, prompt, negative_prompt = shared.prompt_styles.extract_styles_from_prompt(prompt,
-        #                                                                                             negative_prompt)
-        #
-        #     if shared.opts.infotext_styles == "Apply":
-        #         res["Styles array"] = found_styles
-        #     elif shared.opts.infotext_styles == "Apply if any" and found_styles:
-        #         res["Styles array"] = found_styles
+        data = {}
+
+        found_styles, prompt, negative_prompt = extract_styles_from_prompt(prompt, negative_prompt)
+        data['styles'] = str(found_styles)
 
         data |= {
             'prompt': prompt,
