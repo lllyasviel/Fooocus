@@ -1,0 +1,52 @@
+[
+    {
+        "name": "Overhead Shot",
+        "prompt": "{prompt}, (overhead shot:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Top Down",
+        "prompt": "{prompt}, (top down view:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Bird's Eye",
+        "prompt": "{prompt}, (bird's eye view:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "High Angle",
+        "prompt": "{prompt}, (high angle:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Slightly Above",
+        "prompt": "{prompt}, (slightly above:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Straight On",
+        "prompt": "{prompt}, (straight on:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Hero View",
+        "prompt": "{prompt}, (hero view:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Low View",
+        "prompt": "{prompt}, (low view:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Worm Eye View",
+        "prompt": "{prompt}, (worm's eye view:{weight})",
+        "default": "1.5"
+    },
+    {
+        "name": "Selfie",
+        "prompt": "{prompt}, (selfie:{weight})",
+        "default": "1.5"
+    }
+]

@@ -175,3 +175,21 @@ def get_files_from_folder(folder_path, exensions=None, name_filter=None):
                 filenames.append(path)
 
     return sorted(filenames, key=lambda x: -1 if os.sep in x else 1)
+
+
+def normalize_key(k):
+    """
+    This function takes a string key as input and transforms it to be more human.
+
+    Args:
+        k (str): The string to be normalized.
+
+    Returns:
+        str: The normalized string.
+    """
+    # Replace hyphens with spaces
+    # Split the string into words
+    # Capitalize the first letter of each word and make the rest of the letters lowercase
+    # Join the words back together with spaces in between
+
+    return ' '.join(w.capitalize() for w in k.replace('-', ' ').split())
