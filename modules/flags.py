@@ -1,4 +1,4 @@
-from modules.metadata import MetadataScheme
+from enum import Enum
 
 disabled = 'Disabled'
 enabled = 'Enabled'
@@ -34,6 +34,12 @@ default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0)
 }  # stop, weight
 
+
+class MetadataScheme(Enum):
+    FOOOCUS = 'fooocus'
+    A1111 = 'a1111'
+
+
 # TODO use translation here
 metadata_scheme = [
     ('Fooocus (json)', MetadataScheme.FOOOCUS.value),
@@ -41,7 +47,37 @@ metadata_scheme = [
 ]
 
 inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
-performance_selections = ['Speed', 'Quality', 'Extreme Speed']
+
+
+class Steps(Enum):
+    QUALITY = 60
+    SPEED = 30
+    EXTREME_SPEED = 8
+
+
+class StepsUOV(Enum):
+    QUALITY = 36
+    SPEED = 18
+    EXTREME_SPEED = 8
+
+
+class Performance(Enum):
+    QUALITY = 'Quality'
+    SPEED = 'Speed'
+    EXTREME_SPEED = 'Extreme Speed'
+
+    @classmethod
+    def list(cls) -> list:
+        return list(map(lambda c: c.value, cls))
+
+    def steps(self) -> int:
+        return Steps[self.name].value if Steps[self.name] else None
+
+    def steps_uov(self) -> int:
+        return StepsUOV[self.name].value if Steps[self.name] else None
+
+
+performance_selections = Performance.list()
 
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'

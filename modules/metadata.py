@@ -8,15 +8,11 @@ import modules.config
 import fooocus_version
 # import advanced_parameters
 from modules.util import quote, unquote, is_json
+from modules.flags import MetadataScheme, Performance, Steps
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
 re_param = re.compile(re_param_code)
 re_imagesize = re.compile(r"^(\d+)x(\d+)$")
-
-
-class MetadataScheme(Enum):
-    FOOOCUS = 'fooocus'
-    A1111 = 'a1111'
 
 
 class MetadataParser(ABC):
@@ -70,6 +66,14 @@ class A1111MetadataParser(MetadataParser):
             else:
                 prompt += ('' if prompt == '' else "\n") + line
 
+        # if shared.opts.infotext_styles != "Ignore":
+        #     found_styles, prompt, negative_prompt = shared.prompt_styles.extract_styles_from_prompt(prompt,
+        #                                                                                             negative_prompt)
+        #
+        #     if shared.opts.infotext_styles == "Apply":
+        #         res["Styles array"] = found_styles
+        #     elif shared.opts.infotext_styles == "Apply if any" and found_styles:
+        #         res["Styles array"] = found_styles
 
         data = {
             'prompt': prompt,
@@ -87,10 +91,16 @@ class A1111MetadataParser(MetadataParser):
                     data[f"{k}-1"] = m.group(1)
                     data[f"{k}-2"] = m.group(2)
                 else:
-                    key = list(self.fooocus_to_a1111.keys())[list(self.fooocus_to_a1111.values()).index(k)]
-                    data[key] = v
+                    data[list(self.fooocus_to_a1111.keys())[list(self.fooocus_to_a1111.values()).index(k)]] = v
             except Exception:
                 print(f"Error parsing \"{k}: {v}\"")
+
+        # try to load performance based on steps
+        if 'steps' in data:
+            try:
+                data['performance'] = Performance[Steps(int(data['steps'])).name].value
+            except Exception:
+                pass
 
         return data
 
@@ -104,9 +114,10 @@ class A1111MetadataParser(MetadataParser):
 
         lora_hashes = []
         for index in range(5):
-            name = f'lora_name_{index + 1}'
-            if name in data:
-                # weight = f'lora_weight_{index}'
+            key = f'lora_name_{index + 1}'
+            if key in data:
+                name = data[f'lora_name_{index + 1}']
+                # weight = data[f'lora_weight_{index + 1}']
                 hash = data[f'lora_hash_{index + 1}']
                 lora_hashes.append(f'{name.split(".")[0]}: {hash}')
         lora_hashes_string = ", ".join(lora_hashes)
@@ -121,6 +132,7 @@ class A1111MetadataParser(MetadataParser):
             self.fooocus_to_a1111['sampler']: data['sampler'],
             self.fooocus_to_a1111['guidance_scale']: data['guidance_scale'],
             self.fooocus_to_a1111['seed']: data['seed'],
+            # TODO check resolution value, should be string
             self.fooocus_to_a1111['resolution']: f'{width}x{heigth}',
             self.fooocus_to_a1111['base_model']: data['base_model'].split('.')[0],
             self.fooocus_to_a1111['base_model_hash']: data['base_model_hash']
@@ -236,11 +248,11 @@ class FooocusMetadataParser(MetadataParser):
         # return json.dumps(metadata, ensure_ascii=False)
 
 
-def get_metadata_parser(metadata_scheme: str) -> MetadataParser:
+def get_metadata_parser(metadata_scheme: MetadataScheme) -> MetadataParser:
     match metadata_scheme:
-        case MetadataScheme.FOOOCUS.value:
+        case MetadataScheme.FOOOCUS:
             return FooocusMetadataParser()
-        case MetadataScheme.A1111.value:
+        case MetadataScheme.A1111:
             return A1111MetadataParser()
         case _:
             raise NotImplementedError
@@ -252,7 +264,7 @@ def get_metadata_parser(metadata_scheme: str) -> MetadataParser:
 # }
 
 
-def read_info_from_image(filepath) -> tuple[str | None, dict, str | None]:
+def read_info_from_image(filepath) -> tuple[str | None, dict, MetadataScheme | None]:
     with Image.open(filepath) as image:
         items = (image.info or {}).copy()
 
@@ -260,8 +272,19 @@ def read_info_from_image(filepath) -> tuple[str | None, dict, str | None]:
     if parameters is not None and is_json(parameters):
         parameters = json.loads(parameters)
 
-    metadata_scheme = items.pop('fooocus_scheme', None)
+    try:
+        metadata_scheme = MetadataScheme(items.pop('fooocus_scheme', None))
+    except Exception:
+        metadata_scheme = None
 
+    # broad fallback
+    if metadata_scheme is None and isinstance(parameters, dict):
+        metadata_scheme = modules.metadata.MetadataScheme.FOOOCUS
+
+    if metadata_scheme is None and isinstance(parameters, str):
+        metadata_scheme = modules.metadata.MetadataScheme.A1111
+
+    # TODO code cleanup
     # if "exif" in items:
     #     exif_data = items["exif"]
     #     try:

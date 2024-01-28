@@ -6,9 +6,9 @@ import args_manager
 import modules.flags
 import modules.sdxl_styles
 
-from modules.metadata import MetadataScheme
 from modules.model_loader import load_file_from_url
 from modules.util import get_files_from_folder
+from modules.flags import Performance, MetadataScheme
 
 
 config_path = os.path.abspath("./config.txt")
@@ -236,8 +236,8 @@ default_prompt = get_config_item_or_set_default(
 )
 default_performance = get_config_item_or_set_default(
     key='default_performance',
-    default_value='Speed',
-    validator=lambda x: x in modules.flags.performance_selections
+    default_value=Performance.SPEED.value,
+    validator=lambda x: x in Performance.list()
 )
 default_advanced_checkbox = get_config_item_or_set_default(
     key='default_advanced_checkbox',

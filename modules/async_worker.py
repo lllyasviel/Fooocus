@@ -44,7 +44,7 @@ def worker():
     from modules.util import remove_empty_str, HWC3, resize_image, \
         get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, calculate_sha256
     from modules.upscaler import perform_upscale
-    from modules.metadata import MetadataScheme
+    from modules.flags import Performance, MetadataScheme
 
     try:
         async_gradio_app = shared.gradio_root
@@ -125,7 +125,7 @@ def worker():
         prompt = args.pop()
         negative_prompt = args.pop()
         style_selections = args.pop()
-        performance_selection = args.pop()
+        performance_selection = Performance(args.pop())
         aspect_ratios_selection = args.pop()
         image_number = args.pop()
         image_seed = args.pop()
@@ -144,8 +144,7 @@ def worker():
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
         save_metadata_to_images = args.pop() if not args_manager.args.disable_metadata else False
-        metadata_scheme = args.pop() if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS.value
-        assert metadata_scheme in [item.value for item in MetadataScheme]
+        metadata_scheme = MetadataScheme(args.pop()) if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -173,17 +172,9 @@ def worker():
             print(f'Refiner disabled because base model and refiner are same.')
             refiner_model_name = 'None'
 
-        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed']
+        steps = performance_selection.steps()
 
-        steps = 30
-
-        if performance_selection == 'Speed':
-            steps = 30
-
-        if performance_selection == 'Quality':
-            steps = 60
-
-        if performance_selection == 'Extreme Speed':
+        if performance_selection == Performance.EXTREME_SPEED:
             print('Enter LCM mode.')
             progressbar(async_task, 1, 'Downloading LCM components ...')
             loras += [(modules.config.downloading_sdxl_lcm_lora(), 1.0)]
@@ -201,7 +192,6 @@ def worker():
             modules.patch.positive_adm_scale = advanced_parameters.adm_scaler_positive = 1.0
             modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative = 1.0
             modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
-            steps = 8
 
         base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
         base_model_hash = calculate_sha256(base_model_path)[0:10]
@@ -274,16 +264,7 @@ def worker():
                     if 'fast' in uov_method:
                         skip_prompt_processing = True
                     else:
-                        steps = 18
-
-                        if performance_selection == 'Speed':
-                            steps = 18
-
-                        if performance_selection == 'Quality':
-                            steps = 36
-
-                        if performance_selection == 'Extreme Speed':
-                            steps = 8
+                        steps = performance_selection.steps_uov()
 
                     progressbar(async_task, 1, 'Downloading upscale models ...')
                     modules.config.downloading_upscale_model()
@@ -802,11 +783,12 @@ def worker():
                         ('Full Negative Prompt', 'full_negative_prompt', task['negative'], False, False),
                         ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion'], True, True),
                         ('Styles', 'styles', str(raw_style_selections), True, True),
-                        ('Performance', 'performance', performance_selection, True, True),
+                        ('Performance', 'performance', performance_selection.value, True, True),
                         ('Steps', 'steps', steps, False, False),
                         ('Resolution', 'resolution', str((width, height)), True, True),
                         ('Sharpness', 'sharpness', sharpness, True, True),
                         ('Guidance Scale', 'guidance_scale', guidance_scale, True, True),
+                        # ('Denoising Strength', 'denoising_strength', denoising_strength, False, False),
                         ('ADM Guidance', 'adm_guidance', str((
                             modules.patch.positive_adm_scale,
                             modules.patch.negative_adm_scale,

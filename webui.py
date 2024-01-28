@@ -222,10 +222,12 @@ with shared.gradio_root:
                             results = {}
                             if parameters is not None:
                                 results['parameters'] = parameters
+
                             if items:
                                 results['items'] = items
-                            if metadata_scheme is not None:
-                                results['metadata_scheme'] = metadata_scheme
+
+                            if isinstance(metadata_scheme, flags.MetadataScheme):
+                                results['metadata_scheme'] = metadata_scheme.value
 
                             return results
 

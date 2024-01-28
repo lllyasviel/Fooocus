@@ -20,9 +20,7 @@ def get_current_html_path():
     return html_name
 
 
-def log(img, metadata, save_metadata_to_image=False, metadata_scheme: str = MetadataScheme.FOOOCUS.value):
-    assert metadata_scheme in [item.value for item in MetadataScheme]
-
+def log(img, metadata, save_metadata_to_image=False, metadata_scheme: MetadataScheme = MetadataScheme.FOOOCUS):
     if args_manager.args.disable_image_log:
         return
 
@@ -35,7 +33,7 @@ def log(img, metadata, save_metadata_to_image=False, metadata_scheme: str = Meta
 
         pnginfo = PngInfo()
         pnginfo.add_text('parameters', parsed_parameters)
-        pnginfo.add_text('fooocus_scheme', metadata_scheme)
+        pnginfo.add_text('fooocus_scheme', metadata_scheme.value)
     else:
         pnginfo = None
     Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
