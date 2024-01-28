@@ -1,7 +1,6 @@
 import json
 import re
 from abc import ABC, abstractmethod
-from enum import Enum
 from PIL import Image
 
 import modules.config
@@ -30,6 +29,7 @@ class A1111MetadataParser(MetadataParser):
 
     fooocus_to_a1111 = {
         'negative_prompt': 'Negative prompt',
+        'styles': 'Styles',
         'steps': 'Steps',
         'sampler': 'Sampler',
         'guidance_scale': 'CFG scale',
@@ -44,8 +44,6 @@ class A1111MetadataParser(MetadataParser):
     }
 
     def parse_json(self, metadata: str) -> dict:
-        # TODO add correct mapping
-
         prompt = ''
         negative_prompt = ''
 
@@ -66,6 +64,10 @@ class A1111MetadataParser(MetadataParser):
             else:
                 prompt += ('' if prompt == '' else "\n") + line
 
+        # set defaults
+        data = {
+            'styles': '[]'
+        }
         # if shared.opts.infotext_styles != "Ignore":
         #     found_styles, prompt, negative_prompt = shared.prompt_styles.extract_styles_from_prompt(prompt,
         #                                                                                             negative_prompt)
@@ -75,9 +77,9 @@ class A1111MetadataParser(MetadataParser):
         #     elif shared.opts.infotext_styles == "Apply if any" and found_styles:
         #         res["Styles array"] = found_styles
 
-        data = {
+        data |= {
             'prompt': prompt,
-            'negative_prompt': negative_prompt
+            'negative_prompt': negative_prompt,
         }
 
         for k, v in re_param.findall(lastline):
@@ -87,9 +89,7 @@ class A1111MetadataParser(MetadataParser):
 
                 m = re_imagesize.match(v)
                 if m is not None:
-                    # TODO check
-                    data[f"{k}-1"] = m.group(1)
-                    data[f"{k}-2"] = m.group(2)
+                    data[f'resolution'] = str((m.group(1), m.group(2)))
                 else:
                     data[list(self.fooocus_to_a1111.keys())[list(self.fooocus_to_a1111.values()).index(k)]] = v
             except Exception:
@@ -110,7 +110,7 @@ class A1111MetadataParser(MetadataParser):
         data = {k: v for _, k, v, _, _ in metadata}
 
         # TODO check if correct
-        width, heigth = data['resolution'].split(', ')
+        width, heigth = eval(data['resolution'])
 
         lora_hashes = []
         for index in range(5):
@@ -122,12 +122,7 @@ class A1111MetadataParser(MetadataParser):
                 lora_hashes.append(f'{name.split(".")[0]}: {hash}')
         lora_hashes_string = ", ".join(lora_hashes)
 
-        # set static defaults
         generation_params = {
-            'styles': [],
-        }
-
-        generation_params |= {
             self.fooocus_to_a1111['steps']: data['steps'],
             self.fooocus_to_a1111['sampler']: data['sampler'],
             self.fooocus_to_a1111['guidance_scale']: data['guidance_scale'],
