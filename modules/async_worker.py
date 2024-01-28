@@ -203,16 +203,16 @@ def worker():
             modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
             steps = 8
 
-        if save_metadata_to_images:
-            base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
-            base_model_hash = calculate_sha256(base_model_path)[0:10]
+        base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
+        base_model_hash = calculate_sha256(base_model_path)[0:10]
 
-            lora_hashes = []
-            for (n, w) in loras:
-                if n != 'None':
-                    lora_path = os.path.join(modules.config.path_loras, n)
-                    lora_hashes.append(f'{n.split(".")[0]}: {calculate_sha256(lora_path)[0:10]}')
-            lora_hashes_string = ", ".join(lora_hashes)
+        refiner_model_path = os.path.join(modules.config.path_checkpoints, refiner_model_name)
+        refiner_model_hash = calculate_sha256(refiner_model_path)[0:10] if refiner_model_name != 'None' else ''
+
+        lora_hashes = []
+        for (n, w) in loras:
+            lora_path = os.path.join(modules.config.path_loras, n) if n != 'None' else ''
+            lora_hashes.append(calculate_sha256(lora_path)[0:10] if n != 'None' else '')
 
         modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
@@ -812,7 +812,9 @@ def worker():
                             modules.patch.negative_adm_scale,
                             modules.patch.adm_scaler_end)), True, True),
                         ('Base Model', 'base_model', base_model_name, True, True),
+                        ('Base Model Hash', 'base_model_hash', base_model_hash, False, False),
                         ('Refiner Model', 'refiner_model', refiner_model_name, True, True),
+                        ('Refiner Model Hash', 'refiner_model_hash', refiner_model_hash, False, False),
                         ('Refiner Switch', 'refiner_switch', refiner_switch, True, True),
                         ('Sampler', 'sampler', sampler_name, True, True),
                         ('Scheduler', 'scheduler', scheduler_name, True, True),
@@ -821,8 +823,9 @@ def worker():
                     for li, (n, w) in enumerate(loras):
                         if n != 'None':
                             d.append((f'LoRA {li + 1}', f'lora{li + 1}_combined', f'{n} : {w}', True, True))
-                            # d.append((f'LoRA {li + 1} Name', f'lora{li + 1}_name', n, False, False))
-                            # d.append((f'LoRA {li + 1} Weight', f'lora{li + 1}_weight', n, False, False))
+                            d.append((f'LoRA {li + 1} Name', f'lora_name_{li + 1}', n, False, False))
+                            d.append((f'LoRA {li + 1} Weight', f'lora_weight_{li + 1}', w, False, False))
+                            d.append((f'LoRA {li + 1} Hash', f'lora_hash_{li + 1}', lora_hashes[li], False, False))
                     d.append(('Version', 'version', 'v' + fooocus_version.version, True, True))
                     log(x, d, save_metadata_to_images, metadata_scheme)
 

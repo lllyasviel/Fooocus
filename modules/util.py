@@ -197,6 +197,16 @@ def quote(text):
     return json.dumps(text, ensure_ascii=False)
 
 
+def unquote(text):
+    if len(text) == 0 or text[0] != '"' or text[-1] != '"':
+        return text
+
+    try:
+        return json.loads(text)
+    except Exception:
+        return text
+
+
 def is_json(data: str) -> bool:
     try:
         loaded_json = json.loads(data)
