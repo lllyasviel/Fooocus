@@ -11,8 +11,20 @@ from modules.util import generate_temp_filename
 log_cache = {}
 
 
+def get_path_output() -> str:
+    ''' Checking output path argument and overriding default path
+        if disable image log path is not enabled.
+    '''
+    path_output = args_manager.args.temp_path if args_manager.args.disable_image_log else modules.config.path_outputs
+    if not args_manager.args.disable_image_log and args_manager.args.output_path:
+        print(f'[Config] Overriding path output to: {args_manager.args.output_path}')
+        path_output = args_manager.args.output_path
+    return path_output
+
+
 def get_current_html_path():
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs,
+    path_outputs = get_path_output()
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs,
                                                                          extension='png')
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
     return html_name
@@ -21,8 +33,8 @@ def get_current_html_path():
 def log(img, dic):
     if args_manager.args.disable_image_log:
         return
-
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
+    path_outputs = get_path_output()
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension='png')
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
     Image.fromarray(img).save(local_temp_filename)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
