@@ -135,7 +135,7 @@ class A1111MetadataParser(MetadataParser):
         generation_params |= {
             self.fooocus_to_a1111['lora_hashes']: lora_hashes_string,
             # "Denoising strength": data['denoising_strength'],
-            self.fooocus_to_a1111['version']: f"Fooocus {data['version']}"
+            self.fooocus_to_a1111['version']: {data['version']}
         }
 
         generation_params_text = ", ".join(
