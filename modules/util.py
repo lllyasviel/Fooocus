@@ -314,8 +314,17 @@ def extract_styles_from_prompt(prompt, negative_prompt):
     # add prompt expansion if not all styles could be resolved
     # TODO check if it's better to not add fooocus_expansion but just return prompt incl. fooocus_expansion words
     # TODO evaluate if adding prompt expansion to metadata is a good idea
-    if prompt != '' and prompt != real_prompt:
-        extracted.append(modules.sdxl_styles.fooocus_expansion)
+    if prompt != '':
+        if prompt != real_prompt:
+            extracted.append(modules.sdxl_styles.fooocus_expansion)
+
+        # find real_prompt when only prompt expansion is selected
+        if real_prompt == '':
+            first_word = prompt.split(', ')[0]
+            first_word_positions = [i for i in range(len(prompt)) if prompt.startswith(first_word, i)]
+            real_prompt = prompt[:first_word_positions[-1]]
+            if real_prompt.endswith(', '):
+                real_prompt = real_prompt[:-2]
 
     return list(reversed(extracted)), real_prompt, negative_prompt
 
