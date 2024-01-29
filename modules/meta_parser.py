@@ -143,5 +143,5 @@ def get_lora(key: str, fallback: str | None, source_dict: dict, results: list, d
         if fallback is not None:
             get_lora(fallback, None, source_dict, results, default)
             return
-        results.append(gr.update())
-        results.append(gr.update())
+        results.append('None')
+        results.append(1)
