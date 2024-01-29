@@ -3,7 +3,7 @@ import json
 import gradio as gr
 
 import modules.config
-from modules.flags import lora_count_with_lcm
+from modules.flags import lora_count
 
 
 def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
@@ -29,22 +29,15 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
     get_str('scheduler', 'Scheduler', loaded_parameter_dict, results)
     get_seed('seed', 'Seed', loaded_parameter_dict, results)
 
+    for i in range(lora_count):
+        get_lora(f'lora_combined_{i + 1}', f'LoRA {i + 1}', loaded_parameter_dict, results)
+
     if is_generating:
         results.append(gr.update())
     else:
         results.append(gr.update(visible=True))
 
     results.append(gr.update(visible=False))
-
-    for i in range(1, lora_count_with_lcm):
-        try:
-            n, w = loaded_parameter_dict.get(f'LoRA {i}').split(' : ')
-            w = float(w)
-            results.append(n)
-            results.append(w)
-        except:
-            results.append(gr.update())
-            results.append(gr.update())
 
     return results
 
@@ -136,5 +129,19 @@ def get_adm_guidance(key: str, fallback: str | None, source_dict: dict, results:
             get_adm_guidance(fallback, None, source_dict, results, default)
             return
         results.append(gr.update())
+        results.append(gr.update())
+        results.append(gr.update())
+
+
+def get_lora(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
+    try:
+        n, w = source_dict.get(key).split(' : ')
+        w = float(w)
+        results.append(n)
+        results.append(w)
+    except:
+        if fallback is not None:
+            get_lora(fallback, None, source_dict, results, default)
+            return
         results.append(gr.update())
         results.append(gr.update())

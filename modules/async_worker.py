@@ -804,7 +804,7 @@ def worker():
                     ]
                     for li, (n, w) in enumerate(loras):
                         if n != 'None':
-                            d.append((f'LoRA {li + 1}', f'lora{li + 1}_combined', f'{n} : {w}', True, True))
+                            d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}', True, True))
                             d.append((f'LoRA {li + 1} Name', f'lora_name_{li + 1}', n, False, False))
                             d.append((f'LoRA {li + 1} Weight', f'lora_weight_{li + 1}', w, False, False))
                             d.append((f'LoRA {li + 1} Hash', f'lora_hash_{li + 1}', lora_hashes[li], False, False))
