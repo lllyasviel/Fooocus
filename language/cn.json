@@ -49,10 +49,10 @@
 	"Type": "Type",
 	"ImagePrompt": "图像提示",
 	"FaceSwap": "换脸",
-	"PyraCanny": "PyraCanny 边缘检测",
-	"CPDS": "CPDS 深度检测",
+	"PyraCanny": "边缘检测",
+	"CPDS": "深度结构检测",
 	"Outpaint": "Outpaint",
-	"* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1).": "“图像提示”是由 Fooocus 图像混合引擎（v1.0.1）提供支持。（源自 ControlNet ，超越 ControlNet ）",
+	"* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1).": "“图像提示”是由 Fooocus 图像混合引擎（v1.0.1）提供支持。（边缘检测为 PyraCanny 算法，深度结构检测为 CPDS 算法，源自 ControlNet ，超越 ControlNet ）",
 	
 	"Use brush": "使用画笔",
 	"Undo": "撤销一步",
@@ -228,13 +228,21 @@
 	"Image Style": "图像风格",
     "\uD83D\uDD0E Type here to search styles ...": "\uD83D\uDD0E 在这里输入以搜索风格 ...",
 
-    "Fooocus V2": "Fooocus V2♡",
-	"Fooocus Enhance": "Fooocus 增强♡",
-	"Fooocus Sharp": "Fooocus 锐化♡",
 	"Fooocus Cinematic": "Fooocus 电影",
-	"Fooocus Masterpiece": "Fooocus 杰作♡",
-	"Fooocus Photograph": "Fooocus 摄影♡",
-	"Fooocus Negative": "Fooocus 反向♡",
+
+    "Fooocus V2": "Fooocus V2♡默认",
+	"Fooocus Enhance": "Fooocus 增强♡默认",
+	"Fooocus Sharp": "Fooocus 锐化♡默认",
+
+	"Fooocus Photograph": "Fooocus 摄影♡写实",
+	"Fooocus Negative": "Fooocus 反向♡写实",
+
+	"Fooocus Masterpiece": "Fooocus 杰作♡动漫",
+
+	"SAI Anime": "SAI 动漫♡动漫",
+	"SAI Digital Art": "SAI 数字艺术♡动漫",
+	"SAI Enhance": "SAI 画质增强♡动漫",
+	"SAI Fantasy Art": "SAI 幻想艺术♡动漫",
 
 	"Cinematic Diva": "电影-女主角",
 	"Abstract Expressionism": "抽象表现主义",
@@ -343,10 +351,6 @@
 	"SAI Cinematic": "SAI 电影画面",
 	"SAI Comic Book": "SAI 漫画书",
 	"SAI Craft Clay": "SAI 手工粘土",
-	"SAI Anime": "SAI 动漫♡",
-	"SAI Digital Art": "SAI 数字艺术♡",
-	"SAI Enhance": "SAI 画质增强♡",
-	"SAI Fantasy Art": "SAI 幻想艺术♡",
 	"SAI Isometric": "SAI 等边透视",
 	"SAI Line Art": "SAI 线条艺术",
 	"SAI Lowpoly": "SAI 低多边形",
@@ -1696,7 +1700,23 @@
 	"miao_clothes": "苗族服装",
 	"uygur_clothes": "维吾尔族服装",   
 
-
+	"natural skin, hard shadows, depth of field, bokeh": "自然皮肤、硬阴影、景深、背景虚化",
+	"HDR, UHD, (8k resolution:1.3), 64K, (highly detailed:1.2), natural skin, sharp focus, sharp details, beautiful details, aesthetic, photogenic, gorgeous, perfect": "全选，HDR, UHD, (8k resolution:1.3), 64K, (highly detailed:1.2), natural skin, sharp focus, sharp details, beautiful details, aesthetic, photogenic, gorgeous, perfect",  
+	"hard shadows": "硬阴影",
+	"soft shadows": "软阴影",
+	"highly detailed": "超详细",
+	"natural skin": "自然皮肤",
+	"depth of field": "景深",
+	"bokeh": "背景虚化",
+	"HDR": "高动态范围",
+	"UHD": "超高清",
+	"sharp focus": "锐化聚焦",
+	"sharp details": "锐化细节",
+	"intricate details": "复杂细节",
+	"aesthetic": "富有美感",
+	"photogenic": "上镜的",
+	"gorgeous": "迷人的",
+	"perfect": "完美的",
 
     "wildcards enhance": "增强",
     "Add to Prompt": "添加自定义人物到提示框",
@@ -1706,6 +1726,8 @@
     "Face": "头部",
     "Body": "身体",
     "Attire": "服装",
+    "A.Opt.": "服装选项",
+    "A.": "服装",
     "Other": "其他",
     "Readme": "说明",
 
@@ -1731,6 +1753,15 @@
     "Legs": "腿部",
     "Gesture": "手势",
     "Pose": "姿势",
+
+    "Apparelcolor": "服装颜色",
+    "Apparelpattern": "服装图案",
+    "Apparelmaterial": "服装面料",
+    "Appareloccasion": "服装适合场合",
+    "Apparelsize": "服装尺寸",
+    "Apparelneckline": "服装领口",
+    "Apparelsleeve": "服装袖子",
+
 
     "Hanfu": "汉服和传统服装",
     "Suit": "套装",
