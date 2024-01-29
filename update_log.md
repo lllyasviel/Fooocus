@@ -16,6 +16,18 @@
 
 * Begin to support 8GB AMD GPU on Windows.
 
+# 2.1.861 (requested update)
+
+* Show image preview in Style when mouse hover.
+
+# 2.1.860 (requested update)
+
+* Allow upload inpaint mask in developer mode.
+
+# 2.1.857 (requested update)
+
+* Begin to support 8GB AMD GPU on Windows.
+
 # 2.1.854
 
 * Add a button to copy parameters to clipboard in log.

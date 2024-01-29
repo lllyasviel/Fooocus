@@ -54,7 +54,7 @@ class StableZero123_Conditioning:
         negative = [[torch.zeros_like(pooled), {"concat_latent_image": torch.zeros_like(t)}]]
         latent = torch.zeros([batch_size, 4, height // 8, width // 8])
         return (positive, negative, {"samples":latent})
-
+      
 class StableZero123_Conditioning_Batched:
     @classmethod
     def INPUT_TYPES(s):

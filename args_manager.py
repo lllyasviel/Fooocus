@@ -2,7 +2,10 @@ import ldm_patched.modules.args_parser as args_parser
 
 
 args_parser.parser.add_argument("--share", action='store_true', help="Set whether to share on Gradio.")
+
 args_parser.parser.add_argument("--preset", type=str, default=None, help="Apply specified UI preset.")
+args_parser.parser.add_argument("--disable-preset-selection", action='store_true',
+                                help="Disables preset selection in Gradio.")
 
 args_parser.parser.add_argument("--language", type=str, default='default',
                                 help="Translate UI using json files in [language] folder. "
@@ -18,7 +21,7 @@ args_parser.parser.add_argument("--disable-image-log", action='store_true',
                                 help="Prevent writing images and logs to hard drive.")
 
 args_parser.parser.add_argument("--disable-analytics", action='store_true',
-                                help="Disables analytics for Gradio", default=False)
+                                help="Disables analytics for Gradio.")
 
 args_parser.parser.add_argument("--disable-preset-download", action='store_true',
                                 help="Disables downloading models for presets", default=False)
