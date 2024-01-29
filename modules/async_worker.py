@@ -195,15 +195,15 @@ def worker():
 
         # TODO move hashing to metadata mapper as this slows down the generation process
         base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
-        base_model_hash = calculate_sha256(base_model_path)[0:10]
+        base_model_hash = calculate_sha256(base_model_path)
 
         refiner_model_path = os.path.join(modules.config.path_checkpoints, refiner_model_name)
-        refiner_model_hash = calculate_sha256(refiner_model_path)[0:10] if refiner_model_name != 'None' else ''
+        refiner_model_hash = calculate_sha256(refiner_model_path) if refiner_model_name != 'None' else ''
 
         lora_hashes = []
         for (n, w) in loras:
             lora_path = os.path.join(modules.config.path_loras, n) if n != 'None' else ''
-            lora_hashes.append(calculate_sha256(lora_path)[0:10] if n != 'None' else '')
+            lora_hashes.append(calculate_sha256(lora_path) if n != 'None' else '')
 
         modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')

@@ -14,7 +14,7 @@ from hashlib import sha256
 import modules.sdxl_styles
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
-
+HASH_SHA256_LENGTH = 10
 
 def erode_or_dilate(x, k):
     k = int(k)
@@ -182,7 +182,7 @@ def get_files_from_folder(folder_path, exensions=None, name_filter=None):
     return sorted(filenames, key=lambda x: -1 if os.sep in x else 1)
 
 
-def calculate_sha256(filename):
+def calculate_sha256(filename, length=HASH_SHA256_LENGTH):
     hash_sha256 = sha256()
     blksize = 1024 * 1024
 
@@ -190,7 +190,8 @@ def calculate_sha256(filename):
         for chunk in iter(lambda: f.read(blksize), b""):
             hash_sha256.update(chunk)
 
-    return hash_sha256.hexdigest()
+    res = hash_sha256.hexdigest()
+    return res[:length] if length else res
 
 
 def quote(text):
