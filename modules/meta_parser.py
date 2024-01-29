@@ -29,15 +29,15 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
     get_str('scheduler', 'Scheduler', loaded_parameter_dict, results)
     get_seed('seed', 'Seed', loaded_parameter_dict, results)
 
-    for i in range(lora_count):
-        get_lora(f'lora_combined_{i + 1}', f'LoRA {i + 1}', loaded_parameter_dict, results)
-
     if is_generating:
         results.append(gr.update())
     else:
         results.append(gr.update(visible=True))
 
     results.append(gr.update(visible=False))
+
+    for i in range(lora_count):
+        get_lora(f'lora_combined_{i + 1}', f'LoRA {i + 1}', loaded_parameter_dict, results)
 
     return results
 
