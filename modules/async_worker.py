@@ -147,7 +147,7 @@ def worker():
         metadata_scheme = MetadataScheme(args.pop()) if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS
 
         cn_tasks = {x: [] for x in flags.ip_list}
-        for _ in range(4):
+        for _ in range(flags.controlnet_image_count):
             cn_img = args.pop()
             cn_stop = args.pop()
             cn_weight = args.pop()
