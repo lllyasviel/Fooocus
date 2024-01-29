@@ -218,3 +218,33 @@
 #stylePreviewOverlay.lower-half {
     transform: translate(-140px, -140px);
 }
+
+/* scrollable box for style selections */
+.contain .tabs {
+  height: 100%;
+}
+
+.contain .tabs .tabitem.style_selections_tab {
+  height: 100%;
+}
+
+.contain .tabs .tabitem.style_selections_tab > div:first-child {
+  height: 100%;
+}
+
+.contain .tabs .tabitem.style_selections_tab .style_selections{
+  min-height:200px;
+  height: 100%;
+}
+
+.contain .tabs .tabitem.style_selections_tab .style_selections .wrap[data-testid="checkbox-group"] label {
+  max-width: calc(50% - 5px) !important;   
+  flex: calc(50% - 5px) !important;
+  padding:2px 5px;    
+}
+
+.contain .tabs .tabitem.style_selections_tab .style_selections .wrap[data-testid="checkbox-group"] label span {
+  white-space:nowrap; 
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
