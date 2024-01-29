@@ -118,11 +118,9 @@ class A1111MetadataParser(MetadataParser):
     def parse_string(self, metadata: dict) -> str:
         data = {k: v for _, k, v, _, _ in metadata}
 
-        # TODO check if correct
         width, heigth = eval(data['resolution'])
 
         lora_hashes = []
-        lora_weights = []
         for index in range(lora_count_with_lcm):
             key = f'lora_name_{index + 1}'
             if key in data:
@@ -275,7 +273,8 @@ class FooocusMetadataParser(MetadataParser):
         # # return json.dumps(metadata, ensure_ascii=True) TODO check if possible
         # return json.dumps(metadata, ensure_ascii=False)
 
-    def replace_value_with_filename(self, key, value, filenames):
+    @staticmethod
+    def replace_value_with_filename(key, value, filenames):
         for filename in filenames:
             path = Path(filename)
             if key.startswith('lora_combined_'):
