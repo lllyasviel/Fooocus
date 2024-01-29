@@ -7,7 +7,7 @@ import modules.config
 import fooocus_version
 # import advanced_parameters
 from modules.util import quote, unquote, extract_styles_from_prompt, is_json
-from modules.flags import MetadataScheme, Performance, Steps
+from modules.flags import MetadataScheme, Performance, Steps, lora_count_with_lcm
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
 re_param = re.compile(re_param_code)
@@ -106,7 +106,7 @@ class A1111MetadataParser(MetadataParser):
         width, heigth = eval(data['resolution'])
 
         lora_hashes = []
-        for index in range(5):
+        for index in range(lora_count_with_lcm):
             key = f'lora_name_{index + 1}'
             if key in data:
                 name = data[f'lora_name_{index + 1}']

@@ -55,6 +55,8 @@ metadata_scheme = [
     ('A1111 (plain text)', MetadataScheme.A1111.value),
 ]
 
+lora_count = 5
+lora_count_with_lcm = lora_count + 1
 
 class Steps(Enum):
     QUALITY = 60

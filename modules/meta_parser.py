@@ -3,6 +3,7 @@ import json
 import gradio as gr
 
 import modules.config
+from modules.flags import lora_count_with_lcm
 
 
 def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
@@ -35,7 +36,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
 
     results.append(gr.update(visible=False))
 
-    for i in range(1, 6):
+    for i in range(1, lora_count_with_lcm):
         try:
             n, w = loaded_parameter_dict.get(f'LoRA {i}').split(' : ')
             w = float(w)
