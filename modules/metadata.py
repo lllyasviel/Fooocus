@@ -64,15 +64,12 @@ class A1111MetadataParser(MetadataParser):
             else:
                 prompt += ('' if prompt == '' else "\n") + line
 
-        # set defaults
-        data = {}
-
         found_styles, prompt, negative_prompt = extract_styles_from_prompt(prompt, negative_prompt)
-        data['styles'] = str(found_styles)
 
-        data |= {
+        data = {
             'prompt': prompt,
             'negative_prompt': negative_prompt,
+            'styles': str(found_styles)
         }
 
         for k, v in re_param.findall(lastline):
@@ -98,8 +95,6 @@ class A1111MetadataParser(MetadataParser):
         return data
 
     def parse_string(self, metadata: dict) -> str:
-        # TODO add correct mapping
-
         data = {k: v for _, k, v, _, _ in metadata}
 
         # TODO check if correct
@@ -110,6 +105,7 @@ class A1111MetadataParser(MetadataParser):
             key = f'lora_name_{index + 1}'
             if key in data:
                 name = data[f'lora_name_{index + 1}']
+                # TODO handle LoRA weight
                 # weight = data[f'lora_weight_{index + 1}']
                 hash = data[f'lora_hash_{index + 1}']
                 lora_hashes.append(f'{name.split(".")[0]}: {hash}')
@@ -122,6 +118,7 @@ class A1111MetadataParser(MetadataParser):
             self.fooocus_to_a1111['seed']: data['seed'],
             # TODO check resolution value, should be string
             self.fooocus_to_a1111['resolution']: f'{width}x{heigth}',
+            # TODO load model by name / hash
             self.fooocus_to_a1111['base_model']: data['base_model'].split('.')[0],
             self.fooocus_to_a1111['base_model_hash']: data['base_model_hash']
         }
@@ -150,11 +147,9 @@ class A1111MetadataParser(MetadataParser):
 class FooocusMetadataParser(MetadataParser):
 
     def parse_json(self, metadata: dict) -> dict:
-        # TODO add mapping if necessary
         return metadata
 
     def parse_string(self, metadata: dict) -> str:
-
         return json.dumps({k: v for _, k, v, _, _ in metadata})
         # metadata = {
         #     # prompt with wildcards

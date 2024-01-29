@@ -60,6 +60,7 @@ lora_count_with_lcm = lora_count + 1
 
 controlnet_image_count = 4
 
+
 class Steps(Enum):
     QUALITY = 60
     SPEED = 30
