@@ -809,6 +809,9 @@ def worker():
                             d.append((f'LoRA {li + 1} Weight', f'lora_weight_{li + 1}', w, False, False))
                             d.append((f'LoRA {li + 1} Hash', f'lora_hash_{li + 1}', lora_hashes[li], False, False))
                     d.append(('Version', 'version', 'v' + fooocus_version.version, True, True))
+                    if modules.config.metadata_created_by != '':
+                        d.append(('Created By', 'created_by', modules.config.metadata_created_by, False, False))
+
                     log(x, d, save_metadata_to_images, metadata_scheme)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
