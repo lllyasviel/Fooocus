@@ -98,7 +98,7 @@ class A1111MetadataParser(MetadataParser):
             for filename in modules.config.model_filenames:
                 path = Path(filename)
                 if data['base_model'] == path.stem:
-                    data['base_model'] = path.name
+                    data['base_model'] = filename
                     break
 
         if 'lora_hashes' in data:
@@ -110,7 +110,7 @@ class A1111MetadataParser(MetadataParser):
                 for filename in lora_filenames:
                     path = Path(filename)
                     if name == path.stem:
-                        data[f'lora_combined_{li + 1}'] = f'{path.name} : {weight}'
+                        data[f'lora_combined_{li + 1}'] = f'{filename} : {weight}'
                         break
 
         return data
@@ -146,12 +146,12 @@ class A1111MetadataParser(MetadataParser):
         if 'refiner_model' in data and data['refiner_model'] != 'None' and 'refiner_model_hash' in data:
             generation_params |= {
                 self.fooocus_to_a1111['refiner_model']: Path(data['refiner_model']).stem,
-                self.fooocus_to_a1111['refiner_model_hash']: data['refiner_model_hash'],
+                self.fooocus_to_a1111['refiner_model_hash']: data['refiner_model_hash']
             }
 
         generation_params |= {
             self.fooocus_to_a1111['lora_hashes']: lora_hashes_string,
-            self.fooocus_to_a1111['version']: {data['version']}
+            self.fooocus_to_a1111['version']: data['version']
         }
 
         generation_params_text = ", ".join(
@@ -166,9 +166,35 @@ class A1111MetadataParser(MetadataParser):
 class FooocusMetadataParser(MetadataParser):
 
     def parse_json(self, metadata: dict) -> dict:
+        model_filenames = modules.config.model_filenames.copy()
+        lora_filenames = modules.config.lora_filenames.copy()
+
+        for key, value in metadata.items():
+            if value == '' or value == 'None':
+                continue
+            if key in ['base_model', 'refiner_model']:
+                metadata[key] = self.replace_value_with_filename(key, value, model_filenames)
+            elif key.startswith(('lora_combined_', 'lora_name_')):
+                metadata[key] = self.replace_value_with_filename(key, value, lora_filenames)
+            else:
+                continue
+
         return metadata
 
-    def parse_string(self, metadata: dict) -> str:
+    def parse_string(self, metadata: list) -> str:
+        # remove model folder paths from metadata
+        for li, (label, key, value, show_in_log, copy_in_log) in enumerate(metadata):
+            if value == '' or value == 'None':
+                continue
+            if key in ['base_model', 'refiner_model'] or key.startswith(('lora_combined_', 'lora_name_')):
+                if key.startswith('lora_combined_'):
+                    name, weight = value.split(' : ')
+                    name = Path(name).stem
+                    value = f'{name} : {weight}'
+                else:
+                    value = Path(value).stem
+                metadata[li] = (label, key, value, show_in_log, copy_in_log)
+
         return json.dumps({k: v for _, k, v, _, _ in metadata})
         # metadata = {
         #     # prompt with wildcards
@@ -248,6 +274,16 @@ class FooocusMetadataParser(MetadataParser):
         #     }
         # # return json.dumps(metadata, ensure_ascii=True) TODO check if possible
         # return json.dumps(metadata, ensure_ascii=False)
+
+    def replace_value_with_filename(self, key, value, filenames):
+        for filename in filenames:
+            path = Path(filename)
+            if key.startswith('lora_combined_'):
+                name, weight = value.split(' : ')
+                if name == path.stem:
+                    return f'{filename} : {weight}'
+            elif value == path.stem:
+                return filename
 
 
 def get_metadata_parser(metadata_scheme: MetadataScheme) -> MetadataParser:
