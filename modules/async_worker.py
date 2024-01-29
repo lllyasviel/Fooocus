@@ -1,4 +1,5 @@
 import threading
+import re
 
 
 class AsyncTask:
@@ -126,6 +127,7 @@ def worker():
         aspect_ratios_selection = args.pop()
         image_number = args.pop()
         image_seed = args.pop()
+        read_wildcard_in_order_checkbox = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
         base_model_name = args.pop()
@@ -377,13 +379,21 @@ def worker():
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
             for i in range(image_number):
-                task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
-                task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
+                
+                # determines that if prompt includes wildcard, this seed will not be increased automatically
+                placeholders = re.findall(r'__([\w-]+)__', prompt)
+                random_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
+                # Determine whether there is a wildcard and the value of the checkbox is True
+                if len(placeholders) > 0 and read_wildcard_in_order_checkbox:
+                    task_seed = seed % (constants.MAX_SEED + 1) # If there are wildcard characters in the prompt and the value of the check box is True, the seed will not increase automatically.
+                else:
+                    task_seed = random_seed 
+                task_rng = random.Random(random_seed)  # may bind to inpaint noise in the future
+                task_prompt = apply_wildcards(prompt, task_rng,i,read_wildcard_in_order_checkbox)
+                task_negative_prompt = apply_wildcards(negative_prompt, task_rng,i,read_wildcard_in_order_checkbox)
+                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng,i,read_wildcard_in_order_checkbox) for pmt in extra_positive_prompts]
+                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng,i,read_wildcard_in_order_checkbox) for pmt in extra_negative_prompts]
 
-                task_prompt = apply_wildcards(prompt, task_rng)
-                task_negative_prompt = apply_wildcards(negative_prompt, task_rng)
-                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
-                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
 
                 positive_basic_workloads = []
                 negative_basic_workloads = []
