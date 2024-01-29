@@ -193,6 +193,7 @@ def worker():
             modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative = 1.0
             modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
 
+        # TODO move hashing to metadata mapper as this slows down the generation process
         base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
         base_model_hash = calculate_sha256(base_model_path)[0:10]
 
@@ -788,7 +789,6 @@ def worker():
                         ('Resolution', 'resolution', str((width, height)), True, True),
                         ('Sharpness', 'sharpness', sharpness, True, True),
                         ('Guidance Scale', 'guidance_scale', guidance_scale, True, True),
-                        # ('Denoising Strength', 'denoising_strength', denoising_strength, False, False),
                         ('ADM Guidance', 'adm_guidance', str((
                             modules.patch.positive_adm_scale,
                             modules.patch.negative_adm_scale,

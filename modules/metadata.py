@@ -114,7 +114,6 @@ class A1111MetadataParser(MetadataParser):
         generation_params = {
             self.fooocus_to_a1111['steps']: data['steps'],
             self.fooocus_to_a1111['sampler']: data['sampler'],
-            self.fooocus_to_a1111['guidance_scale']: data['guidance_scale'],
             self.fooocus_to_a1111['seed']: data['seed'],
             # TODO check resolution value, should be string
             self.fooocus_to_a1111['resolution']: f'{width}x{heigth}',
@@ -131,7 +130,6 @@ class A1111MetadataParser(MetadataParser):
 
         generation_params |= {
             self.fooocus_to_a1111['lora_hashes']: lora_hashes_string,
-            # "Denoising strength": data['denoising_strength'],
             self.fooocus_to_a1111['version']: {data['version']}
         }
 
@@ -139,7 +137,7 @@ class A1111MetadataParser(MetadataParser):
             [k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if v is not None])
         # TODO check if multiline positive prompt is correctly processed
         positive_prompt_resolved = ', '.join(data['full_prompt']) #TODO add loras to positive prompt if even possible
-        negative_prompt_resolved = ', '.join(data['full_negative_prompt']) #TODO add loras to positive prompt if even possible
+        negative_prompt_resolved = ', '.join(data['full_negative_prompt']) #TODO add loras to negative prompt if even possible
         negative_prompt_text = f"\nNegative prompt: {negative_prompt_resolved}" if negative_prompt_resolved else ""
         return f"{positive_prompt_resolved}{negative_prompt_text}\n{generation_params_text}".strip()
 
