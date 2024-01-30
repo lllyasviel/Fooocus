@@ -13,11 +13,13 @@ import modules.flags as flags
 import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
+import modules.wildprompt_sorter as wildprompt_sorter
 import modules.meta_parser
 import args_manager
 import copy
 
 from modules.sdxl_styles import legal_style_names
+from modules.sdxl_styles import legal_wildprompt_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
@@ -290,6 +292,48 @@ with shared.gradio_root:
                                                        queue=False,
                                                        show_progress=False).then(
                     lambda: None, _js='()=>{refresh_style_localization();}')
+                
+            with gr.Tab(label='Wildprompt'):
+                wildprompt_sorter.try_load_sorted_wildprompts()
+
+                wildprompt_generate_all = gr.Checkbox(label='Generate All Wildprompts', value=False, container=False, elem_classes='min_check', interactive=True)
+
+                wildprompt_search_bar = gr.Textbox(show_label=False, container=False,
+                                              placeholder="\U0001F50E Type here to search wildprompts ...",
+                                              value="",
+                                              label='Search Wildprompts')
+                wildprompt_selections = gr.CheckboxGroup(show_label=False, container=False,
+                                                    choices=copy.deepcopy(wildprompt_sorter.all_wildprompts),
+                                                    value=copy.deepcopy(modules.config.default_wildprompts),
+                                                    label='Selected Wildprompts',
+                                                    elem_classes=['wildprompt_selections'])
+                gradio_receiver_wildprompt_selections = gr.Textbox(elem_id='gradio_receiver_wildprompt_selections', visible=False)
+
+                shared.gradio_root.load(lambda: gr.update(choices=copy.deepcopy(wildprompt_sorter.all_wildprompts)),
+                                        outputs=wildprompt_selections)
+
+                wildprompt_search_bar.change(wildprompt_sorter.search_wildprompts,
+                                        inputs=[wildprompt_selections, wildprompt_search_bar],
+                                        outputs=wildprompt_selections,
+                                        queue=False,
+                                        show_progress=False).then(
+                    lambda: None, _js='()=>{refresh_wildprompt_localization();}')
+
+                gradio_receiver_wildprompt_selections.input(wildprompt_sorter.sort_wildprompts,
+                                                       inputs=wildprompt_selections,
+                                                       outputs=wildprompt_selections,
+                                                       queue=False,
+                                                       show_progress=False).then(
+                    lambda: None, _js='()=>{refresh_wildprompt_localization();}')
+                
+                wildprompt_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Wildprompts', variant='secondary', elem_classes='refresh_button')
+
+                def handle_refresh_click():
+                    results = gr.update(choices=wildprompt_sorter.try_load_sorted_wildprompts())
+                    return results
+
+                wildprompt_refresh.click(handle_refresh_click, [], wildprompt_selections,
+                                    queue=False, show_progress=False)
 
             with gr.Tab(label='Model'):
                 with gr.Group():
@@ -520,7 +564,7 @@ with shared.gradio_root:
         ], show_progress=False, queue=False)
 
         ctrls = [
-            prompt, negative_prompt, style_selections,
+            prompt, negative_prompt, wildprompt_selections, wildprompt_generate_all, style_selections,
             performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, guidance_scale
         ]
 
@@ -558,6 +602,8 @@ with shared.gradio_root:
             image_number,
             prompt,
             negative_prompt,
+            wildprompt_selections,
+            wildprompt_generate_all,
             style_selections,
             performance_selection,
             aspect_ratios_selection,

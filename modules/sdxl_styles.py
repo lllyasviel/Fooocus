@@ -8,6 +8,7 @@ from modules.util import get_files_from_folder
 # cannot use modules.config - validators causing circular imports
 styles_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sdxl_styles/'))
 wildcards_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../wildcards/'))
+wildprompts_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../wildprompts/'))
 wildcards_max_bfs_depth = 64
 
 
@@ -24,8 +25,14 @@ def normalize_key(k):
 
 
 styles = {}
+wildprompts = {}
 
 styles_files = get_files_from_folder(styles_path, ['.json'])
+wildcards_files = get_files_from_folder(wildcards_path, ['.txt'])
+
+def GetLegalWildpromptNames():
+    wildprompts_files = get_files_from_folder(wildprompts_path, ['.txt'])
+    return [os.path.splitext(file)[0] for file in wildprompts_files]
 
 for x in ['sdxl_styles_fooocus.json',
           'sdxl_styles_sai.json',
@@ -52,7 +59,8 @@ for styles_file in styles_files:
 style_keys = list(styles.keys())
 fooocus_expansion = "Fooocus V2"
 legal_style_names = [fooocus_expansion] + style_keys
-
+legal_wildcard_names = [os.path.splitext(file)[0] for file in wildcards_files]
+legal_wildprompt_names = GetLegalWildpromptNames()    
 
 def apply_style(style, positive):
     p, n = styles[style]
@@ -80,3 +88,30 @@ def apply_wildcards(wildcard_text, rng, directory=wildcards_path):
 
     print(f'[Wildcards] BFS stack overflow. Current text: {wildcard_text}')
     return wildcard_text
+
+def apply_wildprompts(wildprompt_selections, rng):
+    prompts = []
+
+    for wildprompt_selection in wildprompt_selections:
+        try:
+            wildprompt_text = open(os.path.join(wildprompts_path, f'{wildprompt_selection}.txt'), encoding='utf-8').read().splitlines()
+            wildprompt_text = [x for x in wildprompt_text if x != '']
+            assert len(wildprompt_text) > 0
+            prompts.append(rng.choice(wildprompt_text))
+        except:
+            print(f'[Wildprompts] Warning: {wildprompt_selection}.txt missing or empty. ')
+
+    return ', '.join(prompts)
+
+def get_all_wildprompts(wildprompt_selections):
+    prompts = []
+
+    try:
+        wildprompt_text = open(os.path.join(wildprompts_path, f'{wildprompt_selections[0]}.txt'), encoding='utf-8').read().splitlines()
+        wildprompt_text = [x for x in wildprompt_text if x != '']
+        assert len(wildprompt_text) > 0
+        prompts.extend(wildprompt_text)
+    except:
+        print(f'[Wildprompts] Warning: {wildprompt_selections[0]}.txt missing or empty. ')
+
+    return prompts

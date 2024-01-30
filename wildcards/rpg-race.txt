@@ -1,0 +1,7 @@
+human
+elf
+halfling
+dwarf
+celestial
+orc
+goliath
