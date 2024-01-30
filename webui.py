@@ -296,7 +296,7 @@ with shared.gradio_root:
             with gr.Tab(label='Wildprompt'):
                 wildprompt_sorter.try_load_sorted_wildprompts()
 
-                wildprompt_generate_all = gr.Checkbox(label='Generate All Wildprompts', value=False, container=False, elem_classes='min_check', interactive=True)
+                wildprompt_generate_all = gr.Checkbox(label='Generate All Wildprompts', value=False, container=False, elem_classes='min_check', info='Increase the Image Number to increase the number of times each prompt is generated. Only works if 1 wildprompt is selected.', interactive=True)
 
                 wildprompt_search_bar = gr.Textbox(show_label=False, container=False,
                                               placeholder="\U0001F50E Type here to search wildprompts ...",
