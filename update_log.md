@@ -1,6 +1,10 @@
-**(2023 Dec 21) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid or late Jan. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+# 2.1.864
+
+* New model list. See also discussions.
 
 # 2.1.861 (requested update)
+
+(2023 Dec 21) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid or late Jan. However, you may still see updates if other collaborators are fixing bugs or solving problems.
 
 * Show image preview in Style when mouse hover.
 
