@@ -22,6 +22,8 @@ SAMPLER_NAMES = KSAMPLER_NAMES + ["ddim", "uni_pc", "uni_pc_bh2"]
 sampler_list = SAMPLER_NAMES
 scheduler_list = SCHEDULER_NAMES
 
+refiner_swap_method = 'joint'
+
 cn_ip = "ImagePrompt"
 cn_ip_face = "FaceSwap"
 cn_canny = "PyraCanny"
