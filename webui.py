@@ -588,10 +588,11 @@ with shared.gradio_root:
         prompt.input(parse_meta, inputs=[prompt, state_is_generating], outputs=[prompt, generate_button, load_parameter_button], queue=False, show_progress=False)
 
         load_data_outputs = [advanced_checkbox, image_number, prompt, negative_prompt, style_selections,
-                             performance_selection, aspect_ratios_selection, overwrite_width, overwrite_height,
-                             sharpness, guidance_scale, adm_scaler_positive, adm_scaler_negative, adm_scaler_end,
-                             base_model, refiner_model, refiner_switch, sampler_name, scheduler_name, seed_random,
-                             image_seed, generate_button, load_parameter_button] + lora_ctrls
+                             performance_selection, overwrite_step, overwrite_switch, aspect_ratios_selection,
+                             overwrite_width, overwrite_height, guidance_scale, sharpness, adm_scaler_positive,
+                             adm_scaler_negative, adm_scaler_end, refiner_swap_method, adaptive_cfg, base_model,
+                             refiner_model, refiner_switch, sampler_name, scheduler_name, seed_random, image_seed,
+                             generate_button, load_parameter_button] + freeu_ctrls + lora_ctrls
 
         load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=[prompt, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=False)
 

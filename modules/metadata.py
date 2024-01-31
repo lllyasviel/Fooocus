@@ -31,11 +31,18 @@ class A1111MetadataParser(MetadataParser):
     fooocus_to_a1111 = {
         'negative_prompt': 'Negative prompt',
         'styles': 'Styles',
+        'performance': 'Performance',
         'steps': 'Steps',
         'sampler': 'Sampler',
         'guidance_scale': 'CFG scale',
         'seed': 'Seed',
         'resolution': 'Size',
+        'sharpness': 'Sharpness',
+        'adm_guidance': 'ADM Guidance',
+        'refiner_swap_method': 'Refiner Swap Method',
+        'adaptive_cfg': 'Adaptive CFG',
+        'overwrite_switch': 'Overwrite Switch',
+        'freeu': 'FreeU',
         'base_model': 'Model',
         'base_model_hash': 'Model hash',
         'refiner_model': 'Refiner',
@@ -87,8 +94,8 @@ class A1111MetadataParser(MetadataParser):
             except Exception:
                 print(f"Error parsing \"{k}: {v}\"")
 
-        # try to load performance based on steps
-        if 'steps' in data:
+        # try to load performance based on steps, fallback for direct A1111 imports
+        if 'steps' in data and 'performance' not in data:
             try:
                 data['performance'] = Performance[Steps(int(data['steps'])).name].value
             except Exception:
@@ -132,10 +139,14 @@ class A1111MetadataParser(MetadataParser):
         lora_hashes_string = ', '.join(lora_hashes)
 
         generation_params = {
+            self.fooocus_to_a1111['performance']: data['performance'],
             self.fooocus_to_a1111['steps']: data['steps'],
             self.fooocus_to_a1111['sampler']: data['sampler'],
             self.fooocus_to_a1111['seed']: data['seed'],
             self.fooocus_to_a1111['resolution']: f'{width}x{heigth}',
+            self.fooocus_to_a1111['guidance_scale']: data['guidance_scale'],
+            self.fooocus_to_a1111['sharpness']: data['sharpness'],
+            self.fooocus_to_a1111['adm_guidance']: data['adm_guidance'],
             # TODO load model by name / hash
             self.fooocus_to_a1111['base_model']: Path(data['base_model']).stem,
             self.fooocus_to_a1111['base_model_hash']: data['base_model_hash']
@@ -145,6 +156,26 @@ class A1111MetadataParser(MetadataParser):
             generation_params |= {
                 self.fooocus_to_a1111['refiner_model']: Path(data['refiner_model']).stem,
                 self.fooocus_to_a1111['refiner_model_hash']: data['refiner_model_hash']
+            }
+
+            if 'refiner_swap_method' in data:
+                generation_params |= {
+                    self.fooocus_to_a1111['refiner_swap_method']: data['refiner_swap_method'],
+                }
+
+        # TODO unify with for and call with key
+
+        if 'freeu' in data:
+            generation_params |= {
+                self.fooocus_to_a1111['freeu']: data['freeu'],
+            }
+        if 'adaptive_cfg' in data:
+            generation_params |= {
+                self.fooocus_to_a1111['adaptive_cfg']: data['adaptive_cfg'],
+            }
+        if 'overwrite_switch' in data:
+            generation_params |= {
+                self.fooocus_to_a1111['overwrite_switch']: data['overwrite_switch'],
             }
 
         generation_params |= {

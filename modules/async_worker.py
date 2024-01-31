@@ -274,7 +274,7 @@ def worker():
                     and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
                 inpaint_mask = inpaint_input_image['mask'][:, :, 0]
-                
+
                 if advanced_parameters.inpaint_mask_upload_checkbox:
                     if isinstance(inpaint_mask_image_upload, np.ndarray):
                         if inpaint_mask_image_upload.ndim == 3:
@@ -777,38 +777,57 @@ def worker():
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
                 for x in imgs:
-                    d = [
-                        ('Prompt', 'prompt', task['log_positive_prompt'], True, True),
-                        ('Full Positive Prompt', 'full_prompt', task['positive'], False, False),
-                        ('Negative Prompt', 'negative_prompt', task['log_negative_prompt'], True, True),
-                        ('Full Negative Prompt', 'full_negative_prompt', task['negative'], False, False),
-                        ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion'], True, True),
-                        ('Styles', 'styles', str(raw_style_selections), True, True),
-                        ('Performance', 'performance', performance_selection.value, True, True),
-                        ('Steps', 'steps', steps, False, False),
-                        ('Resolution', 'resolution', str((width, height)), True, True),
-                        ('Sharpness', 'sharpness', sharpness, True, True),
-                        ('Guidance Scale', 'guidance_scale', guidance_scale, True, True),
-                        ('ADM Guidance', 'adm_guidance', str((
-                            modules.patch.positive_adm_scale,
-                            modules.patch.negative_adm_scale,
-                            modules.patch.adm_scaler_end)), True, True),
-                        ('Base Model', 'base_model', base_model_name, True, True),
-                        ('Base Model Hash', 'base_model_hash', base_model_hash, False, False),
-                        ('Refiner Model', 'refiner_model', refiner_model_name, True, True),
-                        ('Refiner Model Hash', 'refiner_model_hash', refiner_model_hash, False, False),
-                        ('Refiner Switch', 'refiner_switch', refiner_switch, True, True),
-                        ('Sampler', 'sampler', sampler_name, True, True),
-                        ('Scheduler', 'scheduler', scheduler_name, True, True),
-                        ('Seed', 'seed', task['task_seed'], True, True)
-                    ]
+                    d = [('Prompt', 'prompt', task['log_positive_prompt'], True, True),
+                         ('Full Positive Prompt', 'full_prompt', task['positive'], False, False),
+                         ('Negative Prompt', 'negative_prompt', task['log_negative_prompt'], True, True),
+                         ('Full Negative Prompt', 'full_negative_prompt', task['negative'], False, False),
+                         ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion'], True, True),
+                         ('Styles', 'styles', str(raw_style_selections), True, True),
+                         ('Performance', 'performance', performance_selection.value, True, True),
+                         ('Steps', 'steps', steps, False, False),
+                         ('Resolution', 'resolution', str((width, height)), True, True),
+                         ('Guidance Scale', 'guidance_scale', guidance_scale, True, True),
+                         ('Sharpness', 'sharpness', sharpness, True, True),
+                         ('ADM Guidance', 'adm_guidance', str((
+                             modules.patch.positive_adm_scale,
+                             modules.patch.negative_adm_scale,
+                             modules.patch.adm_scaler_end)), True, True),
+                         ('Base Model', 'base_model', base_model_name, True, True),
+                         ('Base Model Hash', 'base_model_hash', base_model_hash, False, False), # TODO move to metadata and use cache
+                         ('Refiner Model', 'refiner_model', refiner_model_name, True, True),
+                         ('Refiner Model Hash', 'refiner_model_hash', refiner_model_hash, False, False), # TODO move to metadata and use cache
+                         ('Refiner Switch', 'refiner_switch', refiner_switch, True, True)]
+
+                    # TODO evaluate if this should always be added
+                    if refiner_model_name != 'None':
+                        if advanced_parameters.overwrite_switch > 0:
+                            d.append(('Overwrite Switch', 'overwrite_switch', advanced_parameters.overwrite_switch, True, True))
+                        if refiner_swap_method != flags.refiner_swap_method:
+                            d.append(('Refiner Swap Method', 'refiner_swap_method', refiner_swap_method, True, True))
+                    if advanced_parameters.adaptive_cfg != modules.config.default_cfg_tsnr:
+                        d.append(('CFG Mimicking from TSNR', 'adaptive_cfg', advanced_parameters.adaptive_cfg, True, True))
+
+                    d.append(('Sampler', 'sampler', sampler_name, True, True))
+                    d.append(('Scheduler', 'scheduler', scheduler_name, True, True))
+                    d.append(('Seed', 'seed', task['task_seed'], True, True))
+
+                    if advanced_parameters.freeu_enabled:
+                        d.append(('FreeU', 'freeu', str((
+                            advanced_parameters.freeu_b1,
+                            advanced_parameters.freeu_b2,
+                            advanced_parameters.freeu_s1,
+                            advanced_parameters.freeu_s2)), True, True))
+
                     for li, (n, w) in enumerate(loras):
                         if n != 'None':
                             d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}', True, True))
                             d.append((f'LoRA {li + 1} Name', f'lora_name_{li + 1}', n, False, False))
                             d.append((f'LoRA {li + 1} Weight', f'lora_weight_{li + 1}', w, False, False))
+                            # TODO move hashes to metadata handling
                             d.append((f'LoRA {li + 1} Hash', f'lora_hash_{li + 1}', lora_hashes[li], False, False))
+
                     d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version, True, True))
+
                     if modules.config.metadata_created_by != '':
                         d.append(('Created By', 'created_by', modules.config.metadata_created_by, False, False))
 
