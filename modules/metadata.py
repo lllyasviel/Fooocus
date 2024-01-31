@@ -158,25 +158,9 @@ class A1111MetadataParser(MetadataParser):
                 self.fooocus_to_a1111['refiner_model_hash']: data['refiner_model_hash']
             }
 
-            if 'refiner_swap_method' in data:
-                generation_params |= {
-                    self.fooocus_to_a1111['refiner_swap_method']: data['refiner_swap_method'],
-                }
-
-        # TODO unify with for and call with key
-
-        if 'freeu' in data:
-            generation_params |= {
-                self.fooocus_to_a1111['freeu']: data['freeu'],
-            }
-        if 'adaptive_cfg' in data:
-            generation_params |= {
-                self.fooocus_to_a1111['adaptive_cfg']: data['adaptive_cfg'],
-            }
-        if 'overwrite_switch' in data:
-            generation_params |= {
-                self.fooocus_to_a1111['overwrite_switch']: data['overwrite_switch'],
-            }
+        for key in ['adaptive_cfg', 'overwrite_switch', 'refiner_swap_method', 'freeu']:
+            if key in data:
+                generation_params[self.fooocus_to_a1111[key]] = data[key]
 
         generation_params |= {
             self.fooocus_to_a1111['lora_hashes']: lora_hashes_string,

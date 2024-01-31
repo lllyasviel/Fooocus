@@ -67,8 +67,6 @@ def get_list(key: str, fallback: str | None, source_dict: dict, results: list, d
         results.append(gr.update())
 
 
-# TODO try get generic
-
 def get_float(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
     try:
         h = source_dict.get(key, source_dict.get(fallback, default))
@@ -153,7 +151,7 @@ def get_freeu(key: str, fallback: str | None, source_dict: dict, results: list, 
         results.append(gr.update())
 
 
-def get_lora(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
+def get_lora(key: str, fallback: str | None, source_dict: dict, results: list):
     try:
         n, w = source_dict.get(key, source_dict.get(fallback)).split(' : ')
         w = float(w)
