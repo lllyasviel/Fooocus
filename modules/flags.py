@@ -51,7 +51,6 @@ class MetadataScheme(Enum):
     A1111 = 'a1111'
 
 
-# TODO use translation here
 metadata_scheme = [
     ('Fooocus (json)', MetadataScheme.FOOOCUS.value),
     ('A1111 (plain text)', MetadataScheme.A1111.value),

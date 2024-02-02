@@ -3,6 +3,7 @@ import os
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
+
 from PIL import Image
 
 import modules.config
@@ -156,7 +157,6 @@ class A1111MetadataParser(MetadataParser):
                     break
 
         if 'lora_hashes' in data:
-            # TODO optimize by using hash for matching. Problem is speed of creating the hash per model, even on startup
             lora_filenames = modules.config.lora_filenames.copy()
             lora_filenames.remove(modules.config.downloading_sdxl_lcm_lora())
             for li, lora in enumerate(data['lora_hashes'].split(', ')):
@@ -214,10 +214,8 @@ class A1111MetadataParser(MetadataParser):
 
         generation_params_text = ", ".join(
             [k if k == v else f'{k}: {quote(v)}' for k, v in dict(sorted(generation_params.items())).items() if v is not None])
-        # TODO check if multiline positive prompt is correctly processed
-        positive_prompt_resolved = ', '.join(self.full_prompt)  # TODO add loras to positive prompt if even possible
-        negative_prompt_resolved = ', '.join(
-            self.full_negative_prompt)  # TODO add loras to negative prompt if even possible
+        positive_prompt_resolved = ', '.join(self.full_prompt)
+        negative_prompt_resolved = ', '.join(self.full_negative_prompt)
         negative_prompt_text = f"\nNegative prompt: {negative_prompt_resolved}" if negative_prompt_resolved else ""
         return f"{positive_prompt_resolved}{negative_prompt_text}\n{generation_params_text}".strip()
 

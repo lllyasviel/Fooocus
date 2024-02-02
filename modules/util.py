@@ -300,7 +300,6 @@ def extract_styles_from_prompt(prompt, negative_prompt):
                 found_style = style
                 prompt = new_prompt
                 negative_prompt = new_neg_prompt
-                # TODO this is a bit hacky tbh but works perfectly fine, check if all conditions are needed
                 if real_prompt == '' and new_real_prompt != '' and new_real_prompt != prompt:
                     real_prompt = new_real_prompt
                 break
@@ -312,8 +311,6 @@ def extract_styles_from_prompt(prompt, negative_prompt):
         extracted.append(found_style.name)
 
     # add prompt expansion if not all styles could be resolved
-    # TODO check if it's better to not add fooocus_expansion but just return prompt incl. fooocus_expansion words
-    # TODO evaluate if adding prompt expansion to metadata is a good idea
     if prompt != '':
         if prompt != real_prompt:
             extracted.append(modules.sdxl_styles.fooocus_expansion)

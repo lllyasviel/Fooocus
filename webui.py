@@ -598,7 +598,6 @@ with shared.gradio_root:
 
         def trigger_metadata_import(filepath, state_is_generating):
             parameters, items, metadata_scheme = modules.metadata.read_info_from_image(filepath)
-            # TODO check what happens if metadata_scheme is empty and A1111 string
             if parameters is None:
                 print('Could not find metadata in the image!')
                 pass
