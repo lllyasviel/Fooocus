@@ -42,9 +42,10 @@ def worker():
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, calculate_sha256
+        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
     from modules.upscaler import perform_upscale
-    from modules.flags import Performance, MetadataScheme, lora_count
+    from modules.flags import Performance, lora_count
+    from modules.metadata import get_metadata_parser, MetadataScheme
 
     try:
         async_gradio_app = shared.gradio_root
@@ -192,18 +193,6 @@ def worker():
             modules.patch.positive_adm_scale = advanced_parameters.adm_scaler_positive = 1.0
             modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative = 1.0
             modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
-
-        # TODO move hashing to metadata mapper as this slows down the generation process
-        base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
-        base_model_hash = calculate_sha256(base_model_path)
-
-        refiner_model_path = os.path.join(modules.config.path_checkpoints, refiner_model_name)
-        refiner_model_hash = calculate_sha256(refiner_model_path) if refiner_model_name != 'None' else ''
-
-        lora_hashes = []
-        for (n, w) in loras:
-            lora_path = os.path.join(modules.config.path_loras, n) if n != 'None' else ''
-            lora_hashes.append(calculate_sha256(lora_path) if n != 'None' else '')
 
         modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
         print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
@@ -777,61 +766,54 @@ def worker():
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
                 for x in imgs:
-                    d = [('Prompt', 'prompt', task['log_positive_prompt'], True, True),
-                         ('Full Positive Prompt', 'full_prompt', task['positive'], False, False),
-                         ('Negative Prompt', 'negative_prompt', task['log_negative_prompt'], True, True),
-                         ('Full Negative Prompt', 'full_negative_prompt', task['negative'], False, False),
-                         ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion'], True, True),
-                         ('Styles', 'styles', str(raw_style_selections), True, True),
-                         ('Performance', 'performance', performance_selection.value, True, True),
-                         ('Steps', 'steps', steps, False, False),
-                         ('Resolution', 'resolution', str((width, height)), True, True),
-                         ('Guidance Scale', 'guidance_scale', guidance_scale, True, True),
-                         ('Sharpness', 'sharpness', sharpness, True, True),
+                    d = [('Prompt', 'prompt', task['log_positive_prompt']),
+                         ('Negative Prompt', 'negative_prompt', task['log_negative_prompt']),
+                         ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion']),
+                         ('Styles', 'styles', str(raw_style_selections)),
+                         ('Performance', 'performance', performance_selection.value),
+                         ('Resolution', 'resolution', str((width, height))),
+                         ('Guidance Scale', 'guidance_scale', guidance_scale),
+                         ('Sharpness', 'sharpness', sharpness),
                          ('ADM Guidance', 'adm_guidance', str((
                              modules.patch.positive_adm_scale,
                              modules.patch.negative_adm_scale,
-                             modules.patch.adm_scaler_end)), True, True),
-                         ('Base Model', 'base_model', base_model_name, True, True),
-                         ('Base Model Hash', 'base_model_hash', base_model_hash, False, False), # TODO move to metadata and use cache
-                         ('Refiner Model', 'refiner_model', refiner_model_name, True, True),
-                         ('Refiner Model Hash', 'refiner_model_hash', refiner_model_hash, False, False), # TODO move to metadata and use cache
-                         ('Refiner Switch', 'refiner_switch', refiner_switch, True, True)]
+                             modules.patch.adm_scaler_end))),
+                         ('Base Model', 'base_model', base_model_name),
+                         ('Refiner Model', 'refiner_model', refiner_model_name),
+                         ('Refiner Switch', 'refiner_switch', refiner_switch)]
 
                     # TODO evaluate if this should always be added
                     if refiner_model_name != 'None':
                         if advanced_parameters.overwrite_switch > 0:
-                            d.append(('Overwrite Switch', 'overwrite_switch', advanced_parameters.overwrite_switch, True, True))
+                            d.append(('Overwrite Switch', 'overwrite_switch', advanced_parameters.overwrite_switch))
                         if refiner_swap_method != flags.refiner_swap_method:
-                            d.append(('Refiner Swap Method', 'refiner_swap_method', refiner_swap_method, True, True))
+                            d.append(('Refiner Swap Method', 'refiner_swap_method', refiner_swap_method))
                     if advanced_parameters.adaptive_cfg != modules.config.default_cfg_tsnr:
-                        d.append(('CFG Mimicking from TSNR', 'adaptive_cfg', advanced_parameters.adaptive_cfg, True, True))
+                        d.append(('CFG Mimicking from TSNR', 'adaptive_cfg', advanced_parameters.adaptive_cfg))
 
-                    d.append(('Sampler', 'sampler', sampler_name, True, True))
-                    d.append(('Scheduler', 'scheduler', scheduler_name, True, True))
-                    d.append(('Seed', 'seed', task['task_seed'], True, True))
+                    d.append(('Sampler', 'sampler', sampler_name))
+                    d.append(('Scheduler', 'scheduler', scheduler_name))
+                    d.append(('Seed', 'seed', task['task_seed']))
 
                     if advanced_parameters.freeu_enabled:
                         d.append(('FreeU', 'freeu', str((
                             advanced_parameters.freeu_b1,
                             advanced_parameters.freeu_b2,
                             advanced_parameters.freeu_s1,
-                            advanced_parameters.freeu_s2)), True, True))
+                            advanced_parameters.freeu_s2))))
+
+                    metadata_parser = None
+                    if save_metadata_to_images:
+                        metadata_parser = modules.metadata.get_metadata_parser(metadata_scheme)
+                        metadata_parser.set_data(task['positive'], task['negative'], steps, base_model_name, refiner_model_name, loras)
 
                     for li, (n, w) in enumerate(loras):
                         if n != 'None':
-                            d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}', True, True))
-                            d.append((f'LoRA {li + 1} Name', f'lora_name_{li + 1}', n, False, False))
-                            d.append((f'LoRA {li + 1} Weight', f'lora_weight_{li + 1}', w, False, False))
-                            # TODO move hashes to metadata handling
-                            d.append((f'LoRA {li + 1} Hash', f'lora_hash_{li + 1}', lora_hashes[li], False, False))
+                            d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}'))
 
-                    d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version, True, True))
+                    d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
 
-                    if modules.config.metadata_created_by != '':
-                        d.append(('Created By', 'created_by', modules.config.metadata_created_by, False, False))
-
-                    log(x, d, save_metadata_to_images, metadata_scheme)
+                    log(x, d, metadata_parser)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:

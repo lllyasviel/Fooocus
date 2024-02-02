@@ -7,7 +7,7 @@ import urllib.parse
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 from modules.util import generate_temp_filename
-from modules.metadata import MetadataScheme
+from modules.metadata import MetadataParser
 
 
 log_cache = {}
@@ -20,22 +20,21 @@ def get_current_html_path():
     return html_name
 
 
-def log(img, metadata, save_metadata_to_image=False, metadata_scheme: MetadataScheme = MetadataScheme.FOOOCUS):
+def log(img, metadata, metadata_parser: MetadataParser | None = None):
     if args_manager.args.disable_image_log:
         return
 
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
 
-    if save_metadata_to_image:
-        metadata_parser = modules.metadata.get_metadata_parser(metadata_scheme)
+    pnginfo = None
+    if metadata_parser is not None:
         parsed_parameters = metadata_parser.parse_string(metadata)
 
         pnginfo = PngInfo()
         pnginfo.add_text('parameters', parsed_parameters)
-        pnginfo.add_text('fooocus_scheme', metadata_scheme.value)
-    else:
-        pnginfo = None
+        pnginfo.add_text('fooocus_scheme', metadata_parser.get_scheme().value)
+
     Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
 
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
@@ -98,13 +97,12 @@ def log(img, metadata, save_metadata_to_image=False, metadata_scheme: MetadataSc
     item = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
     item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
     item += "<td><table class='metadata'>"
-    for label, key, value, showable, copyable in metadata:
-        if showable:
-            value_txt = str(value).replace('\n', ' </br> ')
-            item += f"<tr><td class='label'>{label}</td><td class='value'>{value_txt}</td></tr>\n"
+    for label, key, value in metadata:
+        value_txt = str(value).replace('\n', ' </br> ')
+        item += f"<tr><td class='label'>{label}</td><td class='value'>{value_txt}</td></tr>\n"
     item += "</table>"
 
-    js_txt = urllib.parse.quote(json.dumps({k: v for _, k, v, _, copyable in metadata if copyable}, indent=0), safe='')
+    js_txt = urllib.parse.quote(json.dumps({k: v for _, k, v in metadata}, indent=0), safe='')
     item += f"</br><button onclick=\"to_clipboard('{js_txt}')\">Copy to Clipboard</button>"
 
     item += "</td>"

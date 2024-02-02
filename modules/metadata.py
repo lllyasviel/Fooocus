@@ -1,11 +1,12 @@
 import json
+import os
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
 from PIL import Image
 
 import modules.config
-from modules.flags import MetadataScheme, Performance, Steps, lora_count_with_lcm
+from modules.flags import MetadataScheme, Performance, Steps
 from modules.util import quote, unquote, extract_styles_from_prompt, is_json, calculate_sha256
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
@@ -25,6 +26,16 @@ def get_sha256(filepath):
 
 
 class MetadataParser(ABC):
+    def __init__(self):
+        self.full_prompt: str = ''
+        self.full_negative_prompt: str = ''
+        self.steps: int = 30
+        self.base_model_name: str = ''
+        self.base_model_hash: str = ''
+        self.refiner_model_name: str = ''
+        self.refiner_model_hash: str = ''
+        self.loras: list = []
+
     @abstractmethod
     def get_scheme(self) -> MetadataScheme:
         raise NotImplementedError
@@ -36,6 +47,27 @@ class MetadataParser(ABC):
     @abstractmethod
     def parse_string(self, metadata: dict) -> str:
         raise NotImplementedError
+
+    def set_data(self, full_prompt, full_negative_prompt, steps, base_model_name, refiner_model_name, loras):
+        self.full_prompt = full_prompt
+        self.full_negative_prompt = full_negative_prompt
+        self.steps = steps
+        self.base_model_name = Path(base_model_name).stem
+
+        base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
+        self.base_model_hash = get_sha256(base_model_path)
+
+        if refiner_model_name not in ['', 'None']:
+            self.refiner_model_name = Path(refiner_model_name).stem
+            refiner_model_path = os.path.join(modules.config.path_checkpoints, refiner_model_name)
+            self.refiner_model_hash = get_sha256(refiner_model_path)
+
+        self.loras = []
+        for (lora_name, lora_weight) in loras:
+            if lora_name != 'None':
+                lora_path = os.path.join(modules.config.path_loras, lora_name)
+                lora_hash = get_sha256(lora_path)
+                self.loras.append((Path(lora_name).stem, lora_weight, lora_hash))
 
 
 class A1111MetadataParser(MetadataParser):
@@ -63,6 +95,7 @@ class A1111MetadataParser(MetadataParser):
         'refiner_model_hash': 'Refiner hash',
         'lora_hashes': 'Lora hashes',
         'lora_weights': 'Lora weights',
+        'created_by': 'User',
         'version': 'Version'
     }
 
@@ -127,65 +160,64 @@ class A1111MetadataParser(MetadataParser):
             lora_filenames = modules.config.lora_filenames.copy()
             lora_filenames.remove(modules.config.downloading_sdxl_lcm_lora())
             for li, lora in enumerate(data['lora_hashes'].split(', ')):
-                name, _, weight = lora.split(': ')
+                lora_name, lora_hash, lora_weight = lora.split(': ')
                 for filename in lora_filenames:
                     path = Path(filename)
-                    if name == path.stem:
-                        data[f'lora_combined_{li + 1}'] = f'{filename} : {weight}'
+                    if lora_name == path.stem:
+                        data[f'lora_combined_{li + 1}'] = f'{filename} : {lora_weight}'
                         break
 
         return data
 
     def parse_string(self, metadata: dict) -> str:
-        data = {k: v for _, k, v, _, _ in metadata}
+        data = {k: v for _, k, v in metadata}
 
-        width, heigth = eval(data['resolution'])
-
-        lora_hashes = []
-        for index in range(lora_count_with_lcm):
-            key = f'lora_name_{index + 1}'
-            if key in data:
-                lora_name = Path(data[f'lora_name_{index + 1}']).stem
-                lora_weight = data[f'lora_weight_{index + 1}']
-                lora_hash = data[f'lora_hash_{index + 1}']
-                # workaround for Fooocus not knowing LoRA name in LoRA metadata
-                lora_hashes.append(f'{lora_name}: {lora_hash}: {lora_weight}')
-        lora_hashes_string = ', '.join(lora_hashes)
+        width, height = eval(data['resolution'])
 
         generation_params = {
             self.fooocus_to_a1111['performance']: data['performance'],
-            self.fooocus_to_a1111['steps']: data['steps'],
+            self.fooocus_to_a1111['steps']: self.steps,
             self.fooocus_to_a1111['sampler']: data['sampler'],
             self.fooocus_to_a1111['seed']: data['seed'],
-            self.fooocus_to_a1111['resolution']: f'{width}x{heigth}',
+            self.fooocus_to_a1111['resolution']: f'{width}x{height}',
             self.fooocus_to_a1111['guidance_scale']: data['guidance_scale'],
             self.fooocus_to_a1111['sharpness']: data['sharpness'],
             self.fooocus_to_a1111['adm_guidance']: data['adm_guidance'],
-            # TODO load model by name / hash
             self.fooocus_to_a1111['base_model']: Path(data['base_model']).stem,
-            self.fooocus_to_a1111['base_model_hash']: data['base_model_hash']
+            self.fooocus_to_a1111['base_model_hash']: self.base_model_hash,
         }
 
-        if 'refiner_model' in data and data['refiner_model'] != 'None' and 'refiner_model_hash' in data:
+        # TODO evaluate if this should always be added
+        if self.refiner_model_name not in ['', 'None']:
             generation_params |= {
-                self.fooocus_to_a1111['refiner_model']: Path(data['refiner_model']).stem,
-                self.fooocus_to_a1111['refiner_model_hash']: data['refiner_model_hash']
+                self.fooocus_to_a1111['refiner_model']: self.refiner_model_name,
+                self.fooocus_to_a1111['refiner_model_hash']: self.refiner_model_hash
             }
 
         for key in ['adaptive_cfg', 'overwrite_switch', 'refiner_swap_method', 'freeu']:
             if key in data:
                 generation_params[self.fooocus_to_a1111[key]] = data[key]
 
+        lora_hashes = []
+        for index, (lora_name, lora_weight, lora_hash) in enumerate(self.loras):
+            # workaround for Fooocus not knowing LoRA name in LoRA metadata
+            lora_hashes.append(f'{lora_name}: {lora_hash}: {lora_weight}')
+        lora_hashes_string = ', '.join(lora_hashes)
+
         generation_params |= {
             self.fooocus_to_a1111['lora_hashes']: lora_hashes_string,
             self.fooocus_to_a1111['version']: data['version']
         }
 
+        if modules.config.metadata_created_by != '':
+            generation_params[self.fooocus_to_a1111['created_by']] = modules.config.metadata_created_by
+
         generation_params_text = ", ".join(
             [k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if v is not None])
         # TODO check if multiline positive prompt is correctly processed
-        positive_prompt_resolved = ', '.join(data['full_prompt']) #TODO add loras to positive prompt if even possible
-        negative_prompt_resolved = ', '.join(data['full_negative_prompt']) #TODO add loras to negative prompt if even possible
+        positive_prompt_resolved = ', '.join(self.full_prompt)  # TODO add loras to positive prompt if even possible
+        negative_prompt_resolved = ', '.join(
+            self.full_negative_prompt)  # TODO add loras to negative prompt if even possible
         negative_prompt_text = f"\nNegative prompt: {negative_prompt_resolved}" if negative_prompt_resolved else ""
         return f"{positive_prompt_resolved}{negative_prompt_text}\n{generation_params_text}".strip()
 
@@ -200,11 +232,11 @@ class FooocusMetadataParser(MetadataParser):
         lora_filenames.remove(modules.config.downloading_sdxl_lcm_lora())
 
         for key, value in metadata.items():
-            if value == '' or value == 'None':
+            if value in ['', 'None']:
                 continue
             if key in ['base_model', 'refiner_model']:
                 metadata[key] = self.replace_value_with_filename(key, value, model_filenames)
-            elif key.startswith(('lora_combined_', 'lora_name_')):
+            elif key.startswith('lora_combined_'):
                 metadata[key] = self.replace_value_with_filename(key, value, lora_filenames)
             else:
                 continue
@@ -212,20 +244,33 @@ class FooocusMetadataParser(MetadataParser):
         return metadata
 
     def parse_string(self, metadata: list) -> str:
-        # remove model folder paths from metadata
-        for li, (label, key, value, show_in_log, copy_in_log) in enumerate(metadata):
-            if value == '' or value == 'None':
-                continue
-            if key in ['base_model', 'refiner_model'] or key.startswith(('lora_combined_', 'lora_name_')):
-                if key.startswith('lora_combined_'):
-                    name, weight = value.split(' : ')
-                    name = Path(name).stem
-                    value = f'{name} : {weight}'
-                else:
-                    value = Path(value).stem
-                metadata[li] = (label, key, value, show_in_log, copy_in_log)
+        for li, (label, key, value) in enumerate(metadata):
+            # remove model folder paths from metadata
+            if key.startswith('lora_combined_'):
+                name, weight = value.split(' : ')
+                name = Path(name).stem
+                value = f'{name} : {weight}'
+                metadata[li] = (label, key, value)
 
-        return json.dumps({k: v for _, k, v, _, _ in metadata})
+        res = {k: v for _, k, v in metadata}
+
+        res['full_prompt'] = self.full_prompt
+        res['full_negative_prompt'] = self.full_negative_prompt
+        res['steps'] = self.steps
+        res['base_model'] = self.base_model_name
+        res['base_model_hash'] = self.base_model_hash
+
+        # TODO evaluate if this should always be added
+        if self.refiner_model_name not in ['', 'None']:
+            res['refiner_model'] = self.refiner_model_name
+            res['refiner_model_hash'] = self.refiner_model_hash
+
+        res['loras'] = self.loras
+
+        if modules.config.metadata_created_by != '':
+            res['created_by'] = modules.config.metadata_created_by
+
+        return json.dumps(res)
 
     @staticmethod
     def replace_value_with_filename(key, value, filenames):
