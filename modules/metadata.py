@@ -7,13 +7,23 @@ from PIL import Image
 import modules.config
 import fooocus_version
 # import advanced_parameters
-from modules.util import quote, unquote, extract_styles_from_prompt, is_json
 from modules.flags import MetadataScheme, Performance, Steps, lora_count_with_lcm
+from modules.util import quote, unquote, extract_styles_from_prompt, is_json, calculate_sha256
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
 re_param = re.compile(re_param_code)
 re_imagesize = re.compile(r"^(\d+)x(\d+)$")
 
+hash_cache = {}
+
+
+def get_sha256(filepath):
+    global hash_cache
+
+    if filepath not in hash_cache:
+        hash_cache[filepath] = calculate_sha256(filepath)
+
+    return hash_cache[filepath]
 
 class MetadataParser(ABC):
     @abstractmethod
