@@ -23,7 +23,12 @@ def get_sha256(filepath):
 
     return hash_cache[filepath]
 
+
 class MetadataParser(ABC):
+    @abstractmethod
+    def get_scheme(self) -> MetadataScheme:
+        raise NotImplementedError
+
     @abstractmethod
     def parse_json(self, metadata: dict) -> dict:
         raise NotImplementedError
@@ -34,6 +39,8 @@ class MetadataParser(ABC):
 
 
 class A1111MetadataParser(MetadataParser):
+    def get_scheme(self) -> MetadataScheme:
+        return MetadataScheme.A1111
 
     fooocus_to_a1111 = {
         'negative_prompt': 'Negative prompt',
@@ -184,6 +191,8 @@ class A1111MetadataParser(MetadataParser):
 
 
 class FooocusMetadataParser(MetadataParser):
+    def get_scheme(self) -> MetadataScheme:
+        return MetadataScheme.FOOOCUS
 
     def parse_json(self, metadata: dict) -> dict:
         model_filenames = modules.config.model_filenames.copy()
