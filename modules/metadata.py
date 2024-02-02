@@ -213,7 +213,7 @@ class A1111MetadataParser(MetadataParser):
             generation_params[self.fooocus_to_a1111['created_by']] = modules.config.metadata_created_by
 
         generation_params_text = ", ".join(
-            [k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if v is not None])
+            [k if k == v else f'{k}: {quote(v)}' for k, v in dict(sorted(generation_params.items())).items() if v is not None])
         # TODO check if multiline positive prompt is correctly processed
         positive_prompt_resolved = ', '.join(self.full_prompt)  # TODO add loras to positive prompt if even possible
         negative_prompt_resolved = ', '.join(
@@ -270,7 +270,7 @@ class FooocusMetadataParser(MetadataParser):
         if modules.config.metadata_created_by != '':
             res['created_by'] = modules.config.metadata_created_by
 
-        return json.dumps(res)
+        return json.dumps(dict(sorted(res.items())))
 
     @staticmethod
     def replace_value_with_filename(key, value, filenames):
