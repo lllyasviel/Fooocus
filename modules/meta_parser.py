@@ -308,12 +308,13 @@ class A1111MetadataParser(MetadataParser):
             except Exception:
                 pass
 
-        if 'base_model' in data:
-            for filename in modules.config.model_filenames:
-                path = Path(filename)
-                if data['base_model'] == path.stem:
-                    data['base_model'] = filename
-                    break
+        for key in ['base_model', 'refiner_model']:
+            if key in data:
+                for filename in modules.config.model_filenames:
+                    path = Path(filename)
+                    if data[key] == path.stem:
+                        data[key] = filename
+                        break
 
         if 'lora_hashes' in data:
             lora_filenames = modules.config.lora_filenames.copy()
