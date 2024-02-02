@@ -7,7 +7,7 @@ import urllib.parse
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 from modules.util import generate_temp_filename
-from modules.metadata import MetadataParser
+from modules.meta_parser import MetadataParser
 
 
 log_cache = {}

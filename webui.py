@@ -14,7 +14,6 @@ import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
 import modules.meta_parser
-import modules.metadata
 import args_manager
 import copy
 
@@ -217,7 +216,7 @@ with shared.gradio_root:
                             metadata_import_button = gr.Button(value='Apply Metadata')
 
                         def trigger_metadata_preview(filepath):
-                            parameters, items, metadata_scheme = modules.metadata.read_info_from_image(filepath)
+                            parameters, items, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
 
                             results = {}
                             if parameters is not None:
@@ -597,12 +596,12 @@ with shared.gradio_root:
         load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=[prompt, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=False)
 
         def trigger_metadata_import(filepath, state_is_generating):
-            parameters, items, metadata_scheme = modules.metadata.read_info_from_image(filepath)
+            parameters, items, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
             if parameters is None:
                 print('Could not find metadata in the image!')
                 pass
 
-            metadata_parser = modules.metadata.get_metadata_parser(metadata_scheme)
+            metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
             parsed_parameters = metadata_parser.parse_json(parameters)
             return modules.meta_parser.load_parameter_button_click(parsed_parameters, state_is_generating)
 

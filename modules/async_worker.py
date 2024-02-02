@@ -45,7 +45,7 @@ def worker():
         get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
     from modules.upscaler import perform_upscale
     from modules.flags import Performance, lora_count
-    from modules.metadata import get_metadata_parser, MetadataScheme
+    from modules.meta_parser import get_metadata_parser, MetadataScheme
 
     try:
         async_gradio_app = shared.gradio_root
@@ -804,7 +804,7 @@ def worker():
 
                     metadata_parser = None
                     if save_metadata_to_images:
-                        metadata_parser = modules.metadata.get_metadata_parser(metadata_scheme)
+                        metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
                         metadata_parser.set_data(task['positive'], task['negative'], steps, base_model_name, refiner_model_name, loras)
 
                     for li, (n, w) in enumerate(loras):
