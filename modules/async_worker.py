@@ -342,9 +342,6 @@ def worker():
 
         progressbar(async_task, 1, 'Initializing ...')
 
-        raw_prompt = prompt
-        raw_negative_prompt = negative_prompt
-
         if not skip_prompt_processing:
 
             prompts = remove_empty_str([safe_str(p) for p in prompt.splitlines()], default='')
@@ -805,7 +802,9 @@ def worker():
                     metadata_parser = None
                     if save_metadata_to_images:
                         metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
-                        metadata_parser.set_data(task['positive'], task['negative'], steps, base_model_name, refiner_model_name, loras)
+                        metadata_parser.set_data(task['log_positive_prompt'], task['positive'],
+                                                 task['log_negative_prompt'], task['negative'],
+                                                 steps, base_model_name, refiner_model_name, loras)
 
                     for li, (n, w) in enumerate(loras):
                         if n != 'None':

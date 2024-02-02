@@ -311,18 +311,20 @@ def extract_styles_from_prompt(prompt, negative_prompt):
         applicable_styles.remove(found_style)
         extracted.append(found_style.name)
 
+    # TODO check multiline prompt
     # add prompt expansion if not all styles could be resolved
     if prompt != '':
-        if prompt != real_prompt:
+        if real_prompt != '':
             extracted.append(modules.sdxl_styles.fooocus_expansion)
-
-        # find real_prompt when only prompt expansion is selected
-        if real_prompt == '':
+        else:
+            # find real_prompt when only prompt expansion is selected
             first_word = prompt.split(', ')[0]
             first_word_positions = [i for i in range(len(prompt)) if prompt.startswith(first_word, i)]
-            real_prompt = prompt[:first_word_positions[-1]]
-            if real_prompt.endswith(', '):
-                real_prompt = real_prompt[:-2]
+            if len(first_word_positions) > 1:
+                real_prompt = prompt[:first_word_positions[-1]]
+                extracted.append(modules.sdxl_styles.fooocus_expansion)
+                if real_prompt.endswith(', '):
+                    real_prompt = real_prompt[:-2]
 
     return list(reversed(extracted)), real_prompt, negative_prompt
 
@@ -337,6 +339,6 @@ def is_json(data: str) -> bool:
     try:
         loaded_json = json.loads(data)
         assert isinstance(loaded_json, dict)
-    except ValueError:
+    except (ValueError, AssertionError):
         return False
     return True
