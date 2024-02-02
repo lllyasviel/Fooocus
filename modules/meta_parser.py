@@ -335,7 +335,6 @@ class A1111MetadataParser(MetadataParser):
         width, height = eval(data['resolution'])
 
         generation_params = {
-            self.fooocus_to_a1111['performance']: data['performance'],
             self.fooocus_to_a1111['steps']: self.steps,
             self.fooocus_to_a1111['sampler']: data['sampler'],
             self.fooocus_to_a1111['seed']: data['seed'],
@@ -345,6 +344,7 @@ class A1111MetadataParser(MetadataParser):
             self.fooocus_to_a1111['adm_guidance']: data['adm_guidance'],
             self.fooocus_to_a1111['base_model']: Path(data['base_model']).stem,
             self.fooocus_to_a1111['base_model_hash']: self.base_model_hash,
+            self.fooocus_to_a1111['performance']: data['performance'],
         }
 
         # TODO evaluate if this should always be added
@@ -373,7 +373,7 @@ class A1111MetadataParser(MetadataParser):
             generation_params[self.fooocus_to_a1111['created_by']] = modules.config.metadata_created_by
 
         generation_params_text = ", ".join(
-            [k if k == v else f'{k}: {quote(v)}' for k, v in dict(sorted(generation_params.items())).items() if
+            [k if k == v else f'{k}: {quote(v)}' for k, v in generation_params.items() if
              v is not None])
         positive_prompt_resolved = ', '.join(self.full_prompt)
         negative_prompt_resolved = ', '.join(self.full_negative_prompt)
