@@ -182,7 +182,7 @@ def get_files_from_folder(folder_path, exensions=None, name_filter=None):
     return sorted(filenames, key=lambda x: -1 if os.sep in x else 1)
 
 
-def calculate_sha256(filename, length=HASH_SHA256_LENGTH):
+def calculate_sha256(filename, length=HASH_SHA256_LENGTH) -> str:
     hash_sha256 = sha256()
     blksize = 1024 * 1024
 
