@@ -197,6 +197,7 @@ class FooocusMetadataParser(MetadataParser):
     def parse_json(self, metadata: dict) -> dict:
         model_filenames = modules.config.model_filenames.copy()
         lora_filenames = modules.config.lora_filenames.copy()
+        lora_filenames.remove(modules.config.downloading_sdxl_lcm_lora())
 
         for key, value in metadata.items():
             if value == '' or value == 'None':
