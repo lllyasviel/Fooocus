@@ -12,12 +12,43 @@ uov_list = [
     disabled, subtle_variation, strong_variation, upscale_15, upscale_2, upscale_fast
 ]
 
-KSAMPLER_NAMES = ["euler", "euler_ancestral", "heun", "heunpp2","dpm_2", "dpm_2_ancestral",
-                  "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
-                  "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "dpmpp_3m_sde", "dpmpp_3m_sde_gpu", "ddpm", "lcm"]
+CIVITAI_NO_KARRAS = ["euler", "euler_ancestral", "heun", "dpm_fast", "dpm_adaptive", "ddim", "uni_pc"]
+
+# fooocus: a1111 (Civitai)
+KSAMPLER = {
+    "euler": "Euler",
+    "euler_ancestral": "Euler a",
+    "heun": "Heun",
+    "heunpp2": "",
+    "dpm_2": "DPM2",
+    "dpm_2_ancestral": "DPM2 a",
+    "lms": "LMS",
+    "dpm_fast": "DPM fast",
+    "dpm_adaptive": "DPM adaptive",
+    "dpmpp_2s_ancestral": "DPM++ 2S a",
+    "dpmpp_sde": "DPM++ SDE",
+    "dpmpp_sde_gpu": "",
+    "dpmpp_2m": "DPM++ 2M",
+    "dpmpp_2m_sde": "DPM++ 2M SDE",
+    "dpmpp_2m_sde_gpu": "",
+    "dpmpp_3m_sde": "",
+    "dpmpp_3m_sde_gpu": "",
+    "ddpm": "",
+    "lcm": "LCM"
+}
+
+SAMPLER_EXTRA = {
+    "ddim": "DDIM",
+    "uni_pc": "UniPC",
+    "uni_pc_bh2": ""
+}
+
+SAMPLERS = KSAMPLER | SAMPLER_EXTRA
+
+KSAMPLER_NAMES = list(KSAMPLER.keys())
 
 SCHEDULER_NAMES = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform", "lcm", "turbo"]
-SAMPLER_NAMES = KSAMPLER_NAMES + ["ddim", "uni_pc", "uni_pc_bh2"]
+SAMPLER_NAMES = KSAMPLER_NAMES + list(SAMPLER_EXTRA.keys())
 
 sampler_list = SAMPLER_NAMES
 scheduler_list = SCHEDULER_NAMES

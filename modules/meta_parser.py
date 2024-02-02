@@ -10,7 +10,7 @@ from PIL import Image
 import modules.config
 import modules.sdxl_styles
 from modules.flags import MetadataScheme, Performance, Steps
-from modules.flags import lora_count
+from modules.flags import lora_count, SAMPLERS, CIVITAI_NO_KARRAS
 from modules.util import quote, unquote, extract_styles_from_prompt, is_json, calculate_sha256
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
@@ -246,6 +246,7 @@ class A1111MetadataParser(MetadataParser):
         'performance': 'Performance',
         'steps': 'Steps',
         'sampler': 'Sampler',
+        'scheduler': 'Scheduler',
         'guidance_scale': 'CFG scale',
         'seed': 'Seed',
         'resolution': 'Size',
@@ -325,6 +326,12 @@ class A1111MetadataParser(MetadataParser):
             except Exception:
                 pass
 
+        if 'sampler' in data:
+            sampler = data['sampler'].replace(' Karras', '')
+            # get key
+            data['sampler'] = [k for k, v in SAMPLERS.items() if v == sampler][0]
+
+
         for key in ['base_model', 'refiner_model']:
             if key in data:
                 for filename in modules.config.model_filenames:
@@ -351,9 +358,16 @@ class A1111MetadataParser(MetadataParser):
 
         width, height = eval(data['resolution'])
 
+        sampler = data['sampler']
+        scheduler = data['scheduler']
+        if sampler in SAMPLERS and SAMPLERS[sampler] != '':
+            sampler = SAMPLERS[sampler]
+            if sampler not in CIVITAI_NO_KARRAS and scheduler == 'karras':
+                sampler += f' Karras'
+
         generation_params = {
             self.fooocus_to_a1111['steps']: self.steps,
-            self.fooocus_to_a1111['sampler']: data['sampler'],
+            self.fooocus_to_a1111['sampler']: sampler,
             self.fooocus_to_a1111['seed']: data['seed'],
             self.fooocus_to_a1111['resolution']: f'{width}x{height}',
             self.fooocus_to_a1111['guidance_scale']: data['guidance_scale'],
@@ -363,6 +377,7 @@ class A1111MetadataParser(MetadataParser):
             self.fooocus_to_a1111['base_model_hash']: self.base_model_hash,
 
             self.fooocus_to_a1111['performance']: data['performance'],
+            self.fooocus_to_a1111['scheduler']: scheduler,
             # workaround for multiline prompts
             self.fooocus_to_a1111['raw_prompt']: self.raw_prompt,
             self.fooocus_to_a1111['raw_negative_prompt']: self.raw_negative_prompt,
