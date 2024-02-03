@@ -779,7 +779,6 @@ def worker():
                          ('Refiner Model', 'refiner_model', refiner_model_name),
                          ('Refiner Switch', 'refiner_switch', refiner_switch)]
 
-                    # TODO evaluate if this should always be added
                     if refiner_model_name != 'None':
                         if advanced_parameters.overwrite_switch > 0:
                             d.append(('Overwrite Switch', 'overwrite_switch', advanced_parameters.overwrite_switch))

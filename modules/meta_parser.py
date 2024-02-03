@@ -383,7 +383,6 @@ class A1111MetadataParser(MetadataParser):
             self.fooocus_to_a1111['raw_negative_prompt']: self.raw_negative_prompt,
         }
 
-        # TODO evaluate if this should always be added
         if self.refiner_model_name not in ['', 'None']:
             generation_params |= {
                 self.fooocus_to_a1111['refiner_model']: self.refiner_model_name,
@@ -455,7 +454,6 @@ class FooocusMetadataParser(MetadataParser):
         res['base_model'] = self.base_model_name
         res['base_model_hash'] = self.base_model_hash
 
-        # TODO evaluate if this should always be added
         if self.refiner_model_name not in ['', 'None']:
             res['refiner_model'] = self.refiner_model_name
             res['refiner_model_hash'] = self.refiner_model_hash

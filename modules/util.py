@@ -300,7 +300,6 @@ def extract_styles_from_prompt(prompt, negative_prompt):
                 found_style = style
                 prompt = new_prompt
                 negative_prompt = new_neg_prompt
-                # TODO check how to resolve multiline input prompts
                 if real_prompt == '' and new_real_prompt != '' and new_real_prompt != prompt:
                     real_prompt = new_real_prompt
                 break
@@ -311,7 +310,6 @@ def extract_styles_from_prompt(prompt, negative_prompt):
         applicable_styles.remove(found_style)
         extracted.append(found_style.name)
 
-    # TODO check multiline prompt
     # add prompt expansion if not all styles could be resolved
     if prompt != '':
         if real_prompt != '':
