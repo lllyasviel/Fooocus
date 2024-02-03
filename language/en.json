@@ -373,7 +373,7 @@
     "Metadata": "Metadata",
     "Apply Metadata": "Apply Metadata",
     "Metadata Scheme": "Metadata Scheme",
-    "Image Prompt parameters are not included. Use A1111 for compatibility with Civitai.": "Image Prompt parameters are not included. Use A1111 for compatibility with Civitai.",
-    "Fooocus (json)": "Fooocus (json)",
-    "A1111 (plain text)": "A1111 (plain text)"
+    "Image Prompt parameters are not included. Use a1111 for compatibility with Civitai.": "Image Prompt parameters are not included. Use a1111 for compatibility with Civitai.",
+    "fooocus (json)": "fooocus (json)",
+    "a1111 (plain text)": "a1111 (plain text)"
 }

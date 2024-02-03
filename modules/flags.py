@@ -83,8 +83,8 @@ class MetadataScheme(Enum):
 
 
 metadata_scheme = [
-    ('Fooocus (json)', MetadataScheme.FOOOCUS.value),
-    ('A1111 (plain text)', MetadataScheme.A1111.value),
+    (f'{MetadataScheme.FOOOCUS.value} (json)', MetadataScheme.FOOOCUS.value),
+    (f'{MetadataScheme.A1111.value} (plain text)', MetadataScheme.A1111.value),
 ]
 
 lora_count = 5
@@ -114,10 +114,10 @@ class Performance(Enum):
     def list(cls) -> list:
         return list(map(lambda c: c.value, cls))
 
-    def steps(self) -> int:
+    def steps(self) -> int | None:
         return Steps[self.name].value if Steps[self.name] else None
 
-    def steps_uov(self) -> int:
+    def steps_uov(self) -> int | None:
         return StepsUOV[self.name].value if Steps[self.name] else None
 
 
