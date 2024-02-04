@@ -323,14 +323,16 @@ class A1111MetadataParser(MetadataParser):
         if 'steps' in data and 'performance' not in data:
             try:
                 data['performance'] = Performance[Steps(int(data['steps'])).name].value
-            except Exception:
+            except ValueError | KeyError:
                 pass
 
         if 'sampler' in data:
-            sampler = data['sampler'].replace(' Karras', '')
+            data['sampler'] = data['sampler'].replace(' Karras', '')
             # get key
-            data['sampler'] = [k for k, v in SAMPLERS.items() if v == sampler][0]
-
+            for k, v in SAMPLERS.items():
+                if v == data['sampler']:
+                    data['sampler'] = k
+                    break
 
         for key in ['base_model', 'refiner_model']:
             if key in data:
@@ -497,7 +499,7 @@ def read_info_from_image(filepath) -> tuple[str | None, dict, MetadataScheme | N
 
     try:
         metadata_scheme = MetadataScheme(items.pop('fooocus_scheme', None))
-    except Exception:
+    except ValueError:
         metadata_scheme = None
 
     # broad fallback
