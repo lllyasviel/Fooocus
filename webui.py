@@ -599,10 +599,11 @@ with shared.gradio_root:
             parameters, items, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
             if parameters is None:
                 print('Could not find metadata in the image!')
-                pass
+                parsed_parameters = {}
+            else:
+                metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
+                parsed_parameters = metadata_parser.parse_json(parameters)
 
-            metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
-            parsed_parameters = metadata_parser.parse_json(parameters)
             return modules.meta_parser.load_parameter_button_click(parsed_parameters, state_is_generating)
 
 

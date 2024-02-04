@@ -26,7 +26,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
         loaded_parameter_dict = json.loads(raw_metadata)
     assert isinstance(loaded_parameter_dict, dict)
 
-    results = [True, 1]
+    results = [len(loaded_parameter_dict) > 0, 1]
 
     get_str('prompt', 'Prompt', loaded_parameter_dict, results)
     get_str('negative_prompt', 'Negative Prompt', loaded_parameter_dict, results)
