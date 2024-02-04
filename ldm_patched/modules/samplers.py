@@ -1,13 +1,9 @@
 from ldm_patched.k_diffusion import sampling as k_diffusion_sampling
 from ldm_patched.unipc import uni_pc
 import torch
-import enum
 import collections
 from ldm_patched.modules import model_management
 import math
-from ldm_patched.modules import model_base
-import ldm_patched.modules.utils
-import ldm_patched.modules.conds
 
 def get_area_and_mult(conds, x_in, timestep_in):
     area = (x_in.shape[2], x_in.shape[3], 0, 0)
@@ -603,8 +599,8 @@ def sample(model, noise, positive, negative, cfg, device, sampler, sigmas, model
         latent_image = model.process_latent_in(latent_image)
 
     if hasattr(model, 'extra_conds'):
-        positive = encode_model_conds(model.extra_conds, positive, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask)
-        negative = encode_model_conds(model.extra_conds, negative, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask)
+        positive = encode_model_conds(model.extra_conds, positive, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask, seed=seed)
+        negative = encode_model_conds(model.extra_conds, negative, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask, seed=seed)
 
     #make sure each cond area has an opposite one with the same area
     for c in positive:
@@ -639,7 +635,7 @@ def calculate_sigmas_scheduler(model, scheduler_name, steps):
     elif scheduler_name == "sgm_uniform":
         sigmas = normal_scheduler(model, steps, sgm=True)
     else:
-        print("error invalid scheduler", self.scheduler)
+        print("error invalid scheduler", scheduler_name)
     return sigmas
 
 def sampler_object(name):
