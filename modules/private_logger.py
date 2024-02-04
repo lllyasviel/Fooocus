@@ -6,9 +6,8 @@ import urllib.parse
 
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
-from fooocus_version import version
 from modules.util import generate_temp_filename
-from modules.meta_parser import MetadataParser
+from modules.meta_parser import MetadataParser, get_exif
 
 log_cache = {}
 
@@ -27,7 +26,8 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=output_format)
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
 
-    parsed_parameters = metadata_parser.parse_string(metadata) if metadata_parser else None
+    parsed_parameters = metadata_parser.parse_string(metadata) if metadata_parser is not None else ''
+    image = Image.fromarray(img)
 
     if output_format == 'png':
         if parsed_parameters != '':
@@ -36,14 +36,13 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
             pnginfo.add_text('fooocus_scheme', metadata_parser.get_scheme().value)
         else:
             pnginfo = None
-
-        Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
+        image.save(local_temp_filename, pnginfo=pnginfo)
     elif output_format == 'jpg':
-        Image.fromarray(img).save(local_temp_filename, quality=95, optimize=True, progressive=True)
+        image.save(local_temp_filename, quality=95, optimize=True, progressive=True, exif=get_exif(parsed_parameters, metadata_parser.get_scheme().value) if metadata_parser else Image.Exif())
     elif output_format == 'webp':
-        Image.fromarray(img).save(local_temp_filename, quality=95, lossless=False)
+        image.save(local_temp_filename, quality=95, lossless=False, exif=get_exif(parsed_parameters, metadata_parser.get_scheme().value) if metadata_parser else Image.Exif())
     else:
-        Image.fromarray(img).save(local_temp_filename)
+        image.save(local_temp_filename)
 
     if args_manager.args.disable_image_log:
         return local_temp_filename

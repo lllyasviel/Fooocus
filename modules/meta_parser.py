@@ -7,6 +7,7 @@ from pathlib import Path
 import gradio as gr
 from PIL import Image
 
+import fooocus_version
 import modules.config
 import modules.sdxl_styles
 from modules.flags import MetadataScheme, Performance, Steps
@@ -518,16 +519,28 @@ def get_metadata_parser(metadata_scheme: MetadataScheme) -> MetadataParser:
             raise NotImplementedError
 
 
-def read_info_from_image(filepath) -> tuple[str | None, dict, MetadataScheme | None]:
+def read_info_from_image(filepath) -> tuple[str | None, MetadataScheme | None]:
     with Image.open(filepath) as image:
         items = (image.info or {}).copy()
 
     parameters = items.pop('parameters', None)
+    metadata_scheme = items.pop('fooocus_scheme', None)
+    exif = items.pop('exif', None)
+
     if parameters is not None and is_json(parameters):
         parameters = json.loads(parameters)
+    elif exif is not None:
+        exif = image.getexif()
+        # 0x9286 = UserComment
+        parameters = exif.get(0x9286, None)
+        # 0x927C = MakerNote
+        metadata_scheme = exif.get(0x927C, None)
+
+        if is_json(parameters):
+            parameters = json.loads(parameters)
 
     try:
-        metadata_scheme = MetadataScheme(items.pop('fooocus_scheme', None))
+        metadata_scheme = MetadataScheme(metadata_scheme)
     except ValueError:
         metadata_scheme = None
 
@@ -538,4 +551,16 @@ def read_info_from_image(filepath) -> tuple[str | None, dict, MetadataScheme | N
         if isinstance(parameters, str):
             metadata_scheme = MetadataScheme.A1111
 
-    return parameters, items, metadata_scheme
+    return parameters, metadata_scheme
+
+
+def get_exif(metadata: str | None, metadata_scheme: str):
+    exif = Image.Exif()
+    # tags see see https://github.com/python-pillow/Pillow/blob/9.2.x/src/PIL/ExifTags.py
+    # 0x9286 = UserComment
+    exif[0x9286] = metadata
+    # 0x0131 = Software
+    exif[0x0131] = 'Fooocus v' + fooocus_version.version
+    # 0x927C = MakerNote
+    exif[0x927C] = metadata_scheme
+    return exif
