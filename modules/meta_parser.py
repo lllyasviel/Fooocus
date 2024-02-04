@@ -39,7 +39,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
     get_float('sharpness', 'Sharpness', loaded_parameter_dict, results)
     get_adm_guidance('adm_guidance', 'ADM Guidance', loaded_parameter_dict, results)
     get_str('refiner_swap_method', 'Refiner Swap Method', loaded_parameter_dict, results)
-    get_str('adaptive_cfg', 'CFG Mimicking from TSNR', loaded_parameter_dict, results)
+    get_float('adaptive_cfg', 'CFG Mimicking from TSNR', loaded_parameter_dict, results)
     get_str('base_model', 'Base Model', loaded_parameter_dict, results)
     get_str('refiner_model', 'Refiner Model', loaded_parameter_dict, results)
     get_float('refiner_switch', 'Refiner Switch', loaded_parameter_dict, results)
