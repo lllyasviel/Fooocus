@@ -8,7 +8,7 @@ import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
 from modules.util import get_files_from_folder
-
+from modules.flags import Performance, MetadataScheme, lora_count
 
 config_path = os.path.abspath("./config.txt")
 config_example_path = os.path.abspath("config_modification_tutorial.txt")
@@ -289,7 +289,7 @@ default_prompt = get_config_item_or_set_default(
 )
 default_performance = get_config_item_or_set_default(
     key='default_performance',
-    default_value='Speed',
+    default_value=Performance.SPEED.value,
     validator=lambda x: x in [y[1] for y in modules.flags.performance_selections if y[1] == x]
 )
 default_advanced_checkbox = get_config_item_or_set_default(
@@ -377,7 +377,7 @@ default_save_metadata_to_images = get_config_item_or_set_default(
 )
 default_metadata_scheme = get_config_item_or_set_default(
     key='default_metadata_scheme',
-    default_value='fooocus',
+    default_value=MetadataScheme.FOOOCUS.value,
     validator=lambda x: x in [y[1] for y in modules.flags.metadata_scheme if y[1] == x]
 )
 metadata_created_by = get_config_item_or_set_default(
@@ -411,25 +411,25 @@ default_inpaint_mask_sam_model = get_config_item_or_set_default(
     validator=lambda x: x in modules.flags.inpaint_mask_sam_model
 )
 
-config_dict["default_loras"] = default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
+config_dict["default_loras"] = default_loras = default_loras[:lora_count] + [['None', 1.0] for _ in range(lora_count - len(default_loras))]
 
 # mapping config to meta parameter 
 possible_preset_keys = {
-    "default_model": "Base Model",
-    "default_refiner": "Refiner Model",
-    "default_refiner_switch": "Refiner Switch",
+    "default_model": "base_model",
+    "default_refiner": "refiner_model",
+    "default_refiner_switch": "refiner_switch",
     "previous_default_models": "previous_default_models",
     "default_loras": "<processed>",
-    "default_cfg_scale": "Guidance Scale",
-    "default_sample_sharpness": "Sharpness",
-    "default_sampler": "Sampler",
-    "default_scheduler": "Scheduler",
-    "default_overwrite_step": "Sampling Steps Override",
-    "default_performance": "Performance",
-    "default_prompt": "Prompt",
-    "default_prompt_negative": "Negative Prompt",
-    "default_styles": "Styles",
-    "default_aspect_ratio": "Resolution",
+    "default_cfg_scale": "guidance_scale",
+    "default_sample_sharpness": "sharpness",
+    "default_sampler": "sampler",
+    "default_scheduler": "scheduler",
+    "default_overwrite_step": "steps",
+    "default_performance": "performance",
+    "default_prompt": "prompt",
+    "default_prompt_negative": "negative_prompt",
+    "default_styles": "styles",
+    "default_aspect_ratio": "resolution",
     "checkpoint_downloads": "checkpoint_downloads",
     "embeddings_downloads": "embeddings_downloads",
     "lora_downloads": "lora_downloads"

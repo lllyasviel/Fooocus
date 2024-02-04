@@ -6,8 +6,9 @@ import urllib.parse
 
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
+from fooocus_version import version
 from modules.util import generate_temp_filename
-from tempfile import gettempdir
+from modules.meta_parser import MetadataParser
 
 log_cache = {}
 
@@ -20,24 +21,26 @@ def get_current_html_path(output_format=None):
     return html_name
 
 
-def log(img, dic, metadata=None, save_metadata_to_image=False, output_format=None) -> str:
+def log(img, metadata, metadata_parser: MetadataParser | None = None, output_format=None) -> str:
     path_outputs = args_manager.args.temp_path if args_manager.args.disable_image_log else modules.config.path_outputs
     output_format = output_format if output_format else modules.config.default_output_format
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=output_format)
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
 
+    parsed_parameters = metadata_parser.parse_string(metadata) if metadata_parser else None
+
     if output_format == 'png':
-        if save_metadata_to_image:
+        if parsed_parameters != '':
             pnginfo = PngInfo()
-            pnginfo.add_text("parameters", metadata)
+            pnginfo.add_text('parameters', parsed_parameters)
+            pnginfo.add_text('fooocus_scheme', metadata_parser.get_scheme().value)
         else:
             pnginfo = None
+
         Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
     elif output_format == 'jpg':
-        # TODO check if metadata works correctly here
-        Image.fromarray(img).save(local_temp_filename, quality=95, optimize=True, progressive=True, comment=metadata if save_metadata_to_image else None)
+        Image.fromarray(img).save(local_temp_filename, quality=95, optimize=True, progressive=True)
     elif output_format == 'webp':
-        # TODO test exif handling
         Image.fromarray(img).save(local_temp_filename, quality=95, lossless=False)
     else:
         Image.fromarray(img).save(local_temp_filename)
@@ -52,7 +55,7 @@ def log(img, dic, metadata=None, save_metadata_to_image=False, output_format=Non
         "body { background-color: #121212; color: #E0E0E0; } "
         "a { color: #BB86FC; } "
         ".metadata { border-collapse: collapse; width: 100%; } "
-        ".metadata .key { width: 15%; } "
+        ".metadata .label { width: 15%; } "
         ".metadata .value { width: 85%; font-weight: bold; } "
         ".metadata th, .metadata td { border: 1px solid #4d4d4d; padding: 4px; } "
         ".image-container img { height: auto; max-width: 512px; display: block; padding-right:10px; } "
@@ -105,12 +108,12 @@ def log(img, dic, metadata=None, save_metadata_to_image=False, output_format=Non
     item = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
     item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
     item += "<td><table class='metadata'>"
-    for key, value in dic:
+    for label, key, value in metadata:
         value_txt = str(value).replace('\n', ' </br> ')
-        item += f"<tr><td class='key'>{key}</td><td class='value'>{value_txt}</td></tr>\n"
+        item += f"<tr><td class='label'>{label}</td><td class='value'>{value_txt}</td></tr>\n"
     item += "</table>"
 
-    js_txt = urllib.parse.quote(json.dumps({k: v for k, v in dic}, indent=0), safe='')
+    js_txt = urllib.parse.quote(json.dumps({k: v for _, k, v in metadata}, indent=0), safe='')
     item += f"</br><button onclick=\"to_clipboard('{js_txt}')\">Copy to Clipboard</button>"
 
     item += "</td>"
