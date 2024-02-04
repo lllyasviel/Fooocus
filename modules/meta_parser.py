@@ -203,7 +203,7 @@ class MetadataParser(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def parse_json(self, metadata: dict) -> dict:
+    def parse_json(self, metadata: dict | str) -> dict:
         raise NotImplementedError
 
     @abstractmethod
@@ -502,11 +502,11 @@ def read_info_from_image(filepath) -> tuple[str | None, dict, MetadataScheme | N
     except ValueError:
         metadata_scheme = None
 
-    # broad fallback
-    if metadata_scheme is None and isinstance(parameters, dict):
-        metadata_scheme = MetadataScheme.FOOOCUS
+        # broad fallback
+        if isinstance(parameters, dict):
+            metadata_scheme = MetadataScheme.FOOOCUS
 
-    if metadata_scheme is None and isinstance(parameters, str):
-        metadata_scheme = MetadataScheme.A1111
+        if isinstance(parameters, str):
+            metadata_scheme = MetadataScheme.A1111
 
     return parameters, items, metadata_scheme
