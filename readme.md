@@ -1,8 +1,16 @@
-# Fooocus - mashb1t improvements
+# Fooocus - mashb1t's 1-Up Edition
 
 The purpose of this fork is to add new features / fix bugs and contribute back to [Fooocus](https://github.com/lllyasviel/Fooocus).
 
-Included adjustments:
+As a collaborator & contributor of the Fooocus repository you can find me in almost every [issue](https://github.com/lllyasviel/Fooocus/issues), [pull request](https://github.com/lllyasviel/Fooocus/pulls), [discussion](https://github.com/lllyasviel/Fooocus/discussions) etc.
+
+Sadly the creator of Fooocus has gone dark multiple times for an extended amount of time, which is why I took matters into my own hands.
+
+
+![BillsUghGIF](https://github.com/mashb1t/Fooocus/assets/9307310/78c04e06-8ef0-4224-9c25-8f1bee9861de)
+
+## Additional features included in this fork:
+(mostly a reflection of [my PRs](https://github.com/lllyasviel/Fooocus/pulls/mashb1t))
 
 * ✨ https://github.com/lllyasviel/Fooocus/pull/958 - NSFW image censoring (config and UI)
 * 🐛 https://github.com/lllyasviel/Fooocus/pull/981 - prevent users from skipping/stopping other users tasks in queue (multi-user capabilities) + rework advanced_parameters (removal + PID handling)
@@ -10,7 +18,7 @@ Included adjustments:
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1013 - add advanced parameter for disable_intermediate_results (progress_gallery, prevents UI lag when generation is too fast)
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1039 - add prompt translation
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1043 - add lcm realtime canvas painting
-* ✨ https://github.com/lllyasviel/Fooocus/pull/1167 - update model BluePencil XL v0.5 to v3.1.0
+* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1167 - update model BluePencil XL v0.5 to v3.1.0~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1570 - add preset selection to Gradio UI (session based)
 * 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1578 - add workaround for changing prompt while generating~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1580 - add preset for SDXL Turbo (model DreamShaperXL_Turbo)
@@ -32,6 +40,134 @@ Included adjustments:
 ✨ = new feature<br>
 🐛 = bugfix<br>
 ~~abc~~ = merged
+
+---
+
+## Feature showcase
+
+### https://github.com/lllyasviel/Fooocus/pull/1570 - Preset Selection
+
+No need to restart your browser to change a preset ever again. Combined with total user isolation, every user can now set and use any preset they desire.
+You can even reload your presets in the browser if you've changed them.
+
+![image](https://github.com/mashb1t/Fooocus/assets/9307310/9b302b04-bbbc-4a21-9ccf-02d2b534d481)
+
+---
+
+### https://github.com/lllyasviel/Fooocus/pull/2032 - Automated Mask Generation + Mask Prompting
+
+https://github.com/mashb1t/Fooocus/assets/9307310/204a01f6-63af-4fd2-bd92-76e176849f19
+
+Videos by [@rayronvictor](https://github.com/rayronvictor)
+
+<details><summary>Mask generation by cloth category</summary>
+<p>
+
+https://github.com/mashb1t/Fooocus/assets/9307310/204a01f6-63af-4fd2-bd92-76e176849f19
+
+</p>
+</details> 
+
+<details><summary>Mask generation by prompt</summary>
+<p>
+
+https://github.com/mashb1t/Fooocus/assets/9307310/204a01f6-63af-4fd2-bd92-76e176849f19
+
+</p>
+</details> 
+
+---
+
+### https://github.com/lllyasviel/Fooocus/pull/1940 - Metadata Handling
+This feature offers activatable metadata persistency in images for both a Fooocus (json) and A1111 (plain text) meta data scheme, where the latter is 100% compatible with A1111 and Civitai, but can not be used to reproduce the image outside of Fooocus, as there are so many improvements and special things happening in Fooocus it's just not applicable anywhere else.
+- Supports metadata for PNG (PngInfo) + JPG and WebP (both EXIF).
+- Save & restore configurations directly from images
+- You can also configure a copyright / creator tag
+
+![Screenshot 2024-01-29 at 15 13 17](https://github.com/lllyasviel/Fooocus/assets/9307310/6b7df4eb-feb3-46ee-bf09-f336be63b625)
+
+<details><summary>Gradio (setting in Developer Debug Mode)</summary>
+<p>
+
+Default is Fooocus Scheme
+![image](https://github.com/lllyasviel/Fooocus/assets/9307310/ae529db2-f5d1-4725-9735-3036b50020b7)
+
+</p>
+</details> 
+
+<details><summary>Config options</summary>
+<p>
+
+    "default_save_metadata_to_images": true,
+    "default_metadata_scheme": "a1111",
+    "metadata_created_by": "mashb1t"
+
+</p>
+</details> 
+
+<details><summary>Arg --disable-metadata</summary>
+<p>
+
+ `--disable-metadata` completely prevents metadata processing and output in Gradio
+
+</p>
+</details> 
+
+
+<details><summary>Metadata Reader</summary>
+<p>
+
+1. open Image Input > Metadata tab
+2. drag & Drop image to image upload
+3. automatic preview of image metadata
+4. apply metadata to Gradio inputs on button click
+
+Fooocus scheme
+![Screenshot 2024-01-29 at 15 13 17](https://github.com/lllyasviel/Fooocus/assets/9307310/6b7df4eb-feb3-46ee-bf09-f336be63b625)
+
+A1111 scheme
+![Screenshot 2024-01-29 at 15 09 52](https://github.com/lllyasviel/Fooocus/assets/9307310/1ee3c030-2b6d-41cb-9f88-40df6452df15)
+
+</p>
+</details> 
+
+
+<details><summary>Metadata in files</summary>
+<p>
+
+Speed Fooocus scheme
+![image](https://github.com/lllyasviel/Fooocus/assets/9307310/c556b2ed-0e0b-4117-9bda-9508fb3e0d96)
+
+LCM A1111 scheme (yes, with negative prompt, because it technically exists but doesn't have an influence)
+![image](https://github.com/lllyasviel/Fooocus/assets/9307310/322de4e1-00d7-428a-84db-64e4a9a5637e)
+
+Speed A1111 scheme
+![image](https://github.com/lllyasviel/Fooocus/assets/9307310/3b49627a-4e3f-4d13-b795-04db2743baab)
+
+</p>
+</details> 
+
+<details><summary>Civitai</summary>
+<p>
+
+Speed Fooocus scheme
+![image](https://github.com/lllyasviel/Fooocus/assets/9307310/1d31af41-d5a7-4f86-b89c-3aeeb1733417)
+
+LCM A1111 scheme
+![image](https://github.com/lllyasviel/Fooocus/assets/9307310/d91a4b71-ffe1-430b-8db0-0a5b0662d48f)
+
+![image](https://github.com/lllyasviel/Fooocus/assets/9307310/e0e93b0e-30ee-4263-95de-05d56ff7a885)
+
+Speed A1111 scheme
+![image](https://github.com/lllyasviel/Fooocus/assets/9307310/1cf4b6d6-775d-4d68-99f2-a7dea34241b3)
+
+![image](https://github.com/lllyasviel/Fooocus/assets/9307310/d55c6b6c-08e1-4fcb-a22e-39d45be1c0c2)
+
+
+</p>
+</details>
+
+---
 
 <div align=center>
 <img src="https://github.com/lllyasviel/Fooocus/assets/19834515/483fb86d-c9a2-4c20-997c-46dafc124f25">
