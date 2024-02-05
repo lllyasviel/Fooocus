@@ -6,7 +6,6 @@ As a collaborator & contributor of the Fooocus repository you can find me in alm
 
 Sadly the creator of Fooocus has gone dark multiple times for an extended amount of time, which is why I took matters into my own hands.
 
-
 ![BillsUghGIF](https://github.com/mashb1t/Fooocus/assets/9307310/78c04e06-8ef0-4224-9c25-8f1bee9861de)
 
 ## Additional features included in this fork:
@@ -242,7 +241,7 @@ Fooocus also developed many "fooocus-only" features for advanced users to get pe
 
 You can directly download Fooocus with:
 
-**[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_2-1-831.7z)**
+**[>>> Click here to download <<<](https://github.com/mashb1t/Fooocus/releases/download/2.1.864/Fooocus_mashb1t_win64_2-1-864.7z)**
 
 After you download the file, please uncompress it and then run the "run.bat".
 
@@ -283,6 +282,31 @@ Please open an issue if you use similar devices but still cannot achieve accepta
 Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
 
 See also the common problems and troubleshoots [here](troubleshoot.md).
+
+### Switching from Fooocus to this fork
+
+1. open a terminal in your Fooocus folder (the one with your config.txt)
+2. execute `git status`. You should see the following:
+    ```
+    On branch main
+    Your branch is up to date with 'origin/main'.
+    
+    nothing to commit, working tree clean
+    ```
+    If not, execute `git reset --hard origin/main` and check `git status` again.
+3. execute
+    ```
+    git remote set-url origin https://github.com/mashb1t/Fooocus.git
+    git pull
+    ```
+6. activate your venv (not necessary when installed from 7z) and update your python packages depending on your environment (7z, venv, conda, etc.)
+
+   Example for Windows (7z): `..\python_embeded\python.exe -m pip install -r "requirements_versions.txt"`
+8. start Fooocus either by opening the run.bat or corresponding entrypoint (same as before)
+
+OR
+
+Windows: download the [7z file](#download), extract it and run `run.bat`. You may want to copy over already downloaded checkpoints / LoRAs / etc.
 
 ### Colab
 
