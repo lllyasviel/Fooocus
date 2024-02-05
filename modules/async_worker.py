@@ -304,7 +304,7 @@ def worker():
                         print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
                         if refiner_model_name == 'None':
                             use_synthetic_refiner = True
-                            refiner_switch = 0.5
+                            refiner_switch = 0.8
                     else:
                         inpaint_head_model_path, inpaint_patch_model_path = None, None
                         print(f'[Inpaint] Parameterized inpaint is disabled.')
@@ -335,10 +335,10 @@ def worker():
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
 
-        switch = int(round(steps * refiner_switch))
-
         if advanced_parameters.overwrite_step > 0:
             steps = advanced_parameters.overwrite_step
+
+        switch = int(round(steps * refiner_switch))
 
         if advanced_parameters.overwrite_switch > 0:
             switch = advanced_parameters.overwrite_switch
