@@ -16,7 +16,7 @@ Sadly the creator of Fooocus has gone dark multiple times for an extended amount
 * ✨ https://github.com/lllyasviel/Fooocus/pull/985 - add list of 100 animals to wildcards
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1013 - add advanced parameter for disable_intermediate_results (progress_gallery, prevents UI lag when generation is too fast)
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1039 - add prompt translation
-* ✨ https://github.com/lllyasviel/Fooocus/pull/1043 - add lcm realtime canvas painting
+* ✨ https://github.com/lllyasviel/Fooocus/pull/1043 - add lcm realtime canvas painting (not merged to main in this repository)
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1167 - update model BluePencil XL v0.5 to v3.1.0~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1570 - add preset selection to Gradio UI (session based)
 * 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1578 - add workaround for changing prompt while generating~~
@@ -55,7 +55,7 @@ You can even reload your presets in the browser if you've changed them.
 
 ### https://github.com/lllyasviel/Fooocus/pull/2032 - Automated Mask Generation + Mask Prompting
 
-https://github.com/mashb1t/Fooocus/assets/9307310/204a01f6-63af-4fd2-bd92-76e176849f19
+https://github.com/mashb1t/Fooocus/assets/9307310/b69bf607-128b-48a6-a248-fa2b09218fe7
 
 Videos by [@rayronvictor](https://github.com/rayronvictor)
 
@@ -70,14 +70,14 @@ https://github.com/mashb1t/Fooocus/assets/9307310/204a01f6-63af-4fd2-bd92-76e176
 <details><summary>Mask generation by prompt</summary>
 <p>
 
-https://github.com/mashb1t/Fooocus/assets/9307310/204a01f6-63af-4fd2-bd92-76e176849f19
+https://github.com/mashb1t/Fooocus/assets/9307310/b69bf607-128b-48a6-a248-fa2b09218fe7
 
 </p>
 </details> 
 
 ---
 
-### https://github.com/lllyasviel/Fooocus/pull/1940 - Metadata Handling
+### https://github.com/lllyasviel/Fooocus/pull/1940 - Metadata Handling - Compatible with Civitai & A1111
 This feature offers activatable metadata persistency in images for both a Fooocus (json) and A1111 (plain text) meta data scheme, where the latter is 100% compatible with A1111 and Civitai, but can not be used to reproduce the image outside of Fooocus, as there are so many improvements and special things happening in Fooocus it's just not applicable anywhere else.
 - Supports metadata for PNG (PngInfo) + JPG and WebP (both EXIF).
 - Save & restore configurations directly from images
