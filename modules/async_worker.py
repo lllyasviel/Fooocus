@@ -728,11 +728,18 @@ def worker():
 
         async_task.yields.append(['preview', (13, 'Moving model to GPU ...', None)])
 
+        def ordinal(number):
+            if 10 <= number % 100 <= 20:
+                suffix = 'th'
+            else:
+                suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(number % 10, 'th')
+            return f"{number}{suffix}"
+
         def callback(step, x0, x, total_steps, y):
             done_steps = current_task_id * steps + step
             async_task.yields.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
+                f'Step {step}/{total_steps} in the {ordinal(current_task_id + 1)} Sampling',
                 y)])
 
         for current_task_id, task in enumerate(tasks):
