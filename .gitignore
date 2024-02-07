@@ -58,3 +58,7 @@ loras
 checkpoints
 checkpoints-disabled
 *xxx*.*
+.venv
+outputs-disabled
+plugins
+models/checkpoints/put_checkpoints_here
