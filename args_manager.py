@@ -20,6 +20,12 @@ args_parser.parser.add_argument("--disable-image-log", action='store_true',
 args_parser.parser.add_argument("--disable-analytics", action='store_true',
                                 help="Disables analytics for Gradio", default=False)
 
+args_parser.parser.add_argument("--disable-preset-download", action='store_true',
+                                help="Disables downloading models for presets", default=False)
+
+args_parser.parser.add_argument("--always-download-new-model", action='store_true',
+                                help="Always download newer models ", default=False)
+
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
     in_browser=True,
