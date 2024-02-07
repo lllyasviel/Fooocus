@@ -49,6 +49,9 @@ user_path_config-deprecated.txt
 /node_modules
 /package-lock.json
 /.coverage*
+.venv
+outputs-disabled
+plugins
 /auth.json
 loras-disabled
 loras
