@@ -20,6 +20,7 @@ user_path_config.txt
 user_path_config-deprecated.txt
 /modules/*.png
 /repositories
+/fooocus_env
 /venv
 /tmp
 /ui-config.json
@@ -58,3 +59,8 @@ loras
 checkpoints
 checkpoints-disabled
 *xxx*.*
+.venv
+outputs-disabled
+plugins
+models/checkpoints/put_checkpoints_here
+/auth.json
