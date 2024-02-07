@@ -112,6 +112,14 @@ progress::after {
     margin-left: -5px !important;
 }
 
+#switch_model_button {
+  min-width: 25px;
+  width: fit-content;
+  background: white;
+  border-radius: 5px;
+  flex: none;
+  padding: 5px;
+}
 '''
 progress_html = '''
 <div class="loader-container">

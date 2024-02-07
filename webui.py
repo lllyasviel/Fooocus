@@ -294,8 +294,16 @@ with shared.gradio_root:
             with gr.Tab(label='Model'):
                 with gr.Group():
                     with gr.Row():
-                        base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True)
-                        refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True)
+                        base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True, elem_classes=['model_selections'])
+                        switch_model_button = gr.Button(label="", value="⇔", elem_classes='type_column', elem_id='switch_model_button', visible=True)
+                        refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True, elem_classes=['model_selections'])
+                        
+                        # Function to switch the values of the base_model and refiner_model dropdowns
+                        def switch_models(base_model_value, refiner_model_value):
+                            # Simply return the values in reversed order
+                            return refiner_model_value, base_model_value
+                        
+                        switch_model_button.click(switch_models, inputs=[base_model, refiner_model], outputs=[base_model, refiner_model])
 
                     refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.1, maximum=1.0, step=0.0001,
                                                info='Use 0.4 for SD1.5 realistic models; '
