@@ -87,17 +87,18 @@ def add_preview_image_for_lora(model_name, image_location):
 def add_preview_by_attempt(base_model_name, refiner_model_name, loras, image_location):
     print(f"Attempting to add new preview for base model '{base_model_name}', refiner model '{refiner_model_name}' or for lora model '{loras}' to image location '{image_location}'")
     
-    # Add preview based on only one model name if possible
-    if refiner_model_name == "None":
-        add_preview_for_checkpoint(base_model_name, image_location)
-    elif "_SD_" in refiner_model_name:
-        add_preview_for_checkpoint(refiner_model_name, image_location)
-    
     # Add preview based on the only one lora name
     active_loras = [lora for lora in loras if lora[0] != 'None']
     if len(active_loras) == 1: 
         active_lora_name = active_loras[0][0]
         add_preview_image_for_lora(active_lora_name, image_location)
+    
+    # Add preview based on only one model name if possible
+    if len(active_loras) == 0: 
+        if refiner_model_name == "None":
+            add_preview_for_checkpoint(base_model_name, image_location)
+        elif "_SD_" in refiner_model_name:
+            add_preview_for_checkpoint(refiner_model_name, image_location)
     
 def get_preview(model_name, directory):
     json_path = os.path.join(directory, PREVIEW_LOG_FILE)
