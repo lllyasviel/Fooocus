@@ -17,9 +17,16 @@ always_save_keys = []
 visited_keys = []
 
 try:
+    with open(os.path.abspath(f'./presets/default.json'), "r", encoding="utf-8") as json_file:
+        config_dict.update(json.load(json_file))
+except Exception as e:
+    print(f'Load default preset failed.')
+    print(e)
+
+try:
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as json_file:
-            config_dict = json.load(json_file)
+            config_dict.update(json.load(json_file))
             always_save_keys = list(config_dict.keys())
 except Exception as e:
     print(f'Failed to load config file "{config_path}" . The reason is: {str(e)}')
@@ -78,13 +85,6 @@ def try_load_deprecated_user_path_config():
 
 
 try_load_deprecated_user_path_config()
-
-try:
-    with open(os.path.abspath(f'./presets/default.json'), "r", encoding="utf-8") as json_file:
-        config_dict.update(json.load(json_file))
-except Exception as e:
-    print(f'Load default preset failed.')
-    print(e)
 
 preset = args_manager.args.preset
 
