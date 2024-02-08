@@ -15,6 +15,7 @@ class BasicScheduler:
                     {"model": ("MODEL",),
                      "scheduler": (ldm_patched.modules.samplers.SCHEDULER_NAMES, ),
                      "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
+                     "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
                       }
                }
     RETURN_TYPES = ("SIGMAS",)
@@ -22,8 +23,14 @@ class BasicScheduler:
 
     FUNCTION = "get_sigmas"
 
-    def get_sigmas(self, model, scheduler, steps):
-        sigmas = ldm_patched.modules.samplers.calculate_sigmas_scheduler(model.model, scheduler, steps).cpu()
+    def get_sigmas(self, model, scheduler, steps, denoise):
+        total_steps = steps
+        if denoise < 1.0:
+            total_steps = int(steps/denoise)
+
+        ldm_patched.modules.model_management.load_models_gpu([model])
+        sigmas = ldm_patched.modules.samplers.calculate_sigmas_scheduler(model.model, scheduler, total_steps).cpu()
+        sigmas = sigmas[-(steps + 1):]
         return (sigmas, )
 
 
@@ -100,6 +107,7 @@ class SDTurboScheduler:
     def get_sigmas(self, model, steps, denoise):
         start_step = 10 - int(10 * denoise)
         timesteps = torch.flip(torch.arange(1, 11) * 100 - 1, (0,))[start_step:start_step + steps]
+        ldm_patched.modules.model_management.load_models_gpu([model])
         sigmas = model.model.model_sampling.sigma(timesteps)
         sigmas = torch.cat([sigmas, sigmas.new_zeros([1])])
         return (sigmas, )
