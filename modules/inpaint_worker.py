@@ -1,12 +1,13 @@
 import torch
 import numpy as np
-import modules.default_pipeline as pipeline
 
 from PIL import Image, ImageFilter
-from modules.util import resample_image, set_image_shape_ceil
+from modules.util import resample_image, set_image_shape_ceil, get_image_shape_ceil
+from modules.upscaler import perform_upscale
+import cv2
 
 
-inpaint_head = None
+inpaint_head_model = None
 
 
 class InpaintHead(torch.nn.Module):
@@ -28,19 +29,25 @@ def box_blur(x, k):
     return np.array(x)
 
 
-def max33(x):
-    x = Image.fromarray(x)
-    x = x.filter(ImageFilter.MaxFilter(3))
-    return np.array(x)
+def max_filter_opencv(x, ksize=3):
+    # Use OpenCV maximum filter
+    # Make sure the input type is int16
+    return cv2.dilate(x, np.ones((ksize, ksize), dtype=np.int16))
 
 
 def morphological_open(x):
-    x_int32 = np.zeros_like(x).astype(np.int32)
-    x_int32[x > 127] = 256
-    for _ in range(32):
-        maxed = max33(x_int32) - 8
-        x_int32 = np.maximum(maxed, x_int32)
-    return x_int32.clip(0, 255).astype(np.uint8)
+    # Convert array to int16 type via threshold operation
+    x_int16 = np.zeros_like(x, dtype=np.int16)
+    x_int16[x > 127] = 256
+
+    for i in range(32):
+        # Use int16 type to avoid overflow
+        maxed = max_filter_opencv(x_int16, ksize=3) - 8
+        x_int16 = np.maximum(maxed, x_int16)
+
+    # Clip negative values to 0 and convert back to uint8 type
+    x_uint8 = np.clip(x_int16, 0, 255).astype(np.uint8)
+    return x_uint8
 
 
 def up255(x, t=0):
@@ -77,29 +84,32 @@ def regulate_abcd(x, a, b, c, d):
 
 def compute_initial_abcd(x):
     indices = np.where(x)
-    a = np.min(indices[0]) - 64
-    b = np.max(indices[0]) + 65
-    c = np.min(indices[1]) - 64
-    d = np.max(indices[1]) + 65
+    a = np.min(indices[0])
+    b = np.max(indices[0])
+    c = np.min(indices[1])
+    d = np.max(indices[1])
     abp = (b + a) // 2
     abm = (b - a) // 2
     cdp = (d + c) // 2
     cdm = (d - c) // 2
-    l = max(abm, cdm)
+    l = int(max(abm, cdm) * 1.15)
     a = abp - l
-    b = abp + l
+    b = abp + l + 1
     c = cdp - l
-    d = cdp + l
+    d = cdp + l + 1
     a, b, c, d = regulate_abcd(x, a, b, c, d)
     return a, b, c, d
 
 
-def solve_abcd(x, a, b, c, d, outpaint):
+def solve_abcd(x, a, b, c, d, k):
+    k = float(k)
+    assert 0.0 <= k <= 1.0
+
     H, W = x.shape[:2]
-    if outpaint:
+    if k == 1.0:
         return 0, H, 0, W
     while True:
-        if b - a > H * 0.618 and d - c > W * 0.618:
+        if b - a >= H * k and d - c >= W * k:
             break
 
         add_h = (b - a) < (d - c)
@@ -138,21 +148,30 @@ def fooocus_fill(image, mask):
 
 
 class InpaintWorker:
-    def __init__(self, image, mask, is_outpaint):
+    def __init__(self, image, mask, use_fill=True, k=0.618):
         a, b, c, d = compute_initial_abcd(mask > 0)
-        a, b, c, d = solve_abcd(mask, a, b, c, d, outpaint=is_outpaint)
+        a, b, c, d = solve_abcd(mask, a, b, c, d, k=k)
 
         # interested area
         self.interested_area = (a, b, c, d)
         self.interested_mask = mask[a:b, c:d]
         self.interested_image = image[a:b, c:d]
 
+        # super resolution
+        if get_image_shape_ceil(self.interested_image) < 1024:
+            self.interested_image = perform_upscale(self.interested_image)
+
         # resize to make images ready for diffusion
         self.interested_image = set_image_shape_ceil(self.interested_image, 1024)
+        self.interested_fill = self.interested_image.copy()
         H, W, C = self.interested_image.shape
 
+        # process mask
         self.interested_mask = up255(resample_image(self.interested_mask, W, H), t=127)
-        self.interested_fill = fooocus_fill(self.interested_image, self.interested_mask)
+
+        # compute filling
+        if use_fill:
+            self.interested_fill = fooocus_fill(self.interested_image, self.interested_mask)
 
         # soft pixels
         self.mask = morphological_open(mask)
@@ -166,34 +185,36 @@ class InpaintWorker:
         self.inpaint_head_feature = None
         return
 
-    def load_latent(self,
-                    latent_fill,
-                    latent_inpaint,
-                    latent_mask,
-                    latent_swap=None,
-                    inpaint_head_model_path=None):
-
-        global inpaint_head
-        assert inpaint_head_model_path is not None
-
+    def load_latent(self, latent_fill, latent_mask, latent_swap=None):
         self.latent = latent_fill
         self.latent_mask = latent_mask
         self.latent_after_swap = latent_swap
+        return
 
-        if inpaint_head is None:
-            inpaint_head = InpaintHead()
+    def patch(self, inpaint_head_model_path, inpaint_latent, inpaint_latent_mask, model):
+        global inpaint_head_model
+
+        if inpaint_head_model is None:
+            inpaint_head_model = InpaintHead()
             sd = torch.load(inpaint_head_model_path, map_location='cpu')
-            inpaint_head.load_state_dict(sd)
+            inpaint_head_model.load_state_dict(sd)
 
         feed = torch.cat([
-            latent_mask,
-            pipeline.xl_base_patched.unet.model.process_latent_in(latent_inpaint)
+            inpaint_latent_mask,
+            model.model.process_latent_in(inpaint_latent)
         ], dim=1)
 
-        inpaint_head.to(device=feed.device, dtype=feed.dtype)
-        self.inpaint_head_feature = inpaint_head(feed)
+        inpaint_head_model.to(device=feed.device, dtype=feed.dtype)
+        inpaint_head_feature = inpaint_head_model(feed)
 
-        return
+        def input_block_patch(h, transformer_options):
+            if transformer_options["block"][1] == 0:
+                h = h + inpaint_head_feature.to(h)
+            return h
+
+        m = model.clone()
+        m.set_model_input_block_patch(input_block_patch)
+        return m
 
     def swap(self):
         if self.swapped:
@@ -239,5 +260,5 @@ class InpaintWorker:
         return result
 
     def visualize_mask_processing(self):
-        return [self.interested_fill, self.interested_mask, self.image, self.mask]
+        return [self.interested_fill, self.interested_mask, self.interested_image]
 

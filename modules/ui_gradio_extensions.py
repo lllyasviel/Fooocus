@@ -27,11 +27,23 @@ def javascript_html():
     context_menus_js_path = webpath('javascript/contextMenus.js')
     localization_js_path = webpath('javascript/localization.js')
     zoom_js_path = webpath('javascript/zoom.js')
+    edit_attention_js_path = webpath('javascript/edit-attention.js')
+    viewer_js_path = webpath('javascript/viewer.js')
+    image_viewer_js_path = webpath('javascript/imageviewer.js')
+    samples_path = webpath(os.path.abspath('./sdxl_styles/samples/fooocus_v2.jpg'))
     head = f'<script type="text/javascript">{localization_js(args_manager.args.language)}</script>\n'
     head += f'<script type="text/javascript" src="{script_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{context_menus_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{localization_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{zoom_js_path}"></script>\n'
+    head += f'<script type="text/javascript" src="{edit_attention_js_path}"></script>\n'
+    head += f'<script type="text/javascript" src="{viewer_js_path}"></script>\n'
+    head += f'<script type="text/javascript" src="{image_viewer_js_path}"></script>\n'
+    head += f'<meta name="samples-path" content="{samples_path}"></meta>\n'
+
+    if args_manager.args.theme:
+        head += f'<script type="text/javascript">set_theme(\"{args_manager.args.theme}\");</script>\n'
+
     return head
 
 

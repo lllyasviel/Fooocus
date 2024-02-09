@@ -45,6 +45,9 @@ function processTextNode(node) {
     var tl = getTranslation(text);
     if (tl !== undefined) {
         node.textContent = tl;
+        if (text && node.parentElement) {
+          node.parentElement.setAttribute("data-original-text", text);
+        }
     }
 }
 
@@ -71,6 +74,10 @@ function processNode(node) {
     textNodesUnder(node).forEach(function(node) {
         processTextNode(node);
     });
+}
+
+function refresh_style_localization() {
+    processNode(document.querySelector('.style_selections'));
 }
 
 function localizeWholePage() {

@@ -100,6 +100,18 @@ progress::after {
   overflow: auto !important;
 }
 
+.aspect_ratios label {
+    width: 140px !important;
+}
+
+.aspect_ratios label span {
+    white-space: nowrap !important;
+}
+
+.aspect_ratios label input {
+    margin-left: -5px !important;
+}
+
 '''
 progress_html = '''
 <div class="loader-container">

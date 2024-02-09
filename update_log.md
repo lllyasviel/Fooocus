@@ -1,4 +1,238 @@
-**(2023 Oct 26) Hi all, the feature updating of Fooocus will (really, really, this time) be paused for about two or three weeks because we really have some other workloads. Thanks for the passion of you all (and we in fact have kept updating even after last pausing announcement a week ago, because of many great feedbacks)  - see you soon and we will come back in mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+# 2.1.864
+
+* New model list. See also discussions.
+
+# 2.1.861 (requested update)
+
+(2023 Dec 21) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid or late Jan. However, you may still see updates if other collaborators are fixing bugs or solving problems.
+
+* Show image preview in Style when mouse hover.
+
+# 2.1.860 (requested update)
+
+* Allow upload inpaint mask in developer mode.
+
+# 2.1.857 (requested update)
+
+* Begin to support 8GB AMD GPU on Windows.
+
+# 2.1.854
+
+* Add a button to copy parameters to clipboard in log.
+* Allow users to load parameters directly by pasting parameters to prompt.
+
+# 2.1.853
+
+* Add Marc K3nt3L's styles. Thanks [Marc K3nt3L](https://github.com/K3nt3L)!
+
+# 2.1.852
+
+* New Log System: Log system now uses tables. If this is breaking some other browser extension or javascript developments, see also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
+
+# 2.1.846
+
+* Many users reported that image quality is different from 2.1.824. We reviewed all codes and fixed several precision problems in 2.1.846.
+
+# 2.1.843
+
+* Many improvements to Canvas. Thanks CanvasZoom author!
+
+# 2.1.841
+
+* Backend maintain.
+* Fix some potential frozen after model mismatch.
+* Fix crash when cfg=1 when using anime preset.
+* Added some guidelines for troubleshoot the "CUDA kernel errors asynchronously" problem.
+* Fix inpaint device problem in `--always-gpu` mode.
+
+# 2.1.839
+
+* Maintained some computation codes in backend for efficiency.
+* Added a note about Seed Breaking Change.
+
+**Seed Breaking Change**: Note that 2.1.825-2.1.839 is seed breaking change. The computation float point is changed and some seeds may give slightly different results. The minor change in 2.1.825-2.1.839 do not influence image quality. See also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
+
+# 2.1.837
+
+* Fix some precision-related problems.
+
+# 2.1.836
+
+* Avoid blip tokenizer download from torch hub
+
+# 2.1.831
+
+* Input Image -> Describe (Midjourney Describe)
+
+# 2.1.830
+
+* SegmindVega support.
+
+# 2.1.829
+
+* Change SDE tree to CPU on AMD/DirectMl to avoid potential problems.
+
+# 2.1.828
+
+* Allow to disable gradio analytics.
+* Use html table in log.
+* fix some SSL problems.
+
+# 2.1.826
+
+* New backend.
+* FP8 support (see also the new cmd flag list in Readme, eg, --unet-in-fp8-e4m3fn and --unet-in-fp8-e5m2).
+* Fix some MPS problems.
+* GLoRA support.
+* Turbo scheduler.
+
+# 2.1.823
+
+(2023 Nov 26) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid December. However, you may still see updates if other collaborators are fixing bugs or solving problems.
+
+* Fix some potential problem when LoRAs has clip keys and user want to load those LoRAs to refiners.
+
+# 2.1.822
+
+* New inpaint system (inpaint beta test ends).
+
+# 2.1.821
+
+* New UI for LoRAs.
+* Improved preset system: normalized preset keys and file names.
+* Improved session system: now multiple users can use one Fooocus at the same time without seeing others' results.
+* Improved some computation related to model precision.
+* Improved config loading system with user-friendly prints.
+
+# 2.1.820
+
+* support "--disable-image-log" to prevent writing images and logs to hard drive.
+
+# 2.1.819
+
+* Allow disabling preview in dev tools.
+
+# 2.1.818
+
+* Fix preset lora failed to load when the weight is exactly one.
+
+# 2.1.817
+
+* support "--theme dark" and "--theme light".
+* added preset files "default" and "lcm", these presets exist but will not create launcher files (will not be exposed to users) to keep entry clean. The "--preset lcm" is equivalent to select "Extreme Speed" in UI, but will likely to make some online service deploying easier.
+
+# 2.1.815
+
+* Multiple loras in preset.
+
+# 2.1.814
+
+* Allow using previous preset of official SAI SDXL by modify the args to '--preset sai'. ~Note that this preset will set inpaint engine back to previous v1 to get same results like before. To change the inpaint engine to v2.6, use the dev tools -> inpaint engine -> v2.6.~ (update: it is not needed now after some tests.)
+
+# 2.1.813
+
+* Allow preset to set default inpaint engine.
+
+# 2.1.812
+
+* Allow preset to set default performance.
+* heunpp2 sampler.
+
+# 2.1.810
+
+* Added hints to config_modification_tutorial.txt
+* Removed user hacked aspect ratios in I18N english templates, but it will still be read like before.
+* fix some style sorting problem again (perhaps should try Gradio 4.0 later).
+* Refreshed I18N english templates with more keys.
+
+# 2.1.809
+
+* fix some sorting problem.
+
+# 2.1.808
+
+* Aspect ratios now show aspect ratios.
+* Added style search.
+* Added style sorting/ordering/favorites.
+
+# 2.1.807
+
+* Click on image to see it in full screen.
+
+# 2.1.806
+
+* Fix some lora problems related to clip.
+
+# 2.1.805
+
+* Responsive UI for small screens.
+* Added skip preprocessor in dev tools.
+
+# 2.1.802
+
+* Default inpaint engine changed to v2.6. You can still use inpaint engine v1 in dev tools.
+* Fix some VRAM problems.
+
+# 2.1.799
+
+* Added 'Extreme Speed' performance mode (based on LCM). The previous complicated settings are not needed now.
+
+# 2.1.798
+
+* added lcm scheduler - LCM may need to set both sampler and scheduler to "lcm". Other than that, see the description in 2.1.782 logs.
+
+# 2.1.797
+
+* fixed some dependency problems with facexlib and filterpy.
+
+# 2.1.793
+
+* Added many javascripts to improve user experience. Now users with small screen will always see full canvas without needing to scroll.
+
+# 2.1.790
+
+* Face swap (in line with Midjourney InsightFace): Input Image -> Image Prompt -> Advanced -> FaceSwap
+* The performance is super high. Use it carefully and never use it in any illegal things!
+* This implementation will crop faces for you and you do NOT need to crop faces before feeding images into Fooocus. (If you previously manually crop faces from images for other software, you do not need to do that now in Fooocus.)
+
+# 2.1.788
+
+* Fixed some math problems in previous versions.
+* Inpaint engine v2.6 join the beta test of Fooocus inpaint models. Use it in dev tools -> inpaint engine -> v2.6 .
+
+# 2.1.785
+
+* The `user_path_config.txt` is deprecated since 2.1.785. If you are using it right now, please use the new `config.txt` instead. See also the new documentation in the Readme.
+* The paths in `user_path_config.txt` will still be loaded in recent versions, but it will be removed soon.
+* We use very user-friendly method to automatically transfer your path settings from `user_path_config.txt` to `config.txt` and usually you do not need to do anything.
+* The new `config.txt` will never save default values so the default value changes in scripts will not be prevented by old config files.
+
+# 2.1.782
+
+2.1.782 is mainly an update for a new LoRA system that supports both SDXL loras and SD1.5 loras.
+
+Now when you load a lora, the following things will happen:
+
+1. try to load the lora to the base model, if failed (model mismatch), then try to load the lora to refiner.
+2. try to load the lora to refiner, if failed (model mismatch) then do nothing.
+
+In this way, Fooocus 2.1.782 can benefit from all models and loras from CivitAI with both SDXL and SD1.5 ecosystem, using the unique Fooocus swap algorithm, to achieve extremely high quality results (although the default setting is already very high quality), especially in some anime use cases, if users really want to play with all these things.
+
+Recently the community also developed LCM loras. Users can use it by setting the sampler as 'LCM', scheduler as 'sgm_uniform' (Update in 2.1.798: scheduler should also be "lcm"), the forced overwrite of sampling step as 4 to 8, and CFG guidance as 1.0, in dev tools. Do not forget to change the LCM lora weight to 1.0 (many people forget this and report failure cases). Also, set refiner to None. If LCM's feedback in the artists community is good (not the feedback in the programmer community of Stable Diffusion), Fooocus may add some other shortcuts in the future.
+
+# 2.1.781
+
+(2023 Oct 26) Hi all, the feature updating of Fooocus will (really, really, this time) be paused for about two or three weeks because we really have some other workloads. Thanks for the passion of you all (and we in fact have kept updating even after last pausing announcement a week ago, because of many great feedbacks)  - see you soon and we will come back in mid November. However, you may still see updates if other collaborators are fixing bugs or solving problems.
+
+* Disable refiner to speed up when new users mistakenly set same model to base and refiner.
+
+# 2.1.779
+
+* Disable image grid by default because many users reports performance issues. For example, https://github.com/lllyasviel/Fooocus/issues/829 and so on. The image grid will cause problem when user hard drive is not super fast, or when user internet connection is not very good (eg, run in remote). The option is moved to dev tools if users want to use it. We will take a look at it later.
+
+# 2.1.776
+
+* Support Ctrl+Up/Down Arrow to change prompt emphasizing weights.
 
 # 2.1.750
 
