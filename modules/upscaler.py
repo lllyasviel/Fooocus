@@ -2,8 +2,8 @@ import os
 import torch
 import modules.core as core
 
-from fcbh_extras.chainner_models.architecture.RRDB import RRDBNet as ESRGAN
-from fcbh_extras.nodes_upscale_model import ImageUpscaleWithModel
+from ldm_patched.pfn.architecture.RRDB import RRDBNet as ESRGAN
+from ldm_patched.contrib.external_upscale_model import ImageUpscaleWithModel
 from collections import OrderedDict
 from modules.config import path_upscale_models
 

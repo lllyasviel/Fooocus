@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image, ImageFilter
 from modules.util import resample_image, set_image_shape_ceil, get_image_shape_ceil
 from modules.upscaler import perform_upscale
+import cv2
 
 
 inpaint_head_model = None
@@ -28,19 +29,25 @@ def box_blur(x, k):
     return np.array(x)
 
 
-def max33(x):
-    x = Image.fromarray(x)
-    x = x.filter(ImageFilter.MaxFilter(3))
-    return np.array(x)
+def max_filter_opencv(x, ksize=3):
+    # Use OpenCV maximum filter
+    # Make sure the input type is int16
+    return cv2.dilate(x, np.ones((ksize, ksize), dtype=np.int16))
 
 
 def morphological_open(x):
-    x_int32 = np.zeros_like(x).astype(np.int32)
-    x_int32[x > 127] = 256
-    for _ in range(32):
-        maxed = max33(x_int32) - 8
-        x_int32 = np.maximum(maxed, x_int32)
-    return x_int32.clip(0, 255).astype(np.uint8)
+    # Convert array to int16 type via threshold operation
+    x_int16 = np.zeros_like(x, dtype=np.int16)
+    x_int16[x > 127] = 256
+
+    for i in range(32):
+        # Use int16 type to avoid overflow
+        maxed = max_filter_opencv(x_int16, ksize=3) - 8
+        x_int16 = np.maximum(maxed, x_int16)
+
+    # Clip negative values to 0 and convert back to uint8 type
+    x_uint8 = np.clip(x_int16, 0, 255).astype(np.uint8)
+    return x_uint8
 
 
 def up255(x, t=0):
