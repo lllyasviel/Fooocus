@@ -108,7 +108,7 @@ def get_path_output() -> str:
     '''
     path_output = args_manager.args.temp_path if args_manager.args.disable_image_log else get_dir_or_set_default('path_outputs', '../outputs/')
     if not args_manager.args.disable_image_log and args_manager.args.output_path:
-        print(f'[Config] Overriding path output to: {args_manager.args.output_path}')
+        print(f'[CONFIG] Overriding path output to: {args_manager.args.output_path}')
         path_output = args_manager.args.output_path
     return path_output
 
