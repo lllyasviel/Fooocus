@@ -21,7 +21,6 @@ import fooocus_version
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
-from modules import config
 
 
 REINSTALL_ALL = False
@@ -83,6 +82,8 @@ if args.gpu_device_id is not None:
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_device_id)
     print("Set device to:", args.gpu_device_id)
 
+
+from modules import config
 
 def download_models():
     for file_name, url in vae_approx_filenames:
