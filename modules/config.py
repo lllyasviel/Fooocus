@@ -102,6 +102,17 @@ if isinstance(preset, str):
         print(e)
 
 
+def get_path_output() -> str:
+    ''' Checking output path argument and overriding default path
+        if disable image log path is not enabled.
+    '''
+    path_output = args_manager.args.temp_path if args_manager.args.disable_image_log else get_dir_or_set_default('path_outputs', '../outputs/')
+    if not args_manager.args.disable_image_log and args_manager.args.output_path:
+        print(f'[Config] Overriding path output to: {args_manager.args.output_path}')
+        path_output = args_manager.args.output_path
+    return path_output
+
+
 def get_dir_or_set_default(key, default_value):
     global config_dict, visited_keys, always_save_keys
 
@@ -132,7 +143,7 @@ path_inpaint = get_dir_or_set_default('path_inpaint', '../models/inpaint/')
 path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlnet/')
 path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vision/')
 path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
-path_outputs = get_dir_or_set_default('path_outputs', '../outputs/')
+path_outputs = get_path_output()
 
 
 def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False):
