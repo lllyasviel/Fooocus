@@ -282,11 +282,11 @@ Given different goals, the default models and configs of Fooocus are different:
 Note that the download is **automatic** - you do not need to do anything if the internet connection is okay. However, you can download them manually if you (or move them from somewhere else) have your own preparation.
 
 ## UI Access and Authentication
-Fooocus can run expose its UI in two modes - either using a local listener or gradio: 
-* Local UI listener is set up using `--listen` (specify port e.g. with `--port 8888`). 
-* API accesss via a `.gradio.live` endpoint is configured by using `--share`.
+In addition to running on localhost, Fooocus can also expose its UI in two ways: 
+* Local UI listener: use `--listen` (specify port e.g. with `--port 8888`). 
+* API access: use `--share` (registers an endpoint at `.gradio.live`).
 
-In both cases the access is unauthenticated by default. You can add authnetication by creating a file `auth.json` in the main directory that contains a list of JSON objects with the keys `user` and `pass` (see [auth-example.json](./auth-example.json) for an example).
+In both ways the access is unauthenticated by default. You can add basic authentication by creating a file called `auth.json` in the main directory, which contains a list of JSON objects with the keys `user` and `pass` (see example in [auth-example.json](./auth-example.json)).
 
 ## List of "Hidden" Tricks
 <a name="tech_list"></a>
