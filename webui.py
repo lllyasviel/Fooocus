@@ -262,7 +262,7 @@ with shared.gradio_root:
                     return gr.update(value=f'<a href="file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
 
                 history_link = gr.HTML()
-                shared.gradio_root.load(update_history_link,outputs=history_link)
+                shared.gradio_root.load(update_history_link, outputs=history_link, queue=False, show_progress=False)
 
             with gr.Tab(label='Style'):
                 style_sorter.try_load_sorted_styles(
