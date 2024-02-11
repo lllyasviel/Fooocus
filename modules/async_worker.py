@@ -335,10 +335,10 @@ def worker():
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
 
-        switch = int(round(steps * refiner_switch))
-
         if advanced_parameters.overwrite_step > 0:
             steps = advanced_parameters.overwrite_step
+
+        switch = int(round(steps * refiner_switch))
 
         if advanced_parameters.overwrite_switch > 0:
             switch = advanced_parameters.overwrite_switch
