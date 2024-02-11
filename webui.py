@@ -481,7 +481,8 @@ with shared.gradio_root:
                                                             minimum=-1, maximum=1.0, step=0.001, value=-1,
                                                             info='Set as negative number to disable. For developer debugging.')
                         overwrite_upscale_strength = gr.Slider(label='Forced Overwrite of Denoising Strength of "Upscale"',
-                                                               minimum=-1, maximum=1.0, step=0.001, value=-1,
+                                                               minimum=-1, maximum=1.0, step=0.001,
+                                                               value=modules.config.default_overwrite_upscale,
                                                                info='Set as negative number to disable. For developer debugging.')
 
                         disable_preview = gr.Checkbox(label='Disable Preview', value=modules.config.default_black_out_nsfw,
@@ -620,7 +621,7 @@ with shared.gradio_root:
         state_is_generating = gr.State(False)
 
         load_data_outputs = [advanced_checkbox, image_number, prompt, negative_prompt, style_selections,
-                             performance_selection, overwrite_step, overwrite_switch, aspect_ratios_selection,
+                             performance_selection, overwrite_step, overwrite_upscale_strength, overwrite_switch, aspect_ratios_selection,
                              overwrite_width, overwrite_height, guidance_scale, sharpness, adm_scaler_positive,
                              adm_scaler_negative, adm_scaler_end, refiner_swap_method, adaptive_cfg, base_model,
                              refiner_model, refiner_switch, sampler_name, scheduler_name, seed_random, image_seed,

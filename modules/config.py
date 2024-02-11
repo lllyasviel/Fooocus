@@ -363,6 +363,11 @@ default_overwrite_switch = get_config_item_or_set_default(
     default_value=-1,
     validator=lambda x: isinstance(x, int)
 )
+default_overwrite_upscale = get_config_item_or_set_default(
+    key='default_overwrite_upscale',
+    default_value=-1,
+    validator=lambda x: isinstance(x, numbers.Number)
+)
 example_inpaint_prompts = get_config_item_or_set_default(
     key='example_inpaint_prompts',
     default_value=[
