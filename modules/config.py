@@ -103,9 +103,9 @@ if isinstance(preset, str):
 
 
 def get_path_output() -> str:
-    ''' Checking output path argument and overriding default path
-        if disable image log path is not enabled.
-    '''
+    """
+    Checking output path argument and overriding default path if disable image log path is not enabled.
+    """
     path_output = args_manager.args.temp_path if args_manager.args.disable_image_log else get_dir_or_set_default('path_outputs', '../outputs/')
     if not args_manager.args.disable_image_log and args_manager.args.output_path:
         print(f'[CONFIG] Overriding path output to: {args_manager.args.output_path}')
