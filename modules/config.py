@@ -106,10 +106,11 @@ def get_path_output() -> str:
     """
     Checking output path argument and overriding default path.
     """
+    global config_dict
     path_output = get_dir_or_set_default('path_outputs', '../outputs/')
     if args_manager.args.output_path:
-        print(f'[CONFIG] Overriding path output to: {args_manager.args.output_path}')
-        path_output = args_manager.args.output_path
+        print(f'[CONFIG] Overriding config value path_outputs with {args_manager.args.output_path}')
+        config_dict['path_outputs'] = path_output = args_manager.args.output_path
     return path_output
 
 
