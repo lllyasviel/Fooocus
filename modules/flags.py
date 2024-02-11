@@ -42,3 +42,4 @@ inpaint_options = [inpaint_option_default, inpaint_option_detail, inpaint_option
 
 desc_type_photo = 'Photograph'
 desc_type_anime = 'Art/Anime'
+desc_type_all = 'Combine all'
