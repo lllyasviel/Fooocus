@@ -8,7 +8,7 @@ import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
 from modules.util import get_files_from_folder
-
+from modules.model_previewer import cleanup as cleanup_model_previews
 
 config_path = os.path.abspath("./config.txt")
 config_example_path = os.path.abspath("config_modification_tutorial.txt")
@@ -328,6 +328,16 @@ default_overwrite_switch = get_config_item_or_set_default(
     default_value=-1,
     validator=lambda x: isinstance(x, int)
 )
+use_cleanup_model_previews = get_config_item_or_set_default(
+    key='use_cleanup_model_previews',
+    default_value=False,
+    validator=lambda x: x == False or x == True
+)
+use_add_model_previews = get_config_item_or_set_default(
+    key='use_add_model_previews',
+    default_value=True,
+    validator=lambda x: x == False or x == True
+)
 example_inpaint_prompts = get_config_item_or_set_default(
     key='example_inpaint_prompts',
     default_value=[
@@ -354,6 +364,9 @@ possible_preset_keys = [
     "default_prompt_negative",
     "default_styles",
     "default_aspect_ratio",
+    "default_aspect_ratio",
+    "use_cleanup_model_previews"
+    "use_add_model_previews",
     "checkpoint_downloads",
     "embeddings_downloads",
     "lora_downloads",
@@ -526,5 +539,7 @@ def downloading_upscale_model():
     )
     return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
 
-
 update_all_model_names()
+
+if use_cleanup_model_previews:
+    cleanup_model_previews()

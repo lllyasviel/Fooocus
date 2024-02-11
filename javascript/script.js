@@ -120,6 +120,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     mutationObserver.observe(gradioApp(), {childList: true, subtree: true});
     initStylePreviewOverlay();
+    initModelPreviewOverlay();
 });
 
 /**
@@ -146,38 +147,141 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-function initStylePreviewOverlay() {
-    let overlayVisible = false;
-    const samplesPath = document.querySelector("meta[name='samples-path']").getAttribute("content")
+// Utility functions
+function formatImagePath(name, templateImagePath, replacedValue = "fooocus_v2") {
+    return templateImagePath.replace(replacedValue, name.toLowerCase().replaceAll(" ", "_")).replaceAll("\\", "\\\\");
+}
+
+function createOverlay(id) {
     const overlay = document.createElement('div');
-    overlay.id = 'stylePreviewOverlay';
+    overlay.id = id;
     document.body.appendChild(overlay);
-    document.addEventListener('mouseover', function(e) {
-        const label = e.target.closest('.style_selections label');
+    return overlay;
+}
+
+function setImageBackground(overlay, url) {
+    unsetOverlayAsTooltip(overlay)
+    overlay.style.backgroundImage = `url("${url}")`;
+}
+
+function setOverlayAsTooltip(overlay, altText) {
+    // Set the text content and any dynamic styles
+    overlay.textContent = altText;
+    overlay.style.width = 'fit-content';
+    overlay.style.height = 'fit-content';
+    // Note: Other styles are already set via CSS
+}
+
+function unsetOverlayAsTooltip(overlay) {
+    // Clear the text content and reset any dynamic styles
+    overlay.textContent = '';
+    overlay.style.width = '128px';
+    overlay.style.height = '128px';
+    // Note: Other styles are managed via CSS
+}
+
+function handleMouseMove(overlay) {
+    return function(e) {
+        if (overlay.style.opacity !== "1") return;
+        overlay.style.left = `${e.clientX}px`;
+        overlay.style.top = `${e.clientY}px`;
+        overlay.className = e.clientY > window.innerHeight / 2 ? "lower-half" : "upper-half";
+    };
+}
+
+// Image path retrieval for models
+const getModelImagePath = selectedItemText => {
+    selectedItemText = selectedItemText.replace("✓\n", "")
+
+    let imagePath = null;
+
+    if (previewsCheckpoint)
+        imagePath = previewsCheckpoint[selectedItemText]
+    
+    if (previewsLora && !imagePath)
+        imagePath = previewsLora[selectedItemText]
+    
+    return imagePath;
+};
+
+// Mouse over handlers for different overlays
+function handleMouseOverModelPreviewOverlay(overlay, elementSelector, templateImagePath) {
+    return function(e) {
+        const targetElement = e.target.closest(elementSelector);
+        if (!targetElement) return;
+
+        targetElement.removeEventListener("mouseout", onMouseLeave);
+        targetElement.addEventListener("mouseout", onMouseLeave);
+
+        overlay.style.opacity = "1";
+        const selectedItemText = targetElement.innerText;
+        if (selectedItemText) {
+            let imagePath = getModelImagePath(selectedItemText);
+            if (imagePath) {
+                imagePath = formatImagePath(imagePath, templateImagePath, "sdxl_styles/samples/fooocus_v2.jpg");
+                setImageBackground(overlay, imagePath);
+            } else {
+                setOverlayAsTooltip(overlay, selectedItemText);
+            }
+        }
+
+        function onMouseLeave() {
+            overlay.style.opacity = "0";
+            overlay.style.backgroundImage = "";
+            targetElement.removeEventListener("mouseout", onMouseLeave);
+        }
+    };
+}
+
+function handleMouseOverStylePreviewOverlay(overlay, elementSelector, templateImagePath) {
+    return function(e) {
+        const label = e.target.closest(elementSelector);
         if (!label) return;
+
         label.removeEventListener("mouseout", onMouseLeave);
         label.addEventListener("mouseout", onMouseLeave);
-        overlayVisible = true;
+
         overlay.style.opacity = "1";
+
         const originalText = label.querySelector("span").getAttribute("data-original-text");
-        const name = originalText || label.querySelector("span").textContent;
-        overlay.style.backgroundImage = `url("${samplesPath.replace(
-          "fooocus_v2",
-          name.toLowerCase().replaceAll(" ", "_")
-        ).replaceAll("\\", "\\\\")}")`;
+        let name = originalText || label.querySelector("span").textContent;
+        let imagePath = formatImagePath(name, templateImagePath);
+
+        overlay.style.backgroundImage = `url("${imagePath}")`;
+
         function onMouseLeave() {
-            overlayVisible = false;
             overlay.style.opacity = "0";
             overlay.style.backgroundImage = "";
             label.removeEventListener("mouseout", onMouseLeave);
         }
-    });
-    document.addEventListener('mousemove', function(e) {
-        if(!overlayVisible) return;
-        overlay.style.left = `${e.clientX}px`;
-        overlay.style.top = `${e.clientY}px`;
-        overlay.className = e.clientY > window.innerHeight / 2 ? "lower-half" : "upper-half";
-    });
+    };
+}
+
+// Initialization functions for different overlays
+function initModelPreviewOverlay() {
+    const templateImagePath = document.querySelector("meta[name='samples-path']").getAttribute("content");
+    const modelOverlay = createOverlay('modelPreviewOverlay');
+
+    document.addEventListener('mouseover', handleMouseOverModelPreviewOverlay(
+        modelOverlay, 
+        '.model_selections .item', 
+        templateImagePath
+    ));
+
+    document.addEventListener('mousemove', handleMouseMove(modelOverlay));
+}
+
+function initStylePreviewOverlay() {
+    const templateImagePath = document.querySelector("meta[name='samples-path']").getAttribute("content");
+    const styleOverlay = createOverlay('stylePreviewOverlay');
+
+    document.addEventListener('mouseover', handleMouseOverStylePreviewOverlay(
+        styleOverlay, 
+        '.style_selections label', 
+        templateImagePath
+    ));
+
+    document.addEventListener('mousemove', handleMouseMove(styleOverlay));
 }
 
 /**
