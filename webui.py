@@ -621,7 +621,7 @@ with shared.gradio_root:
         state_is_generating = gr.State(False)
 
         load_data_outputs = [advanced_checkbox, image_number, prompt, negative_prompt, style_selections,
-                             performance_selection, overwrite_step, overwrite_upscale_strength, overwrite_switch, aspect_ratios_selection,
+                             performance_selection, overwrite_step, overwrite_switch, aspect_ratios_selection,
                              overwrite_width, overwrite_height, guidance_scale, sharpness, adm_scaler_positive,
                              adm_scaler_negative, adm_scaler_end, refiner_swap_method, adaptive_cfg, base_model,
                              refiner_model, refiner_switch, sampler_name, scheduler_name, seed_random, image_seed,
