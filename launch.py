@@ -10,7 +10,8 @@ os.chdir(root)
 
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
-os.environ["GRADIO_SERVER_PORT"] = "7865"
+if "GRADIO_SERVER_PORT" not in os.environ:
+    os.environ["GRADIO_SERVER_PORT"] = "7865"
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -21,7 +22,6 @@ import fooocus_version
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
-from modules import config
 
 
 REINSTALL_ALL = False
@@ -83,6 +83,8 @@ if args.gpu_device_id is not None:
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_device_id)
     print("Set device to:", args.gpu_device_id)
 
+
+from modules import config
 
 def download_models():
     for file_name, url in vae_approx_filenames:
