@@ -40,7 +40,7 @@ def worker():
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
+        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix
     from modules.upscaler import perform_upscale
 
     try:
@@ -335,10 +335,10 @@ def worker():
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
 
-        switch = int(round(steps * refiner_switch))
-
         if advanced_parameters.overwrite_step > 0:
             steps = advanced_parameters.overwrite_step
+
+        switch = int(round(steps * refiner_switch))
 
         if advanced_parameters.overwrite_switch > 0:
             switch = advanced_parameters.overwrite_switch
@@ -732,8 +732,7 @@ def worker():
             done_steps = current_task_id * steps + step
             async_task.yields.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
-                y)])
+                f'Step {step}/{total_steps} in the {current_task_id + 1}{ordinal_suffix(current_task_id + 1)} Sampling', y)])
 
         for current_task_id, task in enumerate(tasks):
             execution_start_time = time.perf_counter()
