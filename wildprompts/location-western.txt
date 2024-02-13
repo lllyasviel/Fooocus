@@ -1,50 +1,50 @@
-Dusty Frontier Town of Dusty Gulch, A classic Wild West town with wooden saloons and dusty streets
-Ranch of the Rolling Hills, A sprawling cattle ranch with vast open spaces
-Mining Camp Silver Creek, A rugged camp where prospectors seek fortune in silver
-Deserted Ghost Town of Broken Spur, Abandoned buildings and tumbleweeds mark the remnants of a once-thriving community
-Saloon and Gambling Den Lucky Horseshoe, A lively establishment for drinking, gambling, and socializing
-Train Station Junction Point, A bustling train station where the tracks converge
-Sheriff's Office and Jailhouse, A sturdy building where the law is upheld and outlaws are held
-Homestead on the Prairie, A modest farmhouse surrounded by vast fields
-Blacksmith Forge and Farrier Smithy, The local blacksmith's shop where metalwork is done
-Gold Mine Thunderstrike Quarry, A mine where gold prospectors extract precious ore
-Indian Trading Post Cedar Ridge, A meeting point for settlers and Native American traders
-Cattle Drive Trailhead Stampede Pass, The starting point for a cattle drive across the plains
-Wagon Train Camp Crossroads Oasis, A temporary campsite for pioneers traveling westward
-Desert Outpost Mirage Springs, A small settlement in the arid desert with a natural spring
-Frontier Church Redemption Chapel, A simple church serving the spiritual needs of the community
-Riverboat Landing Delta Queen Wharf, A bustling river port where steamboats dock
-Stagecoach Relay Station, A stopover for stagecoaches to rest and change horses
-Sawmill Timber Haven, A lumber mill providing wood for construction and fuel
-Canyon Hideout Echo Canyon, A secluded spot in the canyons used by outlaws and bandits
-Livery Stable and Corral, A stable providing horses and accommodations for travelers
-Prospector's Cabin Solitude Retreat, A solitary cabin where a lone prospector makes a home
-Railroad Construction Site Iron Tracks, A site where laborers work to lay down railroad tracks
-Quaint Farming Village Harvest Hollow, A tight-knit community engaged in agriculture
-Mountain Pass Trading Post, A stopover for traders and travelers passing through mountainous terrain
-Desert Oasis Watering Hole, A vital water source in the midst of arid lands
-Sod House Settlement Prairie Haven, Homes built from sod bricks on the open prairie
-Gold Rush Boomtown Rushmore, A town that rapidly grew during a gold rush
-Horse Ranch Mustang Mesa, A ranch specializing in breeding and training horses
-Western Showdown Duelling Grounds, An open space where duels are settled
-Saddle and Harness Shop Buckle & Bridle, A store specializing in equestrian gear
-Farmer's Market Sunflower Square, A market where farmers and artisans sell their goods
-Fishing Village River's End, A community along a river known for its fishing industry
-Tea House and Apothecary Herbal Haven, A place where locals gather for tea and herbal remedies
-Mountain Lodge Summit Retreat, A lodge nestled in the mountains, providing refuge for travelers
-Desert Trading Caravan, A caravan of traders journeying through the desert
-Tannery and Leather Goods Emporium, A shop producing leather goods from local resources
-Abandoned Silver Mine Shadow Vein, A mine that has been left deserted for mysterious reasons
-Railroad Bridge Iron Crossings, A bridge spanning a river for the railroad to cross
-Western Vaudeville Theater, A venue for entertainment and theatrical performances
-Old Military Fort Sentinel Post, A decommissioned fort with historical significance
-Hunter's Camp Bison Prairie, A campsite for hunters seeking game in the prairie
-Wells Fargo Express Office, A hub for mail, packages, and financial services
-Oil Drilling Rig Black Gold Well, A site where oil is extracted from the earth
-Cactus-filled Canyon Rattlesnake Gulch, A treacherous canyon known for its wildlife
-Mountain Hot Springs Retreat, A natural hot spring in the mountains for relaxation
-Swampy Marshland Mosquito Haven, A marsh with murky waters and abundant wildlife
-Logging Camp Timber Ridge, A camp where loggers harvest timber from the surrounding forest
-Railroad Roundhouse Steam City, A facility for repairing and maintaining steam locomotives
-Pioneer Cemetery Tombstone Hills, A resting place for early settlers and pioneers
-Jailbreak Quarry Canyon, A canyon where outlaws attempt daring jailbreaks
+Wild West, Dusty Frontier Town of Dusty Gulch, A classic Wild West town with wooden saloons and dusty streets
+Wild West, Ranch of the Rolling Hills, A sprawling cattle ranch with vast open spaces
+Wild West, Mining Camp Silver Creek, A rugged camp where prospectors seek fortune in silver
+Wild West, Deserted Ghost Town of Broken Spur, Abandoned buildings and tumbleweeds mark the remnants of a once-thriving community
+Wild West, Saloon and Gambling Den Lucky Horseshoe, A lively establishment for drinking, gambling, and socializing
+Wild West, Train Station Junction Point, A bustling train station where the tracks converge
+Wild West, Sheriff's Office and Jailhouse, A sturdy building where the law is upheld and outlaws are held
+Wild West, Homestead on the Prairie, A modest farmhouse surrounded by vast fields
+Wild West, Blacksmith Forge and Farrier Smithy, The local blacksmith's shop where metalwork is done
+Wild West, Gold Mine Thunderstrike Quarry, A mine where gold prospectors extract precious ore
+Wild West, Indian Trading Post Cedar Ridge, A meeting point for settlers and Native American traders
+Wild West, Cattle Drive Trailhead Stampede Pass, The starting point for a cattle drive across the plains
+Wild West, Wagon Train Camp Crossroads Oasis, A temporary campsite for pioneers traveling westward
+Wild West, Desert Outpost Mirage Springs, A small settlement in the arid desert with a natural spring
+Wild West, Frontier Church Redemption Chapel, A simple church serving the spiritual needs of the community
+Wild West, Riverboat Landing Delta Queen Wharf, A bustling river port where steamboats dock
+Wild West, Stagecoach Relay Station, A stopover for stagecoaches to rest and change horses
+Wild West, Sawmill Timber Haven, A lumber mill providing wood for construction and fuel
+Wild West, Canyon Hideout Echo Canyon, A secluded spot in the canyons used by outlaws and bandits
+Wild West, Livery Stable and Corral, A stable providing horses and accommodations for travelers
+Wild West, Prospector's Cabin Solitude Retreat, A solitary cabin where a lone prospector makes a home
+Wild West, Railroad Construction Site Iron Tracks, A site where laborers work to lay down railroad tracks
+Wild West, Quaint Farming Village Harvest Hollow, A tight-knit community engaged in agriculture
+Wild West, Mountain Pass Trading Post, A stopover for traders and travelers passing through mountainous terrain
+Wild West, Desert Oasis Watering Hole, A vital water source in the midst of arid lands
+Wild West, Sod House Settlement Prairie Haven, Homes built from sod bricks on the open prairie
+Wild West, Gold Rush Boomtown Rushmore, A town that rapidly grew during a gold rush
+Wild West, Horse Ranch Mustang Mesa, A ranch specializing in breeding and training horses
+Wild West, Western Showdown Duelling Grounds, An open space where duels are settled
+Wild West, Saddle and Harness Shop Buckle & Bridle, A store specializing in equestrian gear
+Wild West, Farmer's Market Sunflower Square, A market where farmers and artisans sell their goods
+Wild West, Fishing Village River's End, A community along a river known for its fishing industry
+Wild West, Tea House and Apothecary Herbal Haven, A place where locals gather for tea and herbal remedies
+Wild West, Mountain Lodge Summit Retreat, A lodge nestled in the mountains, providing refuge for travelers
+Wild West, Desert Trading Caravan, A caravan of traders journeying through the desert
+Wild West, Tannery and Leather Goods Emporium, A shop producing leather goods from local resources
+Wild West, Abandoned Silver Mine Shadow Vein, A mine that has been left deserted for mysterious reasons
+Wild West, Railroad Bridge Iron Crossings, A bridge spanning a river for the railroad to cross
+Wild West, Western Vaudeville Theater, A venue for entertainment and theatrical performances
+Wild West, Old Military Fort Sentinel Post, A decommissioned fort with historical significance
+Wild West, Hunter's Camp Bison Prairie, A campsite for hunters seeking game in the prairie
+Wild West, Pony Express Office, A hub for mail, packages, and financial services
+Wild West, Oil Drilling Rig Black Gold Well, A site where oil is extracted from the earth
+Wild West, Cactus-filled Canyon Rattlesnake Gulch, A treacherous canyon known for its wildlife
+Wild West, Mountain Hot Springs Retreat, A natural hot spring in the mountains for relaxation
+Wild West, Swampy Marshland Mosquito Haven, A marsh with murky waters and abundant wildlife
+Wild West, Logging Camp Timber Ridge, A camp where loggers harvest timber from the surrounding forest
+Wild West, Railroad Roundhouse Steam City, A facility for repairing and maintaining steam locomotives
+Wild West, Pioneer Cemetery Tombstone Hills, A resting place for early settlers and pioneers
+Wild West, Jailbreak Quarry Canyon, A canyon where outlaws attempt daring jailbreaks
