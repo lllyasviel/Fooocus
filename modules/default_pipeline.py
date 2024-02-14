@@ -2,7 +2,6 @@ import modules.core as core
 import os
 import torch
 import modules.patch
-import modules.config
 import ldm_patched.modules.model_management
 import ldm_patched.modules.latent_formats
 import modules.inpaint_worker
@@ -11,6 +10,7 @@ from extras.expansion import FooocusExpansion
 
 from ldm_patched.modules.model_base import SDXL, SDXLRefiner
 from modules.sample_hijack import clip_separate
+from modules.settings import settings
 
 
 model_base = core.StableDiffusionModel()
@@ -60,7 +60,7 @@ def assert_model_integrity():
 def refresh_base_model(name):
     global model_base
 
-    filename = os.path.abspath(os.path.realpath(os.path.join(modules.config.path_checkpoints, name)))
+    filename = os.path.abspath(os.path.realpath(os.path.join(settings.path_checkpoints, name)))
 
     if model_base.filename == filename:
         return
@@ -76,7 +76,7 @@ def refresh_base_model(name):
 def refresh_refiner_model(name):
     global model_refiner
 
-    filename = os.path.abspath(os.path.realpath(os.path.join(modules.config.path_checkpoints, name)))
+    filename = os.path.abspath(os.path.realpath(os.path.join(settings.path_checkpoints, name)))
 
     if model_refiner.filename == filename:
         return
@@ -251,9 +251,9 @@ def refresh_everything(refiner_model_name, base_model_name, loras,
 
 
 refresh_everything(
-    refiner_model_name=modules.config.default_refiner_model_name,
-    base_model_name=modules.config.default_base_model_name,
-    loras=modules.config.default_loras
+    refiner_model_name=settings.default_refiner_model_name,
+    base_model_name=settings.default_base_model_name,
+    loras=settings.default_loras
 )
 
 

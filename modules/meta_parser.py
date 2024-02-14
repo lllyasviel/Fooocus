@@ -1,6 +1,6 @@
 import json
 import gradio as gr
-import modules.config
+import modules.settings
 
 
 def load_parameter_button_click(raw_prompt_txt, is_generating):
@@ -41,8 +41,8 @@ def load_parameter_button_click(raw_prompt_txt, is_generating):
     try:
         h = loaded_parameter_dict.get('Resolution', None)
         width, height = eval(h)
-        formatted = modules.config.add_ratio(f'{width}*{height}')
-        if formatted in modules.config.available_aspect_ratios:
+        formatted = modules.settings.add_ratio(f'{width}*{height}')
+        if formatted in modules.settings.available_aspect_ratios:
             results.append(formatted)
             results.append(-1)
             results.append(-1)

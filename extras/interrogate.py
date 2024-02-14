@@ -5,7 +5,7 @@ import ldm_patched.modules.model_management as model_management
 from torchvision import transforms
 from torchvision.transforms.functional import InterpolationMode
 from modules.model_loader import load_file_from_url
-from modules.config import path_clip_vision
+from modules.settings import settings
 from ldm_patched.modules.model_patcher import ModelPatcher
 from extras.BLIP.models.blip import blip_decoder
 
@@ -27,7 +27,7 @@ class Interrogator:
         if self.blip_model is None:
             filename = load_file_from_url(
                 url='https://huggingface.co/lllyasviel/misc/resolve/main/model_base_caption_capfilt_large.pth',
-                model_dir=path_clip_vision,
+                model_dir=settings.path_clip_vision,
                 file_name='model_base_caption_capfilt_large.pth',
             )
 
