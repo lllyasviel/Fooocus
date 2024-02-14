@@ -84,15 +84,15 @@ if args.gpu_device_id is not None:
     print("Set device to:", args.gpu_device_id)
 
 
-from modules import config
+from modules.settings import settings
 
 def download_models():
     for file_name, url in vae_approx_filenames:
-        load_file_from_url(url=url, model_dir=config.path_vae_approx, file_name=file_name)
+        load_file_from_url(url=url, model_dir=settings.path_vae_approx, file_name=file_name)
 
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_expansion.bin',
-        model_dir=config.path_fooocus_expansion,
+        model_dir=settings.path_fooocus_expansion,
         file_name='pytorch_model.bin'
     )
 
@@ -101,23 +101,23 @@ def download_models():
         return
 
     if not args.always_download_new_model:
-        if not os.path.exists(os.path.join(config.path_checkpoints, config.default_base_model_name)):
-            for alternative_model_name in config.previous_default_models:
-                if os.path.exists(os.path.join(config.path_checkpoints, alternative_model_name)):
-                    print(f'You do not have [{config.default_base_model_name}] but you have [{alternative_model_name}].')
+        if not os.path.exists(os.path.join(settings.path_checkpoints, settings.default_base_model_name)):
+            for alternative_model_name in settings.previous_default_models:
+                if os.path.exists(os.path.join(settings.path_checkpoints, alternative_model_name)):
+                    print(f'You do not have [{settings.default_base_model_name}] but you have [{alternative_model_name}].')
                     print(f'Fooocus will use [{alternative_model_name}] to avoid downloading new models, '
                           f'but you are not using latest models.')
                     print('Use --always-download-new-model to avoid fallback and always get new models.')
-                    config.checkpoint_downloads = {}
-                    config.default_base_model_name = alternative_model_name
+                    settings.checkpoint_downloads = {}
+                    settings.default_base_model_name = alternative_model_name
                     break
 
-    for file_name, url in config.checkpoint_downloads.items():
-        load_file_from_url(url=url, model_dir=config.path_checkpoints, file_name=file_name)
-    for file_name, url in config.embeddings_downloads.items():
-        load_file_from_url(url=url, model_dir=config.path_embeddings, file_name=file_name)
-    for file_name, url in config.lora_downloads.items():
-        load_file_from_url(url=url, model_dir=config.path_loras, file_name=file_name)
+    for file_name, url in settings.checkpoint_downloads.items():
+        load_file_from_url(url=url, model_dir=settings.path_checkpoints, file_name=file_name)
+    for file_name, url in settings.embeddings_downloads.items():
+        load_file_from_url(url=url, model_dir=settings.path_embeddings, file_name=file_name)
+    for file_name, url in settings.lora_downloads.items():
+        load_file_from_url(url=url, model_dir=settings.path_loras, file_name=file_name)
 
     return
 

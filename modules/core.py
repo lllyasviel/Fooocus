@@ -25,7 +25,7 @@ from ldm_patched.contrib.external_freelunch import FreeU_V2
 from ldm_patched.modules.sample import prepare_mask
 from modules.lora import match_lora
 from ldm_patched.modules.lora import model_lora_keys_unet, model_lora_keys_clip
-from modules.config import path_embeddings
+from modules.settings import settings
 from ldm_patched.contrib.external_model_advanced import ModelSamplingDiscrete
 
 
@@ -85,7 +85,7 @@ class StableDiffusionModel:
             if os.path.exists(name):
                 lora_filename = name
             else:
-                lora_filename = os.path.join(modules.config.path_loras, name)
+                lora_filename = os.path.join(settings.path_loras, name)
 
             if not os.path.exists(lora_filename):
                 print(f'Lora file not found: {lora_filename}')
@@ -148,7 +148,7 @@ def apply_controlnet(positive, negative, control_net, image, strength, start_per
 @torch.no_grad()
 @torch.inference_mode()
 def load_model(ckpt_filename):
-    unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename, embedding_directory=path_embeddings)
+    unet, clip, vae, clip_vision = load_checkpoint_guess_config(ckpt_filename, embedding_directory=settings.path_embeddings)
     return StableDiffusionModel(unet=unet, clip=clip, vae=vae, clip_vision=clip_vision, filename=ckpt_filename)
 
 
@@ -227,9 +227,8 @@ VAE_approx_models = {}
 def get_previewer(model):
     global VAE_approx_models
 
-    from modules.config import path_vae_approx
     is_sdxl = isinstance(model.model.latent_format, ldm_patched.modules.latent_formats.SDXL)
-    vae_approx_filename = os.path.join(path_vae_approx, 'xlvaeapp.pth' if is_sdxl else 'vaeapp_sd15.pth')
+    vae_approx_filename = os.path.join(settings.path_vae_approx, 'xlvaeapp.pth' if is_sdxl else 'vaeapp_sd15.pth')
 
     if vae_approx_filename in VAE_approx_models:
         VAE_approx_model = VAE_approx_models[vae_approx_filename]

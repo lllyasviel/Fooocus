@@ -16,7 +16,7 @@ import onnxruntime as ort
 
 from PIL import Image
 from onnxruntime import InferenceSession
-from modules.config import path_clip_vision
+from modules.settings import settings
 from modules.model_loader import load_file_from_url
 
 
@@ -31,13 +31,13 @@ def default_interrogator(image_rgb, threshold=0.35, character_threshold=0.85, ex
 
     model_onnx_filename = load_file_from_url(
         url=f'https://huggingface.co/lllyasviel/misc/resolve/main/{model_name}.onnx',
-        model_dir=path_clip_vision,
+        model_dir=settings.path_clip_vision,
         file_name=f'{model_name}.onnx',
     )
 
     model_csv_filename = load_file_from_url(
         url=f'https://huggingface.co/lllyasviel/misc/resolve/main/{model_name}.csv',
-        model_dir=path_clip_vision,
+        model_dir=settings.path_clip_vision,
         file_name=f'{model_name}.csv',
     )
 

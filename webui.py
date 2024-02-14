@@ -4,7 +4,6 @@ import os
 import json
 import time
 import shared
-import modules.config
 import fooocus_version
 import modules.html
 import modules.async_worker as worker
@@ -21,6 +20,7 @@ from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
+from modules.settings import settings
 
 
 def generate_clicked(*args):
@@ -105,7 +105,7 @@ with shared.gradio_root:
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here or paste parameters.", elem_id='positive_prompt',
                                         container=False, autofocus=True, elem_classes='type_row', lines=1024)
 
-                    default_prompt = modules.config.default_prompt
+                    default_prompt = settings.default_prompt
                     if isinstance(default_prompt, str) and default_prompt != '':
                         shared.gradio_root.load(lambda: default_prompt, outputs=prompt)
 
@@ -132,7 +132,7 @@ with shared.gradio_root:
                     skip_button.click(skip_clicked, queue=False, show_progress=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
-                advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
+                advanced_checkbox = gr.Checkbox(label='Advanced', value=settings.default_advanced_checkbox, container=False, elem_classes='min_check')
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Tabs():
                     with gr.TabItem(label='Upscale or Variation') as uov_tab:
@@ -194,7 +194,7 @@ with shared.gradio_root:
                             inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                             outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
                             inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
-                        example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts, label='Additional Prompt Quick List', components=[inpaint_additional_prompt], visible=False)
+                        example_inpaint_prompts = gr.Dataset(samples=settings.example_inpaint_prompts, label='Additional Prompt Quick List', components=[inpaint_additional_prompt], visible=False)
                         gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
                         example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
                     with gr.TabItem(label='Describe') as desc_tab:
@@ -221,19 +221,19 @@ with shared.gradio_root:
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
-        with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
+        with gr.Column(scale=1, visible=settings.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
                 performance_selection = gr.Radio(label='Performance',
                                                  choices=modules.flags.performance_selections,
-                                                 value=modules.config.default_performance)
-                aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
-                                                   value=modules.config.default_aspect_ratio, info='width × height',
+                                                 value=settings.default_performance)
+                aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.settings.available_aspect_ratios,
+                                                   value=modules.settings.default_aspect_ratio, info='width × height',
                                                    elem_classes='aspect_ratios')
-                image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
+                image_number = gr.Slider(label='Image Number', minimum=1, maximum=settings.default_max_image_number, step=1, value=settings.default_image_number)
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
                                              elem_id='negative_prompt',
-                                             value=modules.config.default_prompt_negative)
+                                             value=settings.default_prompt_negative)
                 seed_random = gr.Checkbox(label='Random', value=True)
                 image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
 
@@ -267,7 +267,7 @@ with shared.gradio_root:
             with gr.Tab(label='Style'):
                 style_sorter.try_load_sorted_styles(
                     style_names=legal_style_names,
-                    default_selected=modules.config.default_styles)
+                    default_selected=settings.default_styles)
 
                 style_search_bar = gr.Textbox(show_label=False, container=False,
                                               placeholder="\U0001F50E Type here to search styles ...",
@@ -275,7 +275,7 @@ with shared.gradio_root:
                                               label='Search Styles')
                 style_selections = gr.CheckboxGroup(show_label=False, container=False,
                                                     choices=copy.deepcopy(style_sorter.all_styles),
-                                                    value=copy.deepcopy(modules.config.default_styles),
+                                                    value=copy.deepcopy(settings.default_styles),
                                                     label='Selected Styles',
                                                     elem_classes=['style_selections'])
                 gradio_receiver_style_selections = gr.Textbox(elem_id='gradio_receiver_style_selections', visible=False)
@@ -300,16 +300,16 @@ with shared.gradio_root:
             with gr.Tab(label='Model'):
                 with gr.Group():
                     with gr.Row():
-                        base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True)
-                        refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True)
+                        base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=settings.model_filenames, value=settings.default_base_model_name, show_label=True)
+                        refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + settings.model_filenames, value=settings.default_refiner_model_name, show_label=True)
 
                     refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.1, maximum=1.0, step=0.0001,
                                                info='Use 0.4 for SD1.5 realistic models; '
                                                     'or 0.667 for SD1.5 anime models; '
                                                     'or 0.8 for XL-refiners; '
                                                     'or any value for switching two SDXL models.',
-                                               value=modules.config.default_refiner_switch,
-                                               visible=modules.config.default_refiner_model_name != 'None')
+                                               value=settings.default_refiner_switch,
+                                               visible=settings.default_refiner_model_name != 'None')
 
                     refiner_model.change(lambda x: gr.update(visible=x != 'None'),
                                          inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False)
@@ -317,10 +317,10 @@ with shared.gradio_root:
                 with gr.Group():
                     lora_ctrls = []
 
-                    for i, (n, v) in enumerate(modules.config.default_loras):
+                    for i, (n, v) in enumerate(settings.default_loras):
                         with gr.Row():
                             lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
-                                                     choices=['None'] + modules.config.lora_filenames, value=n)
+                                                     choices=['None'] + settings.lora_filenames, value=n)
                             lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=v,
                                                     elem_classes='lora_weight')
                             lora_ctrls += [lora_model, lora_weight]
@@ -329,10 +329,10 @@ with shared.gradio_root:
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
             with gr.Tab(label='Advanced'):
                 guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01,
-                                           value=modules.config.default_cfg_scale,
+                                           value=settings.default_cfg_scale,
                                            info='Higher value means style is cleaner, vivider, and more artistic.')
                 sharpness = gr.Slider(label='Image Sharpness', minimum=0.0, maximum=30.0, step=0.001,
-                                      value=modules.config.default_sample_sharpness,
+                                      value=settings.default_sample_sharpness,
                                       info='Higher value means image and texture are sharper.')
                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/117" target="_blank">\U0001F4D4 Document</a>')
                 dev_mode = gr.Checkbox(label='Developer Debug Mode', value=False, container=False)
@@ -351,13 +351,13 @@ with shared.gradio_root:
                                                           choices=['joint', 'separate', 'vae'])
 
                         adaptive_cfg = gr.Slider(label='CFG Mimicking from TSNR', minimum=1.0, maximum=30.0, step=0.01,
-                                                 value=modules.config.default_cfg_tsnr,
+                                                 value=settings.default_cfg_tsnr,
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
                                                       '(effective when real CFG > mimicked CFG).')
                         sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list,
-                                                   value=modules.config.default_sampler)
+                                                   value=settings.default_sampler)
                         scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list,
-                                                     value=modules.config.default_scheduler)
+                                                     value=settings.default_scheduler)
 
                         generate_image_grid = gr.Checkbox(label='Generate Image Grid for Each Batch',
                                                           info='(Experimental) This may cause performance problems on some computers and certain internet conditions.',
@@ -365,11 +365,11 @@ with shared.gradio_root:
 
                         overwrite_step = gr.Slider(label='Forced Overwrite of Sampling Step',
                                                    minimum=-1, maximum=200, step=1,
-                                                   value=modules.config.default_overwrite_step,
+                                                   value=settings.default_overwrite_step,
                                                    info='Set as -1 to disable. For developer debugging.')
                         overwrite_switch = gr.Slider(label='Forced Overwrite of Refiner Switch Step',
                                                      minimum=-1, maximum=200, step=1,
-                                                     value=modules.config.default_overwrite_switch,
+                                                     value=settings.default_overwrite_switch,
                                                      info='Set as -1 to disable. For developer debugging.')
                         overwrite_width = gr.Slider(label='Forced Overwrite of Generating Width',
                                                     minimum=-1, maximum=2048, step=1, value=-1,
@@ -413,7 +413,7 @@ with shared.gradio_root:
                         debugging_inpaint_preprocessor = gr.Checkbox(label='Debug Inpaint Preprocessing', value=False)
                         inpaint_disable_initial_latent = gr.Checkbox(label='Disable initial latent in inpaint', value=False)
                         inpaint_engine = gr.Dropdown(label='Inpaint Engine',
-                                                     value=modules.config.default_inpaint_engine_version,
+                                                     value=settings.default_inpaint_engine_version,
                                                      choices=flags.inpaint_engine_versions,
                                                      info='Version of Fooocus inpaint model')
                         inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
@@ -469,11 +469,11 @@ with shared.gradio_root:
                                 queue=False, show_progress=False)
 
                 def model_refresh_clicked():
-                    modules.config.update_all_model_names()
+                    settings.update_all_model_names()
                     results = []
-                    results += [gr.update(choices=modules.config.model_filenames), gr.update(choices=['None'] + modules.config.model_filenames)]
+                    results += [gr.update(choices=settings.model_filenames), gr.update(choices=['None'] + settings.model_filenames)]
                     for i in range(5):
-                        results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
+                        results += [gr.update(choices=['None'] + settings.lora_filenames), gr.update()]
                     return results
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
@@ -502,21 +502,21 @@ with shared.gradio_root:
             if mode == modules.flags.inpaint_option_detail:
                 return [
                     gr.update(visible=True), gr.update(visible=False, value=[]),
-                    gr.Dataset.update(visible=True, samples=modules.config.example_inpaint_prompts),
+                    gr.Dataset.update(visible=True, samples=settings.example_inpaint_prompts),
                     False, 'None', 0.5, 0.0
                 ]
 
             if mode == modules.flags.inpaint_option_modify:
                 return [
                     gr.update(visible=True), gr.update(visible=False, value=[]),
-                    gr.Dataset.update(visible=False, samples=modules.config.example_inpaint_prompts),
-                    True, modules.config.default_inpaint_engine_version, 1.0, 0.0
+                    gr.Dataset.update(visible=False, samples=settings.example_inpaint_prompts),
+                    True, settings.default_inpaint_engine_version, 1.0, 0.0
                 ]
 
             return [
                 gr.update(visible=False, value=''), gr.update(visible=True),
-                gr.Dataset.update(visible=False, samples=modules.config.example_inpaint_prompts),
-                False, modules.config.default_inpaint_engine_version, 1.0, 0.618
+                gr.Dataset.update(visible=False, samples=settings.example_inpaint_prompts),
+                False, settings.default_inpaint_engine_version, 1.0, 0.618
             ]
 
         inpaint_mode.input(inpaint_mode_change, inputs=inpaint_mode, outputs=[

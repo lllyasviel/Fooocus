@@ -5,9 +5,9 @@ import modules.core as core
 from ldm_patched.pfn.architecture.RRDB import RRDBNet as ESRGAN
 from ldm_patched.contrib.external_upscale_model import ImageUpscaleWithModel
 from collections import OrderedDict
-from modules.config import path_upscale_models
+from modules.settings import settings
 
-model_filename = os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
+model_filename = os.path.join(settings.path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
 opImageUpscaleWithModel = ImageUpscaleWithModel()
 model = None
 
