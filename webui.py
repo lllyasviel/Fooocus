@@ -14,6 +14,7 @@ import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
 import modules.meta_parser
+import amp_extensions.models_help_text
 import args_manager
 import copy
 
@@ -300,8 +301,13 @@ with shared.gradio_root:
             with gr.Tab(label='Model'):
                 with gr.Group():
                     with gr.Row():
-                        base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True)
-                        refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True)
+                        # Base Model and its Help Text in the first column
+                        with gr.Column(min_width=10):
+                            base_model = gr.Dropdown(label='Base Model (SDXL only)', choices=modules.config.model_filenames, value=modules.config.default_base_model_name, show_label=True)
+                            help_text = gr.HTML(value=f'{amp_extensions.models_help_text.update_help_text(modules.config.default_base_model_name)}')
+                        # Refiner Model Dropdown in the second column
+                        with gr.Column(min_width=10):
+                            refiner_model = gr.Dropdown(label='Refiner (SDXL or SD 1.5)', choices=['None'] + modules.config.model_filenames, value=modules.config.default_refiner_model_name, show_label=True)
 
                     refiner_switch = gr.Slider(label='Refiner Switch At', minimum=0.1, maximum=1.0, step=0.0001,
                                                info='Use 0.4 for SD1.5 realistic models; '
@@ -311,6 +317,10 @@ with shared.gradio_root:
                                                value=modules.config.default_refiner_switch,
                                                visible=modules.config.default_refiner_model_name != 'None')
 
+                    # Connect the dropdown with the update_help_text function to update the help text dynamically
+                    base_model.change(amp_extensions.models_help_text.update_help_text, inputs=base_model, outputs=help_text)
+
+   
                     refiner_model.change(lambda x: gr.update(visible=x != 'None'),
                                          inputs=refiner_model, outputs=refiner_switch, show_progress=False, queue=False)
 
