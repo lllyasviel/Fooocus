@@ -15,6 +15,7 @@ import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
 import modules.meta_parser
 import amp_extensions.models_help_text
+import amp_extensions.lora_trigger_words
 import args_manager
 import copy
 
@@ -331,6 +332,9 @@ with shared.gradio_root:
                         with gr.Row():
                             lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
                                                      choices=['None'] + modules.config.lora_filenames, value=n)
+                            if n != 'None':
+                                prompt.value = amp_extensions.lora_trigger_words.get_trigger_word(n, prompt)
+                            lora_model.change(amp_extensions.lora_trigger_words.get_trigger_word, inputs=[lora_model, prompt], outputs=prompt)
                             lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=v,
                                                     elem_classes='lora_weight')
                             lora_ctrls += [lora_model, lora_weight]
