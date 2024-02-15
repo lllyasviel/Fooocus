@@ -1,0 +1,18 @@
+[
+    {
+        "name": "SP_ADE Dark Blue Kawaii",
+        "prompt": "{prompt} kawaii illustrations by han joh, in the style of martine johanna, dark black and light aquamarine, naturalistic bird portraits, mirror, sidney sime, ultrafine detail, aaron douglas"
+    },
+    {
+        "name": "SP_ADE Fantasy & Nature",
+        "prompt": "a {prompt} in the style of whimsical children's book illustration, animals, flowers and nature behind, large-scale, large-scale brushstrokes, vibrant palettes, robert munsch, gene luen yang, bill jacklin"
+    },
+    {
+        "name": "SP_ADE Hyper Realistic",
+        "prompt": "{subject} in the style of hyper-realistic illustrations, pastel colors, soft watercolours, prairiecore, made of insects, monochromatic intensity, miniature and small-scale paintings "
+    },
+    {
+        "name": "SP_ADE Detailed Pencil Art",
+        "prompt": "{prompt}, sketch by michael jenson kilm, in the style of nostalgic illustration, black and white style, realist detail, album covers, watercolorist, miniature and small-scale paintings, hyper-realistic animal illustrations"
+    }
+]

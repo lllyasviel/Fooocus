@@ -51,3 +51,6 @@ user_path_config-deprecated.txt
 /package-lock.json
 /.coverage*
 /auth.json
+
+
+oryx-build-commands.txt
