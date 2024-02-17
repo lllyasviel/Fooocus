@@ -261,11 +261,14 @@ with shared.gradio_root:
 
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed],
                                    queue=False, show_progress=False)
+                def update_history_link():
+                    if args_manager.args.disable_image_log:
+                        return gr.update(value='')
+                    
+                    return gr.update(value=f'<a href="file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
 
-                read_wildcard_in_order_checkbox = gr.Checkbox(label="Read wildcard in order with same seed", value=False)
-
-                if not args_manager.args.disable_image_log:
-                    gr.HTML(f'<a href="file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
+                history_link = gr.HTML()
+                shared.gradio_root.load(update_history_link, outputs=history_link, queue=False, show_progress=False)
 
             with gr.Tab(label='Style', elem_classes=['style_selections_tab']):
                 style_sorter.try_load_sorted_styles(
@@ -624,6 +627,7 @@ with shared.gradio_root:
             .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
                   outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
+            .then(fn=update_history_link, outputs=history_link) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
@@ -656,6 +660,6 @@ shared.gradio_root.launch(
     server_name=args_manager.args.listen,
     server_port=args_manager.args.port,
     share=args_manager.args.share,
-    auth=check_auth if args_manager.args.share and auth_enabled else None,
+    auth=check_auth if (args_manager.args.share or args_manager.args.listen) and auth_enabled else None,
     blocked_paths=[constants.AUTH_FILENAME]
 )
