@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import IntEnum, Enum
 
 disabled = 'Disabled'
 enabled = 'Enabled'
@@ -93,13 +93,13 @@ lora_count_with_lcm = lora_count + 1
 controlnet_image_count = 4
 
 
-class Steps(Enum):
+class Steps(IntEnum):
     QUALITY = 60
     SPEED = 30
     EXTREME_SPEED = 8
 
 
-class StepsUOV(Enum):
+class StepsUOV(IntEnum):
     QUALITY = 36
     SPEED = 18
     EXTREME_SPEED = 8
