@@ -26,7 +26,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
         loaded_parameter_dict = json.loads(raw_metadata)
     assert isinstance(loaded_parameter_dict, dict)
 
-    results = [True, 1]
+    results = [len(loaded_parameter_dict) > 0, 1]
 
     get_str('prompt', 'Prompt', loaded_parameter_dict, results)
     get_str('negative_prompt', 'Negative Prompt', loaded_parameter_dict, results)
@@ -39,7 +39,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
     get_float('sharpness', 'Sharpness', loaded_parameter_dict, results)
     get_adm_guidance('adm_guidance', 'ADM Guidance', loaded_parameter_dict, results)
     get_str('refiner_swap_method', 'Refiner Swap Method', loaded_parameter_dict, results)
-    get_str('adaptive_cfg', 'CFG Mimicking from TSNR', loaded_parameter_dict, results)
+    get_float('adaptive_cfg', 'CFG Mimicking from TSNR', loaded_parameter_dict, results)
     get_str('base_model', 'Base Model', loaded_parameter_dict, results)
     get_str('refiner_model', 'Refiner Model', loaded_parameter_dict, results)
     get_float('refiner_switch', 'Refiner Switch', loaded_parameter_dict, results)
@@ -204,7 +204,7 @@ class MetadataParser(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def parse_json(self, metadata: dict) -> dict:
+    def parse_json(self, metadata: dict | str) -> dict:
         raise NotImplementedError
 
     @abstractmethod
@@ -503,11 +503,11 @@ def read_info_from_image(filepath) -> tuple[str | None, dict, MetadataScheme | N
     except ValueError:
         metadata_scheme = None
 
-    # broad fallback
-    if metadata_scheme is None and isinstance(parameters, dict):
-        metadata_scheme = MetadataScheme.FOOOCUS
+        # broad fallback
+        if isinstance(parameters, dict):
+            metadata_scheme = MetadataScheme.FOOOCUS
 
-    if metadata_scheme is None and isinstance(parameters, str):
-        metadata_scheme = MetadataScheme.A1111
+        if isinstance(parameters, str):
+            metadata_scheme = MetadataScheme.A1111
 
     return parameters, items, metadata_scheme
