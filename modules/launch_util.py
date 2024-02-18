@@ -5,12 +5,17 @@ import subprocess
 import sys
 import re
 import logging
+import importlib.metadata
+import packaging.version
+from packaging.requirements import Requirement
+
+
 
 
 logging.getLogger("torch.distributed.nn").setLevel(logging.ERROR)  # sshh...
 logging.getLogger("xformers").addFilter(lambda record: 'A matching Triton is not available' not in record.getMessage())
 
-re_requirement = re.compile(r"\s*([-_a-zA-Z0-9]+)\s*(?:==\s*([-+_.a-zA-Z0-9]+))?\s*")
+re_requirement = re.compile(r"\s*([-\w]+)\s*(?:==\s*([-+.\w]+))?\s*")
 
 python = sys.executable
 default_command_live = (os.environ.get('LAUNCH_LIVE_OUTPUT') == "1")
@@ -73,35 +78,26 @@ def run_pip(command, desc=None, live=default_command_live):
 
 
 def requirements_met(requirements_file):
-    """
-    Does a simple parse of a requirements.txt file to determine if all rerqirements in it
-    are already installed. Returns True if so, False if not installed or parsing fails.
-    """
-
-    import importlib.metadata
-    import packaging.version
-
     with open(requirements_file, "r", encoding="utf8") as file:
         for line in file:
-            if line.strip() == "":
+            line = line.strip()
+            if line == "" or line.startswith('#'):
                 continue
 
-            m = re.match(re_requirement, line)
-            if m is None:
-                return False
-
-            package = m.group(1).strip()
-            version_required = (m.group(2) or "").strip()
-
-            if version_required == "":
-                continue
+            requirement = Requirement(line)
+            package = requirement.name
 
             try:
                 version_installed = importlib.metadata.version(package)
-            except Exception:
-                return False
+                installed_version = packaging.version.parse(version_installed)
 
-            if packaging.version.parse(version_required) != packaging.version.parse(version_installed):
+                # Check if the installed version satisfies the requirement
+                if installed_version not in requirement.specifier:
+                    print(f"Version mismatch for {package}: Installed version {version_installed} does not meet requirement {requirement}")
+                    return False
+            except Exception as e:
+                print(f"Error checking version for {package}: {e}")
                 return False
 
     return True
+
