@@ -525,13 +525,17 @@ with shared.gradio_root:
                 preset_content = modules.config.try_get_preset_content(preset) if preset != 'initial' else {}
                 preset_prepared = modules.meta_parser.parse_meta_from_preset(preset_content)
 
-                default_model = preset_prepared['Base Model']
-                previous_default_models = preset_prepared['previous_default_models']
-                checkpoint_downloads = preset_prepared['checkpoint_downloads']
-                embeddings_downloads = preset_prepared['embeddings_downloads']
-                lora_downloads = preset_prepared['lora_downloads']
+                default_model = preset_prepared.get('Base Model')
+                previous_default_models = preset_prepared.get('previous_default_models', [])
+                checkpoint_downloads = preset_prepared.get('checkpoint_downloads', {})
+                embeddings_downloads = preset_prepared.get('embeddings_downloads', {})
+                lora_downloads = preset_prepared.get('lora_downloads', {})
+
                 preset_prepared['Base Model'], preset_prepared['lora_downloads'] = launch.download_models(
                     default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads)
+
+                if 'Prompt' in preset_prepared and preset_prepared.get('Prompt') == '':
+                    del preset_prepared['Prompt']
 
                 return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
 
