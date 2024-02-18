@@ -375,10 +375,10 @@ def worker():
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
 
-        switch = int(round(steps * refiner_switch))
-
         if overwrite_step > 0:
             steps = overwrite_step
+
+        switch = int(round(steps * refiner_switch))
 
         if overwrite_switch > 0:
             switch = overwrite_switch
@@ -773,8 +773,7 @@ def worker():
             done_steps = current_task_id * steps + step
             async_task.yields.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Sampling Image {current_task_id + 1}/{image_number}, Step {step + 1}/{total_steps} ...',
-                y)])
+                f'Sampling Image {current_task_id + 1}/{image_number}, Step {step + 1}/{total_steps} ...', y)])
 
         for current_task_id, task in enumerate(tasks):
             execution_start_time = time.perf_counter()
