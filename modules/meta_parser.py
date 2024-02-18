@@ -97,7 +97,8 @@ def get_steps(key: str, fallback: str | None, source_dict: dict, results: list, 
         h = source_dict.get(key, source_dict.get(fallback, default))
         assert h is not None
         h = int(h)
-        if h not in set(item.value for item in Steps):
+        # if not in steps or in steps and performance is not the same
+        if h not in iter(Steps) or Steps(h).name.casefold() != source_dict.get('performance', '').replace(' ', '_').casefold():
             results.append(h)
             return
         results.append(-1)

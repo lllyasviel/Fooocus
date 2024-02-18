@@ -825,6 +825,7 @@ def worker():
                          ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion']),
                          ('Styles', 'styles', str(raw_style_selections)),
                          ('Performance', 'performance', performance_selection.value),
+                         ('Steps', 'steps', steps),
                          ('Resolution', 'resolution', str((width, height))),
                          ('Guidance Scale', 'guidance_scale', guidance_scale),
                          ('Sharpness', 'sharpness', modules.patch.patch_settings[pid].sharpness),
