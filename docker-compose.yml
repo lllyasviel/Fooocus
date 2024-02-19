@@ -6,9 +6,9 @@ volumes:
 services:
   app:
     build: .
-    image: whitehara/fooocus
+    image: fooocus
     ports:
-     - 7865:7865
+      - "7865:7865"
     environment:
       - CMDARGS=--listen   # Arguments for entry_with_update.py.
       - DATADIR=/content/data   # Directory which stores models and the outputs dir
@@ -23,9 +23,9 @@ services:
       - path_controlnet=/content/data/models/controlnet/
       - path_clip_vision=/content/data/models/clip_vision/
       - path_fooocus_expansion=/content/data/models/prompt_expansion/fooocus_expansion/
-      - path_outputs=/content/app/outputs/   # Warning: If this directory is not located under '/content/app', you can't see history log!
-      - default_model=juggernautXL_version6Rundiffusion.safetensors
-      - default_performance=Speed
+      - path_outputs=/content/app/outputs/   # Warning: If this directory is not located under '/content/app', you can't access the history log!
+      #- default_model=juggernautXL_v8Rundiffusion.safetensors
+      #- default_performance=Speed
     volumes:
       - fooocus-data:/content/data
     tty: true
@@ -33,6 +33,6 @@ services:
       resources:
         reservations:
           devices:
-              - driver: nvidia
-                device_ids: ['0']
-                capabilities: [compute, utility]
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [compute, utility]
