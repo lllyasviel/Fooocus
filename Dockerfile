@@ -24,4 +24,4 @@ USER user
 
 RUN mv /content/app/models /content/app/models.org
 
-CMD /content/app/entrypoint.sh ${CMDARGS}
+CMD [ "/content/app/entrypoint.sh",  "${CMDARGS}" ]
