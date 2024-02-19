@@ -25,6 +25,11 @@ Otherwise, you will see the permission error.
 
 ## Details
 
+### Update the container manually
+
+When you are using `docker compose up --build` continuously, the container is not updated to the newest version of Fooocus automatically.
+If you want to use the newest one, you need to run `git pull` before you run `docker compose up --build`
+
 ### Paths inside the container
 
 |Path|Details|

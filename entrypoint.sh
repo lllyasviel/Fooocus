@@ -21,4 +21,4 @@ mklink models
 mklink outputs
 
 # Start application
-python entry_with_update.py $*
+python launch.py $*
