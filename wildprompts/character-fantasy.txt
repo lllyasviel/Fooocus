@@ -11,40 +11,27 @@ Fantasy, Female Cunning Assassin, Specializes in discreetly eliminating targets,
 Fantasy, Female Spirited Bard, Charismatic musician and storyteller playing a lute
 Fantasy, Female Mysterious Oracle, Possesses foresight and cryptic knowledge
 Fantasy, Female Fierce Barbarian, Powerful and fearless warrior from the wilds
-Fantasy, Female Clever Tinkerer, Inventive and resourceful creator of gadgets
 Fantasy, Female Angelic Guardian, Celestial being sent to protect the mortal realm
 Fantasy, Female Dark Necromancer, Raises the dead and controls dark forces
 Fantasy, Female Savage Beastmaster, Commands and communicates with wild beasts
 Fantasy, Female Cursed Vampire, Immortal being with a thirst for blood
 Fantasy, Female Mercurial Trickster, Mischievous and unpredictable trickster
-Fantasy, Female Sea Captain Adventurer, Sailor exploring uncharted waters
 Fantasy, Female Kind-hearted Healer, Skilled in the arts of restoration and curing
 Fantasy, Female Nomadic Ranger, Roams the wilderness, skilled tracker and survivalist
 Fantasy, Female Mystical Alchemist, Master of potions and transformative elixirs
 Fantasy, Female Ghostly Specter, Spirit lingering in the mortal realm
 Fantasy, Female Ancient Dragon Rider, Bonds with and rides a powerful dragon
-Fantasy, Female Chosen One, Prophesied hero with a destiny to fulfill
-Fantasy, Female Clockwork Automaton, Living construct powered by gears and magic
 Fantasy, Female Celestial Enchantress, Harnesses the power of the stars for magic
-Fantasy, Female Arcane Artificer, Crafts magical artifacts and enchanted items
-Fantasy, Female Daring Sky Pirate, Rules the skies with a flying airship
 Fantasy, Female Forest Guardian, Protector of ancient woodlands and creatures
 Fantasy, Female Martial Monk, Disciplined warrior with spiritual enlightenment
 Fantasy, Female Magma Elemental, Being of living molten rock and fire
 Fantasy, Female Ice Queen, Ruler with control over frost and ice
-Fantasy, Female Steampunk Inventor, Creates advanced machinery in a Victorian setting
-Fantasy, Female Charming Diplomat, Skilled negotiator and mediator
 Fantasy, Female Lunar Priestess, Channels the power of the moon for magic
 Fantasy, Female Golem Guardian, Animated stone or clay construct protecting a place
 Fantasy, Female Cursed Werewolf, Human cursed to transform into a wolf-like creature
-Fantasy, Female Lively Jester, Entertainer skilled in both humor and combat
 Fantasy, Female Vengeful Ghost, Spirit seeking retribution for an unresolved past
 Fantasy, Female Petrifying Gorgon, Possesses a gaze that turns others to stone
-Fantasy, Female Time Traveler, Travels through time, affecting past and future events
-Fantasy, Female Artificial Intelligence Being, Sentient machine with advanced intelligence
 Fantasy, Female Elemental Shaman, Communicates with and controls the elements
-Fantasy, Female Psionic Mindreader, Reads thoughts and influences others with the mind
 Fantasy, Female Mutant Shape-shifter, Can morph into different forms at will
-Fantasy, Female Leprechaun Trickster, Magical being fond of mischief and gold
 Fantasy, Female Stormbringer Valkyrie, Warrior maiden wielding the power of storms
 Fantasy, Female Sentient Plant Druid, Connected to the flora, capable of manipulating plants
