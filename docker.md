@@ -30,6 +30,16 @@ Otherwise, you will see the permission error.
 When you are using `docker compose up --build` continuously, the container is not updated to the newest version of Fooocus automatically.
 If you want to use the newest one, you need to run `git pull` before you run `docker compose up --build`
 
+### Import models, outputs
+If you want to import files from models, outputs folder, you can uncomment following settings in docker-compose.yml
+```
+#- ./models:/import/models   # Once you import files, you don't need to mount again.
+#- ./outputs:/import/outputs  # Once you import files, you don't need to mount again.
+```
+Then run `docker compose up --build`, your files will be copied into /content/data/models, /content/data/outputs
+Since /content/data is a persistent volume folder, your files will be there when you re-run 'docker compose up --build` without above volume settings.
+
+
 ### Paths inside the container
 
 |Path|Details|
