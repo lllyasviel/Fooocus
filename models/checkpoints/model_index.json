@@ -1,0 +1,41 @@
+{
+  "_class_name": "StableDiffusionXLPipeline",
+  "_diffusers_version": "0.25.0",
+  "feature_extractor": [
+    null,
+    null
+  ],
+  "force_zeros_for_empty_prompt": true,
+  "image_encoder": [
+    null,
+    null
+  ],
+  "scheduler": [
+    "diffusers",
+    "KDPM2AncestralDiscreteScheduler"
+  ],
+  "text_encoder": [
+    "transformers",
+    "CLIPTextModel"
+  ],
+  "text_encoder_2": [
+    "transformers",
+    "CLIPTextModelWithProjection"
+  ],
+  "tokenizer": [
+    "transformers",
+    "CLIPTokenizer"
+  ],
+  "tokenizer_2": [
+    "transformers",
+    "CLIPTokenizer"
+  ],
+  "unet": [
+    "diffusers",
+    "UNet2DConditionModel"
+  ],
+  "vae": [
+    "diffusers",
+    "AutoencoderKL"
+  ]
+}

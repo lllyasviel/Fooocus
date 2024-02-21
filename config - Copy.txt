@@ -1,0 +1,95 @@
+{
+    "path_checkpoints": "D:\\LocalLLM\\Fooocus\\Fooocus\\models\\checkpoints",
+    "path_loras": "D:\\LocalLLM\\Fooocus\\Fooocus\\models\\loras",
+    "path_embeddings": "D:\\LocalLLM\\Fooocus\\Fooocus\\models\\embeddings",
+    "path_vae_approx": "D:\\LocalLLM\\Fooocus\\Fooocus\\models\\vae_approx",
+    "path_upscale_models": "D:\\LocalLLM\\Fooocus\\Fooocus\\models\\upscale_models",
+    "path_inpaint": "D:\\LocalLLM\\Fooocus\\Fooocus\\models\\inpaint",
+    "path_controlnet": "D:\\LocalLLM\\Fooocus\\Fooocus\\models\\controlnet",
+    "path_clip_vision": "D:\\LocalLLM\\Fooocus\\Fooocus\\models\\clip_vision",
+    "path_fooocus_expansion": "D:\\LocalLLM\\Fooocus\\Fooocus\\models\\prompt_expansion\\fooocus_expansion",
+    "path_outputs": "D:\\LocalLLM\\Fooocus\\Fooocus\\outputs"
+,
+    "default_model": "ProteusV0.2.safetensors",
+    "default_refiner": "None",
+    "default_refiner_switch": 0.5,
+    "default_loras": [
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ]
+    ],
+    "default_cfg_scale": 8.0,
+    "default_sample_sharpness": 5.5,
+    "default_sampler": "dpmpp_3m_sde_gpu",
+    "default_scheduler": "karras",
+    "default_styles": [
+        "Fooocus V2",
+        "Fooocus Enhance",
+        "Fooocus Sharp",
+        "Fooocus Masterpiece",
+	"Volumetric Lighting",
+        "Fooocus Negative"
+
+    ],
+    "default_prompt_negative": "[embedding:bhands-neg]bhands1,[embedding:easynegative], prepubescent, text, watermark",
+    "default_prompt": " .high detail, best",
+    "default_performance": "Speed",
+    "default_advanced_checkbox": true,
+    "default_max_image_number": 150,
+    "default_image_number": 4,
+    "embeddings_downloads": {},
+    "available_aspect_ratios": [
+        "704*1408",
+        "704*1344",
+        "768*1344",
+        "768*1280",
+        "832*1216",
+        "832*1152",
+        "896*1152",
+        "896*1088",
+        "960*1088",
+        "960*1024",
+        "1024*1024",
+        "1024*960",
+        "1088*960",
+        "1088*896",
+        "1152*896",
+        "1152*832",
+        "1216*832",
+        "1280*768",
+        "1344*768",
+        "1344*704",
+        "1408*704",
+        "1472*704",
+        "1536*640",
+        "1600*640",
+        "1664*576",
+        "1728*576"
+    ],
+    "default_aspect_ratio": "1024*1024",
+    "default_overwrite_step": 24,
+    "example_inpaint_prompts": [
+        "highly detailed face",
+        "detailed girl face",
+        "detailed man face",
+        "detailed hand",
+        "beautiful eyes"
+    ]
+}

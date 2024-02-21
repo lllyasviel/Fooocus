@@ -1,0 +1,21 @@
+smooth hide
+smooth leather
+scaly hide
+scaly leather
+human skin
+demonic skin
+slimy
+rabbit skin
+horse hide
+cow leather
+fox leather
+sheepskin
+amphibious scales
+snake scales
+dragon scales
+dragon hide
+chimera skin
+oozelike
+spiky
+furry
+

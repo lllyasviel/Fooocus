@@ -1,0 +1,145 @@
+Black Bear
+Lynx
+Panther
+Gray Wolf
+Grizzly Bear
+Monk Seal
+Mountain Lion
+River Otter
+Polar Bear
+Raccoon
+Red Fox
+Red Wolf
+(Wolverine animal:1)
+Bison
+Bighorn Sheep
+Key Deer
+Moose
+Mule Deer
+Pronghorn
+Pika
+Snowshoe Hare
+Swamp Rabbit
+Beaver
+Prairie Dog
+Dusky-Footed Woodrat
+Flying Squirrels
+Pocket Gophers
+Red Squirrel
+Red Tree Vole
+Bat
+Fruit-Eating Bat
+Little Brown Bat
+Common Opossum
+Moles
+Musk Oxen
+Feral Hogs
+Wapiti
+Fox
+Dog
+Cat
+Squirrel
+Chipmunk
+Tiger
+Deer
+Wolf
+Bear
+Opossum
+Abert’s Squirrel
+Beaver
+Bison
+Black Bear
+Marten
+Mink
+Red Squirrel
+Jackrabbit
+Arctic Wolf
+Bighorn Sheep
+Ferret
+Jackrabbit
+Prairie Dog
+Bobcat
+Brown Bear
+Leaf-nosed Bat
+Lynx
+Caribou
+Cottontail Rabbit
+Cougar
+Coyote
+Crawford’s Gray Shrew
+Dall Sheep
+Bighorn Ship
+Cottontail
+Horned Lizard
+Kangaroo Rat
+Chipmunk
+Gray Squirrel
+Moose
+Elk
+European Water Vole
+Fox Squirrel
+Giant Kangaroo Rat
+Gray Fox
+Gray Wolf
+Grizzly Bear
+Groundhog
+Antelope Squirrel
+Monk Seal
+Jaguar
+Jaguarundi
+Key Deer
+Kit Fox
+Little Brown Bat
+Mountain Goat
+Mule Deer
+Muskrat
+Beaver
+Porcupine
+River Otter
+Flying Squirrel
+Ocelot
+Peccary
+Pocket Gopher
+Polar Bear
+Pronghorn
+Raccoon
+Red Fox
+Red Wolf
+Ringtail
+Snowshoe Hare
+Stoat
+Striped Skunk
+Swift Fox
+Virginia Opossum
+Weasel
+White-tailed Deer
+Wolf
+Amphibians
+American Bullfrog
+Hellbender
+Kestrel
+Bald Eagle
+Burrowing Owl
+California Condor
+Canada Goose
+Costa’s Hummingbird
+Gambel’s Quail
+Horned Owl
+Prairie Chicken
+Roadrunner
+Long-billed Curlew
+Northern Mockingbird
+Invertebrates
+Bark Scorpion
+Horseshoe Crab
+Giant Hairy Scorpion
+Alligator Snapping Turtle
+Alligator
+Armadillo Girdled Lizard
+Gila Monster
+Mojave Rattlesnake
+Western Banded Gecko
+Western Diamondback Rattlesnake
+Black Widow Spider
+Luna Moth
+Monarch Butterfly

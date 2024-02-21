@@ -1,0 +1,7 @@
+__character_actions_any__
+__character_actions_boudoir__
+__character_actions_couple__
+__character_actions_demon__
+__character_actions_hero__
+__character_actions_single__
+__character_actions_villain__

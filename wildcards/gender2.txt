@@ -1,0 +1,16 @@
+male
+female
+non-binary
+trans-male
+trans-female
+non-binary 
+boy
+girl
+man
+woman
+non-binary boy
+non-binary girl
+non-binary man
+non-binary woman
+feminine man
+masculine woman

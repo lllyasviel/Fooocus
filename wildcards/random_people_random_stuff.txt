@@ -1,0 +1,1 @@
+[in __surroundings__,] a __character_random__ __gender__,  doing __character_actions_random__., at __time_day__ in __time_year__

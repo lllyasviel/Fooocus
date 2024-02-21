@@ -1,0 +1,16 @@
+mage
+wizard
+sorcerer
+priest
+magical acolyte
+magical adept
+magical apprentice
+bard
+druid
+necromancer
+warlock
+witch
+sorceress
+magical pet master
+enchanter
+enchantress

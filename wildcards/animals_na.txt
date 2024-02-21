@@ -1,0 +1,161 @@
+Black Bear
+Canada Lynx
+Florida Panther
+Gray Wolf
+Grizzly Bear
+Hawaiian Monk Seal
+Mountain Lion
+North American River Otter
+Polar Bear
+Raccoon
+Red Fox
+Red Wolf
+(Wolverine animal:1)
+American Bison
+Bighorn Sheep
+Key Deer
+Moose
+Mule Deer
+Pronghorn
+American Pika
+Snowshoe Hare
+Swamp Rabbit
+American Beaver
+Black-Tailed Prairie Dog
+Dusky-Footed Woodrat
+Flying Squirrels
+Pocket Gophers
+Red Squirrel
+Red Tree Vole
+Indiana Bat
+Jamaican Fruit-Eating Bat
+Little Brown Bat
+Common Opossum
+Moles
+Nine-Banded Armadillo
+Musk Oxen
+Feral Hogs
+Wapiti
+Fox
+Dog
+Cat
+Squirrel
+Chipmunk
+Tiger
+Llama
+Deer
+Wolf
+Bear
+Opossum
+Abert’s Squirrel
+American Beaver
+American Bison
+American Black Bear
+American Marten
+American Mink
+American Red Squirrel
+Antelope Jackrabbit
+Arctic Wolf
+Bighorn Sheep
+Black-Footed Ferret
+Black-Tailed Jackrabbit
+Black-Tailed Prairie Dog
+Bobcat
+Brown Bear
+California Leaf-nosed Bat
+Canada Lynx
+Caribou
+Cottontail Rabbit
+Cougar
+Coyote
+Crawford’s Gray Shrew
+Dall Sheep
+Desert Bighorn Ship
+Desert Cottontail
+Desert Horned Lizard
+Desert Kangaroo Rat
+Eastern Chipmunk
+Eastern Gray Squirrel
+Eastern Moose
+Eastern Moose
+Elk
+European Water Vole
+Fisher
+Fox Squirrel
+Giant Kangaroo Rat
+Gray Fox
+Gray Wolf
+Grizzly Bear
+Groundhog
+Harris’s Antelope Squirrel
+Hawaiian Monk Seal
+Jaguar
+Jaguarundi
+Key Deer
+Kit Fox
+Little Brown Bat
+Mountain Goat
+Mountain Goat
+Mule Deer
+Mule Deer
+Muskrat
+Muskrat
+Nine-banded Armadillo
+North American Beaver
+North American Manatee
+North American Porcupine
+North American River Otter
+Northern Flying Squirrel
+Ocelot
+Peccary
+Pocket Gopher
+Polar Bear
+Pronghorn
+Raccoon
+Red Fox
+Red Wolf
+Ringtail
+Snowshoe Hare
+Stoat
+Striped Skunk
+Swift Fox
+Virginia Opossum
+Weasel
+White-tailed Deer
+Wolf
+Wolverine
+Amphibians
+American Bullfrog
+Hellbender
+Birds
+American Crow
+American Kestrel
+American Robin
+Bald Eagle
+Burrowing Owl
+California Condor
+Canada Goose
+Costa’s Hummingbird
+Gambel’s Quail
+Great Horned Owl
+Greater Prairie Chicken
+Greater Roadrunner
+Greater Sage Grouse
+Long-billed Curlew
+Northern Mockingbird
+Invertebrates
+Arizona Bark Scorpion
+Atlantic Horseshoe Crab
+Giant Hairy Scorpion
+Reptiles
+Alligator Snapping Turtle
+American Alligator
+Armadillo Girdled Lizard
+Gila Monster
+Mojave Rattlesnake
+Western Banded Gecko
+Western Diamondback Rattlesnake
+Insects
+Black Widow Spider
+Luna Moth
+Monarch Butterfly

@@ -1,0 +1,10 @@
+average
+narrow 
+wide
+average
+short
+tall
+average
+average
+average
+average

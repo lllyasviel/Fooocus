@@ -1,0 +1,6 @@
+male
+female
+boy
+girl
+man
+woman

@@ -1,0 +1,25 @@
+january
+february
+march
+april
+may
+june
+july 
+august
+september
+october
+november
+december
+spring
+summer
+fall
+winter
+early spring
+early summer
+early fall
+early winter
+autumn
+late spring
+late summer
+late fall
+late winter

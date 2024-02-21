@@ -1,0 +1,12 @@
+elemental
+life
+death
+necromantic
+fire
+water
+ice
+air
+heart
+unlife
+undeath
+summoner
