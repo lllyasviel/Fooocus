@@ -6,6 +6,7 @@ import urllib.parse
 
 from PIL import Image
 from modules.util import generate_temp_filename
+from modules.private_logger_transaction import LoggerTransactionManager
 
 
 log_cache = {}
@@ -98,10 +99,14 @@ def log(img, dic):
 
     middle_part = item + middle_part
 
-    with open(html_name, 'w', encoding='utf-8') as f:
-        f.write(begin_part + middle_part + end_part)
+    if LoggerTransactionManager.is_transaction():
+        LoggerTransactionManager.push(html_name, f'{begin_part}{middle_part}{end_part}')
+        print(f'Image generated, private log waiting for flush: {html_name}')
+    else:
+        with open(html_name, 'w', encoding='utf-8') as f:
+            f.write(begin_part + middle_part + end_part)
 
-    print(f'Image generated with private log at: {html_name}')
+        print(f'Image generated with private log at: {html_name}')
 
     log_cache[html_name] = middle_part
 
