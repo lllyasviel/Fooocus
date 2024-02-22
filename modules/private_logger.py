@@ -42,28 +42,82 @@ def log(img, dic, wildprompt=''):
     )
 
     js = (
-        """<script>
-        function to_clipboard(txt) { 
-        txt = decodeURIComponent(txt);
-        if (navigator.clipboard && navigator.permissions) {
-            navigator.clipboard.writeText(txt)
-        } else {
-            const textArea = document.createElement('textArea')
-            textArea.value = txt
-            textArea.style.width = 0
-            textArea.style.position = 'fixed'
-            textArea.style.left = '-999px'
-            textArea.style.top = '10px'
-            textArea.setAttribute('readonly', 'readonly')
-            document.body.appendChild(textArea)
+        """
+        <script>
+            function to_clipboard(txt) { 
+            txt = decodeURIComponent(txt);
+            if (navigator.clipboard && navigator.permissions) {
+                navigator.clipboard.writeText(txt)
+            } else {
+                const textArea = document.createElement('textArea')
+                textArea.value = txt
+                textArea.style.width = 0
+                textArea.style.position = 'fixed'
+                textArea.style.left = '-999px'
+                textArea.style.top = '10px'
+                textArea.setAttribute('readonly', 'readonly')
+                document.body.appendChild(textArea)
 
-            textArea.select()
-            document.execCommand('copy')
-            document.body.removeChild(textArea)
-        }
-        alert('Copied to Clipboard!\\nPaste to prompt area to load parameters.\\nCurrent clipboard content is:\\n\\n' + txt);
-        }
-        </script>"""
+                textArea.select()
+                document.execCommand('copy')
+                document.body.removeChild(textArea)
+            }
+            alert('Copied to Clipboard!\\nPaste to prompt area to load parameters.\\nCurrent clipboard content is:\\n\\n' + txt);
+            }
+            
+            // Extracting distinct data-model and data-wildprompts values
+            var modelSet = new Set();
+            var wildpromptsSet = new Set();
+
+            document.querySelectorAll('.image-container').forEach(function(container) {
+                var model = container.getAttribute('data-model');
+                var wildprompts = container.getAttribute('data-wildprompts');
+                
+                modelSet.add(model);
+                wildpromptsSet.add(wildprompts);
+            });
+
+            // Creating checkboxes for data-model values
+            var modelCheckboxList = document.createElement('div');
+            modelCheckboxList.innerHTML = '<h3>Data Model</h3>';
+            modelSet.forEach(function(model) {
+                var checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = model;
+                checkbox.id = 'model_' + model;
+                
+                var label = document.createElement('label');
+                label.htmlFor = 'model_' + model;
+                label.appendChild(document.createTextNode(model));
+                
+                modelCheckboxList.appendChild(checkbox);
+                modelCheckboxList.appendChild(label);
+                modelCheckboxList.appendChild(document.createElement('br'));
+            });
+
+            // Creating checkboxes for data-wildprompts values
+            var wildpromptsCheckboxList = document.createElement('div');
+            wildpromptsCheckboxList.innerHTML = '<h3>Data Wildprompts</h3>';
+            wildpromptsSet.forEach(function(wildprompt) {
+                var checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = wildprompt;
+                checkbox.id = 'wildprompt_' + wildprompt;
+                
+                var label = document.createElement('label');
+                label.htmlFor = 'wildprompt_' + wildprompt;
+                label.appendChild(document.createTextNode(wildprompt));
+                
+                wildpromptsCheckboxList.appendChild(checkbox);
+                wildpromptsCheckboxList.appendChild(label);
+                wildpromptsCheckboxList.appendChild(document.createElement('br'));
+            });
+
+            // Appending checkbox lists to the DOM
+            document.body.appendChild(modelCheckboxList);
+            document.body.appendChild(wildpromptsCheckboxList);
+        </script>
+        """
     )
 
     begin_part = f"<!DOCTYPE html><html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>{js}<p>Fooocus Log {date_string} (private)</p>\n<p>All images are clean, without any hidden data/meta, and safe to share with others.</p><!--fooocus-log-split-->\n\n"
@@ -80,7 +134,15 @@ def log(img, dic, wildprompt=''):
                 middle_part = existing_split[0]
 
     div_name = only_name.replace('.', '_')
-    item = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
+    for key, value in dic:
+        if key == 'Base Model':
+            base_model = value
+            break
+    for key, value in dic:
+        if key == 'Wildprompts':
+            wildprompts = value
+            break
+    item = f"<div id=\"{div_name}\" class=\"image-container\" data-model=\"{base_model}\" data-wildprompts=\"{wildprompts}\"><hr><table><tr>\n"
     item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'/></a><div>{only_name}</div></td>"
     item += "<td><table class='metadata'>"
     for key, value in dic:
