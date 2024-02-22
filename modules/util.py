@@ -187,11 +187,11 @@ def ordinal_suffix(number: int) -> str:
     return 'th' if 10 <= number % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(number % 10, 'th')
 
 
-def parse_lora_references_from_prompt(items: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5):
+def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5):
     
     new_loras = []
 
-    for token in items.split(","):
+    for token in prompt.split(","):
         
         m = LORAS_PROMPT_PATTERN.match(token)
 
