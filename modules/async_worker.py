@@ -39,8 +39,17 @@ def worker():
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
     from modules.private_logger import log
     from extras.expansion import safe_str
-    from modules.util import remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix
+    from modules.util import (
+        remove_empty_str, 
+        HWC3, resize_image, 
+        get_image_shape_ceil, 
+        set_image_shape_ceil, 
+        get_shape_ceil, 
+        resample_image, 
+        erode_or_dilate, 
+        ordinal_suffix, 
+        parse_lora_references_from_prompt
+    )
     from modules.upscaler import perform_upscale
 
     try:
@@ -370,6 +379,10 @@ def worker():
             extra_negative_prompts = negative_prompts[1:] if len(negative_prompts) > 1 else []
 
             progressbar(async_task, 3, 'Loading models ...')
+
+            # Parse lora references from prompt
+            loras = parse_lora_references_from_prompt(prompt, loras)
+
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
                                         use_synthetic_refiner=use_synthetic_refiner)
