@@ -52,6 +52,8 @@ def worker():
     )
     from modules.upscaler import perform_upscale
 
+    MAX_LORAS = 5
+
     try:
         async_gradio_app = shared.gradio_root
         flag = f'''App started successful. Use the app with {str(async_gradio_app.local_url)} or {str(async_gradio_app.server_name)}:{str(async_gradio_app.server_port)}'''
@@ -140,7 +142,7 @@ def worker():
         base_model_name = args.pop()
         refiner_model_name = args.pop()
         refiner_switch = args.pop()
-        loras = [[str(args.pop()), float(args.pop())] for _ in range(5)]
+        loras = [[str(args.pop()), float(args.pop())] for _ in range(MAX_LORAS)]
         input_image_checkbox = args.pop()
         current_tab = args.pop()
         uov_method = args.pop()
@@ -381,7 +383,7 @@ def worker():
             progressbar(async_task, 3, 'Loading models ...')
 
             # Parse lora references from prompt
-            loras = parse_lora_references_from_prompt(prompt, loras)
+            loras = parse_lora_references_from_prompt(prompt, loras, loras_limit=MAX_LORAS)
 
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,

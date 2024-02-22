@@ -12,6 +12,10 @@ from PIL import Image
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 
+# Regexp compiled once. Matches entries with the following pattern:
+# <lora:some_lora:1>
+# <lora:aNotherLora:-1.6>
+LORAS_PROMPT_PATTERN = re.compile(".*<lora:(.+):([-+]?(?:\d*\.*\d*))>.*")
 
 def erode_or_dilate(x, k):
     k = int(k)
@@ -183,13 +187,13 @@ def ordinal_suffix(number: int) -> str:
     return 'th' if 10 <= number % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(number % 10, 'th')
 
 
-def parse_lora_references_from_prompt(items: str, loras: List[Tuple[AnyStr, float]]):
-    pattern = re.compile(".*<lora:(.+):(([0-9]*[.])?[0-9]+)>.*")
+def parse_lora_references_from_prompt(items: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5):
+    
     new_loras = []
 
     for token in items.split(","):
-        print(token)
-        m = pattern.match(token)
+        
+        m = LORAS_PROMPT_PATTERN.match(token)
 
         if m:
             new_loras.append((f"{m.group(1)}.safetensors", float(m.group(2))))
@@ -200,4 +204,4 @@ def parse_lora_references_from_prompt(items: str, loras: List[Tuple[AnyStr, floa
         if lora[0] != "None":
             updated_loras.append(lora)
 
-    return updated_loras
+    return updated_loras[:loras_limit]
