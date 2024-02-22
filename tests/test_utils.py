@@ -18,14 +18,14 @@ class TestUtils(unittest.TestCase):
             # test Loras from UI take precedence over prompt
             {
                 "input": (
-                    "some prompt, very cool, <lora:l1:0.4>, <lora:l2:0.2>, <lora:l3:0.3>, <lora:l4:0.5>, <lora:l6:0.24>, <lora:l7:0.1>",
+                    "some prompt, very cool, <lora:l1:0.4>, <lora:l2:-0.2>, <lora:l3:0.3>, <lora:l4:0.5>, <lora:l6:0.24>, <lora:l7:0.1>",
                     [("hey-lora.safetensors", 0.4)],
                     5,
                 ),
                 "output": [
                     ("hey-lora.safetensors", 0.4),
                     ("l1.safetensors", 0.4),
-                    ("l2.safetensors", 0.2),
+                    ("l2.safetensors", -0.2),
                     ("l3.safetensors", 0.3),
                     ("l4.safetensors", 0.5),
                 ],
