@@ -54,7 +54,6 @@ def worker():
     from modules.upscaler import perform_upscale
     from modules.flags import Performance, lora_count
     from modules.meta_parser import get_metadata_parser, MetadataScheme
-    from pathlib import Path
 
     pid = os.getpid()
     print(f'Started worker with PID {pid}')
