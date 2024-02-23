@@ -75,9 +75,17 @@ def log(img, dic, wildprompt=''):
                 var logItems = document.querySelectorAll('.image-container');
                 logItems.forEach(function(item) {
                     var baseModel = item.getAttribute('data-model');
-                    var wildprompts = item.getAttribute('data-wildprompts').match(/'[^']+'/g).map(function(item) {
-                        return item.replace(/'/g, '');
-                    });
+                    var wildpromptsAttr = item.getAttribute('data-wildprompts');
+                    var wildprompts = [];
+                    if (wildpromptsAttr && wildpromptsAttr != '[]') {
+                        wildprompts = wildpromptsAttr.match(/'[^']+'/g);
+                        if (wildprompts) {
+                            wildprompts = wildprompts.map(function(item) {
+                                return item.replace(/'/g, '');
+                            });
+                        }
+                    }
+
                     var isVisible = true;
                     
                     // Check if base model filter is active
@@ -144,9 +152,13 @@ def log(img, dic, wildprompt=''):
                 var wildpromptCheckboxes = document.getElementById('wildpromptFilters');
                 var wildprompts = {};
                 baseModelOptions.forEach(function(item) {
-                    var prompts = item.getAttribute('data-wildprompts').match(/'[^']+'/g).map(function(item) {
-                        return item.replace(/'/g, '');
-                    });
+                    var wildpromptsAttr = item.getAttribute('data-wildprompts');
+                    var prompts = [];
+                    if (wildpromptsAttr && wildpromptsAttr != '[]') {
+                        prompts = wildpromptsAttr.match(/'[^']+'/g).map(function(item) {
+                            return item.replace(/'/g, '');
+                        });
+                    }
                     prompts.forEach(function(prompt) {
                         if (!wildprompts.hasOwnProperty(prompt)) {
                             wildprompts[prompt] = 0;

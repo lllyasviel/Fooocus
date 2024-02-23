@@ -1,21 +1,21 @@
-Science Fiction, Space Explorer, Adventurous individual exploring the far reaches of the galaxy
-Science Fiction, Tech Genius Hacker, Master of computer systems and cyber warfare
-Science Fiction, Space Marine, Highly trained soldier specialized for interstellar combat
-Science Fiction, Cybernetic Bounty Hunter, Part-human, part-machine mercenary tracking down targets
-Science Fiction, Exoplanetary Colonist, Settler on a distant planet, establishing a new civilization
-Science Fiction, Galactic Diplomat, Skilled negotiator working to maintain peace between planets
-Science Fiction, Rogue Space Smuggler, Pilot of a small ship involved in illegal trade
-Science Fiction, Genetic Engineer, Scientist manipulating DNA to create new life forms
-Science Fiction, Solar System Nomad, Wanderer navigating the vastness of our solar system
-Science Fiction, Biomechanical Engineer, Creator of living machines and biomechanical organisms
-Science Fiction, Asteroid Miner, Worker extracting valuable resources from asteroids
-Science Fiction, Colonial Terraformer, Specialist in transforming inhospitable planets for colonization
-Science Fiction, Exosuit Pilot, Operator of a powerful exoskeleton for enhanced abilities
-Science Fiction, Plasma Weapon Engineer, Designer of advanced energy weapons
-Science Fiction, Space Archaeologist, Scientist uncovering ancient artifacts in space
-Science Fiction, Astrobiologist, Scientist studying extraterrestrial life forms and ecosystems
-Science Fiction, Mars Colonist, Settler on the red planet, adapting to its challenges
-Science Fiction, Biohazard Survivor, Individual navigating a post-pandemic or biohazardous world
-Science Fiction, Light-speed Courier, Interstellar delivery courier
-Science Fiction, Neuro-enhanced Investigator, Detective with enhanced cognitive abilities
-Science Fiction, Colonial Geologist, Expert in studying and extracting resources from alien planets
+Science Fiction, Female Space Explorer, Adventurous individual exploring the far reaches of the galaxy
+Science Fiction, Female Tech Genius Hacker, Master of computer systems and cyber warfare
+Science Fiction, Female Space Marine, Highly trained soldier specialized for interstellar combat
+Science Fiction, Female Cybernetic Bounty Hunter, Part-human, part-machine mercenary tracking down targets
+Science Fiction, Female Exoplanetary Colonist, Settler on a distant planet, establishing a new civilization
+Science Fiction, Female Galactic Diplomat, Skilled negotiator working to maintain peace between planets
+Science Fiction, Female Rogue Space Smuggler, Pilot of a small ship involved in illegal trade
+Science Fiction, Female Genetic Engineer, Scientist manipulating DNA to create new life forms
+Science Fiction, Female Solar System Nomad, Wanderer navigating the vastness of our solar system
+Science Fiction, Female Biomechanical Engineer, Creator of living machines and biomechanical organisms
+Science Fiction, Female Asteroid Miner, Worker extracting valuable resources from asteroids
+Science Fiction, Female Colonial Terraformer, Specialist in transforming inhospitable planets for colonization
+Science Fiction, Female Exosuit Pilot, Operator of a powerful exoskeleton for enhanced abilities
+Science Fiction, Female Plasma Weapon Engineer, Designer of advanced energy weapons
+Science Fiction, Female Space Archaeologist, Scientist uncovering ancient artifacts in space
+Science Fiction, Female Astrobiologist, Scientist studying extraterrestrial life forms and ecosystems
+Science Fiction, Female Mars Colonist, Settler on the red planet, adapting to its challenges
+Science Fiction, Female Biohazard Survivor, Individual navigating a post-pandemic or biohazardous world
+Science Fiction, Female Light-speed Courier, Interstellar delivery courier
+Science Fiction, Female Neuro-enhanced Investigator, Detective with enhanced cognitive abilities
+Science Fiction, Female Colonial Geologist, Expert in studying and extracting resources from alien planets

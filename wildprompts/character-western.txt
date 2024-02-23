@@ -1,36 +1,22 @@
-Wild West, Saloon Pianist, A nimble-fingered musician with a penchant for melancholic tunes
-Wild West, Undertaker, A solemn figure, clad in black, with an eerie calmness around death
-Wild West, Stagecoach Driver, A weathered traveler, skilled at navigating treacherous trails
-Wild West, Bounty Hunter, A relentless pursuer, always on the hunt for elusive targets
-Wild West, Gambler, A suave cardsharp, skilled at reading opponents and stacking the deck
-Wild West, Preacher, A charismatic and fervent speaker, bringing faith to the frontier
-Wild West, Blacksmith, A burly figure, skilled at shaping metal and forging durable tools
-Wild West, Frontierswoman, A resourceful and independent woman, unafraid of the wild
-Wild West, Railroad Engineer, A visionary with a determination to connect towns through iron tracks
-Wild West, Banker, A shrewd financial mind, managing the town's funds with a calculating gaze
-Wild West, Prospectors' Cook, A jolly chef, skilled at turning simple ingredients into hearty meals
-Wild West, Whiskey Distiller, A grizzled character, brewing potent spirits in the back of a dimly lit saloon
-Wild West, Cattle Rustler, A shadowy figure with a penchant for mischief and stolen livestock
-Wild West, Quarantine Doctor, A no-nonsense physician dealing with the harsh realities of frontier medicine
-Wild West, Orphaned Drifter, A young, resilient soul navigating the challenges of the untamed West
-Wild West, Tavern Wench, A lively and spirited server, keeping the drinks flowing with a smile
-Wild West, Sheriff's Deputy, A loyal and capable right hand to the town's main law enforcement
-Wild West, Frontier Tracker, A silent and observant figure, at home in the wilderness
-Wild West, Lumberjack, A burly logger, wielding an axe with strength and precision
-Wild West, Buffalo Hunter, A skilled marksmen, seeking fortune in the bountiful herds of buffalo
-Wild West, Chinese Railroad Worker, A resilient laborer, contributing to the construction of the transcontinental railroad
-Wild West, Widowed Homesteader, A determined soul, rebuilding life after losing a spouse to the harsh realities of the West
-Wild West, Native American Guide, A wise and patient guide, intimately connected with the land
-Wild West, Gold Assayer, A meticulous analyst, determining the purity of precious metals
-Wild West, Pony Express Rider, A swift and daring courier, racing against time to deliver messages
-Wild West, Wagon Train Leader, A seasoned trailblazer, guiding families through the dangers of the frontier
-Wild West, Reformed Outlaw, A former bandit seeking redemption, haunted by past misdeeds
-Wild West, Frontier Lawyer, An eloquent advocate for justice, navigating the complexities of law in the West
-Wild West, Riverboat Captain, A weathered sailor, steering a vessel along treacherous rivers
-Wild West, Town Undertaker, A somber figure, responsible for preparing the deceased for their final rest
-Wild West, Outlaw Gang Member, A loyal follower to the outlaw leader, driven by a sense of camaraderie
-Wild West, Reclusive Mountain Woman, A solitary individual, living off the land in the remote mountains
-Wild West, Jailhouse Matron, A stern but compassionate woman overseeing the local jail, maintaining order with a firm hand
-Wild West, Poker-Faced Undertaker's Apprentice, A young and stoic assistant learning the trade of preparing bodies for burial, unfazed by the somber task at hand
-Wild West, Chinatown Apothecary, A wise herbalist and healer within the bustling Chinatown district, blending traditional Eastern remedies with frontier medicine
-Wild West, Trailblazing Pioneer Woman, A resilient and independent woman, leading a group of settlers into uncharted territory, determined to establish a new community on the frontier
+Wild West, Female Saloon Pianist, A nimble-fingered musician with a penchant for melancholic tunes
+Wild West, Female Undertaker, A solemn figure, clad in black, with an eerie calmness around death
+Wild West, Female Stagecoach Driver, A weathered traveler, skilled at navigating treacherous trails
+Wild West, Female Bounty Hunter, A relentless pursuer, always on the hunt for elusive targets
+Wild West, Female Gambler, A suave cardsharp, skilled at reading opponents and stacking the deck
+Wild West, Female Blacksmith, A burly figure, skilled at shaping metal and forging durable tools
+Wild West, Female Frontierswoman, A resourceful and independent woman, unafraid of the wild
+Wild West, Female Railroad Engineer, A visionary with a determination to connect towns through iron tracks
+Wild West, Female Prospectors' Cook, A jolly chef, skilled at turning simple ingredients into hearty meals
+Wild West, Female Whiskey Distiller, A grizzled character, brewing potent spirits in the back of a dimly lit saloon
+Wild West, Female Cattle Rustler, A shadowy figure with a penchant for mischief and stolen livestock
+Wild West, Female Quarantine Doctor, A no-nonsense physician dealing with the harsh realities of frontier medicine
+Wild West, Female Tavern Wench, A lively and spirited server, keeping the drinks flowing with a smile
+Wild West, Female Sheriff's Deputy, A loyal and capable right hand to the town's main law enforcement
+Wild West, Female Chinese Railroad Worker, A resilient laborer, contributing to the construction of the transcontinental railroad
+Wild West, Female Native American Guide, A wise and patient guide, intimately connected with the land
+Wild West, Female Gold Prospector, A meticulous analyst, determining the purity of precious metals
+Wild West, Female Pony Express Rider, A swift and daring courier, racing against time to deliver messages
+Wild West, Female Wagon Train Leader, A seasoned trailblazer, guiding families through the dangers of the frontier
+Wild West, Female Reformed Outlaw, A former bandit seeking redemption, haunted by past misdeeds
+Wild West, Female Reclusive Mountain Woman, A solitary individual, living off the land in the remote mountains
+Wild West, Female Chinatown Apothecary, A wise herbalist and healer within the bustling Chinatown district, blending traditional Eastern remedies with frontier medicine
