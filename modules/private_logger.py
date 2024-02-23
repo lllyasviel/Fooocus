@@ -64,63 +64,11 @@ def log(img, dic, wildprompt=''):
             }
             alert('Copied to Clipboard!\\nPaste to prompt area to load parameters.\\nCurrent clipboard content is:\\n\\n' + txt);
             }
-            
-            // Extracting distinct data-model and data-wildprompts values
-            var modelSet = new Set();
-            var wildpromptsSet = new Set();
-
-            document.querySelectorAll('.image-container').forEach(function(container) {
-                var model = container.getAttribute('data-model');
-                var wildprompts = container.getAttribute('data-wildprompts');
-                
-                modelSet.add(model);
-                wildpromptsSet.add(wildprompts);
-            });
-
-            // Creating checkboxes for data-model values
-            var modelCheckboxList = document.createElement('div');
-            modelCheckboxList.innerHTML = '<h3>Data Model</h3>';
-            modelSet.forEach(function(model) {
-                var checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.value = model;
-                checkbox.id = 'model_' + model;
-                
-                var label = document.createElement('label');
-                label.htmlFor = 'model_' + model;
-                label.appendChild(document.createTextNode(model));
-                
-                modelCheckboxList.appendChild(checkbox);
-                modelCheckboxList.appendChild(label);
-                modelCheckboxList.appendChild(document.createElement('br'));
-            });
-
-            // Creating checkboxes for data-wildprompts values
-            var wildpromptsCheckboxList = document.createElement('div');
-            wildpromptsCheckboxList.innerHTML = '<h3>Data Wildprompts</h3>';
-            wildpromptsSet.forEach(function(wildprompt) {
-                var checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.value = wildprompt;
-                checkbox.id = 'wildprompt_' + wildprompt;
-                
-                var label = document.createElement('label');
-                label.htmlFor = 'wildprompt_' + wildprompt;
-                label.appendChild(document.createTextNode(wildprompt));
-                
-                wildpromptsCheckboxList.appendChild(checkbox);
-                wildpromptsCheckboxList.appendChild(label);
-                wildpromptsCheckboxList.appendChild(document.createElement('br'));
-            });
-
-            // Appending checkbox lists to the DOM
-            document.body.appendChild(modelCheckboxList);
-            document.body.appendChild(wildpromptsCheckboxList);
         </script>
         """
     )
 
-    begin_part = f"<!DOCTYPE html><html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>{js}<p>Fooocus Log {date_string} (private)</p>\n<p>All images are clean, without any hidden data/meta, and safe to share with others.</p><!--fooocus-log-split-->\n\n"
+    begin_part = f"<!DOCTYPE html><html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>\n{js}\n<p>Fooocus Log {date_string} (private)</p><!--fooocus-log-split-->\n\n"
     end_part = f'\n<!--fooocus-log-split--></body></html>'
 
     middle_part = log_cache.get(html_name, "")

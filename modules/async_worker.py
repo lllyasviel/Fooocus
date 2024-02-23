@@ -405,7 +405,7 @@ def worker():
                 task_prompt = apply_wildcards(prompt, task_rng)
 
                 if wildprompt_prompt and task_prompt:
-                    task_prompt = f"{wildprompt_prompt}, {task_prompt}"
+                    task_prompt = f"{task_prompt}, {wildprompt_prompt}"
                 elif wildprompt_prompt:
                     task_prompt = wildprompt_prompt
                 
