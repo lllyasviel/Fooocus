@@ -7,9 +7,7 @@ import urllib.parse
 from PIL import Image
 from modules.util import generate_temp_filename
 
-
 log_cache = {}
-
 
 def get_current_html_path():
     date_string, local_temp_filename, only_name, logpath = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
@@ -64,11 +62,115 @@ def log(img, dic, wildprompt=''):
             }
             alert('Copied to Clipboard!\\nPaste to prompt area to load parameters.\\nCurrent clipboard content is:\\n\\n' + txt);
             }
+
+            // Function to update visibility of log items based on filters
+            function updateFilters() {
+                var baseModelFilters = document.querySelectorAll('input[name="baseModelFilter"]:checked');
+                var wildpromptFilters = document.querySelectorAll('input[name="wildpromptFilter"]:checked');
+                
+                // Loop through all log items
+                var logItems = document.querySelectorAll('.image-container');
+                logItems.forEach(function(item) {
+                    var baseModel = item.getAttribute('data-model');
+                    var wildprompts = item.getAttribute('data-wildprompts').match(/'[^']+'/g).map(function(item) {
+                        return item.replace(/'/g, '');
+                    });
+                    var isVisible = true;
+                    
+                    // Check if base model filter is active
+                    if (baseModelFilters.length > 0) {
+                        var baseModelMatch = false;
+                        baseModelFilters.forEach(function(filter) {
+                            if (baseModel === filter.value) {
+                                baseModelMatch = true;
+                            }
+                        });
+                        if (!baseModelMatch) {
+                            isVisible = false;
+                        }
+                    }
+                    
+                    // Check if wildprompt filter is active
+                    if (wildpromptFilters.length > 0) {
+                        var wildpromptMatch = false;
+                        wildpromptFilters.forEach(function(filter) {
+                            if (wildprompts.includes(filter.value)) {
+                                wildpromptMatch = true;
+                            }
+                        });
+                        if (!wildpromptMatch) {
+                            isVisible = false;
+                        }
+                    }
+                    
+                    // Update visibility
+                    if (isVisible) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Function to initialize filters
+            function initFilters() {
+                // Base model filter
+                var baseModels = {};
+                var baseModelCheckboxes = document.getElementById('baseModelFilters');
+                var baseModelOptions = document.querySelectorAll('.image-container');
+                baseModelOptions.forEach(function(item) {
+                    var baseModel = item.getAttribute('data-model');
+                    if (!baseModels.hasOwnProperty(baseModel)) {
+                        baseModels[baseModel] = 0;
+                    }
+                    baseModels[baseModel]++;
+                });
+                for (var model in baseModels) {
+                    var checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = 'baseModelFilter';
+                    checkbox.value = model;
+                    checkbox.addEventListener('change', updateFilters);
+                    var label = document.createElement('label');
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(model + ' (' + baseModels[model] + ')'));
+                    baseModelCheckboxes.appendChild(label);
+                }
+                
+                // Wildprompt filter
+                var wildpromptCheckboxes = document.getElementById('wildpromptFilters');
+                var wildprompts = {};
+                baseModelOptions.forEach(function(item) {
+                    var prompts = item.getAttribute('data-wildprompts').match(/'[^']+'/g).map(function(item) {
+                        return item.replace(/'/g, '');
+                    });
+                    prompts.forEach(function(prompt) {
+                        if (!wildprompts.hasOwnProperty(prompt)) {
+                            wildprompts[prompt] = 0;
+                        }
+                        wildprompts[prompt]++;
+                    });
+                });
+                for (var prompt in wildprompts) {
+                    var checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = 'wildpromptFilter';
+                    checkbox.value = prompt;
+                    checkbox.addEventListener('change', updateFilters);
+                    var label = document.createElement('label');
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(prompt + ' (' + wildprompts[prompt] + ')'));
+                    wildpromptCheckboxes.appendChild(label);
+                }
+            }
+            
+            // Initialize filters when the page is loaded
+            window.addEventListener('load', initFilters);
         </script>
         """
     )
 
-    begin_part = f"<!DOCTYPE html><html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>\n{js}\n<p>Fooocus Log {date_string} (private)</p><!--fooocus-log-split-->\n\n"
+    begin_part = f"<!DOCTYPE html><html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>\n\n{js}\n\n<div id=\"filters\"><div id=\"baseModelFilters\"></div><div id=\"wildpromptFilters\"></div>\n\n</div><!--fooocus-log-split-->\n\n"
     end_part = f'\n<!--fooocus-log-split--></body></html>'
 
     middle_part = log_cache.get(html_name, "")
