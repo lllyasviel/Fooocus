@@ -36,6 +36,9 @@ def log(img, dic, wildprompt=''):
         "hr { border-color: gray; } "
         "button { background-color: black; color: white; border: 1px solid grey; border-radius: 5px; padding: 5px 10px; text-align: center; display: inline-block; font-size: 16px; cursor: pointer; }"
         "button:hover {background-color: grey; color: black;}"
+        "#filters { display: flex; flex-wrap: wrap; gap: 2rem; padding: 2rem; }"
+        ".filter-heading { font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5em;}"
+        "label { display: block; margin-bottom: 0.5em; cursor: pointer; }"
         "</style>"
     )
 
@@ -170,7 +173,7 @@ def log(img, dic, wildprompt=''):
         """
     )
 
-    begin_part = f"<!DOCTYPE html><html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>\n\n{js}\n\n<div id=\"filters\"><div id=\"baseModelFilters\"></div><div id=\"wildpromptFilters\"></div>\n\n</div><!--fooocus-log-split-->\n\n"
+    begin_part = f"<!DOCTYPE html><html><head><title>Fooocus Log {date_string}</title>\n\n{css_styles}\n\n</head><body>\n\n{js}\n\n<div id=\"filters\"><div id=\"baseModelFilters\"><div class=\"filter-heading\">Base Model</div></div><div id=\"wildpromptFilters\"><div class=\"filter-heading\">Wildprompts</div></div>\n\n</div><!--fooocus-log-split-->\n\n"
     end_part = f'\n<!--fooocus-log-split--></body></html>'
 
     middle_part = log_cache.get(html_name, "")
