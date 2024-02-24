@@ -156,8 +156,6 @@ Windows: download the [7z file](#download), extract it and run `run.bat`. You ma
 
 ### Colab
 
-(Last tested - 2023 Dec 12)
-
 | Colab | Info
 | --- | --- |
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ehristoforu/DeFooocus/blob/main/DeFooocus_colab.ipynb) | DeFooocus Official
