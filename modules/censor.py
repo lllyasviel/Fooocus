@@ -29,8 +29,7 @@ def check_safety(x_image):
     safety_checker_input = safety_feature_extractor(numpy_to_pil(x_image), return_tensors="pt")
     x_checked_image, has_nsfw_concept = safety_checker(images=x_image, clip_input=safety_checker_input.pixel_values)
 
-    #return x_checked_image, has_nsfw_concept
-    return x_image, x_image
+    return x_checked_image, has_nsfw_concept
 
 
 def censor_single(x):
@@ -42,11 +41,10 @@ def censor_single(x):
         imageshape = x_checked_image.shape
         x_checked_image = np.zeros((imageshape[0], imageshape[1], 3), dtype = np.uint8)
 
-    #return x_checked_image
-    return x
+    return x_checked_image
 
 
 def censor_batch(images):
-    #images = [censor_single(image) for image in images]
+    images = [censor_single(image) for image in images]
 
     return images
