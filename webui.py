@@ -98,7 +98,7 @@ def generate_clicked(task):
 
 reload_javascript()
 
-title = f'Fooocus {fooocus_version.version} (Tooocus Edition)'
+title = f'DeFooocus {fooocus_version.version}'
 
 if isinstance(args_manager.args.preset, str):
     title += ' ' + args_manager.args.preset
