@@ -129,7 +129,7 @@ Note that the [minimal requirement](#minimal-requirement) for different platform
 
 See also the common problems and troubleshoots [here](troubleshoot.md).
 
-### Switching from Fooocus to this fork
+### Switching from Fooocus to DeFooocus
 
 1. open a terminal in your Fooocus folder (the one with your config.txt)
 2. execute `git status`. You should see the following:
@@ -142,7 +142,7 @@ See also the common problems and troubleshoots [here](troubleshoot.md).
     If not, execute `git reset --hard origin/main` and check `git status` again.
 3. execute
     ```
-    git remote set-url origin https://github.com/mashb1t/Fooocus.git
+    git remote set-url origin https://github.com/ehristoforu/DeFooocus.git
     git pull
     ```
 6. activate your venv (not necessary when installed from 7z) and update your python packages depending on your environment (7z, venv, conda, etc.)
