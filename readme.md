@@ -6,9 +6,17 @@ As a collaborator & contributor of the Fooocus repository you can find me in alm
 
 Sadly the creator of Fooocus has gone dark multiple times for an extended amount of time, which is why I took matters into my own hands.
 
-![BillsUghGIF](https://github.com/mashb1t/Fooocus/assets/9307310/78c04e06-8ef0-4224-9c25-8f1bee9861de)
+![preview](assets/preview.png)
 
 ## Additional features included in this fork:
+
+### Add Photopea:
+
+![photpea](assets/photopea.png)
+
+### Add rembg:
+
+![rembg](assets/rembg.png)
 
 * ✨ https://github.com/lllyasviel/Fooocus/pull/958 - NSFW image censoring (config and UI)
 * 🐛 https://github.com/lllyasviel/Fooocus/pull/981 - prevent users from skipping/stopping other users tasks in queue (multi-user capabilities) + rework advanced_parameters (removal + PID handling)
