@@ -44,7 +44,6 @@ def worker():
     import fooocus_version
     import args_manager
 
-    from modules.censor import censor_batch
 
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
     from modules.private_logger import log
@@ -71,16 +70,10 @@ def worker():
         print(f'[Fooocus] {text}')
         async_task.yields.append(['preview', (number, text, None)])
 
-    def yield_result(async_task, imgs, black_out_nsfw, do_not_show_finished_images=False, progressbar_index=13):
+    def yield_result(imgs, do_not_show_finished_images=False):
         if not isinstance(imgs, list):
             imgs = [imgs]
 
-        if modules.config.default_black_out_nsfw or black_out_nsfw:
-            progressbar(async_task, progressbar_index, 'Checking for NSFW content ...')
-            imgs_censor = [cv2.imread(img) for img in imgs]
-            imgs_censor = censor_batch(imgs_censor)
-            for i, img in enumerate(imgs):
-                cv2.imwrite(img, imgs_censor[i])
 
         async_task.results = async_task.results + imgs
 
