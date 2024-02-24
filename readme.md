@@ -21,12 +21,12 @@ Sadly the creator of Fooocus has gone dark multiple times for an extended amount
 
 ### Others add:
 
-    - Fast presets choice
-    - More presets
-    - Sound after render
-    - Metadata
-    - Optimize parameters
-    - Default model is JuggernautXL V9
+- Fast presets choice
+- More presets
+- Sound after render
+- Metadata
+- Optimize parameters
+- Default model is JuggernautXL V9
 
 
 ---
