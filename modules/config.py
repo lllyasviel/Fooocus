@@ -405,11 +405,7 @@ metadata_created_by = get_config_item_or_set_default(
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 
-default_black_out_nsfw = get_config_item_or_set_default(
-    key='default_black_out_nsfw',
-    default_value=False,
-    validator=lambda x: isinstance(x, bool)
-)
+
 default_inpaint_mask_model = get_config_item_or_set_default(
     key='default_inpaint_mask_model',
     default_value='isnet-general-use',
