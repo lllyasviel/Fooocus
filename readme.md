@@ -1,3 +1,12 @@
+<style>
+        img {
+            width: 100px; /* Задайте желаемую ширину изображения */
+            height: auto; /* Поддержка пропорций */
+            margin-right: 10px; /* Отступ справа для разделения изображения и текста */
+        }
+</style>
+
+
 <img src="assets/favicon.png" alt="icon">
 <h1>DeFooocus</h1>
 
