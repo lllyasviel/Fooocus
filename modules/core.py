@@ -1,8 +1,3 @@
-from modules.patch import patch_all
-
-patch_all()
-
-
 import os
 import einops
 import torch
@@ -16,7 +11,6 @@ import ldm_patched.modules.controlnet
 import modules.sample_hijack
 import ldm_patched.modules.samplers
 import ldm_patched.modules.latent_formats
-import modules.advanced_parameters
 
 from ldm_patched.modules.sd import load_checkpoint_guess_config
 from ldm_patched.contrib.external import VAEDecode, EmptyLatentImage, VAEEncode, VAEEncodeTiled, VAEDecodeTiled, \
@@ -268,7 +262,7 @@ def get_previewer(model):
 def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sampler_name='dpmpp_2m_sde_gpu',
              scheduler='karras', denoise=1.0, disable_noise=False, start_step=None, last_step=None,
              force_full_denoise=False, callback_function=None, refiner=None, refiner_switch=-1,
-             previewer_start=None, previewer_end=None, sigmas=None, noise_mean=None):
+             previewer_start=None, previewer_end=None, sigmas=None, noise_mean=None, disable_preview=False):
 
     if sigmas is not None:
         sigmas = sigmas.clone().to(ldm_patched.modules.model_management.get_torch_device())
@@ -299,7 +293,7 @@ def ksampler(model, positive, negative, latent, seed=None, steps=30, cfg=7.0, sa
     def callback(step, x0, x, total_steps):
         ldm_patched.modules.model_management.throw_exception_if_processing_interrupted()
         y = None
-        if previewer is not None and not modules.advanced_parameters.disable_preview:
+        if previewer is not None and not disable_preview:
             y = previewer(x0, previewer_start + step, previewer_end)
         if callback_function is not None:
             callback_function(previewer_start + step, x0, x, previewer_end, y)
