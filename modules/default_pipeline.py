@@ -315,7 +315,7 @@ def get_candidate_vae(steps, switch, denoise=1.0, refiner_swap_method='joint'):
 
 @torch.no_grad()
 @torch.inference_mode()
-def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, refiner_swap_method='joint'):
+def process_diffusion(positive_cond, negative_cond, steps, switch, width, height, image_seed, callback, sampler_name, scheduler_name, latent=None, denoise=1.0, tiled=False, cfg_scale=7.0, refiner_swap_method='joint', disable_preview=False):
     target_unet, target_vae, target_refiner_unet, target_refiner_vae, target_clip \
         = final_unet, final_vae, final_refiner_unet, final_refiner_vae, final_clip
 
@@ -374,6 +374,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             refiner_switch=switch,
             previewer_start=0,
             previewer_end=steps,
+            disable_preview=disable_preview
         )
         decoded_latent = core.decode_vae(vae=target_vae, latent_image=sampled_latent, tiled=tiled)
 
@@ -392,6 +393,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             scheduler=scheduler_name,
             previewer_start=0,
             previewer_end=steps,
+            disable_preview=disable_preview
         )
         print('Refiner swapped by changing ksampler. Noise preserved.')
 
@@ -414,6 +416,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             scheduler=scheduler_name,
             previewer_start=switch,
             previewer_end=steps,
+            disable_preview=disable_preview
         )
 
         target_model = target_refiner_vae
@@ -422,7 +425,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
 
     if refiner_swap_method == 'vae':
-        modules.patch.eps_record = 'vae'
+        modules.patch.patch_settings[os.getpid()].eps_record = 'vae'
 
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.unswap()
@@ -440,7 +443,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             sampler_name=sampler_name,
             scheduler=scheduler_name,
             previewer_start=0,
-            previewer_end=steps
+            previewer_end=steps,
+            disable_preview=disable_preview
         )
         print('Fooocus VAE-based swap.')
 
@@ -459,7 +463,7 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
                                   denoise=denoise)[switch:] * k_sigmas
         len_sigmas = len(sigmas) - 1
 
-        noise_mean = torch.mean(modules.patch.eps_record, dim=1, keepdim=True)
+        noise_mean = torch.mean(modules.patch.patch_settings[os.getpid()].eps_record, dim=1, keepdim=True)
 
         if modules.inpaint_worker.current_task is not None:
             modules.inpaint_worker.current_task.swap()
@@ -479,7 +483,8 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
             previewer_start=switch,
             previewer_end=steps,
             sigmas=sigmas,
-            noise_mean=noise_mean
+            noise_mean=noise_mean,
+            disable_preview=disable_preview
         )
 
         target_model = target_refiner_vae
@@ -488,5 +493,5 @@ def process_diffusion(positive_cond, negative_cond, steps, switch, width, height
         decoded_latent = core.decode_vae(vae=target_model, latent_image=sampled_latent, tiled=tiled)
 
     images = core.pytorch_to_numpy(decoded_latent)
-    modules.patch.eps_record = None
+    modules.patch.patch_settings[os.getpid()].eps_record = None
     return images
