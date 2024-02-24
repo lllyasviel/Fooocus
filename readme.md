@@ -17,29 +17,20 @@ Sadly the creator of Fooocus has gone dark multiple times for an extended amount
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1013 - add advanced parameter for disable_intermediate_results (progress_gallery, prevents UI lag when generation is too fast)
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1039 - add prompt translation
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1043 - add lcm realtime canvas painting (not merged to main in this repository)
-* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1167 - update model BluePencil XL v0.5 to v3.1.0~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1570 - add preset selection to Gradio UI (session based)
-* 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1578 - add workaround for changing prompt while generating~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1580 - add preset for SDXL Turbo (model DreamShaperXL_Turbo)
-* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1616 - add config setting for default_max_image_number~~
 * 🐛 https://github.com/lllyasviel/Fooocus/pull/1668 - fix path_outputs directory creation if it doesn't exist
 * ✨ show more details for each performance setting, e.g. steps
 * ✨ add default_overwrite_step handling for meta data and gradio (allows turbo preset switching to set default_overwrite_step correctly)
-* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1762 - add style preview on mouseover~~
-* 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1784 - correctly sort files, display deepest directory level first~~
-* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1785 - update model Juggernaut XL v6 to v8~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1809 - reduce file size of preview images
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1932 - use consistent file name in gradio
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1863 - image extension support (png, jpg, webp)
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1938 - automatically describe image on uov image upload if prompt is empty
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1940 - meta data handling, schemes: Fooocus (json) and A1111 (plain text). Compatible with Civitai.
-* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1979 - prevent outdated history log link after midnight~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/2032 - add inpaint mask generation functionality using rembg, incl. segmentation support
 
 ✨ = new feature<br>
 🐛 = bugfix<br>
-~~abc~~ = merged
-
 ---
 
 ## Feature showcase
