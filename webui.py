@@ -135,10 +135,10 @@ with shared.gradio_root:
                 gr.Markdown("Powered by [🦜 Photopea API](https://www.photopea.com/api)")
             with gr.Tab("rembg"):
                 with gr.Column(scale=1):
-                    rembg_input = grh.Image(label='Drag above image to here', source='upload', type='filepath')
-                rembg_button = gr.Button(value="Remove Background", interactive=True)
+                    rembg_input = grh.Image(label='Drag above image to here', source='upload', type='filepath', scale=10)
+                    rembg_button = gr.Button(value="Remove Background", interactive=True, scale=1)
                 with gr.Column(scale=3):
-                    rembg_output = grh.Image(label='rembg Output', interactive=False, height=512)
+                    rembg_output = grh.Image(label='rembg Output', interactive=False, height=448)
                 gr.Markdown("Powered by [🪄 rembg 2.0.54](https://github.com/danielgatis/rembg/releases/tag/v2.0.54)")
             rembg_button.click(rembg_run, inputs=rembg_input, outputs=rembg_output, show_progress="full")  
             with gr.Row(elem_classes='type_row'):

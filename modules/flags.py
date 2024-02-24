@@ -135,5 +135,5 @@ class Performance(Enum):
 performance_selections = [
     ('Quality <span style="color: grey;"> \U00002223 60 steps</span>', Performance.QUALITY.value),
     ('Speed <span style="color: grey;"> \U00002223 30 steps</span>', Performance.SPEED.value),
-    ('Extreme Speed (LCM) <span style="color: grey;"> \U00002223 8 steps, LCM</span>', Performance.EXTREME_SPEED.value)
+    ('Extreme Speed <span style="color: grey;"> \U00002223 LCM, 8 steps</span>', Performance.EXTREME_SPEED.value)
 ]
