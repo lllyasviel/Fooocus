@@ -123,7 +123,7 @@ with shared.gradio_root:
                 gallery = gr.Gallery(label='Gallery', show_label=False, object_fit='contain', visible=True, height=768,
                                      elem_classes=['resizable_area', 'main_view', 'final_gallery', 'image_gallery'],
                                      elem_id='final_gallery')
-            with gr.Tab("Photopea", visible=False) as photopea_tab:
+            with gr.Tab("Photopea"):
                 with gr.Row():
                     photopea = gr.HTML(
                         f"""<iframe id="{PHOTOPEA_IFRAME_ID}" 
@@ -132,13 +132,13 @@ with shared.gradio_root:
                         height = "{PHOTOPEA_IFRAME_HEIGHT}"
                         onload = "{PHOTOPEA_IFRAME_LOADED_EVENT}(this)">"""
                     )
-                    gr.Markdown("Powered by [🦜 Photopea API](https://www.photopea.com/api)")
-            with gr.Tab("rembg", visible=False) as rembg_tab:
+                gr.Markdown("Powered by [🦜 Photopea API](https://www.photopea.com/api)")
+            with gr.Tab("rembg"):
                 with gr.Column(scale=1):
                     rembg_input = grh.Image(label='Drag above image to here', source='upload', type='filepath')
                 rembg_button = gr.Button(value="Remove Background", interactive=True)
                 with gr.Column(scale=3):
-                    rembg_output = grh.Image(label='rembg Output', interactive=False)
+                    rembg_output = grh.Image(label='rembg Output', interactive=False, height=512)
                 gr.Markdown("Powered by [🪄 rembg 2.0.54](https://github.com/danielgatis/rembg/releases/tag/v2.0.54)")
             rembg_button.click(rembg_run, inputs=rembg_input, outputs=rembg_output, show_progress="full")  
             with gr.Row(elem_classes='type_row'):
@@ -175,18 +175,7 @@ with shared.gradio_root:
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
-                advanced_tabs = gr.Checkbox(label='Extensions', value=False, container=False, elem_classes='min_check')
-            advanced_tabs.change(
-                fn=lambda x: gr.update(visible=x),
-                inputs=advanced_tabs,
-                outputs=photopea_tab,
-                api_name=False,
-            ).then(
-                fn=lambda x: gr.update(visible=x),
-                inputs=advanced_tabs,
-                outputs=rembg_tab,
-                api_name=False,
-            )
+               
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Tabs():
                     with gr.TabItem(label='Upscale or Variation') as uov_tab:
