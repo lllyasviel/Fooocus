@@ -1,4 +1,4 @@
-# Fooocus - mashb1t's 1-Up Edition
+# DeFooocus
 
 The purpose of this fork is to add new features / fix bugs and contribute back to [Fooocus](https://github.com/lllyasviel/Fooocus).
 
@@ -9,7 +9,6 @@ Sadly the creator of Fooocus has gone dark multiple times for an extended amount
 ![BillsUghGIF](https://github.com/mashb1t/Fooocus/assets/9307310/78c04e06-8ef0-4224-9c25-8f1bee9861de)
 
 ## Additional features included in this fork:
-(mostly a reflection of [my PRs](https://github.com/lllyasviel/Fooocus/pulls/mashb1t))
 
 * ✨ https://github.com/lllyasviel/Fooocus/pull/958 - NSFW image censoring (config and UI)
 * 🐛 https://github.com/lllyasviel/Fooocus/pull/981 - prevent users from skipping/stopping other users tasks in queue (multi-user capabilities) + rework advanced_parameters (removal + PID handling)
@@ -17,176 +16,28 @@ Sadly the creator of Fooocus has gone dark multiple times for an extended amount
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1013 - add advanced parameter for disable_intermediate_results (progress_gallery, prevents UI lag when generation is too fast)
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1039 - add prompt translation
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1043 - add lcm realtime canvas painting (not merged to main in this repository)
-* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1167 - update model BluePencil XL v0.5 to v3.1.0~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1570 - add preset selection to Gradio UI (session based)
-* 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1578 - add workaround for changing prompt while generating~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1580 - add preset for SDXL Turbo (model DreamShaperXL_Turbo)
-* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1616 - add config setting for default_max_image_number~~
 * 🐛 https://github.com/lllyasviel/Fooocus/pull/1668 - fix path_outputs directory creation if it doesn't exist
 * ✨ show more details for each performance setting, e.g. steps
 * ✨ add default_overwrite_step handling for meta data and gradio (allows turbo preset switching to set default_overwrite_step correctly)
-* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1762 - add style preview on mouseover~~
-* 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1784 - correctly sort files, display deepest directory level first~~
-* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1785 - update model Juggernaut XL v6 to v8~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1809 - reduce file size of preview images
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1932 - use consistent file name in gradio
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1863 - image extension support (png, jpg, webp)
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1938 - automatically describe image on uov image upload if prompt is empty
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1940 - meta data handling, schemes: Fooocus (json) and A1111 (plain text). Compatible with Civitai.
-* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1979 - prevent outdated history log link after midnight~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/2032 - add inpaint mask generation functionality using rembg, incl. segmentation support
 
 ✨ = new feature<br>
 🐛 = bugfix<br>
-~~abc~~ = merged
-
 ---
 
-## Feature showcase
-
-### https://github.com/lllyasviel/Fooocus/pull/1570 - Preset Selection
-
-No need to restart your browser to change a preset ever again. Combined with total user isolation, every user can now set and use any preset they desire.
-You can even reload your presets in the browser if you've changed them.
-
-![image](https://github.com/mashb1t/Fooocus/assets/9307310/9b302b04-bbbc-4a21-9ccf-02d2b534d481)
-
----
-
-### https://github.com/lllyasviel/Fooocus/pull/2032 - Automated Mask Generation + Mask Prompting
-
-https://github.com/mashb1t/Fooocus/assets/9307310/b69bf607-128b-48a6-a248-fa2b09218fe7
-
-Videos by [@rayronvictor](https://github.com/rayronvictor)
-
-<details><summary>Mask generation by cloth category</summary>
-<p>
-
-https://github.com/mashb1t/Fooocus/assets/9307310/204a01f6-63af-4fd2-bd92-76e176849f19
-
-</p>
-</details> 
-
-<details><summary>Mask generation by prompt</summary>
-<p>
-
-https://github.com/mashb1t/Fooocus/assets/9307310/b69bf607-128b-48a6-a248-fa2b09218fe7
-
-</p>
-</details> 
-
----
-
-### https://github.com/lllyasviel/Fooocus/pull/1940 - Metadata Handling - Compatible with Civitai & A1111
-This feature offers activatable metadata persistency in images for both a Fooocus (json) and A1111 (plain text) meta data scheme, where the latter is 100% compatible with A1111 and Civitai, but can not be used to reproduce the image outside of Fooocus, as there are so many improvements and special things happening in Fooocus it's just not applicable anywhere else.
-- Supports metadata for PNG (PngInfo) + JPG and WebP (both EXIF).
-- Save & restore configurations directly from images
-- You can also configure a copyright / creator tag
-
-![Screenshot 2024-01-29 at 15 13 17](https://github.com/lllyasviel/Fooocus/assets/9307310/6b7df4eb-feb3-46ee-bf09-f336be63b625)
-
-<details><summary>Gradio (setting in Developer Debug Mode)</summary>
-<p>
-
-Default is Fooocus Scheme
-![image](https://github.com/lllyasviel/Fooocus/assets/9307310/ae529db2-f5d1-4725-9735-3036b50020b7)
-
-</p>
-</details> 
-
-<details><summary>Config options</summary>
-<p>
-
-    "default_save_metadata_to_images": true,
-    "default_metadata_scheme": "a1111",
-    "metadata_created_by": "mashb1t"
-
-</p>
-</details> 
-
-<details><summary>Arg --disable-metadata</summary>
-<p>
-
- `--disable-metadata` completely prevents metadata processing and output in Gradio
-
-</p>
-</details> 
 
 
-<details><summary>Metadata Reader</summary>
-<p>
 
-1. open Image Input > Metadata tab
-2. drag & Drop image to image upload
-3. automatic preview of image metadata
-4. apply metadata to Gradio inputs on button click
+DeFooocus is an image generating software (based on [Gradio](https://www.gradio.app/)).
 
-Fooocus scheme
-![Screenshot 2024-01-29 at 15 13 17](https://github.com/lllyasviel/Fooocus/assets/9307310/6b7df4eb-feb3-46ee-bf09-f336be63b625)
-
-A1111 scheme
-![Screenshot 2024-01-29 at 15 09 52](https://github.com/lllyasviel/Fooocus/assets/9307310/1ee3c030-2b6d-41cb-9f88-40df6452df15)
-
-</p>
-</details> 
-
-
-<details><summary>Metadata in files</summary>
-<p>
-
-Speed Fooocus scheme
-![image](https://github.com/lllyasviel/Fooocus/assets/9307310/c556b2ed-0e0b-4117-9bda-9508fb3e0d96)
-
-LCM A1111 scheme (yes, with negative prompt, because it technically exists but doesn't have an influence)
-![image](https://github.com/lllyasviel/Fooocus/assets/9307310/322de4e1-00d7-428a-84db-64e4a9a5637e)
-
-Speed A1111 scheme
-![image](https://github.com/lllyasviel/Fooocus/assets/9307310/3b49627a-4e3f-4d13-b795-04db2743baab)
-
-</p>
-</details> 
-
-<details><summary>Civitai</summary>
-<p>
-
-Speed Fooocus scheme
-![image](https://github.com/lllyasviel/Fooocus/assets/9307310/1d31af41-d5a7-4f86-b89c-3aeeb1733417)
-
-LCM A1111 scheme
-![image](https://github.com/lllyasviel/Fooocus/assets/9307310/d91a4b71-ffe1-430b-8db0-0a5b0662d48f)
-
-![image](https://github.com/lllyasviel/Fooocus/assets/9307310/e0e93b0e-30ee-4263-95de-05d56ff7a885)
-
-Speed A1111 scheme
-![image](https://github.com/lllyasviel/Fooocus/assets/9307310/1cf4b6d6-775d-4d68-99f2-a7dea34241b3)
-
-![image](https://github.com/lllyasviel/Fooocus/assets/9307310/d55c6b6c-08e1-4fcb-a22e-39d45be1c0c2)
-
-
-</p>
-</details>
-
----
-
-<div align=center>
-<img src="https://github.com/lllyasviel/Fooocus/assets/19834515/483fb86d-c9a2-4c20-997c-46dafc124f25">
-
-**Non-cherry-picked** random batch by just typing two words "forest elf", 
-
-without any parameter tweaking, without any strange prompt tags. 
-
-See also **non-cherry-picked** generalization and diversity tests [here](https://github.com/lllyasviel/Fooocus/discussions/2067) and [here](https://github.com/lllyasviel/Fooocus/discussions/808) and [here](https://github.com/lllyasviel/Fooocus/discussions/679) and [here](https://github.com/lllyasviel/Fooocus/discussions/679#realistic).
-
-In the entire open source community, only Fooocus can achieve this level of **non-cherry-picked** quality.
-
-</div>
-
-
-# Fooocus
-
-Fooocus is an image generating software (based on [Gradio](https://www.gradio.app/)).
-
-Fooocus is a rethinking of Stable Diffusion and Midjourney’s designs:
+DeFooocus is a rethinking of Stable Diffusion and Midjourney’s designs:
 
 * Learned from Stable Diffusion, the software is offline, open source, and free.
 
@@ -198,15 +49,15 @@ Fooocus has simplified the installation. Between pressing "download" and generat
 
 `[1]` David Holz, 2019.
 
-**Recently many fake websites exist on Google when you search “fooocus”. Do not trust those – here is the only official source of Fooocus.**
+**Recently many fake websites exist on Google when you search “defooocus”. Do not trust those – here is the only official source of DeFooocus.**
 
 ## [Installing Fooocus](#download)
 
-# Moving from Midjourney to Fooocus
+# Moving from Midjourney to DeFooocus
 
 Using Fooocus is as easy as (probably easier than) Midjourney – but this does not mean we lack functionality. Below are the details.
 
-| Midjourney | Fooocus |
+| Midjourney | DeFooocus |
 | - | - |
 | High-quality text-to-image without needing much prompt engineering or parameter tuning. <br> (Unknown method) | High-quality text-to-image without needing much prompt engineering or parameter tuning. <br> (Fooocus has an offline GPT-2 based prompt processing engine and lots of sampling improvements so that results are always beautiful, no matter if your prompt is as short as “house in garden” or as long as 1000 words) |
 | V1 V2 V3 V4 | Input Image -> Upscale or Variation -> Vary (Subtle) / Vary (Strong)|
@@ -227,13 +78,13 @@ Using Fooocus is as easy as (probably easier than) Midjourney – but this does 
 
 We also have a few things borrowed from the best parts of LeonardoAI:
 
-| LeonardoAI | Fooocus |
+| LeonardoAI | DeFooocus |
 | - | - |
 | Prompt Magic | Advanced -> Style -> Fooocus V2 |
 | Advanced Sampler Parameters (like Contrast/Sharpness/etc) | Advanced -> Advanced -> Sampling Sharpness / etc |
 | User-friendly ControlNets | Input Image -> Image Prompt -> Advanced |
 
-Fooocus also developed many "fooocus-only" features for advanced users to get perfect results. [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
+Fooocus also developed many "defooocus-only" features for advanced users to get perfect results. [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
 
 # Download
 
@@ -249,12 +100,8 @@ After you download the file, please uncompress it and then run the "run.bat".
 
 The first time you launch the software, it will automatically download models:
 
-1. It will download [default models](#models) to the folder "Fooocus\models\checkpoints" given different presets. You can download them in advance if you do not want automatic download.
-2. Note that if you use inpaint, at the first time you inpaint an image, it will download [Fooocus's own inpaint control model from here](https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint_v26.fooocus.patch) as the file "Fooocus\models\inpaint\inpaint_v26.fooocus.patch" (the size of this file is 1.28GB).
-
-After Fooocus 2.1.60, you will also have `run_anime.bat` and `run_realistic.bat`. They are different model presets (and require different models, but they will be automatically downloaded). [Check here for more details](https://github.com/lllyasviel/Fooocus/discussions/679).
-
-![image](https://github.com/lllyasviel/Fooocus/assets/19834515/d386f817-4bd7-490c-ad89-c1e228c23447)
+1. It will download [default models](#models) to the folder "DeFooocus\models\checkpoints" given different presets. You can download them in advance if you do not want automatic download.
+2. Note that if you use inpaint, at the first time you inpaint an image, it will download [Fooocus's own inpaint control model from here](https://huggingface.co/lllyasviel/fooocus_inpaint/resolve/main/inpaint_v26.fooocus.patch) as the file "DeFooocus\models\inpaint\inpaint_v26.fooocus.patch" (the size of this file is 1.28GB).
 
 If you already have these files, you can copy them to the above locations to speed up installation.
 
@@ -314,64 +161,56 @@ Windows: download the [7z file](#download), extract it and run `run.bat`. You ma
 
 | Colab | Info
 | --- | --- |
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mashb1t/Fooocus/blob/main/fooocus_colab.ipynb) | Fooocus Official
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ehristoforu/DeFooocus/blob/main/DeFooocus_colab.ipynb) | DeFooocus Official
 
-In Colab, you can modify the last line to `!python entry_with_update.py --share` or `!python entry_with_update.py --preset anime --share` or `!python entry_with_update.py --preset realistic --share` for Fooocus Default/Anime/Realistic Edition.
-
-Note that this Colab will disable refiner by default because Colab free's resources are relatively limited (and some "big" features like image prompt may cause free-tier Colab to disconnect). We make sure that basic text-to-image is always working on free-tier Colab.
-
-Thanks to [camenduru](https://github.com/camenduru)!
 
 ### Linux (Using Anaconda)
 
 If you want to use Anaconda/Miniconda, you can
 
-    git clone https://github.com/lllyasviel/Fooocus.git
-    cd Fooocus
+    git clone https://github.com/ehristoforu/DeFooocus.git
+    cd DeFooocus
     conda env create -f environment.yaml
-    conda activate fooocus
+    conda activate defooocus
     pip install -r requirements_versions.txt
 
-Then download the models: download [default models](#models) to the folder "Fooocus\models\checkpoints". **Or let Fooocus automatically download the models** using the launcher:
+Then download the models: download [default models](#models) to the folder "DeFooocus\models\checkpoints". **Or let DeFooocus automatically download the models** using the launcher:
 
-    conda activate fooocus
+    conda activate defooocus
     python entry_with_update.py
 
 Or, if you want to open a remote port, use
 
-    conda activate fooocus
+    conda activate defooocus
     python entry_with_update.py --listen
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Linux (Using Python Venv)
 
 Your Linux needs to have **Python 3.10** installed, and let's say your Python can be called with the command **python3** with your venv system working; you can
 
-    git clone https://github.com/lllyasviel/Fooocus.git
-    cd Fooocus
-    python3 -m venv fooocus_env
-    source fooocus_env/bin/activate
+    git clone https://github.com/ehristoforu/DeFooocus.git
+    cd DeFooocus
+    python3 -m venv defooocus_env
+    source defooocus_env/bin/activate
     pip install -r requirements_versions.txt
 
 See the above sections for model downloads. You can launch the software with:
 
-    source fooocus_env/bin/activate
+    source defooocus_env/bin/activate
     python entry_with_update.py
 
 Or, if you want to open a remote port, use
 
-    source fooocus_env/bin/activate
+    source defooocus_env/bin/activate
     python entry_with_update.py --listen
-
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Linux (Using native system Python)
 
 If you know what you are doing, and your Linux already has **Python 3.10** installed, and your Python can be called with the command **python3** (and Pip with **pip3**), you can
 
-    git clone https://github.com/lllyasviel/Fooocus.git
-    cd Fooocus
+    git clone https://github.com/ehristoforu/DeFooocus.git
+    cd DeFooocus
     pip3 install -r requirements_versions.txt
 
 See the above sections for model downloads. You can launch the software with:
@@ -382,7 +221,6 @@ Or, if you want to open a remote port, use
 
     python3 entry_with_update.py --listen
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Linux (AMD GPUs)
 
@@ -395,7 +233,6 @@ Same with the above instructions. You need to change torch to the AMD version
 
 AMD is not intensively tested, however. The AMD support is in beta.
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Windows (AMD GPUs)
 
@@ -405,14 +242,13 @@ Same with Windows. Download the software and edit the content of `run.bat` as:
 
     .\python_embeded\python.exe -m pip uninstall torch torchvision torchaudio torchtext functorch xformers -y
     .\python_embeded\python.exe -m pip install torch-directml
-    .\python_embeded\python.exe -s Fooocus\entry_with_update.py --directml
+    .\python_embeded\python.exe -s DeFooocus\entry_with_update.py --directml
     pause
 
 Then run the `run.bat`.
 
 AMD is not intensively tested, however. The AMD support is in beta.
 
-For AMD, use `.\python_embeded\python.exe entry_with_update.py --directml --preset anime` or `.\python_embeded\python.exe entry_with_update.py --directml --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Mac
 
@@ -420,25 +256,21 @@ Note that the [minimal requirement](#minimal-requirement) for different platform
 
 Mac is not intensively tested. Below is an unofficial guideline for using Mac. You can discuss problems [here](https://github.com/lllyasviel/Fooocus/pull/129).
 
-You can install Fooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or a newer version. Fooocus runs on Apple silicon computers via [PyTorch](https://pytorch.org/get-started/locally/) MPS device acceleration. Mac Silicon computers don't come with a dedicated graphics card, resulting in significantly longer image processing times compared to computers with dedicated graphics cards.
+You can install DeFooocus on Apple Mac silicon (M1 or M2) with macOS 'Catalina' or a newer version. Fooocus runs on Apple silicon computers via [PyTorch](https://pytorch.org/get-started/locally/) MPS device acceleration. Mac Silicon computers don't come with a dedicated graphics card, resulting in significantly longer image processing times compared to computers with dedicated graphics cards.
 
 1. Install the conda package manager and pytorch nightly. Read the [Accelerated PyTorch training on Mac](https://developer.apple.com/metal/pytorch/) Apple Developer guide for instructions. Make sure pytorch recognizes your MPS device.
-1. Open the macOS Terminal app and clone this repository with `git clone https://github.com/lllyasviel/Fooocus.git`.
-1. Change to the new Fooocus directory, `cd Fooocus`.
+1. Open the macOS Terminal app and clone this repository with `git clone https://github.com/ehristoforu/DeFooocus.git`.
+1. Change to the new DeFooocus directory, `cd DeFooocus`.
 1. Create a new conda environment, `conda env create -f environment.yaml`.
-1. Activate your new conda environment, `conda activate fooocus`.
+1. Activate your new conda environment, `conda activate defooocus`.
 1. Install the packages required by Fooocus, `pip install -r requirements_versions.txt`.
-1. Launch Fooocus by running `python entry_with_update.py`. (Some Mac M2 users may need `python entry_with_update.py --disable-offload-from-vram` to speed up model loading/unloading.) The first time you run Fooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant amount of time, depending on your internet connection.
+1. Launch Fooocus by running `python entry_with_update.py`. (Some Mac M2 users may need `python entry_with_update.py --disable-offload-from-vram` to speed up model loading/unloading.) The first time you run DeFooocus, it will automatically download the Stable Diffusion SDXL models and will take a significant amount of time, depending on your internet connection.
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
-### Download Previous Version
-
-See the guidelines [here](https://github.com/lllyasviel/Fooocus/discussions/1405).
 
 ## Minimal Requirement
 
-Below is the minimal requirement for running Fooocus locally. If your device capability is lower than this spec, you may not be able to use Fooocus locally. (Please let us know, in any case, if your device capability is lower but Fooocus still works.)
+Below is the minimal requirement for running Fooocus locally. If your device capability is lower than this spec, you may not be able to use Fooocus locally. (Please let us know, in any case, if your device capability is lower but DeFooocus still works.)
 
 | Operating System  | GPU                          | Minimal GPU Memory           | Minimal System Memory     | [System Swap](troubleshoot.md) | Note                                                                       |
 |-------------------|------------------------------|------------------------------|---------------------------|--------------------------------|----------------------------------------------------------------------------|
@@ -470,14 +302,14 @@ Given different goals, the default models and configs of Fooocus are different:
 
 | Task | Windows | Linux args | Main Model | Refiner | Config                                                                         |
 | --- | --- | --- | --- | --- |--------------------------------------------------------------------------------|
-| General | run.bat |  | juggernautXL_v8Rundiffusion | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/default.json)   |
-| Realistic | run_realistic.bat | --preset realistic | realisticStockPhoto_v20 | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/realistic.json) |
-| Anime | run_anime.bat | --preset anime | animaPencilXL_v100 | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/anime.json)     |
+| General | run.bat |  | juggernautXL_v9Rundiffusion | not used | [here](https://github.com/ehristoforu/DeFooocus/blob/main/presets/default.json)   |
+| Realistic | run_realistic.bat | --preset realistic | realisticStockPhoto_v20 | not used | [here](https://github.com/ehristoforu/DeFooocus/blob/main/presets/realistic.json) |
+| Anime | run_anime.bat | --preset anime | animaPencilXL_v100 | not used | [here](https://github.com/ehristofour/DeFooocus/blob/main/presets/anime.json)     |
 
 Note that the download is **automatic** - you do not need to do anything if the internet connection is okay. However, you can download them manually if you (or move them from somewhere else) have your own preparation.
 
 ## UI Access and Authentication
-In addition to running on localhost, Fooocus can also expose its UI in two ways: 
+In addition to running on localhost, DeFooocus can also expose its UI in two ways: 
 * Local UI listener: use `--listen` (specify port e.g. with `--port 8888`). 
 * API access: use `--share` (registers an endpoint at `.gradio.live`).
 
@@ -505,9 +337,9 @@ The below things are already inside the software, and **users do not need to do 
 
 ## Customization
 
-After the first time you run Fooocus, a config file will be generated at `Fooocus\config.txt`. This file can be edited to change the model path or default parameters.
+After the first time you run Fooocus, a config file will be generated at `DeFooocus\config.txt`. This file can be edited to change the model path or default parameters.
 
-For example, an edited `Fooocus\config.txt` (this file will be generated after the first launch) may look like this:
+For example, an edited `DeFooocus\config.txt` (this file will be generated after the first launch) may look like this:
 
 ```json
 {
@@ -537,9 +369,9 @@ For example, an edited `Fooocus\config.txt` (this file will be generated after t
 }
 ```
 
-Many other keys, formats, and examples are in `Fooocus\config_modification_tutorial.txt` (this file will be generated after the first launch).
+Many other keys, formats, and examples are in `DeFooocus\config_modification_tutorial.txt` (this file will be generated after the first launch).
 
-Consider twice before you really change the config. If you find yourself breaking things, just delete `Fooocus\config.txt`. Fooocus will go back to default.
+Consider twice before you really change the config. If you find yourself breaking things, just delete `DeFooocus\config.txt`. Fooocus will go back to default.
 
 A safer way is just to try "run_anime.bat" or "run_realistic.bat" - they should already be good enough for different tasks.
 
@@ -599,7 +431,7 @@ The log is [here](update_log.md).
 
 You can put json files in the `language` folder to translate the user interface.
 
-For example, below is the content of `Fooocus/language/example.json`:
+For example, below is the content of `DeFooocus/language/example.json`:
 
 ```json
 {
@@ -610,20 +442,20 @@ For example, below is the content of `Fooocus/language/example.json`:
 }
 ```
 
-If you add `--language example` arg, Fooocus will read `Fooocus/language/example.json` to translate the UI.
+If you add `--language example` arg, Fooocus will read `DeFooocus/language/example.json` to translate the UI.
 
 For example, you can edit the ending line of Windows `run.bat` as
 
-    .\python_embeded\python.exe -s Fooocus\entry_with_update.py --language example
+    .\python_embeded\python.exe -s DeFooocus\entry_with_update.py --language example
 
 Or `run_anime.bat` as
 
-    .\python_embeded\python.exe -s Fooocus\entry_with_update.py --language example --preset anime
+    .\python_embeded\python.exe -s DeFooocus\entry_with_update.py --language example --preset anime
 
 Or `run_realistic.bat` as
 
-    .\python_embeded\python.exe -s Fooocus\entry_with_update.py --language example --preset realistic
+    .\python_embeded\python.exe -s DeFooocus\entry_with_update.py --language example --preset realistic
 
-For practical translation, you may create your own file like `Fooocus/language/jp.json` or `Fooocus/language/cn.json` and then use flag `--language jp` or `--language cn`. Apparently, these files do not exist now. **We need your help to create these files!**
+For practical translation, you may create your own file like `DeFooocus/language/jp.json` or `DeFooocus/language/cn.json` and then use flag `--language jp` or `--language cn`. Apparently, these files do not exist now. **We need your help to create these files!**
 
-Note that if no `--language` is given and at the same time `Fooocus/language/default.json` exists, Fooocus will always load `Fooocus/language/default.json` for translation. By default, the file `Fooocus/language/default.json` does not exist.
+Note that if no `--language` is given and at the same time `DeFooocus/language/default.json` exists, Fooocus will always load `DeFooocus/language/default.json` for translation. By default, the file `DeFooocus/language/default.json` does not exist.
