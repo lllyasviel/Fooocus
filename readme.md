@@ -24,6 +24,7 @@ This is just a fork (and a fork of forks), we are not the authors of this creati
 - More presets
 - Sound after render
 - Metadata
+- Special theme
 - Optimize parameters
 - Default model is JuggernautXL V9
 
