@@ -1,17 +1,5 @@
-<style>
-        img {
-            width: 100px; /* Задайте желаемую ширину изображения */
-            height: auto; /* Поддержка пропорций */
-            margin-right: 10px; /* Отступ справа для разделения изображения и текста */
-        }
-</style>
+<h1><center><img src="assets/favicon.png" width="48px" style="display: inline">DeFooocus</center></h1>
 
-
-<img src="assets/favicon.png" alt="icon">
-<h1>DeFooocus</h1>
-
-
-# DeFooocus
 
 The purpose of this fork is to add new features / fix bugs and contribute back to [Fooocus](https://github.com/lllyasviel/Fooocus).
 
