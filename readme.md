@@ -1,3 +1,7 @@
+<img src="assets/favicon.png" alt="icon">
+<h1>DeFooocus</h1>
+
+
 # DeFooocus
 
 The purpose of this fork is to add new features / fix bugs and contribute back to [Fooocus](https://github.com/lllyasviel/Fooocus).
