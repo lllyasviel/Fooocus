@@ -29,7 +29,7 @@
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
     "default_performance": "Speed",
-    "default_prompt": "1girl, ",
+    "default_prompt": "",
     "default_prompt_negative": "",
     "default_styles": [
         "Fooocus V2",
@@ -37,6 +37,7 @@
         "Fooocus Masterpiece"
     ],
     "default_aspect_ratio": "896*1152",
+    "default_overwrite_step": -1,
     "checkpoint_downloads": {
         "animaPencilXL_v100.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/animaPencilXL_v100.safetensors"
     },

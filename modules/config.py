@@ -8,7 +8,7 @@ import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
 from modules.util import get_files_from_folder
-
+from modules.flags import Performance, MetadataScheme, lora_count
 
 config_path = os.path.abspath("./config.txt")
 config_example_path = os.path.abspath("config_modification_tutorial.txt")
@@ -86,35 +86,70 @@ def try_load_deprecated_user_path_config():
 
 try_load_deprecated_user_path_config()
 
+def list_presets():
+    preset_folder = 'presets'
+    presets = ['initial']
+    if not os.path.exists(preset_folder):
+        print('No presets found.')
+        return presets
+
+    return presets + [f[:f.index(".json")] for f in os.listdir(preset_folder) if f.endswith('.json')]
+
+available_presets = list_presets()
+
+def update_presets():
+    global available_presets
+    available_presets = list_presets()
+
+def try_get_preset_content(preset):
+    if isinstance(preset, str):
+        preset_path = os.path.abspath(f'./presets/{preset}.json')
+        try:
+            if os.path.exists(preset_path):
+                with open(preset_path, "r", encoding="utf-8") as json_file:
+                    json_content = json.load(json_file)
+                    print(f'Loaded preset: {preset_path}')
+                    return json_content
+            else:
+                raise FileNotFoundError
+        except Exception as e:
+            print(f'Load preset [{preset_path}] failed')
+            print(e)
+    return {}
+
+def try_load_preset_global(preset):
+    global config_dict
+
+    if isinstance(preset, str):
+        preset_path = os.path.abspath(f'./presets/{preset}.json')
+        try:
+            if os.path.exists(preset_path):
+                with open(preset_path, "r", encoding="utf-8") as json_file:
+                    config_dict.update(json.load(json_file))
+                    print(f'Loaded preset: {preset_path}')
+            else:
+                raise FileNotFoundError
+        except Exception as e:
+            print(f'Load preset [{preset_path}] failed')
+            print(e)
+
+
 preset = args_manager.args.preset
+try_load_preset_global(preset)
 
-if isinstance(preset, str):
-    preset_path = os.path.abspath(f'./presets/{preset}.json')
-    try:
-        if os.path.exists(preset_path):
-            with open(preset_path, "r", encoding="utf-8") as json_file:
-                config_dict.update(json.load(json_file))
-                print(f'Loaded preset: {preset_path}')
-        else:
-            raise FileNotFoundError
-    except Exception as e:
-        print(f'Load preset [{preset_path}] failed')
-        print(e)
-
-
-def get_path_output() -> str:
+def get_path_output(make_directory=False) -> str:
     """
     Checking output path argument and overriding default path.
     """
     global config_dict
-    path_output = get_dir_or_set_default('path_outputs', '../outputs/')
+    path_output = get_dir_or_set_default('path_outputs', '../outputs/', make_directory)
     if args_manager.args.output_path:
         print(f'[CONFIG] Overriding config value path_outputs with {args_manager.args.output_path}')
         config_dict['path_outputs'] = path_output = args_manager.args.output_path
     return path_output
 
 
-def get_dir_or_set_default(key, default_value):
+def get_dir_or_set_default(key, default_value, make_directory=False):
     global config_dict, visited_keys, always_save_keys
 
     if key not in visited_keys:
@@ -124,15 +159,21 @@ def get_dir_or_set_default(key, default_value):
         always_save_keys.append(key)
 
     v = config_dict.get(key, None)
-    if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
-        return v
-    else:
-        if v is not None:
-            print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
-        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
-        os.makedirs(dp, exist_ok=True)
-        config_dict[key] = dp
-        return dp
+    if isinstance(v, str):
+        if make_directory:
+            try:
+                os.makedirs(v, exist_ok=True)
+            except OSError as error:
+                print(f'Directory {v} could not be created, reason: {error}')
+        if os.path.exists(v) and os.path.isdir(v):
+            return v
+
+    if v is not None:
+        print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
+    dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
+    os.makedirs(dp, exist_ok=True)
+    config_dict[key] = dp
+    return dp
 
 
 path_checkpoints = get_dir_or_set_default('path_checkpoints', '../models/checkpoints/')
@@ -144,7 +185,8 @@ path_inpaint = get_dir_or_set_default('path_inpaint', '../models/inpaint/')
 path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlnet/')
 path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vision/')
 path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
-path_outputs = get_path_output()
+path_safety_checker_models = get_dir_or_set_default('path_safety_checker_models', '../models/safety_checker_models/')
+path_outputs = get_path_output(True)
 
 
 def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False):
@@ -170,7 +212,7 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
         return default_value
 
 
-default_base_model_name = get_config_item_or_set_default(
+default_base_model_name = default_model = get_config_item_or_set_default(
     key='default_model',
     default_value='model.safetensors',
     validator=lambda x: isinstance(x, str)
@@ -180,7 +222,7 @@ previous_default_models = get_config_item_or_set_default(
     default_value=[],
     validator=lambda x: isinstance(x, list) and all(isinstance(k, str) for k in x)
 )
-default_refiner_model_name = get_config_item_or_set_default(
+default_refiner_model_name = default_refiner = get_config_item_or_set_default(
     key='default_refiner',
     default_value='None',
     validator=lambda x: isinstance(x, str)
@@ -259,8 +301,8 @@ default_prompt = get_config_item_or_set_default(
 )
 default_performance = get_config_item_or_set_default(
     key='default_performance',
-    default_value='Speed',
-    validator=lambda x: x in modules.flags.performance_selections
+    default_value=Performance.SPEED.value,
+    validator=lambda x: x in [y[1] for y in modules.flags.performance_selections if y[1] == x]
 )
 default_advanced_checkbox = get_config_item_or_set_default(
     key='default_advanced_checkbox',
@@ -271,6 +313,11 @@ default_max_image_number = get_config_item_or_set_default(
     key='default_max_image_number',
     default_value=32,
     validator=lambda x: isinstance(x, int) and x >= 1
+)
+default_output_format = get_config_item_or_set_default(
+    key='default_output_format',
+    default_value='png',
+    validator=lambda x: x in modules.flags.output_formats
 )
 default_image_number = get_config_item_or_set_default(
     key='default_image_number',
@@ -328,6 +375,11 @@ default_overwrite_switch = get_config_item_or_set_default(
     default_value=-1,
     validator=lambda x: isinstance(x, int)
 )
+default_overwrite_upscale = get_config_item_or_set_default(
+    key='default_overwrite_upscale',
+    default_value=-1,
+    validator=lambda x: isinstance(x, numbers.Number)
+)
 example_inpaint_prompts = get_config_item_or_set_default(
     key='example_inpaint_prompts',
     default_value=[
@@ -335,30 +387,70 @@ example_inpaint_prompts = get_config_item_or_set_default(
     ],
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x)
 )
+default_save_metadata_to_images = get_config_item_or_set_default(
+    key='default_save_metadata_to_images',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool)
+)
+default_metadata_scheme = get_config_item_or_set_default(
+    key='default_metadata_scheme',
+    default_value=MetadataScheme.FOOOCUS.value,
+    validator=lambda x: x in [y[1] for y in modules.flags.metadata_scheme if y[1] == x]
+)
+metadata_created_by = get_config_item_or_set_default(
+    key='metadata_created_by',
+    default_value='',
+    validator=lambda x: isinstance(x, str)
+)
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 
-config_dict["default_loras"] = default_loras = default_loras[:5] + [['None', 1.0] for _ in range(5 - len(default_loras))]
+default_black_out_nsfw = get_config_item_or_set_default(
+    key='default_black_out_nsfw',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool)
+)
+default_inpaint_mask_model = get_config_item_or_set_default(
+    key='default_inpaint_mask_model',
+    default_value='isnet-general-use',
+    validator=lambda x: x in modules.flags.inpaint_mask_models
+)
 
-possible_preset_keys = [
-    "default_model",
-    "default_refiner",
-    "default_refiner_switch",
-    "default_loras",
-    "default_cfg_scale",
-    "default_sample_sharpness",
-    "default_sampler",
-    "default_scheduler",
-    "default_performance",
-    "default_prompt",
-    "default_prompt_negative",
-    "default_styles",
-    "default_aspect_ratio",
-    "checkpoint_downloads",
-    "embeddings_downloads",
-    "lora_downloads",
-]
+default_inpaint_mask_cloth_category = get_config_item_or_set_default(
+    key='default_inpaint_mask_cloth_category',
+    default_value='full',
+    validator=lambda x: x in modules.flags.inpaint_mask_cloth_category
+)
 
+default_inpaint_mask_sam_model = get_config_item_or_set_default(
+    key='default_inpaint_mask_sam_model',
+    default_value='sam_vit_b_01ec64',
+    validator=lambda x: x in modules.flags.inpaint_mask_sam_model
+)
+
+config_dict["default_loras"] = default_loras = default_loras[:lora_count] + [['None', 1.0] for _ in range(lora_count - len(default_loras))]
+
+# mapping config to meta parameter 
+possible_preset_keys = {
+    "default_model": "base_model",
+    "default_refiner": "refiner_model",
+    "default_refiner_switch": "refiner_switch",
+    "previous_default_models": "previous_default_models",
+    "default_loras": "<processed>",
+    "default_cfg_scale": "guidance_scale",
+    "default_sample_sharpness": "sharpness",
+    "default_sampler": "sampler",
+    "default_scheduler": "scheduler",
+    "default_overwrite_step": "steps",
+    "default_performance": "performance",
+    "default_prompt": "prompt",
+    "default_prompt_negative": "negative_prompt",
+    "default_styles": "styles",
+    "default_aspect_ratio": "resolution",
+    "checkpoint_downloads": "checkpoint_downloads",
+    "embeddings_downloads": "embeddings_downloads",
+    "lora_downloads": "lora_downloads"
+}
 
 REWRITE_PRESET = False
 
@@ -396,9 +488,6 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
                     + 'Remember to split the paths with "\\\\" rather than "\\", '
                       'and there is no "," before the last "}". \n\n\n')
     json.dump({k: config_dict[k] for k in visited_keys}, json_file, indent=4)
-
-
-os.makedirs(path_outputs, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []

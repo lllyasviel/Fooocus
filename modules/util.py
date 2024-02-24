@@ -1,15 +1,20 @@
+import typing
+
 import numpy as np
 import datetime
 import random
 import math
 import os
 import cv2
+import json
 
 from PIL import Image
+from hashlib import sha256
 
+import modules.sdxl_styles
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
-
+HASH_SHA256_LENGTH = 10
 
 def erode_or_dilate(x, k):
     k = int(k)
@@ -168,14 +173,173 @@ def get_files_from_folder(folder_path, exensions=None, name_filter=None):
         relative_path = os.path.relpath(root, folder_path)
         if relative_path == ".":
             relative_path = ""
-        for filename in sorted(files):
+        for filename in sorted(files, key=lambda s: s.casefold()):
             _, file_extension = os.path.splitext(filename)
-            if (exensions == None or file_extension.lower() in exensions) and (name_filter == None or name_filter in _):
+            if (exensions is None or file_extension.lower() in exensions) and (name_filter is None or name_filter in _):
                 path = os.path.join(relative_path, filename)
                 filenames.append(path)
 
     return filenames
 
+
+def calculate_sha256(filename, length=HASH_SHA256_LENGTH) -> str:
+    hash_sha256 = sha256()
+    blksize = 1024 * 1024
+
+    with open(filename, "rb") as f:
+        for chunk in iter(lambda: f.read(blksize), b""):
+            hash_sha256.update(chunk)
+
+    res = hash_sha256.hexdigest()
+    return res[:length] if length else res
+
+
+def quote(text):
+    if ',' not in str(text) and '\n' not in str(text) and ':' not in str(text):
+        return text
+
+    return json.dumps(text, ensure_ascii=False)
+
+
+def unquote(text):
+    if len(text) == 0 or text[0] != '"' or text[-1] != '"':
+        return text
+
+    try:
+        return json.loads(text)
+    except Exception:
+        return text
+
+
+def unwrap_style_text_from_prompt(style_text, prompt):
+    """
+    Checks the prompt to see if the style text is wrapped around it. If so,
+    returns True plus the prompt text without the style text. Otherwise, returns
+    False with the original prompt.
+
+    Note that the "cleaned" version of the style text is only used for matching
+    purposes here. It isn't returned; the original style text is not modified.
+    """
+    stripped_prompt = prompt
+    stripped_style_text = style_text
+    if "{prompt}" in stripped_style_text:
+        # Work out whether the prompt is wrapped in the style text. If so, we
+        # return True and the "inner" prompt text that isn't part of the style.
+        try:
+            left, right = stripped_style_text.split("{prompt}", 2)
+        except ValueError as e:
+            # If the style text has multple "{prompt}"s, we can't split it into
+            # two parts. This is an error, but we can't do anything about it.
+            print(f"Unable to compare style text to prompt:\n{style_text}")
+            print(f"Error: {e}")
+            return False, prompt, ''
+
+        left_pos = stripped_prompt.find(left)
+        right_pos = stripped_prompt.find(right)
+        if 0 <= left_pos < right_pos:
+            real_prompt = stripped_prompt[left_pos + len(left):right_pos]
+            prompt = stripped_prompt.replace(left + real_prompt + right, '', 1)
+            if prompt.startswith(", "):
+                prompt = prompt[2:]
+            if prompt.endswith(", "):
+                prompt = prompt[:-2]
+            return True, prompt, real_prompt
+    else:
+        # Work out whether the given prompt starts with the style text. If so, we
+        # return True and the prompt text up to where the style text starts.
+        if stripped_prompt.endswith(stripped_style_text):
+            prompt = stripped_prompt[: len(stripped_prompt) - len(stripped_style_text)]
+            if prompt.endswith(", "):
+                prompt = prompt[:-2]
+            return True, prompt, prompt
+
+    return False, prompt, ''
+
+
+def extract_original_prompts(style, prompt, negative_prompt):
+    """
+    Takes a style and compares it to the prompt and negative prompt. If the style
+    matches, returns True plus the prompt and negative prompt with the style text
+    removed. Otherwise, returns False with the original prompt and negative prompt.
+    """
+    if not style.prompt and not style.negative_prompt:
+        return False, prompt, negative_prompt
+
+    match_positive, extracted_positive, real_prompt = unwrap_style_text_from_prompt(
+        style.prompt, prompt
+    )
+    if not match_positive:
+        return False, prompt, negative_prompt, ''
+
+    match_negative, extracted_negative, _ = unwrap_style_text_from_prompt(
+        style.negative_prompt, negative_prompt
+    )
+    if not match_negative:
+        return False, prompt, negative_prompt, ''
+
+    return True, extracted_positive, extracted_negative, real_prompt
+
+
+def extract_styles_from_prompt(prompt, negative_prompt):
+    extracted = []
+    applicable_styles = []
+
+    for style_name, (style_prompt, style_negative_prompt) in modules.sdxl_styles.styles.items():
+        applicable_styles.append(PromptStyle(name=style_name, prompt=style_prompt, negative_prompt=style_negative_prompt))
+
+    real_prompt = ''
+
+    while True:
+        found_style = None
+
+        for style in applicable_styles:
+            is_match, new_prompt, new_neg_prompt, new_real_prompt = extract_original_prompts(
+                style, prompt, negative_prompt
+            )
+            if is_match:
+                found_style = style
+                prompt = new_prompt
+                negative_prompt = new_neg_prompt
+                if real_prompt == '' and new_real_prompt != '' and new_real_prompt != prompt:
+                    real_prompt = new_real_prompt
+                break
+
+        if not found_style:
+            break
+
+        applicable_styles.remove(found_style)
+        extracted.append(found_style.name)
+
+    # add prompt expansion if not all styles could be resolved
+    if prompt != '':
+        if real_prompt != '':
+            extracted.append(modules.sdxl_styles.fooocus_expansion)
+        else:
+            # find real_prompt when only prompt expansion is selected
+            first_word = prompt.split(', ')[0]
+            first_word_positions = [i for i in range(len(prompt)) if prompt.startswith(first_word, i)]
+            if len(first_word_positions) > 1:
+                real_prompt = prompt[:first_word_positions[-1]]
+                extracted.append(modules.sdxl_styles.fooocus_expansion)
+                if real_prompt.endswith(', '):
+                    real_prompt = real_prompt[:-2]
+
+    return list(reversed(extracted)), real_prompt, negative_prompt
+
+
+class PromptStyle(typing.NamedTuple):
+    name: str
+    prompt: str
+    negative_prompt: str
+
+
+def is_json(data: str) -> bool:
+    try:
+        loaded_json = json.loads(data)
+        assert isinstance(loaded_json, dict)
+    except (ValueError, AssertionError):
+        return False
+    return True
 
 def ordinal_suffix(number: int) -> str:
     return 'th' if 10 <= number % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(number % 10, 'th')

@@ -1,0 +1,77 @@
+name: Bug Report
+description: Describe a problem
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this bug report form!
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please make sure to troubleshoot yourself before continuing.
+      options:
+        - label: I have read the [Troubleshooting Guide](https://github.com/lllyasviel/Fooocus/blob/main/troubleshoot.md)
+          required: true
+        - label: I have checked that this is not a duplicate of an already existing [issue](https://github.com/lllyasviel/Fooocus/issues)
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the problem
+      description: Also tell us, what did you expect to happen?
+      placeholder: "A clear and concise description of what the bug is."
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Full console log output
+      description: Please copy and paste the **full** console log here. You will make our job easier if you give a **full** log. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: Version
+      description: What version of Fooocus are you using? (see browser tab title or console log)
+      placeholder: "Example: Fooocus 2.1.855"
+    validations:
+      required: true
+  - type: dropdown
+    id: hosting
+    attributes:
+      label: Where are you running Fooocus?
+      multiple: false
+      options:
+        - Locally
+        - Locally with virtualisation (e.g. Docker)
+        - Cloud (Gradio)
+        - Cloud (other)
+    validations:
+      required: true
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      placeholder: "Example: Windows 10"
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: What browsers are you seeing the problem on?
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Microsoft Edge
+        - Safari
+        - other
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: "Thank you for completing our form!"

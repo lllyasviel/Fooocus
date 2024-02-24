@@ -218,3 +218,7 @@
 #stylePreviewOverlay.lower-half {
     transform: translate(-140px, -140px);
 }
+
+footer {
+  visibility: hidden
+}
