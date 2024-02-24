@@ -1,11 +1,10 @@
 <h1><center><img src="assets/favicon.png" width="48px" style="display: inline">DeFooocus</center></h1>
 
 
-The purpose of this fork is to add new features / fix bugs and contribute back to [Fooocus](https://github.com/lllyasviel/Fooocus).
+We are glad to introduce DeFooocus - it is a fork of the Fooocus interface, it combines some other forks and adds some convenient features.
 
-As a collaborator & contributor of the Fooocus repository you can find me in almost every [issue](https://github.com/lllyasviel/Fooocus/issues), [pull request](https://github.com/lllyasviel/Fooocus/pulls), [discussion](https://github.com/lllyasviel/Fooocus/discussions) etc.
+This is just a fork (and a fork of forks), we are not the authors of this creation, all thanks to [llyasviel](https://github.com/lllyasviel).
 
-Sadly the creator of Fooocus has gone dark multiple times for an extended amount of time, which is why I took matters into my own hands.
 
 ![preview](assets/preview.png)
 
