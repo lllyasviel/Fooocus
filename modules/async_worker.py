@@ -31,7 +31,6 @@ def worker():
     import extras.preprocessors as preprocessors
     import modules.inpaint_worker as inpaint_worker
     import modules.constants as constants
-    import modules.advanced_parameters as advanced_parameters
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
     import fooocus_version
