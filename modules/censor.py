@@ -27,10 +27,7 @@ def check_safety(x_image):
         safety_checker = StableDiffusionSafetyChecker.from_pretrained(safety_model_id, cache_dir=modules.config.path_safety_checker_models)
     
     safety_checker_input = safety_feature_extractor(numpy_to_pil(x_image), return_tensors="pt")
-    print(safety_checker_input)
     x_checked_image, has_nsfw_concept = safety_checker(images=x_image, clip_input=safety_checker_input.pixel_values)
-    print(x_checked_image)
-    print(has_nsfw_concept)
     return x_checked_image, has_nsfw_concept
 
 
@@ -42,7 +39,6 @@ def censor_single(x):
     if has_nsfw_concept[0]:
         imageshape = x_checked_image.shape
         x_checked_image = np.zeros((imageshape[0], imageshape[1], 3), dtype = np.uint8)
-    print(x_checked_image)
     return x_checked_image
 
 
