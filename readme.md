@@ -50,7 +50,7 @@ Fooocus has simplified the installation. Between pressing "download" and generat
 
 **Recently many fake websites exist on Google when you search “defooocus”. Do not trust those – here is the only official source of DeFooocus.**
 
-## [Installing Fooocus](#download)
+## [Installing DeFooocus](#download)
 
 # Moving from Midjourney to DeFooocus
 
