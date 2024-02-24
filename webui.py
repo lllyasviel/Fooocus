@@ -26,7 +26,7 @@ from modules.util import is_json
 
 PHOTOPEA_MAIN_URL = "https://www.photopea.com/"
 PHOTOPEA_IFRAME_ID = "webui-photopea-iframe"
-PHOTOPEA_IFRAME_HEIGHT = 640
+PHOTOPEA_IFRAME_HEIGHT = 684
 PHOTOPEA_IFRAME_WIDTH = "100%"
 PHOTOPEA_IFRAME_LOADED_EVENT = "onPhotopeaLoaded"
 
@@ -92,7 +92,9 @@ def generate_clicked(task):
                         os.remove(filepath)
 
     execution_time = time.perf_counter() - execution_start_time
-    print(f'Total time: {execution_time:.2f} seconds')
+    global time_taken 
+    time_taken = f"Total time: {execution_time:.2f} seconds"
+    print(time_taken)
     return
 
 
@@ -139,8 +141,9 @@ with shared.gradio_root:
                     rembg_button = gr.Button(value="Remove Background", interactive=True, scale=1)
                 with gr.Column(scale=3):
                     rembg_output = grh.Image(label='rembg Output', interactive=False, height=380)
-                gr.Markdown("Powered by [🪄 rembg 2.0.54](https://github.com/danielgatis/rembg/releases/tag/v2.0.54)")
+                gr.Markdown("Powered by [🪄 rembg 2.0.53](https://github.com/danielgatis/rembg/releases/tag/v2.0.53)")
             rembg_button.click(rembg_run, inputs=rembg_input, outputs=rembg_output, show_progress="full")  
+            time_md = gr.Markdown(visible=False)
             with gr.Row(elem_classes='type_row'):
                 with gr.Column(scale=17):
                     prompt = gr.Textbox(show_label=False, placeholder="Type prompt here or paste parameters.", elem_id='positive_prompt',
@@ -791,13 +794,13 @@ with shared.gradio_root:
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
 
-        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), [], True),
-                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating]) \
+        generate_button.click(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False), [], True),
+                              outputs=[stop_button, skip_button, generate_button, gallery, state_is_generating, time_md]) \
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed) \
             .then(fn=get_task, inputs=ctrls, outputs=currentTask) \
             .then(fn=generate_clicked, inputs=currentTask, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
-            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
-                  outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
+            .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), gr.update(visible=True, value=time_taken), False),
+                  outputs=[generate_button, stop_button, skip_button, state_is_generating, time_md]) \
             .then(fn=update_history_link, outputs=history_link) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
@@ -834,6 +837,7 @@ shared.gradio_root.launch(
     server_name=args_manager.args.listen,
     server_port=args_manager.args.port,
     share=args_manager.args.share,
+    favicon_path="assets/favicon.png",
     auth=check_auth if (args_manager.args.share or args_manager.args.listen) and auth_enabled else None,
     blocked_paths=[constants.AUTH_FILENAME]
 )
