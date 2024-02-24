@@ -365,7 +365,7 @@ with shared.gradio_root:
                 translate_prompts = gr.Checkbox(label='Translate Prompts',
                                                           info='Uses the internet to translate prompts to English.',
                                                           value=False)
-                seed_random = gr.Checkbox(label='Random', value=True)
+                seed_random = gr.Checkbox(label='Randomize seed', value=True)
                 image_seed = gr.Textbox(label='Seed', value=0, max_lines=1, visible=False) # workaround for https://github.com/gradio-app/gradio/issues/5354
 
                 def random_checked(r):
