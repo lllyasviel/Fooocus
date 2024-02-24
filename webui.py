@@ -525,19 +525,17 @@ with shared.gradio_root:
                         disable_preview = gr.Checkbox(label='Disable Preview', value=modules.config.default_black_out_nsfw,
                                                       interactive=not modules.config.default_black_out_nsfw,
                                                       info='Disable preview during generation.')
-                                                      
                         disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', 
                                                       value=modules.config.default_performance == 'Extreme Speed',
                                                       interactive=modules.config.default_performance != 'Extreme Speed',
                                                       info='Disable intermediate results during generation, only show final gallery.')
+
                         black_out_nsfw = gr.Checkbox(label='Black Out NSFW', value=modules.config.default_black_out_nsfw,
                                                      interactive=not modules.config.default_black_out_nsfw,
                                                      info='Use black image if NSFW is detected.')
 
                         black_out_nsfw.change(lambda x: gr.update(value=x, interactive=not x),
                                      inputs=black_out_nsfw, outputs=disable_preview, queue=False, show_progress=False)
-                        
-                        
 
                         if not args_manager.args.disable_metadata:
                             save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
@@ -747,9 +745,9 @@ with shared.gradio_root:
 
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
-        ctrls += [disable_preview, disable_intermediate_results, black_out_nsfw]
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
+        ctrls += [disable_preview, disable_intermediate_results, black_out_nsfw]
         ctrls += [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg]
         ctrls += [sampler_name, scheduler_name]
         ctrls += [overwrite_step, overwrite_switch, overwrite_width, overwrite_height, overwrite_vary_strength]
