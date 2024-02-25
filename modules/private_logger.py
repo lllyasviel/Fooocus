@@ -6,7 +6,7 @@ import urllib.parse
 
 from PIL import Image
 from modules.util import generate_temp_filename
-
+from tempfile import gettempdir
 
 log_cache = {}
 
@@ -18,13 +18,15 @@ def get_current_html_path():
     return html_name
 
 
-def log(img, dic):
-    if args_manager.args.disable_image_log:
-        return
-
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
+def log(img, dic) -> str:
+    path_outputs = args_manager.args.temp_path if args_manager.args.disable_image_log else modules.config.path_outputs
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension='png')
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
     Image.fromarray(img).save(local_temp_filename)
+
+    if args_manager.args.disable_image_log:
+        return local_temp_filename
+
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
 
     css_styles = (
@@ -105,4 +107,4 @@ def log(img, dic):
 
     log_cache[html_name] = middle_part
 
-    return
+    return local_temp_filename
