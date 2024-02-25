@@ -66,6 +66,8 @@ fpvae_group.add_argument("--vae-in-fp16", action="store_true")
 fpvae_group.add_argument("--vae-in-fp32", action="store_true")
 fpvae_group.add_argument("--vae-in-bf16", action="store_true")
 
+parser.add_argument("--vae-in-cpu", action="store_true")
+
 fpte_group = parser.add_mutually_exclusive_group()
 fpte_group.add_argument("--clip-in-fp8-e4m3fn", action="store_true")
 fpte_group.add_argument("--clip-in-fp8-e5m2", action="store_true")
@@ -98,7 +100,7 @@ vram_group.add_argument("--always-high-vram", action="store_true")
 vram_group.add_argument("--always-normal-vram", action="store_true")
 vram_group.add_argument("--always-low-vram", action="store_true")
 vram_group.add_argument("--always-no-vram", action="store_true")
-vram_group.add_argument("--always-cpu", action="store_true")
+vram_group.add_argument("--always-cpu", type=int, nargs="?", metavar="CPU_NUM_THREADS", const=-1)
 
 
 parser.add_argument("--always-offload-from-vram", action="store_true")
@@ -109,6 +111,8 @@ parser.add_argument("--debug-mode", action="store_true")
 parser.add_argument("--is-windows-embedded-python", action="store_true")
 
 parser.add_argument("--disable-server-info", action="store_true")
+
+parser.add_argument("--multi-user", action="store_true")
 
 if ldm_patched.modules.options.args_parsing:
     args = parser.parse_args([])
