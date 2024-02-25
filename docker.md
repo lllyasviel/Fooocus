@@ -12,16 +12,6 @@ When you see the message  `Use the app with http://localhost:7865/` in the conso
 
 Your models and outputs are stored in the `fooocus-data` volume, which, depending on OS, is stored in `/var/lib/docker/volumes`.
 
-
-## Use pre-built image
-
-The pre-built image is provided at `whitehara/fooocus`
-
-You can modify 'docker-compose.yml', then `docker compose up`
-
-Note: when you use the pre-built image, you need to make the 'fooocus-data' volume which permission is '777' ( all users can read/write.) before you run the container.
-Otherwise, you will see the permission error.
-
 ## Details
 
 ### Update the container manually

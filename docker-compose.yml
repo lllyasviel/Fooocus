@@ -6,7 +6,7 @@ volumes:
 services:
   app:
     build: .
-    image: whitehara/fooocus
+    image: fooocus
     ports:
      - "7865:7865"
     environment:
