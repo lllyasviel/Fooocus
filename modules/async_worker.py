@@ -1,4 +1,8 @@
 import threading
+import os
+from modules.patch import PatchSettings, patch_settings, patch_all
+
+patch_all()
 
 
 class AsyncTask:
@@ -6,6 +10,8 @@ class AsyncTask:
         self.args = args
         self.yields = []
         self.results = []
+        self.last_stop = False
+        self.processing = False
 
 
 async_tasks = []
@@ -31,7 +37,6 @@ def worker():
     import extras.preprocessors as preprocessors
     import modules.inpaint_worker as inpaint_worker
     import modules.constants as constants
-    import modules.advanced_parameters as advanced_parameters
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
     import fooocus_version
@@ -40,8 +45,11 @@ def worker():
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image
+        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix
     from modules.upscaler import perform_upscale
+
+    pid = os.getpid()
+    print(f'Started worker with PID {pid}')
 
     try:
         async_gradio_app = shared.gradio_root
@@ -69,9 +77,6 @@ def worker():
         return
 
     def build_image_wall(async_task):
-        if not advanced_parameters.generate_image_grid:
-            return
-
         results = async_task.results
 
         if len(results) < 2:
@@ -115,6 +120,7 @@ def worker():
     @torch.inference_mode()
     def handler(async_task):
         execution_start_time = time.perf_counter()
+        async_task.processing = True
 
         args = async_task.args
         args.reverse()
@@ -139,6 +145,42 @@ def worker():
         outpaint_selections = args.pop()
         inpaint_input_image = args.pop()
         inpaint_additional_prompt = args.pop()
+        inpaint_mask_image_upload = args.pop()
+        disable_preview = args.pop()
+        disable_intermediate_results = args.pop()
+        adm_scaler_positive = args.pop()
+        adm_scaler_negative = args.pop()
+        adm_scaler_end = args.pop()
+        adaptive_cfg = args.pop()
+        sampler_name = args.pop()
+        scheduler_name = args.pop()
+        overwrite_step = args.pop()
+        overwrite_switch = args.pop()
+        overwrite_width = args.pop()
+        overwrite_height = args.pop()
+        overwrite_vary_strength = args.pop()
+        overwrite_upscale_strength = args.pop()
+        mixing_image_prompt_and_vary_upscale = args.pop()
+        mixing_image_prompt_and_inpaint = args.pop()
+        debugging_cn_preprocessor = args.pop()
+        skipping_cn_preprocessor = args.pop()
+        canny_low_threshold = args.pop()
+        canny_high_threshold = args.pop()
+        refiner_swap_method = args.pop()
+        controlnet_softness = args.pop()
+        freeu_enabled = args.pop()
+        freeu_b1 = args.pop()
+        freeu_b2 = args.pop()
+        freeu_s1 = args.pop()
+        freeu_s2 = args.pop()
+        debugging_inpaint_preprocessor = args.pop()
+        inpaint_disable_initial_latent = args.pop()
+        inpaint_engine = args.pop()
+        inpaint_strength = args.pop()
+        inpaint_respective_field = args.pop()
+        inpaint_mask_upload_checkbox = args.pop()
+        invert_mask_checkbox = args.pop()
+        inpaint_erode_or_dilate = args.pop()
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -185,30 +227,33 @@ def worker():
                 print(f'Refiner disabled in LCM mode.')
 
             refiner_model_name = 'None'
-            sampler_name = advanced_parameters.sampler_name = 'lcm'
-            scheduler_name = advanced_parameters.scheduler_name = 'lcm'
-            modules.patch.sharpness = sharpness = 0.0
-            cfg_scale = guidance_scale = 1.0
-            modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg = 1.0
+            sampler_name = 'lcm'
+            scheduler_name = 'lcm'
+            sharpness = 0.0
+            guidance_scale = 1.0
+            adaptive_cfg = 1.0
             refiner_switch = 1.0
-            modules.patch.positive_adm_scale = advanced_parameters.adm_scaler_positive = 1.0
-            modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative = 1.0
-            modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end = 0.0
+            adm_scaler_positive = 1.0
+            adm_scaler_negative = 1.0
+            adm_scaler_end = 0.0
             steps = 8
 
-        modules.patch.adaptive_cfg = advanced_parameters.adaptive_cfg
-        print(f'[Parameters] Adaptive CFG = {modules.patch.adaptive_cfg}')
-
-        modules.patch.sharpness = sharpness
-        print(f'[Parameters] Sharpness = {modules.patch.sharpness}')
-
-        modules.patch.positive_adm_scale = advanced_parameters.adm_scaler_positive
-        modules.patch.negative_adm_scale = advanced_parameters.adm_scaler_negative
-        modules.patch.adm_scaler_end = advanced_parameters.adm_scaler_end
+        print(f'[Parameters] Adaptive CFG = {adaptive_cfg}')
+        print(f'[Parameters] Sharpness = {sharpness}')
+        print(f'[Parameters] ControlNet Softness = {controlnet_softness}')
         print(f'[Parameters] ADM Scale = '
-              f'{modules.patch.positive_adm_scale} : '
-              f'{modules.patch.negative_adm_scale} : '
-              f'{modules.patch.adm_scaler_end}')
+              f'{adm_scaler_positive} : '
+              f'{adm_scaler_negative} : '
+              f'{adm_scaler_end}')
+
+        patch_settings[pid] = PatchSettings(
+            sharpness,
+            adm_scaler_end,
+            adm_scaler_positive,
+            adm_scaler_negative,
+            controlnet_softness,
+            adaptive_cfg
+        )
 
         cfg_scale = float(guidance_scale)
         print(f'[Parameters] CFG = {cfg_scale}')
@@ -221,10 +266,9 @@ def worker():
         width, height = int(width), int(height)
 
         skip_prompt_processing = False
-        refiner_swap_method = advanced_parameters.refiner_swap_method
 
         inpaint_worker.current_task = None
-        inpaint_parameterized = advanced_parameters.inpaint_engine != 'None'
+        inpaint_parameterized = inpaint_engine != 'None'
         inpaint_image = None
         inpaint_mask = None
         inpaint_head_model_path = None
@@ -238,15 +282,12 @@ def worker():
         seed = int(image_seed)
         print(f'[Parameters] Seed = {seed}')
 
-        sampler_name = advanced_parameters.sampler_name
-        scheduler_name = advanced_parameters.scheduler_name
-
         goals = []
         tasks = []
 
         if input_image_checkbox:
             if (current_tab == 'uov' or (
-                    current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_vary_upscale)) \
+                    current_tab == 'ip' and mixing_image_prompt_and_vary_upscale)) \
                     and uov_method != flags.disabled and uov_input_image is not None:
                 uov_input_image = HWC3(uov_input_image)
                 if 'vary' in uov_method:
@@ -270,10 +311,26 @@ def worker():
                     progressbar(async_task, 1, 'Downloading upscale models ...')
                     modules.config.downloading_upscale_model()
             if (current_tab == 'inpaint' or (
-                    current_tab == 'ip' and advanced_parameters.mixing_image_prompt_and_inpaint)) \
+                    current_tab == 'ip' and mixing_image_prompt_and_inpaint)) \
                     and isinstance(inpaint_input_image, dict):
                 inpaint_image = inpaint_input_image['image']
                 inpaint_mask = inpaint_input_image['mask'][:, :, 0]
+
+                if inpaint_mask_upload_checkbox:
+                    if isinstance(inpaint_mask_image_upload, np.ndarray):
+                        if inpaint_mask_image_upload.ndim == 3:
+                            H, W, C = inpaint_image.shape
+                            inpaint_mask_image_upload = resample_image(inpaint_mask_image_upload, width=W, height=H)
+                            inpaint_mask_image_upload = np.mean(inpaint_mask_image_upload, axis=2)
+                            inpaint_mask_image_upload = (inpaint_mask_image_upload > 127).astype(np.uint8) * 255
+                            inpaint_mask = np.maximum(inpaint_mask, inpaint_mask_image_upload)
+
+                if int(inpaint_erode_or_dilate) != 0:
+                    inpaint_mask = erode_or_dilate(inpaint_mask, inpaint_erode_or_dilate)
+
+                if invert_mask_checkbox:
+                    inpaint_mask = 255 - inpaint_mask
+
                 inpaint_image = HWC3(inpaint_image)
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
                         and (np.any(inpaint_mask > 127) or len(outpaint_selections) > 0):
@@ -282,7 +339,7 @@ def worker():
                     if inpaint_parameterized:
                         progressbar(async_task, 1, 'Downloading inpainter ...')
                         inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
-                            advanced_parameters.inpaint_engine)
+                            inpaint_engine)
                         base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
                         print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
                         if refiner_model_name == 'None':
@@ -298,8 +355,8 @@ def worker():
                             prompt = inpaint_additional_prompt + '\n' + prompt
                     goals.append('inpaint')
             if current_tab == 'ip' or \
-                    advanced_parameters.mixing_image_prompt_and_inpaint or \
-                    advanced_parameters.mixing_image_prompt_and_vary_upscale:
+                    mixing_image_prompt_and_vary_upscale or \
+                    mixing_image_prompt_and_inpaint:
                 goals.append('cn')
                 progressbar(async_task, 1, 'Downloading control models ...')
                 if len(cn_tasks[flags.cn_canny]) > 0:
@@ -318,19 +375,19 @@ def worker():
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
 
+        if overwrite_step > 0:
+            steps = overwrite_step
+
         switch = int(round(steps * refiner_switch))
 
-        if advanced_parameters.overwrite_step > 0:
-            steps = advanced_parameters.overwrite_step
+        if overwrite_switch > 0:
+            switch = overwrite_switch
 
-        if advanced_parameters.overwrite_switch > 0:
-            switch = advanced_parameters.overwrite_switch
+        if overwrite_width > 0:
+            width = overwrite_width
 
-        if advanced_parameters.overwrite_width > 0:
-            width = advanced_parameters.overwrite_width
-
-        if advanced_parameters.overwrite_height > 0:
-            height = advanced_parameters.overwrite_height
+        if overwrite_height > 0:
+            height = overwrite_height
 
         print(f'[Parameters] Sampler = {sampler_name} - {scheduler_name}')
         print(f'[Parameters] Steps = {steps} - {switch}')
@@ -429,8 +486,8 @@ def worker():
                 denoising_strength = 0.5
             if 'strong' in uov_method:
                 denoising_strength = 0.85
-            if advanced_parameters.overwrite_vary_strength > 0:
-                denoising_strength = advanced_parameters.overwrite_vary_strength
+            if overwrite_vary_strength > 0:
+                denoising_strength = overwrite_vary_strength
 
             shape_ceil = get_image_shape_ceil(uov_input_image)
             if shape_ceil < 1024:
@@ -501,8 +558,8 @@ def worker():
             tiled = True
             denoising_strength = 0.382
 
-            if advanced_parameters.overwrite_upscale_strength > 0:
-                denoising_strength = advanced_parameters.overwrite_upscale_strength
+            if overwrite_upscale_strength > 0:
+                denoising_strength = overwrite_upscale_strength
 
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
             progressbar(async_task, 13, 'VAE encoding ...')
@@ -546,19 +603,19 @@ def worker():
 
                 inpaint_image = np.ascontiguousarray(inpaint_image.copy())
                 inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
-                advanced_parameters.inpaint_strength = 1.0
-                advanced_parameters.inpaint_respective_field = 1.0
+                inpaint_strength = 1.0
+                inpaint_respective_field = 1.0
 
-            denoising_strength = advanced_parameters.inpaint_strength
+            denoising_strength = inpaint_strength
 
             inpaint_worker.current_task = inpaint_worker.InpaintWorker(
                 image=inpaint_image,
                 mask=inpaint_mask,
                 use_fill=denoising_strength > 0.99,
-                k=advanced_parameters.inpaint_respective_field
+                k=inpaint_respective_field
             )
 
-            if advanced_parameters.debugging_inpaint_preprocessor:
+            if debugging_inpaint_preprocessor:
                 yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(),
                              do_not_show_finished_images=True)
                 return
@@ -604,7 +661,7 @@ def worker():
                     model=pipeline.final_unet
                 )
 
-            if not advanced_parameters.inpaint_disable_initial_latent:
+            if not inpaint_disable_initial_latent:
                 initial_latent = {'samples': latent_fill}
 
             B, C, H, W = latent_fill.shape
@@ -617,24 +674,24 @@ def worker():
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
 
-                if not advanced_parameters.skipping_cn_preprocessor:
-                    cn_img = preprocessors.canny_pyramid(cn_img)
+                if not skipping_cn_preprocessor:
+                    cn_img = preprocessors.canny_pyramid(cn_img, canny_low_threshold, canny_high_threshold)
 
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
-                if advanced_parameters.debugging_cn_preprocessor:
+                if debugging_cn_preprocessor:
                     yield_result(async_task, cn_img, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_cpds]:
                 cn_img, cn_stop, cn_weight = task
                 cn_img = resize_image(HWC3(cn_img), width=width, height=height)
 
-                if not advanced_parameters.skipping_cn_preprocessor:
+                if not skipping_cn_preprocessor:
                     cn_img = preprocessors.cpds(cn_img)
 
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
-                if advanced_parameters.debugging_cn_preprocessor:
+                if debugging_cn_preprocessor:
                     yield_result(async_task, cn_img, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_ip]:
@@ -645,21 +702,21 @@ def worker():
                 cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
 
                 task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_path)
-                if advanced_parameters.debugging_cn_preprocessor:
+                if debugging_cn_preprocessor:
                     yield_result(async_task, cn_img, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_ip_face]:
                 cn_img, cn_stop, cn_weight = task
                 cn_img = HWC3(cn_img)
 
-                if not advanced_parameters.skipping_cn_preprocessor:
+                if not skipping_cn_preprocessor:
                     cn_img = extras.face_crop.crop_image(cn_img)
 
                 # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
                 cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
 
                 task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_face_path)
-                if advanced_parameters.debugging_cn_preprocessor:
+                if debugging_cn_preprocessor:
                     yield_result(async_task, cn_img, do_not_show_finished_images=True)
                     return
 
@@ -668,14 +725,14 @@ def worker():
             if len(all_ip_tasks) > 0:
                 pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, all_ip_tasks)
 
-        if advanced_parameters.freeu_enabled:
+        if freeu_enabled:
             print(f'FreeU is enabled!')
             pipeline.final_unet = core.apply_freeu(
                 pipeline.final_unet,
-                advanced_parameters.freeu_b1,
-                advanced_parameters.freeu_b2,
-                advanced_parameters.freeu_s1,
-                advanced_parameters.freeu_s2
+                freeu_b1,
+                freeu_b2,
+                freeu_s1,
+                freeu_s2
             )
 
         all_steps = steps * image_number
@@ -715,13 +772,14 @@ def worker():
             done_steps = current_task_id * steps + step
             async_task.yields.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}-th Sampling',
-                y)])
+                f'Step {step}/{total_steps} in the {current_task_id + 1}{ordinal_suffix(current_task_id + 1)} Sampling', y)])
 
         for current_task_id, task in enumerate(tasks):
             execution_start_time = time.perf_counter()
 
             try:
+                if async_task.last_stop is not False:
+                    ldm_patched.model_management.interrupt_current_processing()
                 positive_cond, negative_cond = task['c'], task['uc']
 
                 if 'cn' in goals:
@@ -749,7 +807,8 @@ def worker():
                     denoise=denoising_strength,
                     tiled=tiled,
                     cfg_scale=cfg_scale,
-                    refiner_swap_method=refiner_swap_method
+                    refiner_swap_method=refiner_swap_method,
+                    disable_preview=disable_preview
                 )
 
                 del task['c'], task['uc'], positive_cond, negative_cond  # Save memory
@@ -768,9 +827,9 @@ def worker():
                         ('Sharpness', sharpness),
                         ('Guidance Scale', guidance_scale),
                         ('ADM Guidance', str((
-                            modules.patch.positive_adm_scale,
-                            modules.patch.negative_adm_scale,
-                            modules.patch.adm_scaler_end))),
+                            modules.patch.patch_settings[pid].positive_adm_scale,
+                            modules.patch.patch_settings[pid].negative_adm_scale,
+                            modules.patch.patch_settings[pid].adm_scaler_end))),
                         ('Base Model', base_model_name),
                         ('Refiner Model', refiner_model_name),
                         ('Refiner Switch', refiner_switch),
@@ -784,10 +843,11 @@ def worker():
                     d.append(('Version', 'v' + fooocus_version.version))
                     log(x, d)
 
-                yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
+                yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
-                if shared.last_stop == 'skip':
+                if async_task.last_stop == 'skip':
                     print('User skipped')
+                    async_task.last_stop = False
                     continue
                 else:
                     print('User stopped')
@@ -795,21 +855,27 @@ def worker():
 
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
-
+        async_task.processing = False
         return
 
     while True:
         time.sleep(0.01)
         if len(async_tasks) > 0:
             task = async_tasks.pop(0)
+            generate_image_grid = task.args.pop(0)
+
             try:
                 handler(task)
-                build_image_wall(task)
+                if generate_image_grid:
+                    build_image_wall(task)
                 task.yields.append(['finish', task.results])
                 pipeline.prepare_text_encoder(async_call=True)
             except:
                 traceback.print_exc()
                 task.yields.append(['finish', task.results])
+            finally:
+                if pid in modules.patch.patch_settings:
+                    del modules.patch.patch_settings[pid]
     pass
 
 

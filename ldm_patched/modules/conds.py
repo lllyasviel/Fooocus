@@ -1,11 +1,8 @@
-import enum
 import torch
 import math
 import ldm_patched.modules.utils
 
 
-def lcm(a, b): #TODO: eventually replace by math.lcm (added in python3.9)
-    return abs(a*b) // math.gcd(a, b)
 
 class CONDRegular:
     def __init__(self, cond):
@@ -42,7 +39,7 @@ class CONDCrossAttn(CONDRegular):
             if s1[0] != s2[0] or s1[2] != s2[2]: #these 2 cases should not happen
                 return False
 
-            mult_min = lcm(s1[1], s2[1])
+            mult_min = math.lcm(s1[1], s2[1])
             diff = mult_min // min(s1[1], s2[1])
             if diff > 4: #arbitrary limit on the padding because it's probably going to impact performance negatively if it's too much
                 return False
@@ -53,7 +50,7 @@ class CONDCrossAttn(CONDRegular):
         crossattn_max_len = self.cond.shape[1]
         for x in others:
             c = x.cond
-            crossattn_max_len = lcm(crossattn_max_len, c.shape[1])
+            crossattn_max_len = math.lcm(crossattn_max_len, c.shape[1])
             conds.append(c)
 
         out = []
