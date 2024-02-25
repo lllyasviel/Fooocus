@@ -8,10 +8,11 @@ Pillow==9.2.0
 scipy==1.9.3
 tqdm==4.64.1
 psutil==5.9.5
-numpy==1.23.5
 pytorch_lightning==1.9.4
 omegaconf==2.2.3
 gradio==3.41.2
 pygit2==1.12.2
 opencv-contrib-python==4.8.0.74
 httpx==0.24.1
+onnxruntime==1.16.3
+timm==0.9.2

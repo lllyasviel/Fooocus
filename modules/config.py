@@ -17,9 +17,16 @@ always_save_keys = []
 visited_keys = []
 
 try:
+    with open(os.path.abspath(f'./presets/default.json'), "r", encoding="utf-8") as json_file:
+        config_dict.update(json.load(json_file))
+except Exception as e:
+    print(f'Load default preset failed.')
+    print(e)
+
+try:
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as json_file:
-            config_dict = json.load(json_file)
+            config_dict.update(json.load(json_file))
             always_save_keys = list(config_dict.keys())
 except Exception as e:
     print(f'Failed to load config file "{config_path}" . The reason is: {str(e)}')
@@ -95,7 +102,19 @@ if isinstance(preset, str):
         print(e)
 
 
-def get_dir_or_set_default(key, default_value):
+def get_path_output() -> str:
+    """
+    Checking output path argument and overriding default path.
+    """
+    global config_dict
+    path_output = get_dir_or_set_default('path_outputs', '../outputs/')
+    if args_manager.args.output_path:
+        print(f'[CONFIG] Overriding config value path_outputs with {args_manager.args.output_path}')
+        config_dict['path_outputs'] = path_output = args_manager.args.output_path
+    return path_output
+
+
+def get_dir_or_set_default(key, default_value, as_array=False):
     global config_dict, visited_keys, always_save_keys
 
     if key not in visited_keys:
@@ -106,6 +125,8 @@ def get_dir_or_set_default(key, default_value):
 
     v = config_dict.get(key, None)
     if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
+        return v if not as_array else [v]
+    elif isinstance(v, list) and all([os.path.exists(d) and os.path.isdir(d) for d in v]):
         return v
     else:
         if v is not None:
@@ -115,31 +136,9 @@ def get_dir_or_set_default(key, default_value):
         config_dict[key] = dp
         return dp
 
-def get_dirs_or_set_default(key, default_value):
-    global config_dict, visited_keys, always_save_keys
 
-    if key not in visited_keys:
-        visited_keys.append(key)
-
-    if key not in always_save_keys:
-        always_save_keys.append(key)
-
-    v = config_dict.get(key, None)
-    if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
-        return [v]
-    elif isinstance(v, list) and all([os.path.exists(d) and os.path.isdir(d) for d in v]):
-        return v
-    else:
-        if v is not None:
-            print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
-        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
-        os.makedirs(dp, exist_ok=True)
-        config_dict[key] = dp
-        return [dp]
-
-
-path_checkpoints = get_dirs_or_set_default('path_checkpoints', '../models/checkpoints/')
-path_loras = get_dirs_or_set_default('path_loras', '../models/loras/')
+paths_checkpoints = get_dir_or_set_default('path_checkpoints', '../models/checkpoints/', True)
+paths_loras = get_dir_or_set_default('path_loras', '../models/loras/', True)
 path_embeddings = get_dir_or_set_default('path_embeddings', '../models/embeddings/')
 path_vae_approx = get_dir_or_set_default('path_vae_approx', '../models/vae_approx/')
 path_upscale_models = get_dir_or_set_default('path_upscale_models', '../models/upscale_models/')
@@ -147,7 +146,7 @@ path_inpaint = get_dir_or_set_default('path_inpaint', '../models/inpaint/')
 path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlnet/')
 path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vision/')
 path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
-path_outputs = get_dir_or_set_default('path_outputs', '../outputs/')
+path_outputs = get_path_output()
 
 
 def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False):
@@ -175,8 +174,13 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
 
 default_base_model_name = get_config_item_or_set_default(
     key='default_model',
-    default_value='juggernautXL_version6Rundiffusion.safetensors',
+    default_value='model.safetensors',
     validator=lambda x: isinstance(x, str)
+)
+previous_default_models = get_config_item_or_set_default(
+    key='previous_default_models',
+    default_value=[],
+    validator=lambda x: isinstance(x, list) and all(isinstance(k, str) for k in x)
 )
 default_refiner_model_name = get_config_item_or_set_default(
     key='default_refiner',
@@ -185,15 +189,15 @@ default_refiner_model_name = get_config_item_or_set_default(
 )
 default_refiner_switch = get_config_item_or_set_default(
     key='default_refiner_switch',
-    default_value=0.5,
+    default_value=0.8,
     validator=lambda x: isinstance(x, numbers.Number) and 0 <= x <= 1
 )
 default_loras = get_config_item_or_set_default(
     key='default_loras',
     default_value=[
         [
-            "sd_xl_offset_example-lora_1.0.safetensors",
-            0.1
+            "None",
+            1.0
         ],
         [
             "None",
@@ -216,7 +220,7 @@ default_loras = get_config_item_or_set_default(
 )
 default_cfg_scale = get_config_item_or_set_default(
     key='default_cfg_scale',
-    default_value=4.0,
+    default_value=7.0,
     validator=lambda x: isinstance(x, numbers.Number)
 )
 default_sample_sharpness = get_config_item_or_set_default(
@@ -265,23 +269,24 @@ default_advanced_checkbox = get_config_item_or_set_default(
     default_value=False,
     validator=lambda x: isinstance(x, bool)
 )
+default_max_image_number = get_config_item_or_set_default(
+    key='default_max_image_number',
+    default_value=32,
+    validator=lambda x: isinstance(x, int) and x >= 1
+)
 default_image_number = get_config_item_or_set_default(
     key='default_image_number',
     default_value=2,
-    validator=lambda x: isinstance(x, int) and 1 <= x <= 32
+    validator=lambda x: isinstance(x, int) and 1 <= x <= default_max_image_number
 )
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
-    default_value={
-        "juggernautXL_version6Rundiffusion.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_version6Rundiffusion.safetensors"
-    },
+    default_value={},
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
 lora_downloads = get_config_item_or_set_default(
     key='lora_downloads',
-    default_value={
-        "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors"
-    },
+    default_value={},
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items())
 )
 embeddings_downloads = get_config_item_or_set_default(
@@ -405,14 +410,14 @@ def get_model_filenames(folder_paths, name_filter=None):
     extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']
     files = []
     for folder in folder_paths:
-        files.extend(get_files_from_folder(folder,extensions, name_filter))
+        files += get_files_from_folder(folder, extensions, name_filter)
     return files
 
 
 def update_all_model_names():
     global model_filenames, lora_filenames
-    model_filenames = get_model_filenames(path_checkpoints)
-    lora_filenames = get_model_filenames(path_loras)
+    model_filenames = get_model_filenames(paths_checkpoints)
+    lora_filenames = get_model_filenames(paths_loras)
     return
 
 
@@ -457,7 +462,7 @@ def downloading_inpaint_models(v):
 def downloading_sdxl_lcm_lora():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/sdxl_lcm_lora.safetensors',
-        model_dir=path_loras[0],
+        model_dir=paths_loras[0],
         file_name='sdxl_lcm_lora.safetensors'
     )
     return 'sdxl_lcm_lora.safetensors'
