@@ -131,14 +131,23 @@ def get_dir_or_set_default(key, default_value, as_array=False):
     else:
         if v is not None:
             print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
-        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
-        os.makedirs(dp, exist_ok=True)
+        if isinstance(default_value, list):
+            dp = []
+            for path in default_value:
+                abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), path))
+                dp.append(abs_path)
+                os.makedirs(abs_path, exist_ok=True)
+        else:
+            dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
+            os.makedirs(dp, exist_ok=True)
+            if as_array:
+                dp = [dp]
         config_dict[key] = dp
         return dp
 
 
-paths_checkpoints = get_dir_or_set_default('path_checkpoints', '../models/checkpoints/', True)
-paths_loras = get_dir_or_set_default('path_loras', '../models/loras/', True)
+paths_checkpoints = get_dir_or_set_default('path_checkpoints', ['../models/checkpoints/'], True)
+paths_loras = get_dir_or_set_default('path_loras', ['../models/loras/'], True)
 path_embeddings = get_dir_or_set_default('path_embeddings', '../models/embeddings/')
 path_vae_approx = get_dir_or_set_default('path_vae_approx', '../models/vae_approx/')
 path_upscale_models = get_dir_or_set_default('path_upscale_models', '../models/upscale_models/')
