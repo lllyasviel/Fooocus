@@ -40,7 +40,7 @@ def worker():
     import extras.face_crop
     import fooocus_version
 
-    from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
+    from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion, apply_arrays
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
@@ -155,6 +155,7 @@ def worker():
         inpaint_mask_image_upload = args.pop()
         disable_preview = args.pop()
         disable_intermediate_results = args.pop()
+        disable_seed_increment = args.pop()
         adm_scaler_positive = args.pop()
         adm_scaler_negative = args.pop()
         adm_scaler_end = args.pop()
@@ -424,10 +425,14 @@ def worker():
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
             for i in range(image_number):
-                task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
-                task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
+                if disable_seed_increment:
+                    task_seed = seed
+                else:
+                    task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
 
+                task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
                 task_prompt = apply_wildcards(prompt, task_rng)
+                task_prompt = apply_arrays(task_prompt, i)
                 task_negative_prompt = apply_wildcards(negative_prompt, task_rng)
                 task_extra_positive_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
                 task_extra_negative_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]

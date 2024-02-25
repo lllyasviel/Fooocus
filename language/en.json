@@ -48,6 +48,8 @@
     "Describing what you do not want to see.": "Describing what you do not want to see.",
     "Random": "Random",
     "Seed": "Seed",
+    "Disable seed increment": "Disable seed increment",
+    "Disable automatic seed increment when image number is > 1.": "Disable automatic seed increment when image number is > 1.",
     "\ud83d\udcda History Log": "\uD83D\uDCDA History Log",
     "Image Style": "Image Style",
     "Fooocus V2": "Fooocus V2",
