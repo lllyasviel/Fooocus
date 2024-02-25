@@ -114,7 +114,7 @@ def get_path_output() -> str:
     return path_output
 
 
-def get_dir_or_set_default(key, default_value):
+def get_dir_or_set_default(key, default_value, as_array=False):
     global config_dict, visited_keys, always_save_keys
 
     if key not in visited_keys:
@@ -125,18 +125,29 @@ def get_dir_or_set_default(key, default_value):
 
     v = config_dict.get(key, None)
     if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
+        return v if not as_array else [v]
+    elif isinstance(v, list) and all([os.path.exists(d) and os.path.isdir(d) for d in v]):
         return v
     else:
         if v is not None:
             print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
-        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
-        os.makedirs(dp, exist_ok=True)
+        if isinstance(default_value, list):
+            dp = []
+            for path in default_value:
+                abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), path))
+                dp.append(abs_path)
+                os.makedirs(abs_path, exist_ok=True)
+        else:
+            dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
+            os.makedirs(dp, exist_ok=True)
+            if as_array:
+                dp = [dp]
         config_dict[key] = dp
         return dp
 
 
-path_checkpoints = get_dir_or_set_default('path_checkpoints', '../models/checkpoints/')
-path_loras = get_dir_or_set_default('path_loras', '../models/loras/')
+paths_checkpoints = get_dir_or_set_default('path_checkpoints', ['../models/checkpoints/'], True)
+paths_loras = get_dir_or_set_default('path_loras', ['../models/loras/'], True)
 path_embeddings = get_dir_or_set_default('path_embeddings', '../models/embeddings/')
 path_vae_approx = get_dir_or_set_default('path_vae_approx', '../models/vae_approx/')
 path_upscale_models = get_dir_or_set_default('path_upscale_models', '../models/upscale_models/')
@@ -404,14 +415,18 @@ model_filenames = []
 lora_filenames = []
 
 
-def get_model_filenames(folder_path, name_filter=None):
-    return get_files_from_folder(folder_path, ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch'], name_filter)
+def get_model_filenames(folder_paths, name_filter=None):
+    extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']
+    files = []
+    for folder in folder_paths:
+        files += get_files_from_folder(folder, extensions, name_filter)
+    return files
 
 
 def update_all_model_names():
     global model_filenames, lora_filenames
-    model_filenames = get_model_filenames(path_checkpoints)
-    lora_filenames = get_model_filenames(path_loras)
+    model_filenames = get_model_filenames(paths_checkpoints)
+    lora_filenames = get_model_filenames(paths_loras)
     return
 
 
@@ -456,7 +471,7 @@ def downloading_inpaint_models(v):
 def downloading_sdxl_lcm_lora():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/sdxl_lcm_lora.safetensors',
-        model_dir=path_loras,
+        model_dir=paths_loras[0],
         file_name='sdxl_lcm_lora.safetensors'
     )
     return 'sdxl_lcm_lora.safetensors'
