@@ -7,7 +7,7 @@ import modules.flags
 import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
-from modules.util import get_files_from_folder
+from modules.util import get_files_from_folder, makedirs_with_log
 
 
 config_path = os.path.abspath("./config.txt")
@@ -107,14 +107,14 @@ def get_path_output() -> str:
     Checking output path argument and overriding default path.
     """
     global config_dict
-    path_output = get_dir_or_set_default('path_outputs', '../outputs/')
+    path_output = get_dir_or_set_default('path_outputs', '../outputs/', make_directory=True)
     if args_manager.args.output_path:
         print(f'[CONFIG] Overriding config value path_outputs with {args_manager.args.output_path}')
         config_dict['path_outputs'] = path_output = args_manager.args.output_path
     return path_output
 
 
-def get_dir_or_set_default(key, default_value, as_array=False):
+def get_dir_or_set_default(key, default_value, as_array=False, make_directory=False):
     global config_dict, visited_keys, always_save_keys
 
     if key not in visited_keys:
@@ -124,26 +124,34 @@ def get_dir_or_set_default(key, default_value, as_array=False):
         always_save_keys.append(key)
 
     v = config_dict.get(key, None)
-    if isinstance(v, str) and os.path.exists(v) and os.path.isdir(v):
-        return v if not as_array else [v]
-    elif isinstance(v, list) and all([os.path.exists(d) and os.path.isdir(d) for d in v]):
-        return v
+
+    if isinstance(v, str):
+        if make_directory:
+            makedirs_with_log(v)
+        if os.path.exists(v) and os.path.isdir(v):
+            return v if not as_array else [v]
+    elif isinstance(v, list):
+        if make_directory:
+            for d in v:
+                makedirs_with_log(d)
+        if all([os.path.exists(d) and os.path.isdir(d) for d in v]):
+            return v
+
+    if v is not None:
+        print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
+    if isinstance(default_value, list):
+        dp = []
+        for path in default_value:
+            abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), path))
+            dp.append(abs_path)
+            os.makedirs(abs_path, exist_ok=True)
     else:
-        if v is not None:
-            print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
-        if isinstance(default_value, list):
-            dp = []
-            for path in default_value:
-                abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), path))
-                dp.append(abs_path)
-                os.makedirs(abs_path, exist_ok=True)
-        else:
-            dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
-            os.makedirs(dp, exist_ok=True)
-            if as_array:
-                dp = [dp]
-        config_dict[key] = dp
-        return dp
+        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
+        os.makedirs(dp, exist_ok=True)
+        if as_array:
+            dp = [dp]
+    config_dict[key] = dp
+    return dp
 
 
 paths_checkpoints = get_dir_or_set_default('path_checkpoints', ['../models/checkpoints/'], True)
@@ -407,9 +415,6 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
                     + 'Remember to split the paths with "\\\\" rather than "\\", '
                       'and there is no "," before the last "}". \n\n\n')
     json.dump({k: config_dict[k] for k in visited_keys}, json_file, indent=4)
-
-
-os.makedirs(path_outputs, exist_ok=True)
 
 model_filenames = []
 lora_filenames = []
