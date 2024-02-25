@@ -327,7 +327,8 @@ with shared.gradio_root:
                             lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
                                                      choices=['None'] + modules.config.lora_filenames, value=n,
                                                      elem_classes='lora_model')
-                            lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=v,
+                            lora_weight = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight,
+                                                    maximum=modules.config.default_loras_max_weight, step=0.01, value=v,
                                                     elem_classes='lora_weight')
                             lora_ctrls += [lora_enabled, lora_model, lora_weight]
 
