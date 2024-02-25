@@ -17,6 +17,8 @@ body:
           required: true
         - label: I have checked that this is not a duplicate of an already existing [issue](https://github.com/lllyasviel/Fooocus/issues)
           required: true
+        - label: I have checked that the issue exists in the latest version of Fooocus
+          required: true
   - type: textarea
     id: description
     attributes:
@@ -48,7 +50,7 @@ body:
       multiple: false
       options:
         - Locally
-        - Locally with virtualisation (e.g. Docker)
+        - Locally with virtualization (e.g. Docker)
         - Cloud (Gradio)
         - Cloud (other)
     validations:
@@ -62,7 +64,7 @@ body:
   - type: dropdown
     id: browsers
     attributes:
-      label: What browsers are you seeing the problem on?
+      label: On which browsers does this issue occur?
       multiple: true
       options:
         - Chrome
