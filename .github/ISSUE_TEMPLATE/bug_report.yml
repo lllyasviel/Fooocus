@@ -72,6 +72,22 @@ body:
         - Android
         - iOS
         - Other
+  - type: dropdown
+    id: hosting
+    attributes:
+      label: Where are you running Fooocus?
+      multiple: false
+      options:
+        - Locally
+        - Locally with virtualization (e.g. Docker)
+        - Cloud (Google Colab)
+        - Cloud (other)
+  - type: input
+    id: operating-system
+    attributes:
+      label: What operating system are you using?
+      placeholder: |
+        Windows 10
   - type: textarea
     id: logs
     attributes:
