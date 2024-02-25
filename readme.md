@@ -35,6 +35,7 @@ Sadly the creator of Fooocus has gone dark multiple times for an extended amount
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1940 - meta data handling, schemes: Fooocus (json) and A1111 (plain text). Compatible with Civitai.
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1979 - prevent outdated history log link after midnight~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/2032 - add inpaint mask generation functionality using rembg, incl. segmentation support
+* 🐛 https://github.com/lllyasviel/Fooocus/pull/2332 - allow path_outputs to be outside of root dir
 
 ✨ = new feature<br>
 🐛 = bugfix<br>
