@@ -177,5 +177,14 @@ def get_files_from_folder(folder_path, exensions=None, name_filter=None):
     return filenames
 
 
+def get_file_from_folder_list(name, folders):
+    for folder in folders:
+        filename = os.path.abspath(os.path.realpath(os.path.join(folder, name)))
+        if os.path.isfile(filename):
+            return filename
+
+    return os.path.abspath(os.path.realpath(os.path.join(folders[0], name)))
+
+
 def ordinal_suffix(number: int) -> str:
     return 'th' if 10 <= number % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(number % 10, 'th')
