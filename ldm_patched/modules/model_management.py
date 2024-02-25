@@ -60,7 +60,7 @@ except:
     pass
 
 if args.always_cpu:
-    if type(args.always_cpu) == int and args.always_cpu > 0:
+    if args.always_cpu > 0:
         torch.set_num_threads(args.always_cpu)
     print(f"Running on {torch.get_num_threads()} CPU threads")
     cpu_state = CPUState.CPU
