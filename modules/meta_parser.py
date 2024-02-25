@@ -135,14 +135,16 @@ def load_parameter_button_click(raw_prompt_txt, is_generating):
     
     results.append(gr.update(visible=False))
 
-    for i in range(1, 6):
+    for i in range(1, modules.config.default_max_lora_number + 1):
         try:
-            n, w = loaded_parameter_dict.get(f'LoRA {i}').split(' : ')
+            n, w = loaded_parameter_dict.get(f'LoRA {i}', ' : ').split(' : ')
             w = float(w)
+            results.append(True)
             results.append(n)
             results.append(w)
         except:
-            results.append(gr.update())
-            results.append(gr.update())
+            results.append(True)
+            results.append('None')
+            results.append(1.0)
 
     return results

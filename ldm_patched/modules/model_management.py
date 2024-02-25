@@ -60,6 +60,9 @@ except:
     pass
 
 if args.always_cpu:
+    if args.always_cpu > 0:
+        torch.set_num_threads(args.always_cpu)
+    print(f"Running on {torch.get_num_threads()} CPU threads")
     cpu_state = CPUState.CPU
 
 def is_intel_xpu():
@@ -175,7 +178,7 @@ try:
         if int(torch_version[0]) >= 2:
             if ENABLE_PYTORCH_ATTENTION == False and args.attention_split == False and args.attention_quad == False:
                 ENABLE_PYTORCH_ATTENTION = True
-            if torch.cuda.is_bf16_supported():
+            if torch.cuda.is_bf16_supported() and torch.cuda.get_device_properties(torch.cuda.current_device()).major >= 8:
                 VAE_DTYPE = torch.bfloat16
     if is_intel_xpu():
         if args.attention_split == False and args.attention_quad == False:
