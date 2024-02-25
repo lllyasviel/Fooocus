@@ -113,7 +113,7 @@ progress::after {
 }
 
 .lora_enable {
-  min-width: min(0px, 100%) !important;
+  flex-grow: 1 !important;
 }
 
 .lora_enable label {
@@ -126,6 +126,14 @@ progress::after {
 
 .lora_enable label span {
   display: none;
+}
+
+.lora_model {
+  flex-grow: 5 !important;
+}
+
+.lora_weight {
+  flex-grow: 5 !important;
 }
 
 '''
