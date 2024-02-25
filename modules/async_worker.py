@@ -148,6 +148,7 @@ def worker():
         inpaint_mask_image_upload = args.pop()
         disable_preview = args.pop()
         disable_intermediate_results = args.pop()
+        disable_seed_increment = args.pop()
         adm_scaler_positive = args.pop()
         adm_scaler_negative = args.pop()
         adm_scaler_end = args.pop()
@@ -191,7 +192,6 @@ def worker():
             if cn_img is not None:
                 cn_tasks[cn_type].append([cn_img, cn_stop, cn_weight])
 
-        freeze_seed = args.pop()
         outpaint_selections = [o.lower() for o in outpaint_selections]
         base_model_additional_loras = []
         raw_style_selections = copy.deepcopy(style_selections)
@@ -419,7 +419,7 @@ def worker():
             tasks = []
             task_rng = random.Random(seed) # may bind to inpaint noise in the future
             for i in range(image_number):
-                if(freeze_seed):
+                if disable_seed_increment:
                     task_seed = seed
                 else:
                     task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
