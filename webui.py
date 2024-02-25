@@ -471,10 +471,10 @@ with shared.gradio_root:
 
                 def model_refresh_clicked():
                     modules.config.update_all_model_names()
-                    results = []
-                    results += [gr.update(choices=modules.config.model_filenames), gr.update(choices=['None'] + modules.config.model_filenames)]
-                    for i in range(5):
-                        results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update(), gr.update(interactive=True)]
+                    results = [gr.update(choices=modules.config.model_filenames)]
+                    results += [gr.update(choices=['None'] + modules.config.model_filenames)]
+                    for i in range(modules.config.default_max_lora_number):
+                        results += [gr.update(interactive=True), gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
                     return results
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,

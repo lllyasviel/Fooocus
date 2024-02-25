@@ -4,7 +4,6 @@ from modules.patch import PatchSettings, patch_settings, patch_all
 
 patch_all()
 
-
 class AsyncTask:
     def __init__(self, args):
         self.args = args
@@ -115,13 +114,13 @@ def worker():
         # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
         async_task.results = async_task.results + [wall]
         return
-    
+
     def apply_enabled_loras(loras):
         enabled_loras = []
         for lora_enabled, lora_model, lora_weight in loras:
             if lora_enabled:
                 enabled_loras.append([lora_model, lora_weight])
-                
+
         return enabled_loras
 
     @torch.no_grad()
@@ -145,7 +144,7 @@ def worker():
         base_model_name = args.pop()
         refiner_model_name = args.pop()
         refiner_switch = args.pop()
-        loras = apply_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop()), ] for _ in range(5)])
+        loras = apply_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop()), ] for _ in range(modules.config.default_max_lora_number)])
         input_image_checkbox = args.pop()
         current_tab = args.pop()
         uov_method = args.pop()
