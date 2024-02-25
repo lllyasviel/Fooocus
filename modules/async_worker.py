@@ -1,5 +1,8 @@
 import threading
+import os
+from modules.patch import PatchSettings, patch_settings, patch_all
 
+patch_all()
 
 class AsyncTask:
     def __init__(self, args):
@@ -111,13 +114,13 @@ def worker():
         # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
         async_task.results = async_task.results + [wall]
         return
-    
+
     def apply_enabled_loras(loras):
         enabled_loras = []
         for lora_enabled, lora_model, lora_weight in loras:
             if lora_enabled:
                 enabled_loras.append([lora_model, lora_weight])
-                
+
         return enabled_loras
 
     @torch.no_grad()
