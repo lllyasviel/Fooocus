@@ -1,6 +1,6 @@
 # Fooocus on Docker
 
-The docker image is based on NVIDIA CUDA 12.3 and PyTorch 2.1, see [Dockerfile](Dockerfile) and [requirements_docker.txt](requirements_docker.txt) for details.
+The docker image is based on NVIDIA CUDA 12.3 and PyTorch 2.0, see [Dockerfile](Dockerfile) and [requirements_docker.txt](requirements_docker.txt) for details.
 
 ## Quick start
 
