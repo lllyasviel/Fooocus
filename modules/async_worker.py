@@ -417,13 +417,13 @@ def worker():
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
-            task_rng = random.Random(seed) # may bind to inpaint noise in the future
             for i in range(image_number):
                 if disable_seed_increment:
                     task_seed = seed
                 else:
                     task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
-                
+
+                task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
                 task_prompt = apply_wildcards(prompt, task_rng)
                 task_prompt = apply_arrays(task_prompt, i)
                 task_negative_prompt = apply_wildcards(negative_prompt, task_rng)
