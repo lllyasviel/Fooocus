@@ -8,7 +8,7 @@ services:
     build: .
     image: whitehara/fooocus
     ports:
-     - 7865:7865
+     - "7865:7865"
     environment:
       - CMDARGS=--listen    # Arguments for launch.py.
       - DATADIR=/content/data   # Directory which stores models, outputs dir

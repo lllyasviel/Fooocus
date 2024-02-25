@@ -1,18 +1,17 @@
 # Fooocus on Docker
 
-It's based on NVIDIA CUDA 12.3. See [Dockerfile](Dockerfile) for details.
-
-PyTorch version is 2.1. See [requirements_docker.txt](requirements_docker.txt) for details.
+The docker image is based on NVIDIA CUDA 12.3 and PyTorch 2.1, see [Dockerfile](Dockerfile) and [requirements_docker.txt](requirements_docker.txt) for details.
 
 ## Quick start
 
-**This is just an easy way for testing. Please also see [Notes](#notes) for using.**
+**This is just an easy way for testing. Please also see [Notes](#notes) for using it in a production environment.**
 
-Clone git, Then run the docker container `docker compose up --build`
-It takes a time to build the container image.
-When you see a messeage  `Use the app with http://localhost:7865/` in the console message, you can access the URL on your browser.
+Clone this repository, then run the docker container with `docker compose up --build`
+Building the image takes some time.
+When you see the message  `Use the app with http://localhost:7865/` in the console, you can access the URL in your browser.
 
-Your models, outputs are stored into 'fooocus-data' volume which may be stored in '/var/lib/docker/volumes'.
+Your models and outputs are stored in the `fooocus-data` volume, which, depending on OS, is stored in `/var/lib/docker/volumes`.
+
 
 ## Use pre-built image
 
@@ -27,17 +26,17 @@ Otherwise, you will see the permission error.
 
 ### Update the container manually
 
-When you are using `docker compose up --build` continuously, the container is not updated to the newest version of Fooocus automatically.
-If you want to use the newest one, you need to run `git pull` before you run `docker compose up --build`
+When you are using `docker compose up --build` continuously, the container is not updated to the latest version of Fooocus automatically.
+Run `git pull` before executing `docker compose up --build` to update Fooocus.
 
 ### Import models, outputs
-If you want to import files from models, outputs folder, you can uncomment following settings in docker-compose.yml
+If you want to import files from models or the outputs folder, you can uncomment the following settings in the [docker-compose.yml](docker-compose.yml):
 ```
 #- ./models:/import/models   # Once you import files, you don't need to mount again.
 #- ./outputs:/import/outputs  # Once you import files, you don't need to mount again.
 ```
-Then run `docker compose up --build`, your files will be copied into /content/data/models, /content/data/outputs
-Since /content/data is a persistent volume folder, your files will be there when you re-run 'docker compose up --build` without above volume settings.
+After running `docker compose up --build`, your files will be copied into `/content/data/models` and `/content/data/outputs`
+Since `/content/data` is a persistent volume folder, your files will be persisted even when you re-run `docker compose up --build` without above volume settings.
 
 
 ### Paths inside the container
@@ -52,8 +51,8 @@ Since /content/data is a persistent volume folder, your files will be there when
 
 ### Environments
 
-You can change 'config.txt' parameters by using environments.
-**The priority of using the environments is higher than the values defined in 'config.txt'. And they will be saved to the 'config_modification_tuorial.txt'**
+You can change `config.txt` parameters by using environment variables.
+**The priority of using the environments is higher than the values defined in `config.txt`, and they will be saved to the `config_modification_tutorial.txt`**
 
 Docker specified environments are there. They are used by 'entrypoint.sh'
 |Environment|Details|
@@ -64,9 +63,9 @@ Docker specified environments are there. They are used by 'entrypoint.sh'
 |config_example_path|'config_modification_tutorial.txt' location|
 
 You can also use the same json key names and values explained in the 'config_modification_tutorial.txt' as the environments.
-See samples in the [docker-compose.yml](docker-compose.yml)
+See examples in the [docker-compose.yml](docker-compose.yml)
 
 ## Notes
 
-- Please keep 'path_outputs' under '/content/app'. Otherwise, you will see an error when you open the history log.
-- Docker on Mac/Windows has a slow volume access problem when you use "bind mount" volume. When you see this problem, don't use "bind mount". Please refer to [this article](https://docs.docker.com/storage/volumes/#use-a-volume-with-docker-compose) for not using "bind mount".
+- Please keep 'path_outputs' under '/content/app'. Otherwise, you may get an error when you open the history log.
+- Docker on Mac/Windows still has issues in the form of slow volume access when you use "bind mount" volumes. Please refer to [this article](https://docs.docker.com/storage/volumes/#use-a-volume-with-docker-compose) for not using "bind mount".

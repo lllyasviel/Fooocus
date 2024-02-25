@@ -22,7 +22,7 @@ RUN chown -R user:user /content
 WORKDIR /content
 USER user
 
-RUN git clone https://github.com/whitehara/Fooocus /content/app
+RUN git clone https://github.com/lllyasviel/Fooocus /content/app
 RUN mv /content/app/models /content/app/models.org
 
 CMD [ "sh", "-c", "/content/entrypoint.sh ${CMDARGS}" ]
