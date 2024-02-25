@@ -111,17 +111,13 @@ def worker():
         async_task.results = async_task.results + [wall]
         return
     
-    def apply_enable_loras(loras):
-        # Initialize an empty list to hold the LoRAs with the enable status applied
-        loras_with_applied_enable = []
-        
-        # Process each LoRA setting based on its enable state
-        for lora_setting in loras:
-            lora_model, lora_weight, lora_enable = lora_setting
-            if lora_enable:  # Only add the LoRA setting if it is enabled
-                loras_with_applied_enable.append([lora_model, lora_weight])
+    def apply_enabled_loras(loras):
+        enabled_loras = []
+        for lora_enabled, lora_model, lora_weight in loras:
+            if lora_enabled:
+                enabled_loras.append([lora_model, lora_weight])
                 
-        return loras_with_applied_enable
+        return enabled_loras
 
     @torch.no_grad()
     @torch.inference_mode()
@@ -143,8 +139,7 @@ def worker():
         base_model_name = args.pop()
         refiner_model_name = args.pop()
         refiner_switch = args.pop()
-        loras = [[str(args.pop()), float(args.pop()), bool(args.pop())] for _ in range(5)]
-        loras = apply_enable_loras(loras)
+        loras = apply_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop()), ] for _ in range(5)])
         input_image_checkbox = args.pop()
         current_tab = args.pop()
         uov_method = args.pop()
