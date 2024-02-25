@@ -33,7 +33,7 @@ default_parameters = {
 }  # stop, weight
 
 inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
-performance_selections = ['Speed', 'Quality', 'Extreme Speed']
+performance_selections = ['Speed', 'Quality', 'Extreme Speed', 'Higher Quality', 'Epic Quality']
 
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'

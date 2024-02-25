@@ -167,7 +167,7 @@ def worker():
             print(f'Refiner disabled because base model and refiner are same.')
             refiner_model_name = 'None'
 
-        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed']
+        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed', 'Higher Quality', 'Epic Quality']
 
         steps = 30
 
@@ -176,6 +176,13 @@ def worker():
 
         if performance_selection == 'Quality':
             steps = 60
+
+        if performance_selection == 'Higher Quality':
+            steps = 80
+
+        if performance_selection == 'Epic Quality':
+            steps = 100
+
 
         if performance_selection == 'Extreme Speed':
             print('Enter LCM mode.')
@@ -260,13 +267,13 @@ def worker():
                         steps = 18
 
                         if performance_selection == 'Speed':
-                            steps = 18
+                            steps = 25
 
                         if performance_selection == 'Quality':
-                            steps = 36
+                            steps = 50
 
                         if performance_selection == 'Extreme Speed':
-                            steps = 8
+                            steps = 15
 
                     progressbar(async_task, 1, 'Downloading upscale models ...')
                     modules.config.downloading_upscale_model()
@@ -443,9 +450,9 @@ def worker():
 
         if 'vary' in goals:
             if 'subtle' in uov_method:
-                denoising_strength = 0.5
+                denoising_strength = 0.4
             if 'strong' in uov_method:
-                denoising_strength = 0.85
+                denoising_strength = 0.75
             if advanced_parameters.overwrite_vary_strength > 0:
                 denoising_strength = advanced_parameters.overwrite_vary_strength
 
@@ -453,9 +460,9 @@ def worker():
             if shape_ceil < 1024:
                 print(f'[Vary] Image is resized because it is too small.')
                 shape_ceil = 1024
-            elif shape_ceil > 2048:
+            elif shape_ceil > 4096:
                 print(f'[Vary] Image is resized because it is too big.')
-                shape_ceil = 2048
+                shape_ceil = 4096
 
             uov_input_image = set_image_shape_ceil(uov_input_image, shape_ceil)
 
@@ -497,7 +504,7 @@ def worker():
             else:
                 uov_input_image = resample_image(uov_input_image, width=W * f, height=H * f)
 
-            image_is_super_large = shape_ceil > 2800
+            image_is_super_large = shape_ceil > 3800
 
             if 'fast' in uov_method:
                 direct_return = True
@@ -543,22 +550,22 @@ def worker():
             if len(outpaint_selections) > 0:
                 H, W, C = inpaint_image.shape
                 if 'top' in outpaint_selections:
-                    inpaint_image = np.pad(inpaint_image, [[int(H * 0.3), 0], [0, 0], [0, 0]], mode='edge')
-                    inpaint_mask = np.pad(inpaint_mask, [[int(H * 0.3), 0], [0, 0]], mode='constant',
+                    inpaint_image = np.pad(inpaint_image, [[int(H * 0.35), 0], [0, 0], [0, 0]], mode='edge')
+                    inpaint_mask = np.pad(inpaint_mask, [[int(H * 0.35), 0], [0, 0]], mode='constant',
                                           constant_values=255)
                 if 'bottom' in outpaint_selections:
-                    inpaint_image = np.pad(inpaint_image, [[0, int(H * 0.3)], [0, 0], [0, 0]], mode='edge')
-                    inpaint_mask = np.pad(inpaint_mask, [[0, int(H * 0.3)], [0, 0]], mode='constant',
+                    inpaint_image = np.pad(inpaint_image, [[0, int(H * 0.35)], [0, 0], [0, 0]], mode='edge')
+                    inpaint_mask = np.pad(inpaint_mask, [[0, int(H * 0.35)], [0, 0]], mode='constant',
                                           constant_values=255)
 
                 H, W, C = inpaint_image.shape
                 if 'left' in outpaint_selections:
-                    inpaint_image = np.pad(inpaint_image, [[0, 0], [int(H * 0.3), 0], [0, 0]], mode='edge')
-                    inpaint_mask = np.pad(inpaint_mask, [[0, 0], [int(H * 0.3), 0]], mode='constant',
+                    inpaint_image = np.pad(inpaint_image, [[0, 0], [int(H * 0.35), 0], [0, 0]], mode='edge')
+                    inpaint_mask = np.pad(inpaint_mask, [[0, 0], [int(H * 0.35), 0]], mode='constant',
                                           constant_values=255)
                 if 'right' in outpaint_selections:
-                    inpaint_image = np.pad(inpaint_image, [[0, 0], [0, int(H * 0.3)], [0, 0]], mode='edge')
-                    inpaint_mask = np.pad(inpaint_mask, [[0, 0], [0, int(H * 0.3)]], mode='constant',
+                    inpaint_image = np.pad(inpaint_image, [[0, 0], [0, int(H * 0.35)], [0, 0]], mode='edge')
+                    inpaint_mask = np.pad(inpaint_mask, [[0, 0], [0, int(H * 0.35)]], mode='constant',
                                           constant_values=255)
 
                 inpaint_image = np.ascontiguousarray(inpaint_image.copy())
