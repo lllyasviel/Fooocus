@@ -39,7 +39,7 @@
     "default_aspect_ratio": "1152*896",
     "default_overwrite_step": -1,
     "checkpoint_downloads": {
-        "juggernautXL_v9Rundiffusion.safetensors": "https://civitai-delivery-worker-prod.5ac0637cfd0766c97916cefa3764fbdf.r2.cloudflarestorage.com/model/764940/juggernaut.3Ms8.safetensors?X-Amz-Expires=86400&response-content-disposition=attachment%3B%20filename%3D%22juggernautXL_v9Rdphoto2Lightning.safetensors%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=e01358d793ad6966166af8b3064953ad/20240224/us-east-1/s3/aws4_request&X-Amz-Date=20240224T083143Z&X-Amz-SignedHeaders=host&X-Amz-Signature=40da009549f4097165e4b8d822f47170840ac5c12ea62f24ecd818fceba4d911"
+        "juggernautXL_v9Rundiffusion.safetensors": "https://civitai-delivery-worker-prod.5ac0637cfd0766c97916cefa3764fbdf.r2.cloudflarestorage.com/model/764940/juggernautxl.2j0I.safetensors?X-Amz-Expires=86400&response-content-disposition=attachment%3B%20filename%3D%22juggernautXL_v9Rundiffusionphoto2.safetensors%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=e01358d793ad6966166af8b3064953ad/20240225/us-east-1/s3/aws4_request&X-Amz-Date=20240225T133535Z&X-Amz-SignedHeaders=host&X-Amz-Signature=5f9150ceb0f0f1387ac8b3e012b7feea6b7e16ff2fabd9d7b0791ca84fe50508"
     },
     "embeddings_downloads": {},
     "lora_downloads": {
