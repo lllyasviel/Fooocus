@@ -473,7 +473,7 @@ with shared.gradio_root:
                     modules.config.update_all_model_names()
                     results = [gr.update(choices=modules.config.model_filenames)]
                     results += [gr.update(choices=['None'] + modules.config.model_filenames)]
-                    for i in range(modules.config.default_loras_max_number):
+                    for i in range(modules.config.default_max_lora_number):
                         results += [gr.update(interactive=True), gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
                     return results
 
