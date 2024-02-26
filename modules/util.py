@@ -160,7 +160,7 @@ def generate_temp_filename(folder='./outputs/', extension='png'):
     random_number = random.randint(1000, 9999)
     filename = f"{time_string}_{random_number}.{extension}"
     result = os.path.join(folder, date_string, filename)
-    return date_string, os.path.abspath(os.path.realpath(result)), filename
+    return date_string, os.path.abspath(result), filename
 
 
 def get_files_from_folder(folder_path, exensions=None, name_filter=None):
