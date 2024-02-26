@@ -224,14 +224,11 @@ with shared.gradio_root:
                             metadata_import_button = gr.Button(value='Apply Metadata')
 
                         def trigger_metadata_preview(filepath):
-                            parameters, items, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
+                            parameters, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
 
                             results = {}
                             if parameters is not None:
                                 results['parameters'] = parameters
-
-                            if items:
-                                results['items'] = items
 
                             if isinstance(metadata_scheme, flags.MetadataScheme):
                                 results['metadata_scheme'] = metadata_scheme.value
@@ -263,6 +260,11 @@ with shared.gradio_root:
                                                    value=modules.config.default_aspect_ratio, info='width × height',
                                                    elem_classes='aspect_ratios')
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
+
+                output_format = gr.Radio(label='Output Format',
+                                            choices=modules.flags.output_formats,
+                                            value=modules.config.default_output_format)
+
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
                                              elem_id='negative_prompt',
@@ -292,7 +294,7 @@ with shared.gradio_root:
                     if args_manager.args.disable_image_log:
                         return gr.update(value='')
                     
-                    return gr.update(value=f'<a href="file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
+                    return gr.update(value=f'<a href="file={get_current_html_path(output_format)}" target="_blank">\U0001F4DA History Log</a>')
 
                 history_link = gr.HTML()
                 shared.gradio_root.load(update_history_link, outputs=history_link, queue=False, show_progress=False)
@@ -532,7 +534,9 @@ with shared.gradio_root:
                                          adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
                                          scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt, disable_intermediate_results
                                      ], queue=False, show_progress=False)
-
+        
+        output_format.input(lambda x: gr.update(output_format=x), inputs=output_format)
+        
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
                                  queue=False, show_progress=False) \
             .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)
@@ -573,7 +577,7 @@ with shared.gradio_root:
         ctrls = [currentTask, generate_image_grid]
         ctrls += [
             prompt, negative_prompt, style_selections,
-            performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, guidance_scale
+            performance_selection, aspect_ratios_selection, image_number, output_format, image_seed, sharpness, guidance_scale
         ]
 
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
@@ -622,7 +626,7 @@ with shared.gradio_root:
         load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=[prompt, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=False)
 
         def trigger_metadata_import(filepath, state_is_generating):
-            parameters, items, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
+            parameters, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
             if parameters is None:
                 print('Could not find metadata in the image!')
                 parsed_parameters = {}

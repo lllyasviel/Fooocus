@@ -7,6 +7,7 @@ from pathlib import Path
 import gradio as gr
 from PIL import Image
 
+import fooocus_version
 import modules.config
 import modules.sdxl_styles
 from modules.flags import MetadataScheme, Performance, Steps
@@ -181,11 +182,41 @@ def get_lora(key: str, fallback: str | None, source_dict: dict, results: list):
 
 def get_sha256(filepath):
     global hash_cache
-
     if filepath not in hash_cache:
         hash_cache[filepath] = calculate_sha256(filepath)
 
     return hash_cache[filepath]
+
+
+def parse_meta_from_preset(preset_content):
+    assert isinstance(preset_content, dict)
+    preset_prepared = {}
+    items = preset_content
+
+    for settings_key, meta_key in modules.config.possible_preset_keys.items():
+        if settings_key == "default_loras":
+            loras = getattr(modules.config, settings_key)
+            if settings_key in items:
+                loras = items[settings_key]
+            for index, lora in enumerate(loras[:5]):
+                preset_prepared[f'lora_combined_{index + 1}'] = ' : '.join(map(str, lora))
+        elif settings_key == "default_aspect_ratio":
+            if settings_key in items and items[settings_key] is not None:
+                default_aspect_ratio = items[settings_key]
+                width, height = default_aspect_ratio.split('*')
+            else:
+                default_aspect_ratio = getattr(modules.config, settings_key)
+                width, height = default_aspect_ratio.split('×')
+                height = height[:height.index(" ")]
+            preset_prepared[meta_key] = (width, height)
+        else:
+            preset_prepared[meta_key] = items[settings_key] if settings_key in items and items[
+                settings_key] is not None else getattr(modules.config, settings_key)
+
+        if settings_key == "default_styles" or settings_key == "default_aspect_ratio":
+            preset_prepared[meta_key] = str(preset_prepared[meta_key])
+
+    return preset_prepared
 
 
 class MetadataParser(ABC):
@@ -213,7 +244,8 @@ class MetadataParser(ABC):
     def parse_string(self, metadata: dict) -> str:
         raise NotImplementedError
 
-    def set_data(self, raw_prompt, full_prompt, raw_negative_prompt, full_negative_prompt, steps, base_model_name, refiner_model_name, loras):
+    def set_data(self, raw_prompt, full_prompt, raw_negative_prompt, full_negative_prompt, steps, base_model_name,
+                 refiner_model_name, loras):
         self.raw_prompt = raw_prompt
         self.full_prompt = full_prompt
         self.raw_negative_prompt = raw_negative_prompt
@@ -492,16 +524,28 @@ def get_metadata_parser(metadata_scheme: MetadataScheme) -> MetadataParser:
             raise NotImplementedError
 
 
-def read_info_from_image(filepath) -> tuple[str | None, dict, MetadataScheme | None]:
+def read_info_from_image(filepath) -> tuple[str | None, MetadataScheme | None]:
     with Image.open(filepath) as image:
         items = (image.info or {}).copy()
 
     parameters = items.pop('parameters', None)
+    metadata_scheme = items.pop('fooocus_scheme', None)
+    exif = items.pop('exif', None)
+
     if parameters is not None and is_json(parameters):
         parameters = json.loads(parameters)
+    elif exif is not None:
+        exif = image.getexif()
+        # 0x9286 = UserComment
+        parameters = exif.get(0x9286, None)
+        # 0x927C = MakerNote
+        metadata_scheme = exif.get(0x927C, None)
+
+        if is_json(parameters):
+            parameters = json.loads(parameters)
 
     try:
-        metadata_scheme = MetadataScheme(items.pop('fooocus_scheme', None))
+        metadata_scheme = MetadataScheme(metadata_scheme)
     except ValueError:
         metadata_scheme = None
 
@@ -512,4 +556,16 @@ def read_info_from_image(filepath) -> tuple[str | None, dict, MetadataScheme | N
         if isinstance(parameters, str):
             metadata_scheme = MetadataScheme.A1111
 
-    return parameters, items, metadata_scheme
+    return parameters, metadata_scheme
+
+
+def get_exif(metadata: str | None, metadata_scheme: str):
+    exif = Image.Exif()
+    # tags see see https://github.com/python-pillow/Pillow/blob/9.2.x/src/PIL/ExifTags.py
+    # 0x9286 = UserComment
+    exif[0x9286] = metadata
+    # 0x0131 = Software
+    exif[0x0131] = 'Fooocus v' + fooocus_version.version
+    # 0x927C = MakerNote
+    exif[0x927C] = metadata_scheme
+    return exif

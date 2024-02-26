@@ -1,5 +1,4 @@
 import threading
-import os
 from modules.patch import PatchSettings, patch_settings, patch_all
 
 patch_all()
@@ -142,6 +141,7 @@ def worker():
         performance_selection = Performance(args.pop())
         aspect_ratios_selection = args.pop()
         image_number = args.pop()
+        output_format = args.pop()
         image_seed = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
@@ -414,6 +414,7 @@ def worker():
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
+            
             for i in range(image_number):
                 if disable_seed_increment:
                     task_seed = seed
@@ -553,7 +554,7 @@ def worker():
 
             if direct_return:
                 d = [('Upscale (Fast)', '2x')]
-                uov_input_image_path = log(uov_input_image, d)
+                uov_input_image_path = log(uov_input_image, d, output_format)
                 yield_result(async_task, uov_input_image_path, do_not_show_finished_images=True)
                 return
 
@@ -863,7 +864,7 @@ def worker():
                             d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}'))
 
                     d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
-                    img_paths.append(log(x, d, metadata_parser))
+                    img_paths.append(log(x, d, metadata_parser, output_format))
 
                 yield_result(async_task, img_paths, do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:

@@ -67,6 +67,8 @@ default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0)
 }  # stop, weight
 
+output_formats = ['png', 'jpg', 'webp']
+
 inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
