@@ -154,12 +154,8 @@ let cancelGenerateForever = function() {
     let generateOnRepeatForButtons = function() {
         generateOnRepeat('#generate_button', '#stop_button');
     };
-
     appendContextMenuOption('#generate_button', 'Generate forever', generateOnRepeatForButtons);
-//    appendContextMenuOption('#stop_button', 'Generate forever', generateOnRepeatForButtons);
 
-//    appendContextMenuOption('#stop_button', 'Cancel generate forever', cancelGenerateForever);
-//    appendContextMenuOption('#generate_button', 'Cancel generate forever', cancelGenerateForever);
 })();
 //End example Context Menu Items
 

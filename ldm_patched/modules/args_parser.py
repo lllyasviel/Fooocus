@@ -100,8 +100,7 @@ vram_group.add_argument("--always-high-vram", action="store_true")
 vram_group.add_argument("--always-normal-vram", action="store_true")
 vram_group.add_argument("--always-low-vram", action="store_true")
 vram_group.add_argument("--always-no-vram", action="store_true")
-vram_group.add_argument("--always-cpu", action="store_true")
-
+vram_group.add_argument("--always-cpu", type=int, nargs="?", metavar="CPU_NUM_THREADS", const=-1)
 
 parser.add_argument("--always-offload-from-vram", action="store_true")
 parser.add_argument("--pytorch-deterministic", action="store_true")
