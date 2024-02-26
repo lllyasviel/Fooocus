@@ -8,7 +8,7 @@ import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
 from modules.util import get_files_from_folder, makedirs_with_log
-
+from modules.flags import Performance, MetadataScheme
 
 config_path = os.path.abspath("./config.txt")
 config_example_path = os.path.abspath("config_modification_tutorial.txt")
@@ -293,8 +293,8 @@ default_prompt = get_config_item_or_set_default(
 )
 default_performance = get_config_item_or_set_default(
     key='default_performance',
-    default_value='Speed',
-    validator=lambda x: x in modules.flags.performance_selections
+    default_value=Performance.SPEED.value,
+    validator=lambda x: x in Performance.list()
 )
 default_advanced_checkbox = get_config_item_or_set_default(
     key='default_advanced_checkbox',
@@ -369,6 +369,21 @@ example_inpaint_prompts = get_config_item_or_set_default(
     ],
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x)
 )
+default_save_metadata_to_images = get_config_item_or_set_default(
+    key='default_save_metadata_to_images',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool)
+)
+default_metadata_scheme = get_config_item_or_set_default(
+    key='default_metadata_scheme',
+    default_value=MetadataScheme.FOOOCUS.value,
+    validator=lambda x: x in [y[1] for y in modules.flags.metadata_scheme if y[1] == x]
+)
+metadata_created_by = get_config_item_or_set_default(
+    key='metadata_created_by',
+    default_value='',
+    validator=lambda x: isinstance(x, str)
+)
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 
@@ -391,6 +406,7 @@ possible_preset_keys = [
     "default_prompt_negative",
     "default_styles",
     "default_aspect_ratio",
+    "default_save_metadata_to_images",
     "checkpoint_downloads",
     "embeddings_downloads",
     "lora_downloads",

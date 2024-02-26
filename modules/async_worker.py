@@ -19,6 +19,7 @@ async_tasks = []
 def worker():
     global async_tasks
 
+    import os
     import traceback
     import math
     import numpy as np
@@ -39,6 +40,7 @@ def worker():
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
     import fooocus_version
+    import args_manager
 
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion, apply_arrays
     from modules.private_logger import log
@@ -46,6 +48,8 @@ def worker():
     from modules.util import remove_empty_str, HWC3, resize_image, \
         get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix
     from modules.upscaler import perform_upscale
+    from modules.flags import Performance
+    from modules.meta_parser import get_metadata_parser, MetadataScheme
 
     pid = os.getpid()
     print(f'Started worker with PID {pid}')
@@ -135,7 +139,7 @@ def worker():
         prompt = args.pop()
         negative_prompt = args.pop()
         style_selections = args.pop()
-        performance_selection = args.pop()
+        performance_selection = Performance(args.pop())
         aspect_ratios_selection = args.pop()
         image_number = args.pop()
         image_seed = args.pop()
@@ -153,6 +157,7 @@ def worker():
         inpaint_input_image = args.pop()
         inpaint_additional_prompt = args.pop()
         inpaint_mask_image_upload = args.pop()
+
         disable_preview = args.pop()
         disable_intermediate_results = args.pop()
         disable_seed_increment = args.pop()
@@ -190,8 +195,11 @@ def worker():
         invert_mask_checkbox = args.pop()
         inpaint_erode_or_dilate = args.pop()
 
+        save_metadata_to_images = args.pop() if not args_manager.args.disable_metadata else False
+        metadata_scheme = MetadataScheme(args.pop()) if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS
+
         cn_tasks = {x: [] for x in flags.ip_list}
-        for _ in range(4):
+        for _ in range(flags.controlnet_image_count):
             cn_img = args.pop()
             cn_stop = args.pop()
             cn_weight = args.pop()
@@ -216,17 +224,9 @@ def worker():
             print(f'Refiner disabled because base model and refiner are same.')
             refiner_model_name = 'None'
 
-        assert performance_selection in ['Speed', 'Quality', 'Extreme Speed']
+        steps = performance_selection.steps()
 
-        steps = 30
-
-        if performance_selection == 'Speed':
-            steps = 30
-
-        if performance_selection == 'Quality':
-            steps = 60
-
-        if performance_selection == 'Extreme Speed':
+        if performance_selection == Performance.EXTREME_SPEED:
             print('Enter LCM mode.')
             progressbar(async_task, 1, 'Downloading LCM components ...')
             loras += [(modules.config.downloading_sdxl_lcm_lora(), 1.0)]
@@ -244,7 +244,6 @@ def worker():
             adm_scaler_positive = 1.0
             adm_scaler_negative = 1.0
             adm_scaler_end = 0.0
-            steps = 8
 
         print(f'[Parameters] Adaptive CFG = {adaptive_cfg}')
         print(f'[Parameters] Sharpness = {sharpness}')
@@ -305,16 +304,7 @@ def worker():
                     if 'fast' in uov_method:
                         skip_prompt_processing = True
                     else:
-                        steps = 18
-
-                        if performance_selection == 'Speed':
-                            steps = 18
-
-                        if performance_selection == 'Quality':
-                            steps = 36
-
-                        if performance_selection == 'Extreme Speed':
-                            steps = 8
+                        steps = performance_selection.steps_uov()
 
                     progressbar(async_task, 1, 'Downloading upscale models ...')
                     modules.config.downloading_upscale_model()
@@ -830,31 +820,50 @@ def worker():
 
                 img_paths = []
                 for x in imgs:
-                    d = [
-                        ('Prompt', task['log_positive_prompt']),
-                        ('Negative Prompt', task['log_negative_prompt']),
-                        ('Fooocus V2 Expansion', task['expansion']),
-                        ('Styles', str(raw_style_selections)),
-                        ('Performance', performance_selection),
-                        ('Resolution', str((width, height))),
-                        ('Sharpness', sharpness),
-                        ('Guidance Scale', guidance_scale),
-                        ('ADM Guidance', str((
-                            modules.patch.patch_settings[pid].positive_adm_scale,
-                            modules.patch.patch_settings[pid].negative_adm_scale,
-                            modules.patch.patch_settings[pid].adm_scaler_end))),
-                        ('Base Model', base_model_name),
-                        ('Refiner Model', refiner_model_name),
-                        ('Refiner Switch', refiner_switch),
-                        ('Sampler', sampler_name),
-                        ('Scheduler', scheduler_name),
-                        ('Seed', task['task_seed']),
-                    ]
+                    d = [('Prompt', 'prompt', task['log_positive_prompt']),
+                         ('Negative Prompt', 'negative_prompt', task['log_negative_prompt']),
+                         ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion']),
+                         ('Styles', 'styles', str(raw_style_selections)),
+                         ('Performance', 'performance', performance_selection.value),
+                         ('Resolution', 'resolution', str((width, height))),
+                         ('Guidance Scale', 'guidance_scale', guidance_scale),
+                         ('Sharpness', 'sharpness', sharpness),
+                         ('ADM Guidance', 'adm_guidance', str((
+                             modules.patch.patch_settings[pid].positive_adm_scale,
+                             modules.patch.patch_settings[pid].negative_adm_scale,
+                             modules.patch.patch_settings[pid].adm_scaler_end))),
+                         ('Base Model', 'base_model', base_model_name),
+                         ('Refiner Model', 'refiner_model', refiner_model_name),
+                         ('Refiner Switch', 'refiner_switch', refiner_switch)]
+
+                    if refiner_model_name != 'None':
+                        if overwrite_switch > 0:
+                            d.append(('Overwrite Switch', 'overwrite_switch', overwrite_switch))
+                        if refiner_swap_method != flags.refiner_swap_method:
+                            d.append(('Refiner Swap Method', 'refiner_swap_method', refiner_swap_method))
+                    if modules.patch.patch_settings[pid].adaptive_cfg != modules.config.default_cfg_tsnr:
+                        d.append(('CFG Mimicking from TSNR', 'adaptive_cfg', modules.patch.patch_settings[pid].adaptive_cfg))
+
+                    d.append(('Sampler', 'sampler', sampler_name))
+                    d.append(('Scheduler', 'scheduler', scheduler_name))
+                    d.append(('Seed', 'seed', task['task_seed']))
+
+                    if freeu_enabled:
+                        d.append(('FreeU', 'freeu', str((freeu_b1, freeu_b2, freeu_s1, freeu_s2))))
+
+                    metadata_parser = None
+                    if save_metadata_to_images:
+                        metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
+                        metadata_parser.set_data(task['log_positive_prompt'], task['positive'],
+                                                 task['log_negative_prompt'], task['negative'],
+                                                 steps, base_model_name, refiner_model_name, loras)
+
                     for li, (n, w) in enumerate(loras):
                         if n != 'None':
-                            d.append((f'LoRA {li + 1}', f'{n} : {w}'))
-                    d.append(('Version', 'v' + fooocus_version.version))
-                    img_paths.append(log(x, d))
+                            d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}'))
+
+                    d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
+                    img_paths.append(log(x, d, metadata_parser))
 
                 yield_result(async_task, img_paths, do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
