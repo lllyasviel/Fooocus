@@ -521,6 +521,7 @@ with shared.gradio_root:
                     results += [gr.update(choices=['None'] + modules.config.model_filenames)]
                     for i in range(modules.config.default_max_lora_number):
                         results += [gr.update(interactive=True), gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
+                    return results
 
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
                                     queue=False, show_progress=False)
