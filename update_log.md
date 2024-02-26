@@ -1,3 +1,8 @@
+# 2.1.865
+
+* Various bugfixes
+* Add authentication to --listen
+
 # 2.1.864
 
 * New model list. See also discussions.
