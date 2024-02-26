@@ -474,6 +474,7 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
 
 model_filenames = []
 lora_filenames = []
+sdxl_lcm_lora = 'sdxl_lcm_lora.safetensors'
 
 
 def get_model_filenames(folder_paths, name_filter=None):
@@ -533,9 +534,9 @@ def downloading_sdxl_lcm_lora():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/sdxl_lcm_lora.safetensors',
         model_dir=paths_loras[0],
-        file_name='sdxl_lcm_lora.safetensors'
+        file_name=sdxl_lcm_lora
     )
-    return 'sdxl_lcm_lora.safetensors'
+    return sdxl_lcm_lora
 
 
 def downloading_controlnet_canny():

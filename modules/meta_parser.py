@@ -379,7 +379,8 @@ class A1111MetadataParser(MetadataParser):
 
         if 'lora_hashes' in data:
             lora_filenames = modules.config.lora_filenames.copy()
-            lora_filenames.remove(modules.config.downloading_sdxl_lcm_lora())
+            if modules.config.sdxl_lcm_lora in lora_filenames:
+                lora_filenames.remove(modules.config.sdxl_lcm_lora)
             for li, lora in enumerate(data['lora_hashes'].split(', ')):
                 lora_name, lora_hash, lora_weight = lora.split(': ')
                 for filename in lora_filenames:
@@ -460,7 +461,8 @@ class FooocusMetadataParser(MetadataParser):
     def parse_json(self, metadata: dict) -> dict:
         model_filenames = modules.config.model_filenames.copy()
         lora_filenames = modules.config.lora_filenames.copy()
-        lora_filenames.remove(modules.config.downloading_sdxl_lcm_lora())
+        if modules.config.sdxl_lcm_lora in lora_filenames:
+            lora_filenames.remove(modules.config.sdxl_lcm_lora)
 
         for key, value in metadata.items():
             if value in ['', 'None']:
