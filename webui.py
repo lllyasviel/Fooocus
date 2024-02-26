@@ -224,14 +224,11 @@ with shared.gradio_root:
                             metadata_import_button = gr.Button(value='Apply Metadata')
 
                         def trigger_metadata_preview(filepath):
-                            parameters, items, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
+                            parameters, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
 
                             results = {}
                             if parameters is not None:
                                 results['parameters'] = parameters
-
-                            if items:
-                                results['items'] = items
 
                             if isinstance(metadata_scheme, flags.MetadataScheme):
                                 results['metadata_scheme'] = metadata_scheme.value
@@ -629,7 +626,7 @@ with shared.gradio_root:
         load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=[prompt, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=False)
 
         def trigger_metadata_import(filepath, state_is_generating):
-            parameters, items, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
+            parameters, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
             if parameters is None:
                 print('Could not find metadata in the image!')
                 parsed_parameters = {}

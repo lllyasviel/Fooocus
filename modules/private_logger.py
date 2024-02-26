@@ -8,7 +8,6 @@ from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 from modules.util import generate_temp_filename
 from modules.meta_parser import MetadataParser, get_exif
-from tempfile import gettempdir
 
 log_cache = {}
 
