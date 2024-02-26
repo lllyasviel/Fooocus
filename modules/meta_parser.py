@@ -299,7 +299,7 @@ class A1111MetadataParser(MetadataParser):
 
         for k, v in re_param.findall(lastline):
             try:
-                if v[0] == '"' and v[-1] == '"':
+                if v != '' and v[0] == '"' and v[-1] == '"':
                     v = unquote(v)
 
                 m = re_imagesize.match(v)
