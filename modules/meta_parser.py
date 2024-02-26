@@ -10,8 +10,8 @@ from PIL import Image
 import modules.config
 import modules.sdxl_styles
 from modules.flags import MetadataScheme, Performance, Steps
-from modules.flags import lora_count, SAMPLERS, CIVITAI_NO_KARRAS
-from modules.util import quote, unquote, extract_styles_from_prompt, is_json, calculate_sha256
+from modules.flags import SAMPLERS, CIVITAI_NO_KARRAS
+from modules.util import quote, unquote, extract_styles_from_prompt, is_json, get_file_from_folder_list, calculate_sha256
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
 re_param = re.compile(re_param_code)
@@ -56,7 +56,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
 
     get_freeu('freeu', 'FreeU', loaded_parameter_dict, results)
 
-    for i in range(lora_count):
+    for i in range(modules.config.default_max_lora_number):
         get_lora(f'lora_combined_{i + 1}', f'LoRA {i + 1}', loaded_parameter_dict, results)
 
     return results
@@ -170,9 +170,11 @@ def get_lora(key: str, fallback: str | None, source_dict: dict, results: list):
     try:
         n, w = source_dict.get(key, source_dict.get(fallback)).split(' : ')
         w = float(w)
+        results.append(True)
         results.append(n)
         results.append(w)
     except:
+        results.append(True)
         results.append('None')
         results.append(1)
 
@@ -219,18 +221,18 @@ class MetadataParser(ABC):
         self.steps = steps
         self.base_model_name = Path(base_model_name).stem
 
-        base_model_path = os.path.join(modules.config.path_checkpoints, base_model_name)
+        base_model_path = get_file_from_folder_list(base_model_name, modules.config.paths_checkpoints)
         self.base_model_hash = get_sha256(base_model_path)
 
         if refiner_model_name not in ['', 'None']:
             self.refiner_model_name = Path(refiner_model_name).stem
-            refiner_model_path = os.path.join(modules.config.path_checkpoints, refiner_model_name)
+            refiner_model_path = get_file_from_folder_list(refiner_model_name, modules.config.paths_checkpoints)
             self.refiner_model_hash = get_sha256(refiner_model_path)
 
         self.loras = []
         for (lora_name, lora_weight) in loras:
             if lora_name != 'None':
-                lora_path = os.path.join(modules.config.path_loras, lora_name)
+                lora_path = get_file_from_folder_list(lora_name, modules.config.paths_loras)
                 lora_hash = get_sha256(lora_path)
                 self.loras.append((Path(lora_name).stem, lora_weight, lora_hash))
 

@@ -8,7 +8,7 @@ from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 from modules.util import generate_temp_filename
 from modules.meta_parser import MetadataParser
-
+from tempfile import gettempdir
 
 log_cache = {}
 
@@ -20,22 +20,24 @@ def get_current_html_path():
     return html_name
 
 
-def log(img, metadata, metadata_parser: MetadataParser | None = None):
-    if args_manager.args.disable_image_log:
-        return
-
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
+def log(img, metadata, metadata_parser: MetadataParser | None = None) -> str:
+    path_outputs = args_manager.args.temp_path if args_manager.args.disable_image_log else modules.config.path_outputs
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension='png')
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
 
-    pnginfo = None
-    if metadata_parser is not None:
-        parsed_parameters = metadata_parser.parse_string(metadata)
+    parsed_parameters = metadata_parser.parse_string(metadata) if metadata_parser is not None else ''
+    image = Image.fromarray(img)
 
+    if parsed_parameters != '':
         pnginfo = PngInfo()
         pnginfo.add_text('parameters', parsed_parameters)
         pnginfo.add_text('fooocus_scheme', metadata_parser.get_scheme().value)
+    else:
+        pnginfo = None
+    image.save(local_temp_filename, pnginfo=pnginfo)
 
-    Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
+    if args_manager.args.disable_image_log:
+        return local_temp_filename
 
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
 
@@ -80,7 +82,7 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None):
         </script>"""
     )
 
-    begin_part = f"<html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>{js}<p>Fooocus Log {date_string} (private)</p>\n<p>All images are clean, without any hidden data/meta, and safe to share with others.</p><!--fooocus-log-split-->\n\n"
+    begin_part = f"<!DOCTYPE html><html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>{js}<p>Fooocus Log {date_string} (private)</p>\n<p>All images are clean, without any hidden data/meta, and safe to share with others.</p><!--fooocus-log-split-->\n\n"
     end_part = f'\n<!--fooocus-log-split--></body></html>'
 
     middle_part = log_cache.get(html_name, "")
@@ -95,7 +97,7 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None):
 
     div_name = only_name.replace('.', '_')
     item = f"<div id=\"{div_name}\" class=\"image-container\"><hr><table><tr>\n"
-    item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'></img></a><div>{only_name}</div></td>"
+    item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'/></a><div>{only_name}</div></td>"
     item += "<td><table class='metadata'>"
     for label, key, value in metadata:
         value_txt = str(value).replace('\n', ' </br> ')
@@ -117,4 +119,4 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None):
 
     log_cache[html_name] = middle_part
 
-    return
+    return local_temp_filename

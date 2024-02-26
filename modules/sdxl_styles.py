@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import math
 
 from modules.util import get_files_from_folder
 
@@ -80,3 +81,38 @@ def apply_wildcards(wildcard_text, rng, directory=wildcards_path):
 
     print(f'[Wildcards] BFS stack overflow. Current text: {wildcard_text}')
     return wildcard_text
+
+def get_words(arrays, totalMult, index):
+    if(len(arrays) == 1):
+        return [arrays[0].split(',')[index]]
+    else:
+        words = arrays[0].split(',')
+        word = words[index % len(words)]
+        index -= index % len(words)
+        index /= len(words)
+        index = math.floor(index)
+        return [word] + get_words(arrays[1:], math.floor(totalMult/len(words)), index)
+
+
+
+def apply_arrays(text, index):
+    arrays = re.findall(r'\[\[([\s,\w-]+)\]\]', text)
+    if len(arrays) == 0:
+        return text
+
+    print(f'[Arrays] processing: {text}')
+    mult = 1
+    for arr in arrays:
+        words = arr.split(',')
+        mult *= len(words)
+    
+    index %= mult
+    chosen_words = get_words(arrays, mult, index)
+    
+    i = 0
+    for arr in arrays:
+        text = text.replace(f'[[{arr}]]', chosen_words[i], 1)   
+        i = i+1
+    
+    return text
+

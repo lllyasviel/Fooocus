@@ -1,27 +1,26 @@
 import cv2
 import numpy as np
-import modules.advanced_parameters as advanced_parameters
 
 
-def centered_canny(x: np.ndarray):
+def centered_canny(x: np.ndarray, canny_low_threshold, canny_high_threshold):
     assert isinstance(x, np.ndarray)
     assert x.ndim == 2 and x.dtype == np.uint8
 
-    y = cv2.Canny(x, int(advanced_parameters.canny_low_threshold), int(advanced_parameters.canny_high_threshold))
+    y = cv2.Canny(x, int(canny_low_threshold), int(canny_high_threshold))
     y = y.astype(np.float32) / 255.0
     return y
 
 
-def centered_canny_color(x: np.ndarray):
+def centered_canny_color(x: np.ndarray, canny_low_threshold, canny_high_threshold):
     assert isinstance(x, np.ndarray)
     assert x.ndim == 3 and x.shape[2] == 3
 
-    result = [centered_canny(x[..., i]) for i in range(3)]
+    result = [centered_canny(x[..., i], canny_low_threshold, canny_high_threshold) for i in range(3)]
     result = np.stack(result, axis=2)
     return result
 
 
-def pyramid_canny_color(x: np.ndarray):
+def pyramid_canny_color(x: np.ndarray, canny_low_threshold, canny_high_threshold):
     assert isinstance(x, np.ndarray)
     assert x.ndim == 3 and x.shape[2] == 3
 
@@ -31,7 +30,7 @@ def pyramid_canny_color(x: np.ndarray):
     for k in [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
         Hs, Ws = int(H * k), int(W * k)
         small = cv2.resize(x, (Ws, Hs), interpolation=cv2.INTER_AREA)
-        edge = centered_canny_color(small)
+        edge = centered_canny_color(small, canny_low_threshold, canny_high_threshold)
         if acc_edge is None:
             acc_edge = edge
         else:
@@ -54,11 +53,11 @@ def norm255(x, low=4, high=96):
     return x * 255.0
 
 
-def canny_pyramid(x):
+def canny_pyramid(x, canny_low_threshold, canny_high_threshold):
     # For some reasons, SAI's Control-lora Canny seems to be trained on canny maps with non-standard resolutions.
     # Then we use pyramid to use all resolutions to avoid missing any structure in specific resolutions.
 
-    color_canny = pyramid_canny_color(x)
+    color_canny = pyramid_canny_color(x, canny_low_threshold, canny_high_threshold)
     result = np.sum(color_canny, axis=2)
 
     return norm255(result, low=1, high=99).clip(0, 255).astype(np.uint8)

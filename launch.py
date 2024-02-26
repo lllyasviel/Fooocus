@@ -10,7 +10,8 @@ os.chdir(root)
 
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
-os.environ["GRADIO_SERVER_PORT"] = "7865"
+if "GRADIO_SERVER_PORT" not in os.environ:
+    os.environ["GRADIO_SERVER_PORT"] = "7865"
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -21,7 +22,6 @@ import fooocus_version
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
-from modules import config
 
 
 REINSTALL_ALL = False
@@ -68,7 +68,6 @@ vae_approx_filenames = [
      'https://huggingface.co/lllyasviel/misc/resolve/main/xl-to-v1_interposer-v3.1.safetensors')
 ]
 
-
 def ini_args():
     from args_manager import args
     return args
@@ -83,6 +82,8 @@ if args.gpu_device_id is not None:
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_device_id)
     print("Set device to:", args.gpu_device_id)
 
+
+from modules import config
 
 def download_models():
     for file_name, url in vae_approx_filenames:
@@ -99,9 +100,9 @@ def download_models():
         return
 
     if not args.always_download_new_model:
-        if not os.path.exists(os.path.join(config.path_checkpoints, config.default_base_model_name)):
+        if not os.path.exists(os.path.join(config.paths_checkpoints[0], config.default_base_model_name)):
             for alternative_model_name in config.previous_default_models:
-                if os.path.exists(os.path.join(config.path_checkpoints, alternative_model_name)):
+                if os.path.exists(os.path.join(config.paths_checkpoints[0], alternative_model_name)):
                     print(f'You do not have [{config.default_base_model_name}] but you have [{alternative_model_name}].')
                     print(f'Fooocus will use [{alternative_model_name}] to avoid downloading new models, '
                           f'but you are not using latest models.')
@@ -111,11 +112,11 @@ def download_models():
                     break
 
     for file_name, url in config.checkpoint_downloads.items():
-        load_file_from_url(url=url, model_dir=config.path_checkpoints, file_name=file_name)
+        load_file_from_url(url=url, model_dir=config.paths_checkpoints[0], file_name=file_name)
     for file_name, url in config.embeddings_downloads.items():
         load_file_from_url(url=url, model_dir=config.path_embeddings, file_name=file_name)
     for file_name, url in config.lora_downloads.items():
-        load_file_from_url(url=url, model_dir=config.path_loras, file_name=file_name)
+        load_file_from_url(url=url, model_dir=config.paths_loras[0], file_name=file_name)
 
     return
 
