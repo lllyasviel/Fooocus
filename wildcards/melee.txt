@@ -1,0 +1,5 @@
+fighter
+rogue
+archer
+monk
+paladin

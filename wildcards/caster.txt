@@ -1,0 +1,4 @@
+wizard
+sorcerer
+warlock
+bard

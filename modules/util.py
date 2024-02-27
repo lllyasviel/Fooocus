@@ -148,14 +148,19 @@ def join_prompts(*args, **kwargs):
     return ', '.join(prompts)
 
 
-def generate_temp_filename(folder='./outputs/', extension='png'):
+def generate_temp_filename(folder='./outputs/', extension='png', wildprompt=''):
     current_time = datetime.datetime.now()
     date_string = current_time.strftime("%Y-%m-%d")
     time_string = current_time.strftime("%Y-%m-%d_%H-%M-%S")
     random_number = random.randint(1000, 9999)
     filename = f"{time_string}_{random_number}.{extension}"
-    result = os.path.join(folder, date_string, filename)
-    return date_string, os.path.abspath(os.path.realpath(result)), filename
+    wildprompt_string = '' if wildprompt == '[]' else str(wildprompt)
+    fullpath = os.path.join(folder, date_string, wildprompt_string, filename)
+    logpath = os.path.join(folder, date_string, filename)
+    if wildprompt != '[]':
+        filename = f"{wildprompt}/{filename}"
+    print (f'filename = {filename}')
+    return date_string, os.path.abspath(os.path.realpath(fullpath)), filename, logpath
 
 
 def get_files_from_folder(folder_path, exensions=None, name_filter=None):

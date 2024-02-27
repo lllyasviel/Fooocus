@@ -1,0 +1,37 @@
+Fantasy, Female Heroic Warrior, Skilled in combat, fights for justice
+Fantasy, Female Wise Wizard, Master of arcane knowledge and spells
+Fantasy, Female Rogue Thief, Sneaky and agile, excels in stealth and theft
+Fantasy, Female Noble Princess, Heir to the throne, responsible and just
+Fantasy, Female Mystical Druid, Connected to nature, possesses magical powers
+Fantasy, Female Enigmatic Sorcerer, Powerful magic user with a mysterious past
+Fantasy, Female Loyal Squire, Devoted companion to a knight or hero
+Fantasy, Female Archer, Expert marksman with unparalleled precision
+Fantasy, Female Skilled Blacksmith, Master craftsman skilled in forging magical weapons
+Fantasy, Female Cunning Assassin, Specializes in discreetly eliminating targets, weilding twin daggers coated in poison
+Fantasy, Female Spirited Bard, Charismatic musician and storyteller playing a lute
+Fantasy, Female Mysterious Oracle, Possesses foresight and cryptic knowledge
+Fantasy, Female Fierce Barbarian, Powerful and fearless warrior from the wilds
+Fantasy, Female Angelic Guardian, Celestial being sent to protect the mortal realm
+Fantasy, Female Dark Necromancer, Raises the dead and controls dark forces
+Fantasy, Female Savage Beastmaster, Commands and communicates with wild beasts
+Fantasy, Female Cursed Vampire, Immortal being with a thirst for blood
+Fantasy, Female Mercurial Trickster, Mischievous and unpredictable trickster
+Fantasy, Female Kind-hearted Healer, Skilled in the arts of restoration and curing
+Fantasy, Female Nomadic Ranger, Roams the wilderness, skilled tracker and survivalist
+Fantasy, Female Mystical Alchemist, Master of potions and transformative elixirs
+Fantasy, Female Ghostly Specter, Spirit lingering in the mortal realm
+Fantasy, Female Ancient Dragon Rider, Bonds with and rides a powerful dragon
+Fantasy, Female Celestial Enchantress, Harnesses the power of the stars for magic
+Fantasy, Female Forest Guardian, Protector of ancient woodlands and creatures
+Fantasy, Female Martial Monk, Disciplined warrior with spiritual enlightenment
+Fantasy, Female Magma Elemental, Being of living molten rock and fire
+Fantasy, Female Ice Queen, Ruler with control over frost and ice
+Fantasy, Female Lunar Priestess, Channels the power of the moon for magic
+Fantasy, Female Golem Guardian, Animated stone or clay construct protecting a place
+Fantasy, Female Cursed Werewolf, Human cursed to transform into a wolf-like creature
+Fantasy, Female Vengeful Ghost, Spirit seeking retribution for an unresolved past
+Fantasy, Female Petrifying Gorgon, Possesses a gaze that turns others to stone
+Fantasy, Female Elemental Shaman, Communicates with and controls the elements
+Fantasy, Female Mutant Shape-shifter, Can morph into different forms at will
+Fantasy, Female Stormbringer Valkyrie, Warrior maiden wielding the power of storms
+Fantasy, Female Sentient Plant Druid, Connected to the flora, capable of manipulating plants

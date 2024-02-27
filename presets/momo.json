@@ -1,5 +1,5 @@
 {
-    "default_model": "Photo\\sdXL_v10VAEFix.safetensors",
+    "default_model": "Photo\\realisticFantasyMix_v20Vae.safetensors",
     "default_refiner": "Photo\\sdXL_v10RefinerVAEFix.safetensors",
     "default_refiner_switch": 0.8,
     "default_loras": [
@@ -8,7 +8,7 @@
             0.25
         ],
         [
-            "None",
+            "momo\\momo3.safetensors",
             1.0
         ],
         [
@@ -28,16 +28,17 @@
     "default_sample_sharpness": 2.0,
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
-    "default_performance": "Speed",
-    "default_prompt": "",
+    "default_performance": "Quality",
+    "default_prompt": "momo_shiina, 1girl",
     "default_prompt_negative": "unrealistic, saturated, high contrast, big nose, painting, drawing, sketch, cartoon, anime, manga, render, CG, 3d, watermark, signature, label",
     "default_styles": [
         "Fooocus V2",
         "Fooocus Photograph",
         "Fooocus Negative"
     ],
-    "default_aspect_ratio": "896*1152",
+    "default_aspect_ratio": "768*1280",
     "checkpoint_downloads": {},
     "embeddings_downloads": {},
-    "lora_downloads": {}
+    "lora_downloads": {},
+    "default_image_number": 2
 }
