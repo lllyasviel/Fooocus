@@ -208,7 +208,7 @@ def log(img, dic, wildprompt=''):
             wildprompts = value
             break
     item = f"<div id=\"{div_name}\" class=\"image-container\" data-model=\"{base_model}\" data-wildprompts=\"{wildprompts}\"><hr><table><tr>\n"
-    item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').style.display='none';\" loading='lazy'/></a><div>{only_name}</div></td>"
+    item += f"<td><a href=\"{only_name}\" target=\"_blank\"><img src='{only_name}' onerror=\"this.closest('.image-container').remove();\"/></a><div>{only_name}</div></td>"
     item += "<td><table class='metadata'>"
     for key, value in dic:
         value_txt = str(value).replace('\n', ' <br/> ')
