@@ -96,7 +96,7 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
 
     if args.disable_preset_download:
         print('Skipped model download.')
-        return
+        return default_model, checkpoint_downloads
 
     if not args.always_download_new_model:
         if not os.path.exists(os.path.join(config.path_checkpoints, default_model)):
