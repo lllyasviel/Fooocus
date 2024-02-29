@@ -261,8 +261,14 @@ with shared.gradio_root:
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed],
                                    queue=False, show_progress=False)
 
-                if not args_manager.args.disable_image_log:
-                    gr.HTML(f'<a href="file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
+                def update_history_link():
+                    if args_manager.args.disable_image_log:
+                        return gr.update(value='')
+                    
+                    return gr.update(value=f'<a href="file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
+
+                history_link = gr.HTML()
+                shared.gradio_root.load(update_history_link, outputs=history_link, queue=False, show_progress=False)
 
             with gr.Tab(label='Style'):
                 style_sorter.try_load_sorted_styles(
@@ -519,13 +525,17 @@ with shared.gradio_root:
                 preset_content = modules.config.try_get_preset_content(preset) if preset != 'initial' else {}
                 preset_prepared = modules.meta_parser.parse_meta_from_preset(preset_content)
 
-                default_model = preset_prepared['Base Model']
-                previous_default_models = preset_prepared['previous_default_models']
-                checkpoint_downloads = preset_prepared['checkpoint_downloads']
-                embeddings_downloads = preset_prepared['embeddings_downloads']
-                lora_downloads = preset_prepared['lora_downloads']
+                default_model = preset_prepared.get('Base Model')
+                previous_default_models = preset_prepared.get('previous_default_models', [])
+                checkpoint_downloads = preset_prepared.get('checkpoint_downloads', {})
+                embeddings_downloads = preset_prepared.get('embeddings_downloads', {})
+                lora_downloads = preset_prepared.get('lora_downloads', {})
+
                 preset_prepared['Base Model'], preset_prepared['lora_downloads'] = launch.download_models(
                     default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads)
+
+                if 'Prompt' in preset_prepared and preset_prepared.get('Prompt') == '':
+                    del preset_prepared['Prompt']
 
                 return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
 
@@ -621,6 +631,7 @@ with shared.gradio_root:
             .then(fn=generate_clicked, inputs=ctrls, outputs=[progress_html, progress_window, progress_gallery, gallery]) \
             .then(lambda: (gr.update(visible=True, interactive=True), gr.update(visible=False, interactive=False), gr.update(visible=False, interactive=False), False),
                   outputs=[generate_button, stop_button, skip_button, state_is_generating]) \
+            .then(fn=update_history_link, outputs=history_link) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
@@ -653,6 +664,6 @@ shared.gradio_root.launch(
     server_name=args_manager.args.listen,
     server_port=args_manager.args.port,
     share=args_manager.args.share,
-    auth=check_auth if args_manager.args.share and auth_enabled else None,
+    auth=check_auth if (args_manager.args.share or args_manager.args.listen) and auth_enabled else None,
     blocked_paths=[constants.AUTH_FILENAME]
 )
