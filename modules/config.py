@@ -475,6 +475,7 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
 model_filenames = []
 lora_filenames = []
 sdxl_lcm_lora = 'sdxl_lcm_lora.safetensors'
+sdxl_lightning_lora = 'sdxl_lightning_4step_lora.safetensors'
 
 
 def get_model_filenames(folder_paths, name_filter=None):
@@ -537,6 +538,14 @@ def downloading_sdxl_lcm_lora():
         file_name=sdxl_lcm_lora
     )
     return sdxl_lcm_lora
+
+def downloading_sdxl_lightning_lora():
+    load_file_from_url(
+        url='https://huggingface.co/ByteDance/SDXL-Lightning/resolve/main/sdxl_lightning_4step_lora.safetensors',
+        model_dir=paths_loras[0],
+        file_name=sdxl_lightning_lora
+    )
+    return sdxl_lightning_lora
 
 
 def downloading_controlnet_canny():

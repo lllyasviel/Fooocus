@@ -89,8 +89,6 @@ metadata_scheme = [
     (f'{MetadataScheme.A1111.value} (plain text)', MetadataScheme.A1111.value),
 ]
 
-lora_count = 5
-
 controlnet_image_count = 4
 
 
@@ -98,18 +96,21 @@ class Steps(IntEnum):
     QUALITY = 60
     SPEED = 30
     EXTREME_SPEED = 8
+    LIGHTNING = 4
 
 
 class StepsUOV(IntEnum):
     QUALITY = 36
     SPEED = 18
     EXTREME_SPEED = 8
+    LIGHTNING = 4
 
 
 class Performance(Enum):
     QUALITY = 'Quality'
     SPEED = 'Speed'
     EXTREME_SPEED = 'Extreme Speed'
+    LIGHTNING = 'Lightning'
 
     @classmethod
     def list(cls) -> list:
