@@ -45,14 +45,13 @@ def worker():
     import args_manager
 
     from modules.censor import censor_batch, censor_single
-
-    from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
+    from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion, apply_arrays
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
         get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
     from modules.upscaler import perform_upscale
-    from modules.flags import Performance, lora_count
+    from modules.flags import Performance
     from modules.meta_parser import get_metadata_parser, MetadataScheme
 
     pid = os.getpid()
@@ -127,6 +126,14 @@ def worker():
         async_task.results = async_task.results + [wall]
         return
 
+    def apply_enabled_loras(loras):
+        enabled_loras = []
+        for lora_enabled, lora_model, lora_weight in loras:
+            if lora_enabled:
+                enabled_loras.append([lora_model, lora_weight])
+
+        return enabled_loras
+
     @torch.no_grad()
     @torch.inference_mode()
     def handler(async_task):
@@ -150,7 +157,7 @@ def worker():
         base_model_name = args.pop()
         refiner_model_name = args.pop()
         refiner_switch = args.pop()
-        loras = [[str(args.pop()), float(args.pop())] for _ in range(lora_count)]
+        loras = apply_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop()), ] for _ in range(modules.config.default_max_lora_number)])
         input_image_checkbox = args.pop()
         current_tab = args.pop()
         uov_method = args.pop()
@@ -162,6 +169,7 @@ def worker():
 
         disable_preview = args.pop()
         disable_intermediate_results = args.pop()
+        disable_seed_increment = args.pop()
         black_out_nsfw = args.pop()
         adm_scaler_positive = args.pop()
         adm_scaler_negative = args.pop()
@@ -423,10 +431,14 @@ def worker():
             tasks = []
             
             for i in range(image_number):
-                task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
-                task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
+                if disable_seed_increment:
+                    task_seed = seed
+                else:
+                    task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
 
+                task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
                 task_prompt = apply_wildcards(prompt, task_rng)
+                task_prompt = apply_arrays(task_prompt, i)
                 task_negative_prompt = apply_wildcards(negative_prompt, task_rng)
                 task_extra_positive_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
                 task_extra_negative_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
@@ -625,8 +637,7 @@ def worker():
             )
 
             if debugging_inpaint_preprocessor:
-                yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(), black_out_nsfw,
-                             do_not_show_finished_images=True)
+                yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(), black_out_nsfw, do_not_show_finished_images=True)
                 return
 
             progressbar(async_task, 13, 'VAE Inpaint encoding ...')

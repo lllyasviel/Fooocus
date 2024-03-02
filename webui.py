@@ -357,7 +357,7 @@ with shared.gradio_root:
                     if args_manager.args.disable_image_log:
                         return gr.update(value='')
                     
-                    return gr.update(value=f'<a href="file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
+                    return gr.update(value=f'<a href="file={get_current_html_path(output_format)}" target="_blank">\U0001F4DA History Log</a>')
 
                 history_link = gr.HTML()
                 shared.gradio_root.load(update_history_link, outputs=history_link, queue=False, show_progress=False)
@@ -417,11 +417,15 @@ with shared.gradio_root:
 
                     for i, (n, v) in enumerate(modules.config.default_loras):
                         with gr.Row():
+                            lora_enabled = gr.Checkbox(label='Enable', value=True,
+                                                       elem_classes=['lora_enable', 'min_check'])
                             lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
-                                                     choices=['None'] + modules.config.lora_filenames, value=n)
-                            lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=v,
+                                                     choices=['None'] + modules.config.lora_filenames, value=n,
+                                                     elem_classes='lora_model')
+                            lora_weight = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight,
+                                                    maximum=modules.config.default_loras_max_weight, step=0.01, value=v,
                                                     elem_classes='lora_weight')
-                            lora_ctrls += [lora_model, lora_weight]
+                            lora_ctrls += [lora_enabled, lora_model, lora_weight]
 
                 with gr.Row():
                     model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
@@ -492,6 +496,10 @@ with shared.gradio_root:
                                                       value=modules.config.default_performance == 'Extreme Speed',
                                                       interactive=modules.config.default_performance != 'Extreme Speed',
                                                       info='Disable intermediate results during generation, only show final gallery.')
+
+                        disable_seed_increment = gr.Checkbox(label='Disable seed increment',
+                                                             info='Disable automatic seed increment when image number is > 1.',
+                                                             value=False)
 
                         black_out_nsfw = gr.Checkbox(label='Black Out NSFW', value=modules.config.default_black_out_nsfw,
                                                      interactive=not modules.config.default_black_out_nsfw,
@@ -590,8 +598,8 @@ with shared.gradio_root:
                                 gr.update(choices=['None'] + modules.config.model_filenames)]
                     if not args_manager.args.disable_preset_selection:
                         results += [gr.update(choices=modules.config.available_presets)]
-                    for i in range(flags.lora_count):
-                        results += [gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
+                    for i in range(modules.config.default_max_lora_number):
+                        results += [gr.update(interactive=True), gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
                     return results
 
                 model_refresh_output = [base_model, refiner_model]
@@ -710,7 +718,7 @@ with shared.gradio_root:
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
-        ctrls += [disable_preview, disable_intermediate_results, black_out_nsfw]
+        ctrls += [disable_preview, disable_intermediate_results, disable_seed_increment, black_out_nsfw]
         ctrls += [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg]
         ctrls += [sampler_name, scheduler_name]
         ctrls += [overwrite_step, overwrite_switch, overwrite_width, overwrite_height, overwrite_vary_strength]
@@ -719,6 +727,11 @@ with shared.gradio_root:
         ctrls += [refiner_swap_method, controlnet_softness]
         ctrls += freeu_ctrls
         ctrls += inpaint_ctrls
+
+        if not args_manager.args.disable_metadata:
+            ctrls += [save_metadata_to_images, metadata_scheme]
+
+        ctrls += ip_ctrls
 
         if not args_manager.args.disable_metadata:
             ctrls += [save_metadata_to_images, metadata_scheme]

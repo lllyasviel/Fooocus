@@ -67,18 +67,13 @@ default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0)
 }  # stop, weight
 
-inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
-
 output_formats = ['png', 'jpg', 'webp']
 
-inpaint_mask_models = [
-    'u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam'
-]
-
+inpaint_mask_models = ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']
 inpaint_mask_cloth_category = ['full', 'upper', 'lower']
-
 inpaint_mask_sam_model = ['sam_vit_b_01ec64', 'sam_vit_h_4b8939', 'sam_vit_l_0b3195']
 
+inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
 inpaint_option_modify = 'Modify Content (add objects, change background, etc.)'
@@ -97,9 +92,6 @@ metadata_scheme = [
     (f'{MetadataScheme.FOOOCUS.value} (json)', MetadataScheme.FOOOCUS.value),
     (f'{MetadataScheme.A1111.value} (plain text)', MetadataScheme.A1111.value),
 ]
-
-lora_count = 5
-lora_count_with_lcm = lora_count + 1
 
 controlnet_image_count = 4
 
@@ -133,7 +125,7 @@ class Performance(Enum):
 
 
 performance_selections = [
-    ('Quality <span style="color: grey;"> \U00002223 60 steps</span>', Performance.QUALITY.value),
-    ('Speed <span style="color: grey;"> \U00002223 30 steps</span>', Performance.SPEED.value),
-    ('Extreme Speed (LCM) <span style="color: grey;"> \U00002223 8 steps, intermediate results disabled</span>', Performance.EXTREME_SPEED.value)
+    (f'Quality <span style="color: grey;"> \U00002223  {Steps.QUALITY.value} steps</span>', Performance.QUALITY.value),
+    (f'Speed <span style="color: grey;"> \U00002223  {Steps.SPEED.value} steps</span>', Performance.SPEED.value),
+    (f'Extreme Speed (LCM) <span style="color: grey;"> \U00002223 {Steps.EXTREME_SPEED.value} steps, intermediate results disabled</span>', Performance.EXTREME_SPEED.value)
 ]

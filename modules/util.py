@@ -160,7 +160,7 @@ def generate_temp_filename(folder='./outputs/', extension='png'):
     random_number = random.randint(1000, 9999)
     filename = f"{time_string}_{random_number}.{extension}"
     result = os.path.join(folder, date_string, filename)
-    return date_string, os.path.abspath(os.path.realpath(result)), filename
+    return date_string, os.path.abspath(result), filename
 
 
 def get_files_from_folder(folder_path, exensions=None, name_filter=None):
@@ -341,5 +341,22 @@ def is_json(data: str) -> bool:
         return False
     return True
 
+
+def get_file_from_folder_list(name, folders):
+    for folder in folders:
+        filename = os.path.abspath(os.path.realpath(os.path.join(folder, name)))
+        if os.path.isfile(filename):
+            return filename
+
+    return os.path.abspath(os.path.realpath(os.path.join(folders[0], name)))
+
+
 def ordinal_suffix(number: int) -> str:
     return 'th' if 10 <= number % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(number % 10, 'th')
+
+
+def makedirs_with_log(path):
+    try:
+        os.makedirs(path, exist_ok=True)
+    except OSError as error:
+        print(f'Directory {path} could not be created, reason: {error}')
