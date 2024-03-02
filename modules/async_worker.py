@@ -553,8 +553,8 @@ def worker():
                 direct_return = False
 
             if direct_return:
-                d = [('Upscale (Fast)', '2x')]
-                uov_input_image_path = log(uov_input_image, d, output_format)
+                d = [('Upscale (Fast)', 'upscale_fast', '2x')]
+                uov_input_image_path = log(uov_input_image, d, output_format=output_format)
                 yield_result(async_task, uov_input_image_path, do_not_show_finished_images=True)
                 return
 
