@@ -112,6 +112,30 @@ progress::after {
     margin-left: -5px !important;
 }
 
+.lora_enable {
+  flex-grow: 1 !important;
+}
+
+.lora_enable label {
+  height: 100%;
+}
+
+.lora_enable label input {
+  margin: auto;
+}
+
+.lora_enable label span {
+  display: none;
+}
+
+.lora_model {
+  flex-grow: 5 !important;
+}
+
+.lora_weight {
+  flex-grow: 5 !important;
+}
+
 '''
 progress_html = '''
 <div class="loader-container">
