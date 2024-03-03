@@ -100,18 +100,21 @@ class Steps(IntEnum):
     QUALITY = 60
     SPEED = 30
     EXTREME_SPEED = 8
+    LIGHTNING = 4
 
 
 class StepsUOV(IntEnum):
     QUALITY = 36
     SPEED = 18
     EXTREME_SPEED = 8
+    LIGHTNING = 4
 
 
 class Performance(Enum):
     QUALITY = 'Quality'
     SPEED = 'Speed'
     EXTREME_SPEED = 'Extreme Speed'
+    LIGHTNING = 'Lightning'
 
     @classmethod
     def list(cls) -> list:
@@ -127,5 +130,6 @@ class Performance(Enum):
 performance_selections = [
     (f'Quality <span style="color: grey;"> \U00002223  {Steps.QUALITY.value} steps</span>', Performance.QUALITY.value),
     (f'Speed <span style="color: grey;"> \U00002223  {Steps.SPEED.value} steps</span>', Performance.SPEED.value),
-    (f'Extreme Speed (LCM) <span style="color: grey;"> \U00002223 {Steps.EXTREME_SPEED.value} steps, intermediate results disabled</span>', Performance.EXTREME_SPEED.value)
+    (f'Extreme Speed (LCM) <span style="color: grey;"> \U00002223 {Steps.EXTREME_SPEED.value} steps, intermediate results disabled</span>', Performance.EXTREME_SPEED.value),
+    (f'Lightning <span style="color: grey;"> \U00002223 {Steps.LIGHTNING.value} steps, intermediate results disabled</span>', Performance.LIGHTNING.value)
 ]

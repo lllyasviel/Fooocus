@@ -260,6 +260,25 @@ def worker():
             adm_scaler_negative = 1.0
             adm_scaler_end = 0.0
 
+        elif performance_selection == Performance.LIGHTNING:
+            print('Enter Lightning mode.')
+            progressbar(async_task, 1, 'Downloading Lightning components ...')
+            loras += [(modules.config.downloading_sdxl_lightning_lora(), 1.0)]
+
+            if refiner_model_name != 'None':
+                print(f'Refiner disabled in Lightning mode.')
+
+            refiner_model_name = 'None'
+            sampler_name = 'euler'
+            scheduler_name = 'sgm_uniform'
+            sharpness = 0.0
+            guidance_scale = 1.0
+            adaptive_cfg = 1.0
+            refiner_switch = 1.0
+            adm_scaler_positive = 1.0
+            adm_scaler_negative = 1.0
+            adm_scaler_end = 0.0
+
         if translate_prompts:
             from modules.translator import translate2en
             prompt = translate2en(prompt, 'prompt')
@@ -896,7 +915,11 @@ def worker():
                     img_paths.append(log(x, d, metadata_parser, output_format))
 
                 yield_result(async_task, img_paths, black_out_nsfw, False,
-                             do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results or sampler_name == 'lcm')
+                             do_not_show_finished_images=len(tasks) == 1
+                                                          or disable_intermediate_results
+                                                          or performance_selection == Performance.EXTREME_SPEED
+                                                          or performance_selection == Performance.LIGHTNING)
+
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
                 if async_task.last_stop == 'skip':
                     print('User skipped')
