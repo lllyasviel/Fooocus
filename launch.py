@@ -22,6 +22,7 @@ import fooocus_version
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met
 from modules.model_loader import load_file_from_url
+from modules import config
 
 REINSTALL_ALL = False
 TRY_INSTALL_XFORMERS = False
