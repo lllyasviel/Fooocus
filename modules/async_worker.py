@@ -914,7 +914,7 @@ def worker():
                         metadata_parser.set_data(task['log_positive_prompt'], task['positive'],
                                                  task['log_negative_prompt'], task['negative'],
                                                  steps, base_model_name, refiner_model_name, loras)
-                    d.append(('Metadata', 'metadata', save_metadata_to_images))
+                    d.append(('Metadata Scheme', 'metadata_scheme', metadata_scheme.value if save_metadata_to_images else save_metadata_to_images))
                     d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
                     img_paths.append(log(x, d, metadata_parser, output_format))
 
