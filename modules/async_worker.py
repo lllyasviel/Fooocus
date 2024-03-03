@@ -320,13 +320,17 @@ def worker():
                 inpaint_mask = inpaint_input_image['mask'][:, :, 0]
 
                 if inpaint_mask_upload_checkbox:
-                    if isinstance(inpaint_mask_image_upload, np.ndarray):
-                        if inpaint_mask_image_upload.ndim == 3:
-                            H, W, C = inpaint_image.shape
-                            inpaint_mask_image_upload = resample_image(inpaint_mask_image_upload, width=W, height=H)
-                            inpaint_mask_image_upload = np.mean(inpaint_mask_image_upload, axis=2)
-                            inpaint_mask_image_upload = (inpaint_mask_image_upload > 127).astype(np.uint8) * 255
-                            inpaint_mask = np.maximum(inpaint_mask, inpaint_mask_image_upload)
+                    if isinstance(inpaint_mask_image_upload, dict):
+                        if (isinstance(inpaint_mask_image_upload['image'], np.ndarray)
+                                and isinstance(inpaint_mask_image_upload['mask'], np.ndarray)
+                                and inpaint_mask_image_upload['image'].ndim == 3):
+                            inpaint_mask_image_upload = np.maximum(inpaint_mask_image_upload['image'], inpaint_mask_image_upload['mask'][:, :, 0])
+                    if isinstance(inpaint_mask_image_upload, np.ndarray) and inpaint_mask_image_upload.ndim == 3:
+                        H, W, C = inpaint_image.shape
+                        inpaint_mask_image_upload = resample_image(inpaint_mask_image_upload, width=W, height=H)
+                        inpaint_mask_image_upload = np.mean(inpaint_mask_image_upload, axis=2)
+                        inpaint_mask_image_upload = (inpaint_mask_image_upload > 127).astype(np.uint8) * 255
+                        inpaint_mask = np.maximum(inpaint_mask, inpaint_mask_image_upload)
 
                 if int(inpaint_erode_or_dilate) != 0:
                     inpaint_mask = erode_or_dilate(inpaint_mask, inpaint_erode_or_dilate)
