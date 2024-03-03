@@ -324,7 +324,7 @@ def worker():
                         if (isinstance(inpaint_mask_image_upload['image'], np.ndarray)
                                 and isinstance(inpaint_mask_image_upload['mask'], np.ndarray)
                                 and inpaint_mask_image_upload['image'].ndim == 3):
-                            inpaint_mask_image_upload = np.maximum(inpaint_mask_image_upload['image'], inpaint_mask_image_upload['mask'][:, :, 0])
+                            inpaint_mask_image_upload = np.maximum(inpaint_mask_image_upload['image'], inpaint_mask_image_upload['mask'])
                     if isinstance(inpaint_mask_image_upload, np.ndarray) and inpaint_mask_image_upload.ndim == 3:
                         H, W, C = inpaint_image.shape
                         inpaint_mask_image_upload = resample_image(inpaint_mask_image_upload, width=W, height=H)
