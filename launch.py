@@ -2,8 +2,6 @@ import os
 import sys
 import ssl
 
-from modules.load_paths import get_model_paths
-
 print('[System ARGV] ' + str(sys.argv))
 
 root = os.path.dirname(os.path.abspath(__file__))
@@ -76,8 +74,6 @@ def ini_args():
 
 
 prepare_environment()
-# this will get all the folder path of models and store it in json automatically
-get_model_paths()
 build_launcher()
 args = ini_args()
 
