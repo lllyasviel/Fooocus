@@ -52,3 +52,5 @@ user_path_config-deprecated.txt
 /.coverage*
 /auth.json
 /model_config_path.json
+.DS_Store
+
