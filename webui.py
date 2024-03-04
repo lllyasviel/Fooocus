@@ -334,16 +334,9 @@ with shared.gradio_root:
                     lambda: None, _js='()=>{refresh_style_localization();}')
 
             if not args_manager.args.disable_download_tab:
-                with gr.Column(visible=modules.config.default_download_tab_checkbox)as download_tab:
-                    with gr.Tab(label='Download'):
+                    with gr.Tab(label='Download',visible=modules.config.default_download_tab_checkbox)as download_tab:
                         with gr.Group():
-                            with open('./model_config_path.json', 'r') as f:
-                                model_paths = json.load(f)
-
-                            for key, value in model_paths.items():
-                                model_paths[key] = os.path.abspath(value)
-
-                            choices = list(model_paths.keys())
+                            choices = list(modules.config.config_paths.keys())
                             with gr.Row():
                                 url_input = gr.Textbox(label="URL")
                             with gr.Row():

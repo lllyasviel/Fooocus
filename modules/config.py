@@ -166,16 +166,45 @@ def get_dir_or_set_default(key, default_value, as_array=False, make_directory=Fa
     config_dict[key] = dp
     return dp
 
+config_paths = {
+    'checkpoints': get_dir_or_set_default('path_checkpoints', ['../models/checkpoints/'], True),
+    'clip': get_dir_or_set_default('path_clip', ['../models/clip/']),
+    'config': get_dir_or_set_default('path_config', '../models/configs/'),
+    'diffusers': get_dir_or_set_default('path_diffusers', ['../models/diffusers/']),
+    'gligen': get_dir_or_set_default('path_gligen', ['../models/gligen/']),
+    'hypernetworks': get_dir_or_set_default('path_hypernetworks', ['../models/hypernetworks/']),
+    'prompt_expansion': get_dir_or_set_default('path_prompt_expansion', '../models/prompt_expansion/'),
+    'style_models': get_dir_or_set_default('path_style_models', '../models/style_models/'),
+    'unet': get_dir_or_set_default('path_unet', '../models/unet/'),
+    'vae': get_dir_or_set_default('path_vae', '../models/vae/'),
+    'loras': get_dir_or_set_default('path_loras', ['../models/loras/'], True),
+    'embeddings': get_dir_or_set_default('path_embeddings', '../models/embeddings/'),
+    'vae_approx': get_dir_or_set_default('path_vae_approx', '../models/vae_approx/'),
+    'upscale_models': get_dir_or_set_default('path_upscale_models', '../models/upscale_models/'),
+    'inpaint': get_dir_or_set_default('path_inpaint', '../models/inpaint/'),
+    'controlnet': get_dir_or_set_default('path_controlnet', '../models/controlnet/'),
+    'clip_vision': get_dir_or_set_default('path_clip_vision', '../models/clip_vision/'),
+    'fooocus_expansion': get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
+}
 
-paths_checkpoints = get_dir_or_set_default('path_checkpoints', ['../models/checkpoints/'], True)
-paths_loras = get_dir_or_set_default('path_loras', ['../models/loras/'], True)
-path_embeddings = get_dir_or_set_default('path_embeddings', '../models/embeddings/')
-path_vae_approx = get_dir_or_set_default('path_vae_approx', '../models/vae_approx/')
-path_upscale_models = get_dir_or_set_default('path_upscale_models', '../models/upscale_models/')
-path_inpaint = get_dir_or_set_default('path_inpaint', '../models/inpaint/')
-path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlnet/')
-path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vision/')
-path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
+paths_checkpoints = config_paths['checkpoints']
+paths_clip = config_paths['clip']
+paths_config = config_paths['config']
+paths_diffusers = config_paths['diffusers']
+paths_gligen = config_paths['gligen']
+paths_hypernetworks = config_paths['hypernetworks']
+paths_prompt_expansion = config_paths['prompt_expansion']
+paths_style_models = config_paths['style_models']
+paths_unet = config_paths['unet']
+paths_vae = config_paths['vae']
+paths_loras = config_paths['loras']
+path_embeddings = config_paths['embeddings']
+path_vae_approx = config_paths['vae_approx']
+path_upscale_models = config_paths['upscale_models']
+path_inpaint = config_paths['inpaint']
+path_controlnet = config_paths['controlnet']
+path_clip_vision = config_paths['clip_vision']
+path_fooocus_expansion = config_paths['fooocus_expansion']
 path_outputs = get_path_output()
 
 def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False):
