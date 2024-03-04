@@ -26,7 +26,7 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=output_format)
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
 
-    parsed_parameters = metadata_parser.parse_string(metadata) if metadata_parser is not None else ''
+    parsed_parameters = metadata_parser.parse_string(metadata.copy()) if metadata_parser is not None else ''
     image = Image.fromarray(img)
 
     if output_format == 'png':
@@ -90,7 +90,7 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
         </script>"""
     )
 
-    begin_part = f"<!DOCTYPE html><html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>{js}<p>Fooocus Log {date_string} (private)</p>\n<p>All images are clean, without any hidden data/meta, and safe to share with others.</p><!--fooocus-log-split-->\n\n"
+    begin_part = f"<!DOCTYPE html><html><head><title>Fooocus Log {date_string}</title>{css_styles}</head><body>{js}<p>Fooocus Log {date_string} (private)</p>\n<p>Metadata is embedded if enabled in the config or developer debug mode. You can find the information for each image in line Metadata Scheme.</p><!--fooocus-log-split-->\n\n"
     end_part = f'\n<!--fooocus-log-split--></body></html>'
 
     middle_part = log_cache.get(html_name, "")

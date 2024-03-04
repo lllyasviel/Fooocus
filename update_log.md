@@ -1,3 +1,9 @@
+# [2.2.1](https://github.com/lllyasviel/Fooocus/releases/tag/2.2.1)
+
+* Fix some small bugs (e.g. image grid, upscale fast 2x, LoRA weight width in Firefox)
+* Allow prompt weights in array syntax
+* Add steps override and metadata scheme to history log
+
 # [2.2.0](https://github.com/lllyasviel/Fooocus/releases/tag/2.2.0)
 
 * Isolate every image generation to truly allow multi-user usage

@@ -355,13 +355,13 @@ with shared.gradio_root:
                     for i, (n, v) in enumerate(modules.config.default_loras):
                         with gr.Row():
                             lora_enabled = gr.Checkbox(label='Enable', value=True,
-                                                       elem_classes=['lora_enable', 'min_check'])
+                                                       elem_classes=['lora_enable', 'min_check'], scale=1)
                             lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
                                                      choices=['None'] + modules.config.lora_filenames, value=n,
-                                                     elem_classes='lora_model')
+                                                     elem_classes='lora_model', scale=5)
                             lora_weight = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight,
                                                     maximum=modules.config.default_loras_max_weight, step=0.01, value=v,
-                                                    elem_classes='lora_weight')
+                                                    elem_classes='lora_weight', scale=5)
                             lora_ctrls += [lora_enabled, lora_model, lora_weight]
 
                 with gr.Row():
@@ -438,7 +438,7 @@ with shared.gradio_root:
                             save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
                                                                   info='Adds parameters to generated images allowing manual regeneration.')
                             metadata_scheme = gr.Radio(label='Metadata Scheme', choices=flags.metadata_scheme, value=modules.config.default_metadata_scheme,
-                                                       info='Image Prompt parameters are not included. Use a1111 for compatibility with Civitai.',
+                                                       info='Image Prompt parameters are not included. Use png and a1111 for compatibility with Civitai.',
                                                        visible=modules.config.default_save_metadata_to_images)
 
                             save_metadata_to_images.change(lambda x: gr.update(visible=x), inputs=[save_metadata_to_images], outputs=[metadata_scheme], 
