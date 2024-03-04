@@ -112,10 +112,6 @@ progress::after {
     margin-left: -5px !important;
 }
 
-.lora_enable {
-  flex-grow: 1 !important;
-}
-
 .lora_enable label {
   height: 100%;
 }
@@ -128,12 +124,10 @@ progress::after {
   display: none;
 }
 
-.lora_model {
-  flex-grow: 5 !important;
-}
-
-.lora_weight {
-  flex-grow: 5 !important;
+@-moz-document url-prefix() {
+  .lora_weight input[type=number] {
+    width: 80px;
+  }
 }
 
 '''

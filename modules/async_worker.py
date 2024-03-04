@@ -876,18 +876,21 @@ def worker():
                          ('Negative Prompt', 'negative_prompt', task['log_negative_prompt']),
                          ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion']),
                          ('Styles', 'styles', str(raw_style_selections)),
-                         ('Performance', 'performance', performance_selection.value),
-                         ('Steps', 'steps', steps),
-                         ('Resolution', 'resolution', str((width, height))),
-                         ('Guidance Scale', 'guidance_scale', guidance_scale),
-                         ('Sharpness', 'sharpness', modules.patch.patch_settings[pid].sharpness),
-                         ('ADM Guidance', 'adm_guidance', str((
-                             modules.patch.patch_settings[pid].positive_adm_scale,
-                             modules.patch.patch_settings[pid].negative_adm_scale,
-                             modules.patch.patch_settings[pid].adm_scaler_end))),
-                         ('Base Model', 'base_model', base_model_name),
-                         ('Refiner Model', 'refiner_model', refiner_model_name),
-                         ('Refiner Switch', 'refiner_switch', refiner_switch)]
+                         ('Performance', 'performance', performance_selection.value)]
+
+                    if performance_selection.steps() != steps:
+                        d.append(('Steps', 'steps', steps))
+
+                    d += [('Resolution', 'resolution', str((width, height))),
+                          ('Guidance Scale', 'guidance_scale', guidance_scale),
+                          ('Sharpness', 'sharpness', sharpness),
+                          ('ADM Guidance', 'adm_guidance', str((
+                              modules.patch.patch_settings[pid].positive_adm_scale,
+                              modules.patch.patch_settings[pid].negative_adm_scale,
+                              modules.patch.patch_settings[pid].adm_scaler_end))),
+                          ('Base Model', 'base_model', base_model_name),
+                          ('Refiner Model', 'refiner_model', refiner_model_name),
+                          ('Refiner Switch', 'refiner_switch', refiner_switch)]
 
                     if refiner_model_name != 'None':
                         if overwrite_switch > 0:
