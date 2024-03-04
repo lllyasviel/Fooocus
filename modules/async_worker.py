@@ -63,8 +63,6 @@ def worker():
     pid = os.getpid()
     print(f'Started worker with PID {pid}')
 
-    MAX_LORAS = 5
-
     try:
         async_gradio_app = shared.gradio_root
         flag = f'''App started successful. Use the app with {str(async_gradio_app.local_url)} or {str(async_gradio_app.server_name)}:{str(async_gradio_app.server_port)}'''
@@ -164,8 +162,6 @@ def worker():
         base_model_name = args.pop()
         refiner_model_name = args.pop()
         refiner_switch = args.pop()
-
-        loras = [[str(args.pop()), float(args.pop())] for _ in range(MAX_LORAS)]
 
         loras = apply_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop()), ] for _ in range(modules.config.default_max_lora_number)])
 
@@ -430,7 +426,7 @@ def worker():
             progressbar(async_task, 3, 'Loading models ...')
 
             # Parse lora references from prompt
-            loras = parse_lora_references_from_prompt(prompt, loras, loras_limit=MAX_LORAS)
+            loras = parse_lora_references_from_prompt(prompt, loras, loras_limit=modules.config.default_max_lora_number)
 
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
