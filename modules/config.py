@@ -7,7 +7,8 @@ import modules.flags
 import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
-from modules.util import get_files_from_folder, makedirs_with_log
+from modules.util import makedirs_with_log
+from modules.path_utils import get_files_from_folder
 from modules.flags import Performance, MetadataScheme
 
 def get_config_path(key, default_value):
