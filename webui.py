@@ -333,31 +333,31 @@ with shared.gradio_root:
                                                        show_progress=False).then(
                     lambda: None, _js='()=>{refresh_style_localization();}')
 
+            if not args_manager.args.disable_download_tab:
+                with gr.Column(visible=modules.config.default_download_tab_checkbox)as download_tab:
+                    with gr.Tab(label='Download'):
+                        with gr.Group():
+                            with open('./model_config_path.json', 'r') as f:
+                                model_paths = json.load(f)
 
-            with gr.Tab(label='download'):
-                with gr.Group():
-                    with open('./model_config_path.json', 'r') as f:
-                        model_paths = json.load(f)
+                            for key, value in model_paths.items():
+                                model_paths[key] = os.path.abspath(value)
 
-                    for key, value in model_paths.items():
-                        model_paths[key] = os.path.abspath(value)
+                            choices = list(model_paths.keys())
+                            with gr.Row():
+                                url_input = gr.Textbox(label="URL")
+                            with gr.Row():
+                                file_name = gr.Textbox(label="File Name with its Extension (Optional)")
+                            with gr.Row():
+                                selected_path = gr.Dropdown(label='Select Path', choices=choices,
+                                                            show_label=True)
+                            with gr.Row():
+                                output = gr.Textbox(value="", label="Output")
+                            with gr.Row():
+                                start_download = gr.Button("download", label="Download")
 
-                    choices = list(model_paths.keys())
-                    with gr.Row():
-                        url_input = gr.Textbox(label="Enter URL:")
-                    with gr.Row():
-                        file_name = gr.Textbox(label="Enter File Name:", placeholder="File Name"
-                                                                                     "With its Extension.(Optional)")
-                    with gr.Row():
-                        selected_path = gr.Dropdown(label='Select Path', choices=choices,
-                                                    show_label=True)
-                    with gr.Row():
-                        output = gr.Textbox(value="", label="Output")
-                    with gr.Row():
-                        start_download = gr.Button("download", label="Download")
-
-                start_download.click(download_models, inputs=[url_input, selected_path, file_name],
-                                     outputs=[output], queue=True, show_progress=True)
+                        start_download.click(download_models, inputs=[url_input, selected_path, file_name],
+                                             outputs=[output], queue=True, show_progress=True)
 
             with gr.Tab(label='Model'):
                 with gr.Group():
@@ -460,6 +460,7 @@ with shared.gradio_root:
                         disable_seed_increment = gr.Checkbox(label='Disable seed increment',
                                                              info='Disable automatic seed increment when image number is > 1.',
                                                              value=False)
+                        disable_download_checkbox = gr.Checkbox(label='Disable Download Tab',info='Disable the download tab when clicked',value=modules.config.default_download_tab_checkbox,elem_classes='min_check')
 
                         if not args_manager.args.disable_metadata:
                             save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
@@ -568,6 +569,9 @@ with shared.gradio_root:
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
                                  queue=False, show_progress=False) \
             .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)
+        disable_download_checkbox.change(lambda x: gr.update(visible=x), disable_download_checkbox, download_tab) \
+            .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)
+
 
         def inpaint_mode_change(mode):
             assert mode in modules.flags.inpaint_options

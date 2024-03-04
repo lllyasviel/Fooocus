@@ -4,6 +4,9 @@ import os
 from tempfile import gettempdir
 
 args_parser.parser.add_argument("--share", action='store_true', help="Set whether to share on Gradio.")
+args_parser.parser.add_argument("--disable-download-tab", action='store_true',
+                                help="Disables Download Tabs in the UI.")
+
 args_parser.parser.add_argument("--preset", type=str, default=None, help="Apply specified UI preset.")
 
 args_parser.parser.add_argument("--language", type=str, default='default',
