@@ -76,7 +76,8 @@ def generate_clicked(task):
                 # delete Fooocus temp images, only keep gradio temp images
                 if args_manager.args.disable_image_log:
                     for filepath in product:
-                        os.remove(filepath)
+                        if isinstance(filepath, str) and os.path.exists(filepath):
+                            os.remove(filepath)
 
     execution_time = time.perf_counter() - execution_start_time
     print(f'Total time: {execution_time:.2f} seconds')
