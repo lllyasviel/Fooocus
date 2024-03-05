@@ -67,7 +67,7 @@ default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0)
 }  # stop, weight
 
-output_formats = ['png', 'jpg', 'webp']
+output_formats = ['png', 'jpeg', 'webp']
 
 inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 inpaint_option_default = 'Inpaint or Outpaint (default)'
@@ -89,9 +89,17 @@ metadata_scheme = [
     (f'{MetadataScheme.A1111.value} (plain text)', MetadataScheme.A1111.value),
 ]
 
-lora_count = 5
-
 controlnet_image_count = 4
+
+
+class OutputFormat(Enum):
+    PNG = 'png'
+    JPEG = 'jpeg'
+    WEBP = 'webp'
+
+    @classmethod
+    def list(cls) -> list:
+        return list(map(lambda c: c.value, cls))
 
 
 class Steps(IntEnum):
@@ -120,6 +128,3 @@ class Performance(Enum):
 
     def steps_uov(self) -> int | None:
         return StepsUOV[self.name].value if Steps[self.name] else None
-
-
-performance_selections = Performance.list()

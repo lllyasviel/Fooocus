@@ -6,8 +6,9 @@ import urllib.parse
 
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
-from modules.util import generate_temp_filename
+from modules.flags import OutputFormat
 from modules.meta_parser import MetadataParser, get_exif
+from modules.util import generate_temp_filename
 
 log_cache = {}
 
@@ -29,7 +30,7 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
     parsed_parameters = metadata_parser.parse_string(metadata.copy()) if metadata_parser is not None else ''
     image = Image.fromarray(img)
 
-    if output_format == 'png':
+    if output_format == OutputFormat.PNG.value:
         if parsed_parameters != '':
             pnginfo = PngInfo()
             pnginfo.add_text('parameters', parsed_parameters)
@@ -37,9 +38,9 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
         else:
             pnginfo = None
         image.save(local_temp_filename, pnginfo=pnginfo)
-    elif output_format == 'jpg':
+    elif output_format == OutputFormat.JPEG.value:
         image.save(local_temp_filename, quality=95, optimize=True, progressive=True, exif=get_exif(parsed_parameters, metadata_parser.get_scheme().value) if metadata_parser else Image.Exif())
-    elif output_format == 'webp':
+    elif output_format == OutputFormat.WEBP.value:
         image.save(local_temp_filename, quality=95, lossless=False, exif=get_exif(parsed_parameters, metadata_parser.get_scheme().value) if metadata_parser else Image.Exif())
     else:
         image.save(local_temp_filename)
