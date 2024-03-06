@@ -3,7 +3,8 @@ import re
 import json
 import math
 
-from modules.util import get_files_from_folder
+from modules.util import get_files_from_folder, get_first_occurrence_in_folder
+from glob import glob
 
 
 # cannot use modules.config - validators causing circular imports
@@ -69,7 +70,7 @@ def apply_wildcards(wildcard_text, rng, directory=wildcards_path):
         print(f'[Wildcards] processing: {wildcard_text}')
         for placeholder in placeholders:
             try:
-                words = open(os.path.join(directory, f'{placeholder}.txt'), encoding='utf-8').read().splitlines()
+                words = open(get_first_occurrence_in_folder(directory, f'{placeholder}.txt'), encoding='utf-8').read().splitlines()
                 words = [x for x in words if x != '']
                 assert len(words) > 0
                 wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)

@@ -182,6 +182,16 @@ def get_files_from_folder(folder_path, extensions=None, name_filter=None):
     return filenames
 
 
+def get_first_occurrence_in_folder(folder_path, filename):
+    if not os.path.isdir(folder_path):
+        raise ValueError("Folder path is not a valid directory.")
+    
+    for root, _, files in os.walk(folder_path, topdown=False):
+        for file in files:
+            if file == filename:
+                return os.path.join(root, file)
+
+
 def calculate_sha256(filename, length=HASH_SHA256_LENGTH) -> str:
     hash_sha256 = sha256()
     blksize = 1024 * 1024
