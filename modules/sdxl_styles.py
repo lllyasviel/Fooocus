@@ -68,10 +68,11 @@ def apply_wildcards(wildcard_text, rng, directory=wildcards_path):
             return wildcard_text
 
         print(f'[Wildcards] processing: {wildcard_text}')
+        wildcards = modules.config.get_model_filenames([directory], extensions=[".txt"])
         for placeholder in placeholders:
             try:
-                file = os.path.join(directory, modules.config.get_model_filenames([directory], placeholder, [".txt"])[0])
-                words = open(file, encoding='utf-8').read().splitlines()
+                matches = [x for x in wildcards if os.path.splitext(os.path.basename(x))[0] == placeholder]
+                words = open(os.path.join(directory, matches[0]), encoding='utf-8').read().splitlines()
                 words = [x for x in words if x != '']
                 assert len(words) > 0
                 wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
