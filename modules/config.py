@@ -477,8 +477,8 @@ lora_filenames = []
 sdxl_lcm_lora = 'sdxl_lcm_lora.safetensors'
 
 
-def get_model_filenames(folder_paths, name_filter=None):
-    extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']
+def get_model_filenames(folder_paths, name_filter=None, extensions=None):
+    extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch'] if extensions is None else extensions
     files = []
     for folder in folder_paths:
         files += get_files_from_folder(folder, extensions, name_filter)
