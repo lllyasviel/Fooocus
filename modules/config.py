@@ -481,7 +481,7 @@ wildcard_filenames = []
 sdxl_lcm_lora = 'sdxl_lcm_lora.safetensors'
 
 
-def get_model_filenames(folder_paths, extensions=None, name_filter=None, ):
+def get_model_filenames(folder_paths, extensions=None, name_filter=None):
     if extensions is None:
         extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']
     files = []
