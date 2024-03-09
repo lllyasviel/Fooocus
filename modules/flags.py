@@ -126,6 +126,12 @@ class Performance(Enum):
     def list(cls) -> list:
         return list(map(lambda c: c.value, cls))
 
+    @classmethod
+    def has_restricted_features(cls, x) -> bool:
+        if isinstance(x, Performance):
+            x = x.value
+        return x in [cls.EXTREME_SPEED.value, cls.LIGHTNING.value]
+
     def steps(self) -> int | None:
         return Steps[self.name].value if Steps[self.name] else None
 
