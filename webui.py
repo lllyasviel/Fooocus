@@ -254,7 +254,7 @@ with shared.gradio_root:
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
                 performance_selection = gr.Radio(label='Performance',
-                                                 choices=modules.flags.performance_selections,
+                                                 choices=flags.Performance.list(),
                                                  value=modules.config.default_performance)
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
                                                    value=modules.config.default_aspect_ratio, info='width × height',
@@ -262,7 +262,7 @@ with shared.gradio_root:
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
                 output_format = gr.Radio(label='Output Format',
-                                            choices=modules.flags.output_formats,
+                                            choices=flags.OutputFormat.list(),
                                             value=modules.config.default_output_format)
 
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
@@ -355,13 +355,13 @@ with shared.gradio_root:
                     for i, (n, v) in enumerate(modules.config.default_loras):
                         with gr.Row():
                             lora_enabled = gr.Checkbox(label='Enable', value=True,
-                                                       elem_classes=['lora_enable', 'min_check'])
+                                                       elem_classes=['lora_enable', 'min_check'], scale=1)
                             lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
                                                      choices=['None'] + modules.config.lora_filenames, value=n,
-                                                     elem_classes='lora_model')
+                                                     elem_classes='lora_model', scale=5)
                             lora_weight = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight,
                                                     maximum=modules.config.default_loras_max_weight, step=0.01, value=v,
-                                                    elem_classes='lora_weight')
+                                                    elem_classes='lora_weight', scale=5)
                             lora_ctrls += [lora_enabled, lora_model, lora_weight]
 
                 with gr.Row():
@@ -427,8 +427,8 @@ with shared.gradio_root:
                         disable_preview = gr.Checkbox(label='Disable Preview', value=False,
                                                       info='Disable preview during generation.')
                         disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', 
-                                                      value=modules.config.default_performance == 'Extreme Speed',
-                                                      interactive=modules.config.default_performance != 'Extreme Speed',
+                                                      value=modules.config.default_performance == flags.Performance.EXTREME_SPEED.value,
+                                                      interactive=modules.config.default_performance != flags.Performance.EXTREME_SPEED.value,
                                                       info='Disable intermediate results during generation, only show final gallery.')
                         disable_seed_increment = gr.Checkbox(label='Disable seed increment',
                                                              info='Disable automatic seed increment when image number is > 1.',
@@ -438,7 +438,7 @@ with shared.gradio_root:
                             save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
                                                                   info='Adds parameters to generated images allowing manual regeneration.')
                             metadata_scheme = gr.Radio(label='Metadata Scheme', choices=flags.metadata_scheme, value=modules.config.default_metadata_scheme,
-                                                       info='Image Prompt parameters are not included. Use a1111 for compatibility with Civitai.',
+                                                       info='Image Prompt parameters are not included. Use png and a1111 for compatibility with Civitai.',
                                                        visible=modules.config.default_save_metadata_to_images)
 
                             save_metadata_to_images.change(lambda x: gr.update(visible=x), inputs=[save_metadata_to_images], outputs=[metadata_scheme], 
@@ -526,9 +526,9 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
                                     queue=False, show_progress=False)
 
-        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
-                                               [gr.update(visible=x != 'Extreme Speed')] * 1 +
-                                               [gr.update(interactive=x != 'Extreme Speed', value=x == 'Extreme Speed', )] * 1,
+        performance_selection.change(lambda x: [gr.update(interactive=x != flags.Performance.EXTREME_SPEED.value)] * 11 +
+                                               [gr.update(visible=x != flags.Performance.EXTREME_SPEED.value)] * 1 +
+                                               [gr.update(interactive=x != flags.Performance.EXTREME_SPEED.value, value=x == flags.Performance.EXTREME_SPEED.value, )] * 1,
                                      inputs=performance_selection,
                                      outputs=[
                                          guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
