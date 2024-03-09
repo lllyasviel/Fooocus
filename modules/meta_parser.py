@@ -117,8 +117,8 @@ def get_resolution(key: str, fallback: str | None, source_dict: dict, results: l
             results.append(-1)
         else:
             results.append(gr.update())
-            results.append(width)
-            results.append(height)
+            results.append(int(width))
+            results.append(int(height))
     except:
         results.append(gr.update())
         results.append(gr.update())
