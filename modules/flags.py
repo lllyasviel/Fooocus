@@ -106,22 +106,31 @@ class Steps(IntEnum):
     QUALITY = 60
     SPEED = 30
     EXTREME_SPEED = 8
+    LIGHTNING = 4
 
 
 class StepsUOV(IntEnum):
     QUALITY = 36
     SPEED = 18
     EXTREME_SPEED = 8
+    LIGHTNING = 4
 
 
 class Performance(Enum):
     QUALITY = 'Quality'
     SPEED = 'Speed'
     EXTREME_SPEED = 'Extreme Speed'
+    LIGHTNING = 'Lightning'
 
     @classmethod
     def list(cls) -> list:
         return list(map(lambda c: c.value, cls))
+
+    @classmethod
+    def has_restricted_features(cls, x) -> bool:
+        if isinstance(x, Performance):
+            x = x.value
+        return x in [cls.EXTREME_SPEED.value, cls.LIGHTNING.value]
 
     def steps(self) -> int | None:
         return Steps[self.name].value if Steps[self.name] else None

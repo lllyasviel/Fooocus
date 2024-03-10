@@ -526,9 +526,9 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model] + lora_ctrls,
                                     queue=False, show_progress=False)
 
-        performance_selection.change(lambda x: [gr.update(interactive=x != flags.Performance.EXTREME_SPEED.value)] * 11 +
-                                               [gr.update(visible=x != flags.Performance.EXTREME_SPEED.value)] * 1 +
-                                               [gr.update(interactive=x != flags.Performance.EXTREME_SPEED.value, value=x == flags.Performance.EXTREME_SPEED.value, )] * 1,
+        performance_selection.change(lambda x: [gr.update(interactive=not flags.Performance.has_restricted_features(x))] * 11 +
+                                               [gr.update(visible=not flags.Performance.has_restricted_features(x))] * 1 +
+                                               [gr.update(interactive=not flags.Performance.has_restricted_features(x), value=flags.Performance.has_restricted_features(x))] * 1,
                                      inputs=performance_selection,
                                      outputs=[
                                          guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
