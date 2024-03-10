@@ -149,7 +149,7 @@ def worker():
         image_number = args.pop()
         output_format = args.pop()
         image_seed = args.pop()
-        read_wildcard_in_order_checkbox = args.pop()
+        read_wildcard_in_order = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
         base_model_name = args.pop()
@@ -444,17 +444,17 @@ def worker():
             for i in range(image_number):
                 placeholders = re.findall(r'__([\w-]+)__', prompt)
 
-                if disable_seed_increment or len(placeholders) > 0 and read_wildcard_in_order_checkbox:
+                if disable_seed_increment or len(placeholders) > 0 and read_wildcard_in_order:
                     task_seed = seed % (constants.MAX_SEED + 1)
                 else:
                     task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
 
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
-                task_prompt = apply_wildcards(prompt, task_rng, i, read_wildcard_in_order_checkbox)
+                task_prompt = apply_wildcards(prompt, task_rng, i, read_wildcard_in_order)
                 task_prompt = apply_arrays(task_prompt, i)
-                task_negative_prompt = apply_wildcards(negative_prompt, task_rng, i, read_wildcard_in_order_checkbox)
-                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng, i, read_wildcard_in_order_checkbox) for pmt in extra_positive_prompts]
-                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng, i, read_wildcard_in_order_checkbox) for pmt in extra_negative_prompts]
+                task_negative_prompt = apply_wildcards(negative_prompt, task_rng, i, read_wildcard_in_order)
+                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng, i, read_wildcard_in_order) for pmt in extra_positive_prompts]
+                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng, i, read_wildcard_in_order) for pmt in extra_negative_prompts]
 
                 positive_basic_workloads = []
                 negative_basic_workloads = []
