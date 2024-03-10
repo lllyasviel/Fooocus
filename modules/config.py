@@ -3,12 +3,14 @@ import json
 import math
 import numbers
 import args_manager
+import tempfile
 import modules.flags
 import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
 from modules.util import get_files_from_folder, makedirs_with_log
-from modules.flags import Performance, MetadataScheme
+from modules.flags import OutputFormat, Performance, MetadataScheme
+
 
 def get_config_path(key, default_value):
     env = os.getenv(key)
@@ -17,6 +19,7 @@ def get_config_path(key, default_value):
         return env
     else:
         return os.path.abspath(default_value)
+
 
 config_path = get_config_path('config_path', "./config.txt")
 config_example_path = get_config_path('config_example_path', "config_modification_tutorial.txt")
@@ -117,7 +120,7 @@ def get_path_output() -> str:
     global config_dict
     path_output = get_dir_or_set_default('path_outputs', '../outputs/', make_directory=True)
     if args_manager.args.output_path:
-        print(f'[CONFIG] Overriding config value path_outputs with {args_manager.args.output_path}')
+        print(f'Overriding config value path_outputs with {args_manager.args.output_path}')
         config_dict['path_outputs'] = path_output = args_manager.args.output_path
     return path_output
 
@@ -208,6 +211,36 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
         return default_value
 
 
+def init_temp_path(path: str | None, default_path: str) -> str:
+    if args_manager.args.temp_path:
+        path = args_manager.args.temp_path
+
+    if path != '' and path != default_path:
+        try:
+            if not os.path.isabs(path):
+                path = os.path.abspath(path)
+            os.makedirs(path, exist_ok=True)
+            print(f'Using temp path {path}')
+            return path
+        except Exception as e:
+            print(f'Could not create temp path {path}. Reason: {e}')
+            print(f'Using default temp path {default_path} instead.')
+
+    os.makedirs(default_path, exist_ok=True)
+    return default_path
+
+
+default_temp_path = os.path.join(tempfile.gettempdir(), 'fooocus')
+temp_path = init_temp_path(get_config_item_or_set_default(
+    key='temp_path',
+    default_value=default_temp_path,
+    validator=lambda x: isinstance(x, str),
+), default_temp_path)
+temp_path_cleanup_on_launch = get_config_item_or_set_default(
+    key='temp_path_cleanup_on_launch',
+    default_value=True,
+    validator=lambda x: isinstance(x, bool)
+)
 default_base_model_name = get_config_item_or_set_default(
     key='default_model',
     default_value='model.safetensors',
@@ -328,7 +361,7 @@ default_max_image_number = get_config_item_or_set_default(
 default_output_format = get_config_item_or_set_default(
     key='default_output_format',
     default_value='png',
-    validator=lambda x: x in modules.flags.output_formats
+    validator=lambda x: x in OutputFormat.list()
 )
 default_image_number = get_config_item_or_set_default(
     key='default_image_number',
@@ -479,6 +512,7 @@ lora_filenames = []
 wildcard_filenames = []
 
 sdxl_lcm_lora = 'sdxl_lcm_lora.safetensors'
+sdxl_lightning_lora = 'sdxl_lightning_4step_lora.safetensors'
 
 
 def get_model_filenames(folder_paths, extensions=None, name_filter=None):
@@ -543,6 +577,14 @@ def downloading_sdxl_lcm_lora():
         file_name=sdxl_lcm_lora
     )
     return sdxl_lcm_lora
+
+def downloading_sdxl_lightning_lora():
+    load_file_from_url(
+        url='https://huggingface.co/ByteDance/SDXL-Lightning/resolve/main/sdxl_lightning_4step_lora.safetensors',
+        model_dir=paths_loras[0],
+        file_name=sdxl_lightning_lora
+    )
+    return sdxl_lightning_lora
 
 
 def downloading_controlnet_canny():

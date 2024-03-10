@@ -250,6 +250,25 @@ def worker():
             adm_scaler_negative = 1.0
             adm_scaler_end = 0.0
 
+        elif performance_selection == Performance.LIGHTNING:
+            print('Enter Lightning mode.')
+            progressbar(async_task, 1, 'Downloading Lightning components ...')
+            loras += [(modules.config.downloading_sdxl_lightning_lora(), 1.0)]
+
+            if refiner_model_name != 'None':
+                print(f'Refiner disabled in Lightning mode.')
+
+            refiner_model_name = 'None'
+            sampler_name = 'euler'
+            scheduler_name = 'sgm_uniform'
+            sharpness = 0.0
+            guidance_scale = 1.0
+            adaptive_cfg = 1.0
+            refiner_switch = 1.0
+            adm_scaler_positive = 1.0
+            adm_scaler_negative = 1.0
+            adm_scaler_end = 0.0
+
         print(f'[Parameters] Adaptive CFG = {adaptive_cfg}')
         print(f'[Parameters] Sharpness = {sharpness}')
         print(f'[Parameters] ControlNet Softness = {controlnet_softness}')
@@ -347,7 +366,7 @@ def worker():
                         print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
                         if refiner_model_name == 'None':
                             use_synthetic_refiner = True
-                            refiner_switch = 0.5
+                            refiner_switch = 0.8
                     else:
                         inpaint_head_model_path, inpaint_patch_model_path = None, None
                         print(f'[Inpaint] Parameterized inpaint is disabled.')

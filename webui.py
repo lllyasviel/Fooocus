@@ -255,7 +255,7 @@ with shared.gradio_root:
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
                 performance_selection = gr.Radio(label='Performance',
-                                                 choices=modules.flags.performance_selections,
+                                                 choices=flags.Performance.list(),
                                                  value=modules.config.default_performance)
                 aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
                                                    value=modules.config.default_aspect_ratio, info='width × height',
@@ -263,7 +263,7 @@ with shared.gradio_root:
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
                 output_format = gr.Radio(label='Output Format',
-                                            choices=modules.flags.output_formats,
+                                            choices=flags.OutputFormat.list(),
                                             value=modules.config.default_output_format)
 
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
@@ -428,8 +428,8 @@ with shared.gradio_root:
                         disable_preview = gr.Checkbox(label='Disable Preview', value=False,
                                                       info='Disable preview during generation.')
                         disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', 
-                                                      value=modules.config.default_performance == 'Extreme Speed',
-                                                      interactive=modules.config.default_performance != 'Extreme Speed',
+                                                      value=modules.config.default_performance == flags.Performance.EXTREME_SPEED.value,
+                                                      interactive=modules.config.default_performance != flags.Performance.EXTREME_SPEED.value,
                                                       info='Disable intermediate results during generation, only show final gallery.')
                         disable_seed_increment = gr.Checkbox(label='Disable seed increment',
                                                              info='Disable automatic seed increment when image number is > 1.',
@@ -526,9 +526,9 @@ with shared.gradio_root:
                 refresh_files.click(refresh_files_clicked, [], [base_model, refiner_model] + lora_ctrls,
                                     queue=False, show_progress=False)
 
-        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
-                                               [gr.update(visible=x != 'Extreme Speed')] * 1 +
-                                               [gr.update(interactive=x != 'Extreme Speed', value=x == 'Extreme Speed')] * 1,
+        performance_selection.change(lambda x: [gr.update(interactive=not flags.Performance.has_restricted_features(x))] * 11 +
+                                               [gr.update(visible=not flags.Performance.has_restricted_features(x))] * 1 +
+                                               [gr.update(interactive=not flags.Performance.has_restricted_features(x), value=flags.Performance.has_restricted_features(x))] * 1,
                                      inputs=performance_selection,
                                      outputs=[
                                          guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
