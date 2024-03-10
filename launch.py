@@ -68,7 +68,6 @@ vae_approx_filenames = [
      'https://huggingface.co/lllyasviel/misc/resolve/main/xl-to-v1_interposer-v3.1.safetensors')
 ]
 
-
 def ini_args():
     from args_manager import args
     return args
@@ -86,6 +85,7 @@ if args.gpu_device_id is not None:
 
 from modules import config
 
+
 def download_models(default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads):
     for file_name, url in vae_approx_filenames:
         load_file_from_url(url=url, model_dir=config.path_vae_approx, file_name=file_name)
@@ -101,9 +101,9 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
         return default_model, checkpoint_downloads
 
     if not args.always_download_new_model:
-        if not os.path.exists(os.path.join(config.path_checkpoints, default_model)):
+        if not os.path.exists(os.path.join(config.paths_checkpoints[0], default_model)):
             for alternative_model_name in previous_default_models:
-                if os.path.exists(os.path.join(config.path_checkpoints, alternative_model_name)):
+                if os.path.exists(os.path.join(config.paths_checkpoints[0], alternative_model_name)):
                     print(f'You do not have [{default_model}] but you have [{alternative_model_name}].')
                     print(f'Fooocus will use [{alternative_model_name}] to avoid downloading new models, '
                           f'but you are not using the latest models.')
@@ -113,11 +113,11 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
                     break
 
     for file_name, url in checkpoint_downloads.items():
-        load_file_from_url(url=url, model_dir=config.path_checkpoints, file_name=file_name)
+        load_file_from_url(url=url, model_dir=config.paths_checkpoints[0], file_name=file_name)
     for file_name, url in embeddings_downloads.items():
         load_file_from_url(url=url, model_dir=config.path_embeddings, file_name=file_name)
     for file_name, url in lora_downloads.items():
-        load_file_from_url(url=url, model_dir=config.path_loras, file_name=file_name)
+        load_file_from_url(url=url, model_dir=config.paths_loras[0], file_name=file_name)
 
     return default_model, checkpoint_downloads
 
