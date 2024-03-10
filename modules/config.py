@@ -179,6 +179,7 @@ path_inpaint = get_dir_or_set_default('path_inpaint', '../models/inpaint/')
 path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlnet/')
 path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vision/')
 path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
+path_wildcards = get_dir_or_set_default('path_wildcards', '../wildcards/')
 path_outputs = get_path_output()
 
 
@@ -508,22 +509,26 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
 
 model_filenames = []
 lora_filenames = []
+wildcard_filenames = []
+
 sdxl_lcm_lora = 'sdxl_lcm_lora.safetensors'
 sdxl_lightning_lora = 'sdxl_lightning_4step_lora.safetensors'
 
 
-def get_model_filenames(folder_paths, name_filter=None):
-    extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']
+def get_model_filenames(folder_paths, extensions=None, name_filter=None):
+    if extensions is None:
+        extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']
     files = []
     for folder in folder_paths:
         files += get_files_from_folder(folder, extensions, name_filter)
     return files
 
 
-def update_all_model_names():
-    global model_filenames, lora_filenames
+def update_files():
+    global model_filenames, lora_filenames, wildcard_filenames
     model_filenames = get_model_filenames(paths_checkpoints)
     lora_filenames = get_model_filenames(paths_loras)
+    wildcard_filenames = get_files_from_folder(path_wildcards, ['.txt'])
     return
 
 
@@ -647,4 +652,4 @@ def downloading_upscale_model():
     return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
 
 
-update_all_model_names()
+update_files()
