@@ -38,6 +38,7 @@
     "* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)": "* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)",
     "Setting": "Setting",
     "Style": "Style",
+    "Preset": "Preset",
     "Performance": "Performance",
     "Speed": "Speed",
     "Quality": "Quality",
