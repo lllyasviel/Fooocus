@@ -1,7 +1,7 @@
 import os
 import sys
 import ssl
-import shutil
+import tempfile
 
 print('[System ARGV] ' + str(sys.argv))
 
@@ -16,25 +16,16 @@ if "GRADIO_SERVER_PORT" not in os.environ:
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
-
 import platform
 import fooocus_version
 
 from build_launcher import build_launcher
-from modules.launch_util import is_installed, run, python, run_pip, requirements_met
+from modules.launch_util import is_installed, run, python, run_pip, requirements_met, delete_folder_content
 from modules.model_loader import load_file_from_url
-
 
 REINSTALL_ALL = False
 TRY_INSTALL_XFORMERS = False
 
-
-def cleanup_temp(folder_path):
-    try:
-        shutil.rmtree(folder_path)
-        print("Gradio Temp deleted successfully.")
-    except Exception as e:
-        print(f"Error: {e}\nGradio Temp not deleted.")
 
 def prepare_environment():
     torch_index_url = os.environ.get('TORCH_INDEX_URL', "https://download.pytorch.org/whl/cu121")
@@ -85,7 +76,6 @@ prepare_environment()
 build_launcher()
 args = ini_args()
 
-
 if args.gpu_device_id is not None:
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_device_id)
     print("Set device to:", args.gpu_device_id)
@@ -93,20 +83,23 @@ if args.gpu_device_id is not None:
 
 from modules import config
 
-if config.gradio_temp_path != '':
+if config.gradio_temp_path == '':
+    config.gradio_temp_path = os.path.join(tempfile.gettempdir(), 'gradio')
+else:
     try:
         os.makedirs(config.gradio_temp_path, exist_ok=True)
         os.environ['GRADIO_TEMP_DIR'] = config.gradio_temp_path
-        print("Using custom path for Gradio Temp.")
+        print(f"Using Gradio temp dir {config.gradio_temp_path}")
     except Exception as e:
-        print(f"Error: {e}\nUsing default path for Gradio Temp.")
-        gradio_temp_clear = False
-    if config.gradio_temp_clear:
-        cleanup_temp(config.gradio_temp_path)
-else:
-    print("Using default path for Gradio Temp.")
-    if config.gradio_temp_clear:
-        print("You must use a custom path to clear Gradio Temp on load.\nAdd a path to gradio_temp_path in config.txt")
+        print(f"[Cleanup] Using default Gradio temp dir. Reason: {e}\n")
+
+if config.gradio_temp_clear:
+    print(f'[Cleanup] Attempting to delete content of Gradio temp dir {config.gradio_temp_path}')
+    result = delete_folder_content(config.gradio_temp_path, '[Cleanup] ')
+    if result:
+        print("[Cleanup] Cleanup successful")
+    else:
+        print(f"[Cleanup] Failed to delete content of Gradio temp dir.")
 
 
 def download_models():
