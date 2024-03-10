@@ -112,6 +112,9 @@ class FooocusExpansion:
         max_token_length = 75 * int(math.ceil(float(current_token_length) / 75.0))
         max_new_tokens = max_token_length - current_token_length
 
+        if max_new_tokens == 0:
+            return prompt[:-1]
+
         # https://huggingface.co/blog/introducing-csearch
         # https://huggingface.co/docs/transformers/generation_strategies
         features = self.model.generate(**tokenized_kwargs,
