@@ -117,7 +117,7 @@ def get_path_output() -> str:
     global config_dict
     path_output = get_dir_or_set_default('path_outputs', '../outputs/', make_directory=True)
     if args_manager.args.output_path:
-        print(f'[CONFIG] Overriding config value path_outputs with {args_manager.args.output_path}')
+        print(f'Overriding config value path_outputs with {args_manager.args.output_path}')
         config_dict['path_outputs'] = path_output = args_manager.args.output_path
     return path_output
 

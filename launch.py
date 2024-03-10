@@ -67,6 +67,7 @@ vae_approx_filenames = [
      'https://huggingface.co/lllyasviel/misc/resolve/main/xl-to-v1_interposer-v3.1.safetensors')
 ]
 
+
 def ini_args():
     from args_manager import args
     return args
@@ -139,6 +140,5 @@ def download_models():
 
 
 download_models()
-
 
 from webui import *
