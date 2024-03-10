@@ -126,7 +126,7 @@ def get_path_output() -> str:
 
 
 def get_temp_path(path: str | None) -> str:
-    default_temp_path = os.path.join(tempfile.gettempdir(), 'gradio')
+    default_temp_path = os.path.join(tempfile.gettempdir(), 'fooocus')
 
     if args_manager.args.temp_path:
         path = args_manager.args.temp_path
