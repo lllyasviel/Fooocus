@@ -434,6 +434,7 @@ with shared.gradio_root:
                         disable_seed_increment = gr.Checkbox(label='Disable seed increment',
                                                              info='Disable automatic seed increment when image number is > 1.',
                                                              value=False)
+                        read_wildcards_in_order = gr.Checkbox(label="Read wildcards in order", value=False)
 
                         if not args_manager.args.disable_metadata:
                             save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
@@ -578,7 +579,8 @@ with shared.gradio_root:
         ctrls = [currentTask, generate_image_grid]
         ctrls += [
             prompt, negative_prompt, style_selections,
-            performance_selection, aspect_ratios_selection, image_number, output_format, image_seed, sharpness, guidance_scale
+            performance_selection, aspect_ratios_selection, image_number, output_format, image_seed,
+            read_wildcards_in_order, sharpness, guidance_scale
         ]
 
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
