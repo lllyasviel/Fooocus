@@ -125,27 +125,6 @@ def get_path_output() -> str:
     return path_output
 
 
-def get_temp_path(path: str | None) -> str:
-    default_temp_path = os.path.join(tempfile.gettempdir(), 'fooocus')
-
-    if args_manager.args.temp_path:
-        path = args_manager.args.temp_path
-
-    if path != '':
-        try:
-            if not os.path.isabs(path):
-                path = os.path.abspath(path)
-            os.makedirs(path, exist_ok=True)
-            print(f'Using temp path {path}')
-            return path
-        except Exception as e:
-            print(f'Could not create temp path {path}. Reason: {e}')
-            print(f'Using default temp path {default_temp_path} instead.')
-
-    os.makedirs(default_temp_path, exist_ok=True)
-    return default_temp_path
-
-
 def get_dir_or_set_default(key, default_value, as_array=False, make_directory=False):
     global config_dict, visited_keys, always_save_keys
 
@@ -231,6 +210,36 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
         return default_value
 
 
+def get_temp_path(path: str | None, default_path: str) -> str:
+    if args_manager.args.temp_path:
+        path = args_manager.args.temp_path
+
+    if path != '' and path != default_path:
+        try:
+            if not os.path.isabs(path):
+                path = os.path.abspath(path)
+            os.makedirs(path, exist_ok=True)
+            print(f'Using temp path {path}')
+            return path
+        except Exception as e:
+            print(f'Could not create temp path {path}. Reason: {e}')
+            print(f'Using default temp path {default_path} instead.')
+
+    os.makedirs(default_path, exist_ok=True)
+    return default_path
+
+
+default_temp_path = os.path.join(tempfile.gettempdir(), 'fooocus')
+temp_path = get_temp_path(get_config_item_or_set_default(
+    key='temp_path',
+    default_value=default_temp_path,
+    validator=lambda x: isinstance(x, str),
+), default_temp_path)
+temp_path_cleanup_on_launch = get_config_item_or_set_default(
+    key='temp_path_cleanup_on_launch',
+    default_value=True,
+    validator=lambda x: isinstance(x, bool)
+)
 default_base_model_name = get_config_item_or_set_default(
     key='default_model',
     default_value='model.safetensors',
@@ -431,18 +440,6 @@ metadata_created_by = get_config_item_or_set_default(
     default_value='',
     validator=lambda x: isinstance(x, str)
 )
-temp_path = get_config_item_or_set_default(
-    key='temp_path',
-    default_value='',
-    validator=lambda x: isinstance(x, str),
-)
-temp_path_cleanup_on_launch = get_config_item_or_set_default(
-    key='temp_path_cleanup_on_launch',
-    default_value=False,
-    validator=lambda x: isinstance(x, bool)
-)
-
-temp_path = get_temp_path(temp_path)
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 
