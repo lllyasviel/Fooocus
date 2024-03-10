@@ -59,7 +59,7 @@ def apply_style(style, positive):
     return p.replace('{prompt}', positive).splitlines(), n.splitlines()
 
 
-def apply_wildcards(wildcard_text, rng, i, read_wildcard_in_order):
+def apply_wildcards(wildcard_text, rng, i, read_wildcards_in_order):
     for _ in range(wildcards_max_bfs_depth):
         placeholders = re.findall(r'__([\w-]+)__', wildcard_text)
         if len(placeholders) == 0:

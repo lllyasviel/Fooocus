@@ -149,7 +149,7 @@ def worker():
         image_number = args.pop()
         output_format = args.pop()
         image_seed = args.pop()
-        read_wildcard_in_order = args.pop()
+        read_wildcards_in_order = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
         base_model_name = args.pop()
