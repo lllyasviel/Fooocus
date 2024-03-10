@@ -1,7 +1,6 @@
 import os
-import sys
 import ssl
-import tempfile
+import sys
 
 print('[System ARGV] ' + str(sys.argv))
 
@@ -81,26 +80,17 @@ if args.gpu_device_id is not None:
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_device_id)
     print("Set device to:", args.gpu_device_id)
 
-
 from modules import config
 
-if config.gradio_temp_path == '':
-    config.gradio_temp_path = os.path.join(tempfile.gettempdir(), 'gradio')
-else:
-    try:
-        os.makedirs(config.gradio_temp_path, exist_ok=True)
-        os.environ['GRADIO_TEMP_DIR'] = config.gradio_temp_path
-        print(f"Using Gradio temp dir {config.gradio_temp_path}")
-    except Exception as e:
-        print(f"[Cleanup] Using default Gradio temp dir. Reason: {e}\n")
+os.environ['GRADIO_TEMP_DIR'] = config.temp_path
 
-if config.gradio_temp_clear:
-    print(f'[Cleanup] Attempting to delete content of Gradio temp dir {config.gradio_temp_path}')
-    result = delete_folder_content(config.gradio_temp_path, '[Cleanup] ')
+if config.temp_path_cleanup_on_launch:
+    print(f'[Cleanup] Attempting to delete content of temp dir {config.temp_path}')
+    result = delete_folder_content(config.temp_path, '[Cleanup] ')
     if result:
         print("[Cleanup] Cleanup successful")
     else:
-        print(f"[Cleanup] Failed to delete content of Gradio temp dir.")
+        print(f"[Cleanup] Failed to delete content of temp dir.")
 
 
 def download_models():
