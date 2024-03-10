@@ -366,7 +366,7 @@ def worker():
                         print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
                         if refiner_model_name == 'None':
                             use_synthetic_refiner = True
-                            refiner_switch = 0.5
+                            refiner_switch = 0.8
                     else:
                         inpaint_head_model_path, inpaint_patch_model_path = None, None
                         print(f'[Inpaint] Parameterized inpaint is disabled.')
