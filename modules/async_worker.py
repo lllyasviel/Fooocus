@@ -787,7 +787,7 @@ def worker():
 
             try:
                 if async_task.last_stop is not False:
-                    ldm_patched.model_management.interrupt_current_processing()
+                    ldm_patched.modules.model_management.interrupt_current_processing()
                 positive_cond, negative_cond = task['c'], task['uc']
 
                 if 'cn' in goals:
