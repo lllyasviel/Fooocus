@@ -210,7 +210,7 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
         return default_value
 
 
-def get_temp_path(path: str | None, default_path: str) -> str:
+def init_temp_path(path: str | None, default_path: str) -> str:
     if args_manager.args.temp_path:
         path = args_manager.args.temp_path
 
@@ -230,7 +230,7 @@ def get_temp_path(path: str | None, default_path: str) -> str:
 
 
 default_temp_path = os.path.join(tempfile.gettempdir(), 'fooocus')
-temp_path = get_temp_path(get_config_item_or_set_default(
+temp_path = init_temp_path(get_config_item_or_set_default(
     key='temp_path',
     default_value=default_temp_path,
     validator=lambda x: isinstance(x, str),
