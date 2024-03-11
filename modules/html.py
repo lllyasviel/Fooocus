@@ -112,6 +112,24 @@ progress::after {
     margin-left: -5px !important;
 }
 
+.lora_enable label {
+  height: 100%;
+}
+
+.lora_enable label input {
+  margin: auto;
+}
+
+.lora_enable label span {
+  display: none;
+}
+
+@-moz-document url-prefix() {
+  .lora_weight input[type=number] {
+    width: 80px;
+  }
+}
+
 '''
 progress_html = '''
 <div class="loader-container">
