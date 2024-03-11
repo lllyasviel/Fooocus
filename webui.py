@@ -353,15 +353,15 @@ with shared.gradio_root:
                 with gr.Group():
                     lora_ctrls = []
 
-                    for i, (n, v) in enumerate(modules.config.default_loras):
+                    for i, (enabled, filename, weight) in enumerate(modules.config.default_loras):
                         with gr.Row():
-                            lora_enabled = gr.Checkbox(label='Enable', value=True,
+                            lora_enabled = gr.Checkbox(label='Enable', value=enabled,
                                                        elem_classes=['lora_enable', 'min_check'], scale=1)
                             lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
-                                                     choices=['None'] + modules.config.lora_filenames, value=n,
+                                                     choices=['None'] + modules.config.lora_filenames, value=filename,
                                                      elem_classes='lora_model', scale=5)
                             lora_weight = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight,
-                                                    maximum=modules.config.default_loras_max_weight, step=0.01, value=v,
+                                                    maximum=modules.config.default_loras_max_weight, step=0.01, value=weight,
                                                     elem_classes='lora_weight', scale=5)
                             lora_ctrls += [lora_enabled, lora_model, lora_weight]
 
