@@ -360,3 +360,7 @@ def makedirs_with_log(path):
         os.makedirs(path, exist_ok=True)
     except OSError as error:
         print(f'Directory {path} could not be created, reason: {error}')
+
+
+def get_enabled_loras(loras: list) -> list:
+    return [[lora[1], lora[2]] for lora in loras if lora[0]]

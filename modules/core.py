@@ -73,10 +73,7 @@ class StableDiffusionModel:
 
         loras_to_load = []
 
-        for enabled, filename, weight in loras:
-            if not enabled:
-                continue
-
+        for filename, weight in loras:
             if filename == 'None':
                 continue
 
