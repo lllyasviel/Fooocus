@@ -247,7 +247,6 @@
 .contain .tabs .tabitem.style_selections_tab .style_selections .wrap[data-testid="checkbox-group"] label {
   /* max-width: calc(35% - 15px) !important; */ /* add this to enable 3 columns layout */
   flex: calc(50% - 5px) !important;
-  padding: 2px 5px;
 }
 
 .contain .tabs .tabitem.style_selections_tab .style_selections .wrap[data-testid="checkbox-group"] label span {
