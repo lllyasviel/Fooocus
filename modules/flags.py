@@ -67,7 +67,7 @@ default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0)
 }  # stop, weight
 
-output_formats = ['png', 'jpg', 'webp']
+output_formats = ['png', 'jpeg', 'webp']
 
 inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 inpaint_option_default = 'Inpaint or Outpaint (default)'
@@ -89,37 +89,51 @@ metadata_scheme = [
     (f'{MetadataScheme.A1111.value} (plain text)', MetadataScheme.A1111.value),
 ]
 
-lora_count = 5
-
 controlnet_image_count = 4
+
+
+class OutputFormat(Enum):
+    PNG = 'png'
+    JPEG = 'jpeg'
+    WEBP = 'webp'
+
+    @classmethod
+    def list(cls) -> list:
+        return list(map(lambda c: c.value, cls))
 
 
 class Steps(IntEnum):
     QUALITY = 60
     SPEED = 30
     EXTREME_SPEED = 8
+    LIGHTNING = 4
 
 
 class StepsUOV(IntEnum):
     QUALITY = 36
     SPEED = 18
     EXTREME_SPEED = 8
+    LIGHTNING = 4
 
 
 class Performance(Enum):
     QUALITY = 'Quality'
     SPEED = 'Speed'
     EXTREME_SPEED = 'Extreme Speed'
+    LIGHTNING = 'Lightning'
 
     @classmethod
     def list(cls) -> list:
         return list(map(lambda c: c.value, cls))
+
+    @classmethod
+    def has_restricted_features(cls, x) -> bool:
+        if isinstance(x, Performance):
+            x = x.value
+        return x in [cls.EXTREME_SPEED.value, cls.LIGHTNING.value]
 
     def steps(self) -> int | None:
         return Steps[self.name].value if Steps[self.name] else None
 
     def steps_uov(self) -> int | None:
         return StepsUOV[self.name].value if Steps[self.name] else None
-
-
-performance_selections = Performance.list()

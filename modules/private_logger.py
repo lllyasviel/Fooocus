@@ -6,8 +6,9 @@ import urllib.parse
 
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
-from modules.util import generate_temp_filename
+from modules.flags import OutputFormat
 from modules.meta_parser import MetadataParser, get_exif
+from modules.util import generate_temp_filename
 
 log_cache = {}
 
@@ -21,7 +22,7 @@ def get_current_html_path(output_format=None):
 
 
 def log(img, metadata, metadata_parser: MetadataParser | None = None, output_format=None) -> str:
-    path_outputs = args_manager.args.temp_path if args_manager.args.disable_image_log else modules.config.path_outputs
+    path_outputs = modules.config.temp_path if args_manager.args.disable_image_log else modules.config.path_outputs
     output_format = output_format if output_format else modules.config.default_output_format
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=output_format)
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
@@ -29,7 +30,7 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
     parsed_parameters = metadata_parser.parse_string(metadata.copy()) if metadata_parser is not None else ''
     image = Image.fromarray(img)
 
-    if output_format == 'png':
+    if output_format == OutputFormat.PNG.value:
         if parsed_parameters != '':
             pnginfo = PngInfo()
             pnginfo.add_text('parameters', parsed_parameters)
@@ -37,9 +38,9 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
         else:
             pnginfo = None
         image.save(local_temp_filename, pnginfo=pnginfo)
-    elif output_format == 'jpg':
+    elif output_format == OutputFormat.JPEG.value:
         image.save(local_temp_filename, quality=95, optimize=True, progressive=True, exif=get_exif(parsed_parameters, metadata_parser.get_scheme().value) if metadata_parser else Image.Exif())
-    elif output_format == 'webp':
+    elif output_format == OutputFormat.WEBP.value:
         image.save(local_temp_filename, quality=95, lossless=False, exif=get_exif(parsed_parameters, metadata_parser.get_scheme().value) if metadata_parser else Image.Exif())
     else:
         image.save(local_temp_filename)

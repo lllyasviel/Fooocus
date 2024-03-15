@@ -1,6 +1,6 @@
 import os
-import sys
 import ssl
+import sys
 
 print('[System ARGV] ' + str(sys.argv))
 
@@ -15,14 +15,12 @@ if "GRADIO_SERVER_PORT" not in os.environ:
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
-
 import platform
 import fooocus_version
 
 from build_launcher import build_launcher
-from modules.launch_util import is_installed, run, python, run_pip, requirements_met
+from modules.launch_util import is_installed, run, python, run_pip, requirements_met, delete_folder_content
 from modules.model_loader import load_file_from_url
-
 
 REINSTALL_ALL = False
 TRY_INSTALL_XFORMERS = False
@@ -42,7 +40,7 @@ def prepare_environment():
 
     if TRY_INSTALL_XFORMERS:
         if REINSTALL_ALL or not is_installed("xformers"):
-            xformers_package = os.environ.get('XFORMERS_PACKAGE', 'xformers==0.0.20')
+            xformers_package = os.environ.get('XFORMERS_PACKAGE', 'xformers==0.0.23')
             if platform.system() == "Windows":
                 if platform.python_version().startswith("3.10"):
                     run_pip(f"install -U -I --no-deps {xformers_package}", "xformers", live=True)
@@ -68,6 +66,7 @@ vae_approx_filenames = [
      'https://huggingface.co/lllyasviel/misc/resolve/main/xl-to-v1_interposer-v3.1.safetensors')
 ]
 
+
 def ini_args():
     from args_manager import args
     return args
@@ -77,13 +76,21 @@ prepare_environment()
 build_launcher()
 args = ini_args()
 
-
 if args.gpu_device_id is not None:
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_device_id)
     print("Set device to:", args.gpu_device_id)
 
-
 from modules import config
+
+os.environ['GRADIO_TEMP_DIR'] = config.temp_path
+
+if config.temp_path_cleanup_on_launch:
+    print(f'[Cleanup] Attempting to delete content of temp dir {config.temp_path}')
+    result = delete_folder_content(config.temp_path, '[Cleanup] ')
+    if result:
+        print("[Cleanup] Cleanup successful")
+    else:
+        print(f"[Cleanup] Failed to delete content of temp dir.")
 
 
 def download_models(default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads):
