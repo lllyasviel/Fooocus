@@ -856,7 +856,7 @@ def worker():
 
                     d.append(('Sampler', 'sampler', sampler_name))
                     d.append(('Scheduler', 'scheduler', scheduler_name))
-                    d.append(('Seed', 'seed', task['task_seed']))
+                    d.append(('Seed', 'seed', str(task['task_seed'])))
 
                     if freeu_enabled:
                         d.append(('FreeU', 'freeu', str((freeu_b1, freeu_b2, freeu_s1, freeu_s2))))
