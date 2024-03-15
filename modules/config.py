@@ -128,22 +128,6 @@ def try_get_preset_content(preset):
             print(e)
     return {}
 
-def try_load_preset_global(preset):
-    global config_dict
-
-    if isinstance(preset, str):
-        preset_path = os.path.abspath(f'./presets/{preset}.json')
-        try:
-            if os.path.exists(preset_path):
-                with open(preset_path, "r", encoding="utf-8") as json_file:
-                    config_dict.update(json.load(json_file))
-                    print(f'Loaded preset: {preset_path}')
-            else:
-                raise FileNotFoundError
-        except Exception as e:
-            print(f'Load preset [{preset_path}] failed')
-            print(e)
-
 try:
     with open(os.path.abspath(f'./presets/default.json'), "r", encoding="utf-8") as json_file:
         config_dict.update(json.load(json_file))
@@ -152,7 +136,7 @@ except Exception as e:
     print(e)
 
 preset = args_manager.args.preset
-try_load_preset_global(preset)
+config_dict.update(try_get_preset_content(preset))
 
 def get_path_output() -> str:
     """
