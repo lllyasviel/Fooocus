@@ -522,7 +522,6 @@ with shared.gradio_root:
 
                 def refresh_files_clicked():
                     modules.config.update_files()
-                    modules.config.update_presets()
                     results = [gr.update(choices=modules.config.model_filenames)]
                     results += [gr.update(choices=['None'] + modules.config.model_filenames)]
                     if not args_manager.args.disable_preset_selection:

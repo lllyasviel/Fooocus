@@ -97,20 +97,16 @@ def try_load_deprecated_user_path_config():
 
 try_load_deprecated_user_path_config()
 
-def list_presets():
+
+def get_presets():
     preset_folder = 'presets'
     presets = ['initial']
     if not os.path.exists(preset_folder):
         print('No presets found.')
         return presets
 
-    return presets + [f[:f.index(".json")] for f in os.listdir(preset_folder) if f.endswith('.json')]
+    return presets + [f[:f.index('.json')] for f in os.listdir(preset_folder) if f.endswith('.json')]
 
-available_presets = list_presets()
-
-def update_presets():
-    global available_presets
-    available_presets = list_presets()
 
 def try_get_preset_content(preset):
     if isinstance(preset, str):
@@ -128,6 +124,7 @@ def try_get_preset_content(preset):
             print(e)
     return {}
 
+
 try:
     with open(os.path.abspath(f'./presets/default.json'), "r", encoding="utf-8") as json_file:
         config_dict.update(json.load(json_file))
@@ -135,6 +132,7 @@ except Exception as e:
     print(f'Load default preset failed.')
     print(e)
 
+available_presets = get_presets()
 preset = args_manager.args.preset
 config_dict.update(try_get_preset_content(preset))
 
@@ -556,10 +554,11 @@ def get_model_filenames(folder_paths, extensions=None, name_filter=None):
 
 
 def update_files():
-    global model_filenames, lora_filenames, wildcard_filenames
+    global model_filenames, lora_filenames, wildcard_filenames, available_presets
     model_filenames = get_model_filenames(paths_checkpoints)
     lora_filenames = get_model_filenames(paths_loras)
     wildcard_filenames = get_files_from_folder(path_wildcards, ['.txt'])
+    available_presets = get_presets()
     return
 
 
