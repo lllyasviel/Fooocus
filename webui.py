@@ -28,12 +28,16 @@ def get_task(*args):
 
     return worker.AsyncTask(args=args)
 
-def generate_clicked(task):
+def generate_clicked(task: worker.AsyncTask):
     import ldm_patched.modules.model_management as model_management
 
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
     # outputs=[progress_html, progress_window, progress_gallery, gallery]
+
+    if len(task.args) == 0:
+        return
+
     execution_start_time = time.perf_counter()
     finished = False
 
