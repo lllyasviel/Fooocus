@@ -381,5 +381,18 @@
     "Metadata Scheme": "Metadata Scheme",
     "Image Prompt parameters are not included. Use png and a1111 for compatibility with Civitai.": "Image Prompt parameters are not included. Use png and a1111 for compatibility with Civitai.",
     "fooocus (json)": "fooocus (json)",
-    "a1111 (plain text)": "a1111 (plain text)"
+    "a1111 (plain text)": "a1111 (plain text)",
+    "Download": "Download",
+    "URL": "URL",
+    "File Name with its Extension (Optional)": "File Name with its Extension (Optional)",
+    "Select Path": "Select Path",
+    "Output": "Output",
+    "download": "download",
+    "Download successful! Model saved to": "Download successful! Model saved to",
+    "Download failed! Please check the URL and try again.": "Download failed! Please check the URL and try again.",
+    "Downloading: ": "Downloading: ",
+    "to": "to",
+    "Failed to download": "Failed to download",
+    "reason": "reason"
+
 }
