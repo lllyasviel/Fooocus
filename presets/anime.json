@@ -4,22 +4,27 @@
     "default_refiner_switch": 0.5,
     "default_loras": [
         [
+            true,
             "None",
             1.0
         ],
         [
+            true,
             "None",
             1.0
         ],
         [
+            true,
             "None",
             1.0
         ],
         [
+            true,
             "None",
             1.0
         ],
         [
+            true,
             "None",
             1.0
         ]
@@ -33,7 +38,7 @@
     "default_prompt_negative": "",
     "default_styles": [
         "Fooocus V2",
-        "Fooocus Negative",
+        "Fooocus Semi Realistic",
         "Fooocus Masterpiece"
     ],
     "default_aspect_ratio": "896*1152",

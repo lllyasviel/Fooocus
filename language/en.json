@@ -38,9 +38,12 @@
     "* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)": "* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)",
     "Setting": "Setting",
     "Style": "Style",
+    "Preset": "Preset",
     "Performance": "Performance",
     "Speed": "Speed",
     "Quality": "Quality",
+    "Extreme Speed": "Extreme Speed",
+    "Lightning": "Lightning",
     "Aspect Ratios": "Aspect Ratios",
     "width \u00d7 height": "width \u00d7 height",
     "Image Number": "Image Number",
@@ -50,6 +53,7 @@
     "Seed": "Seed",
     "Disable seed increment": "Disable seed increment",
     "Disable automatic seed increment when image number is > 1.": "Disable automatic seed increment when image number is > 1.",
+    "Read wildcards in order": "Read wildcards in order",
     "\ud83d\udcda History Log": "\uD83D\uDCDA History Log",
     "Image Style": "Image Style",
     "Fooocus V2": "Fooocus V2",
@@ -367,7 +371,6 @@
     "B2": "B2",
     "S1": "S1",
     "S2": "S2",
-    "Extreme Speed": "Extreme Speed",
     "\uD83D\uDD0E Type here to search styles ...": "\uD83D\uDD0E Type here to search styles ...",
     "Type prompt here.": "Type prompt here.",
     "Outpaint Expansion Direction:": "Outpaint Expansion Direction:",
@@ -381,5 +384,6 @@
     "Metadata Scheme": "Metadata Scheme",
     "Image Prompt parameters are not included. Use png and a1111 for compatibility with Civitai.": "Image Prompt parameters are not included. Use png and a1111 for compatibility with Civitai.",
     "fooocus (json)": "fooocus (json)",
-    "a1111 (plain text)": "a1111 (plain text)"
+    "a1111 (plain text)": "a1111 (plain text)",
+    "Unsupported image type in input": "Unsupported image type in input"
 }

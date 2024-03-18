@@ -163,7 +163,7 @@ def generate_temp_filename(folder='./outputs/', extension='png'):
     return date_string, os.path.abspath(result), filename
 
 
-def get_files_from_folder(folder_path, exensions=None, name_filter=None):
+def get_files_from_folder(folder_path, extensions=None, name_filter=None):
     if not os.path.isdir(folder_path):
         raise ValueError("Folder path is not a valid directory.")
 
@@ -175,7 +175,7 @@ def get_files_from_folder(folder_path, exensions=None, name_filter=None):
             relative_path = ""
         for filename in sorted(files, key=lambda s: s.casefold()):
             _, file_extension = os.path.splitext(filename)
-            if (exensions is None or file_extension.lower() in exensions) and (name_filter is None or name_filter in _):
+            if (extensions is None or file_extension.lower() in extensions) and (name_filter is None or name_filter in _):
                 path = os.path.join(relative_path, filename)
                 filenames.append(path)
 
@@ -360,3 +360,7 @@ def makedirs_with_log(path):
         os.makedirs(path, exist_ok=True)
     except OSError as error:
         print(f'Directory {path} could not be created, reason: {error}')
+
+
+def get_enabled_loras(loras: list) -> list:
+    return [[lora[1], lora[2]] for lora in loras if lora[0]]
