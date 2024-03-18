@@ -29,12 +29,16 @@ def get_task(*args):
 
     return worker.AsyncTask(args=args)
 
-def generate_clicked(task):
+def generate_clicked(task: worker.AsyncTask):
     import ldm_patched.modules.model_management as model_management
 
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
     # outputs=[progress_html, progress_window, progress_gallery, gallery]
+
+    if len(task.args) == 0:
+        return
+
     execution_start_time = time.perf_counter()
     finished = False
 
@@ -92,9 +96,7 @@ title = f'Fooocus {fooocus_version.version}'
 if isinstance(args_manager.args.preset, str):
     title += ' ' + args_manager.args.preset
 
-shared.gradio_root = gr.Blocks(
-    title=title,
-    css=modules.html.css).queue()
+shared.gradio_root = gr.Blocks(title=title).queue()
 
 with shared.gradio_root:
     currentTask = gr.State(worker.AsyncTask(args=[]))
@@ -322,7 +324,7 @@ with shared.gradio_root:
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
                 output_format = gr.Radio(label='Output Format',
-                                            choices=modules.flags.output_formats,
+                                            choices=flags.OutputFormat.list(),
                                             value=modules.config.default_output_format)
 
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
@@ -362,7 +364,7 @@ with shared.gradio_root:
                 history_link = gr.HTML()
                 shared.gradio_root.load(update_history_link, outputs=history_link, queue=False, show_progress=False)
 
-            with gr.Tab(label='Styles'):
+            with gr.Tab(label='Styles', elem_classes=['style_selections_tab']):
                 style_sorter.try_load_sorted_styles(
                     style_names=legal_style_names,
                     default_selected=modules.config.default_styles)
@@ -415,20 +417,20 @@ with shared.gradio_root:
                 with gr.Group():
                     lora_ctrls = []
 
-                    for i, (n, v) in enumerate(modules.config.default_loras):
+                    for i, (enabled, filename, weight) in enumerate(modules.config.default_loras):
                         with gr.Row():
-                            lora_enabled = gr.Checkbox(label='Enable', value=True,
+                            lora_enabled = gr.Checkbox(label='Enable', value=enabled,
                                                        elem_classes=['lora_enable', 'min_check'], scale=1)
                             lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
-                                                     choices=['None'] + modules.config.lora_filenames, value=n,
+                                                     choices=['None'] + modules.config.lora_filenames, value=filename,
                                                      elem_classes='lora_model', scale=5)
                             lora_weight = gr.Slider(label='Weight', minimum=modules.config.default_loras_min_weight,
-                                                    maximum=modules.config.default_loras_max_weight, step=0.01, value=v,
+                                                    maximum=modules.config.default_loras_max_weight, step=0.01, value=weight,
                                                     elem_classes='lora_weight', scale=5)
                             lora_ctrls += [lora_enabled, lora_model, lora_weight]
 
                 with gr.Row():
-                    model_refresh = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
+                    refresh_files = gr.Button(label='Refresh', value='\U0001f504 Refresh All Files', variant='secondary', elem_classes='refresh_button')
             with gr.Tab(label='Advanced'):
                 guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01,
                                            value=modules.config.default_cfg_scale,
@@ -493,13 +495,14 @@ with shared.gradio_root:
                                                       interactive=not modules.config.default_black_out_nsfw,
                                                       info='Disable preview during generation.')
                         disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', 
-                                                      value=modules.config.default_performance == 'Extreme Speed',
-                                                      interactive=modules.config.default_performance != 'Extreme Speed',
+                                                      value=modules.config.default_performance == flags.Performance.EXTREME_SPEED.value,
+                                                      interactive=modules.config.default_performance != flags.Performance.EXTREME_SPEED.value,
                                                       info='Disable intermediate results during generation, only show final gallery.')
 
                         disable_seed_increment = gr.Checkbox(label='Disable seed increment',
                                                              info='Disable automatic seed increment when image number is > 1.',
                                                              value=False)
+                        read_wildcards_in_order = gr.Checkbox(label="Read wildcards in order", value=False)
 
                         black_out_nsfw = gr.Checkbox(label='Black Out NSFW', value=modules.config.default_black_out_nsfw,
                                                      interactive=not modules.config.default_black_out_nsfw,
@@ -586,26 +589,24 @@ with shared.gradio_root:
                 def dev_mode_checked(r):
                     return gr.update(visible=r)
 
-
                 dev_mode.change(dev_mode_checked, inputs=[dev_mode], outputs=[dev_tools],
                                 queue=False, show_progress=False)
 
-                def model_refresh_clicked():
-                    modules.config.update_all_model_names()
-                    modules.config.update_presets()
-                    results = []
-                    results += [gr.update(choices=modules.config.model_filenames),
-                                gr.update(choices=['None'] + modules.config.model_filenames)]
+                def refresh_files_clicked():
+                    modules.config.update_files()
+                    results = [gr.update(choices=modules.config.model_filenames)]
+                    results += [gr.update(choices=['None'] + modules.config.model_filenames)]
                     if not args_manager.args.disable_preset_selection:
                         results += [gr.update(choices=modules.config.available_presets)]
                     for i in range(modules.config.default_max_lora_number):
-                        results += [gr.update(interactive=True), gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
+                        results += [gr.update(interactive=True),
+                                    gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
                     return results
 
-                model_refresh_output = [base_model, refiner_model]
+                refresh_files_output = [base_model, refiner_model]
                 if not args_manager.args.disable_preset_selection:
-                    model_refresh_output += [preset_selection]
-                model_refresh.click(model_refresh_clicked, [],  model_refresh_output + lora_ctrls,
+                    refresh_files_output += [preset_selection]
+                refresh_files.click(refresh_files_clicked, [], refresh_files_output + lora_ctrls,
                                     queue=False, show_progress=False)
 
             with gr.Tab(label='Audio'):
@@ -658,10 +659,9 @@ with shared.gradio_root:
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
 
-
-        performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
-                                               [gr.update(visible=x != 'Extreme Speed')] * 1 +
-                                               [gr.update(interactive=x != 'Extreme Speed', value=x == 'Extreme Speed', )] * 1,
+        performance_selection.change(lambda x: [gr.update(interactive=not flags.Performance.has_restricted_features(x))] * 11 +
+                                               [gr.update(visible=not flags.Performance.has_restricted_features(x))] * 1 +
+                                               [gr.update(interactive=not flags.Performance.has_restricted_features(x), value=flags.Performance.has_restricted_features(x))] * 1,
                                      inputs=performance_selection,
                                      outputs=[
                                          guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
@@ -711,7 +711,8 @@ with shared.gradio_root:
         ctrls = [currentTask, generate_image_grid]
         ctrls += [
             prompt, negative_prompt, translate_prompts, style_selections,
-            performance_selection, aspect_ratios_selection, image_number, output_format, image_seed, sharpness, guidance_scale
+            performance_selection, aspect_ratios_selection, image_number, output_format, image_seed,
+            read_wildcards_in_order, sharpness, guidance_scale
         ]
 
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
@@ -731,11 +732,6 @@ with shared.gradio_root:
         if not args_manager.args.disable_metadata:
             ctrls += [save_metadata_to_images, metadata_scheme]
 
-        ctrls += ip_ctrls
-
-        if not args_manager.args.disable_metadata:
-            ctrls += [save_metadata_to_images, metadata_scheme]
-        
         ctrls += ip_ctrls
 
         def parse_meta(raw_prompt_txt, is_generating):

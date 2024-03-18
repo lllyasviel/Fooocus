@@ -73,14 +73,14 @@ class StableDiffusionModel:
 
         loras_to_load = []
 
-        for name, weight in loras:
-            if name == 'None':
+        for filename, weight in loras:
+            if filename == 'None':
                 continue
 
-            if os.path.exists(name):
-                lora_filename = name
+            if os.path.exists(filename):
+                lora_filename = filename
             else:
-                lora_filename = get_file_from_folder_list(name, modules.config.paths_loras)
+                lora_filename = get_file_from_folder_list(filename, modules.config.paths_loras)
 
             if not os.path.exists(lora_filename):
                 print(f'Lora file not found: {lora_filename}')

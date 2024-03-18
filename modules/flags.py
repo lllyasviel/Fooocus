@@ -67,7 +67,7 @@ default_parameters = {
     cn_ip: (0.5, 0.6), cn_ip_face: (0.9, 0.75), cn_canny: (0.5, 1.0), cn_cpds: (0.5, 1.0)
 }  # stop, weight
 
-output_formats = ['png', 'jpg', 'webp']
+output_formats = ['png', 'jpeg', 'webp']
 
 inpaint_mask_models = ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']
 inpaint_mask_cloth_category = ['full', 'upper', 'lower']
@@ -96,6 +96,16 @@ metadata_scheme = [
 controlnet_image_count = 4
 
 
+class OutputFormat(Enum):
+    PNG = 'png'
+    JPEG = 'jpeg'
+    WEBP = 'webp'
+
+    @classmethod
+    def list(cls) -> list:
+        return list(map(lambda c: c.value, cls))
+
+
 class Steps(IntEnum):
     QUALITY = 60
     SPEED = 30
@@ -119,6 +129,12 @@ class Performance(Enum):
     @classmethod
     def list(cls) -> list:
         return list(map(lambda c: c.value, cls))
+
+    @classmethod
+    def has_restricted_features(cls, x) -> bool:
+        if isinstance(x, Performance):
+            x = x.value
+        return x in [cls.EXTREME_SPEED.value, cls.LIGHTNING.value]
 
     def steps(self) -> int | None:
         return Steps[self.name].value if Steps[self.name] else None

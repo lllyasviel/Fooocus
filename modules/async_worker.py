@@ -1,5 +1,6 @@
 import threading
 import os
+import re
 from modules.patch import PatchSettings, patch_settings, patch_all
 
 patch_all()
@@ -49,8 +50,8 @@ def worker():
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion, apply_arrays
     from modules.private_logger import log
     from extras.expansion import safe_str
-    from modules.util import remove_empty_str, HWC3, resize_image, \
-        get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image, erode_or_dilate
+    from modules.util import remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil, \
+        get_shape_ceil, resample_image, erode_or_dilate, get_enabled_loras
     from modules.upscaler import perform_upscale
     from modules.flags import Performance
     from modules.meta_parser import get_metadata_parser, MetadataScheme
@@ -131,14 +132,6 @@ def worker():
         async_task.results = async_task.results + [wall]
         return
 
-    def apply_enabled_loras(loras):
-        enabled_loras = []
-        for lora_enabled, lora_model, lora_weight in loras:
-            if lora_enabled:
-                enabled_loras.append([lora_model, lora_weight])
-
-        return enabled_loras
-
     @torch.no_grad()
     @torch.inference_mode()
     def handler(async_task):
@@ -157,12 +150,13 @@ def worker():
         image_number = args.pop()
         output_format = args.pop()
         image_seed = args.pop()
+        read_wildcards_in_order = args.pop()
         sharpness = args.pop()
         guidance_scale = args.pop()
         base_model_name = args.pop()
         refiner_model_name = args.pop()
         refiner_switch = args.pop()
-        loras = apply_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop()), ] for _ in range(modules.config.default_max_lora_number)])
+        loras = get_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop())] for _ in range(modules.config.default_max_lora_number)])
         input_image_checkbox = args.pop()
         current_tab = args.pop()
         uov_method = args.pop()
@@ -385,7 +379,7 @@ def worker():
                         print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
                         if refiner_model_name == 'None':
                             use_synthetic_refiner = True
-                            refiner_switch = 0.5
+                            refiner_switch = 0.8
                     else:
                         inpaint_head_model_path, inpaint_patch_model_path = None, None
                         print(f'[Inpaint] Parameterized inpaint is disabled.')
@@ -460,16 +454,16 @@ def worker():
             
             for i in range(image_number):
                 if disable_seed_increment:
-                    task_seed = seed
+                    task_seed = seed % (constants.MAX_SEED + 1)
                 else:
                     task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
 
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
-                task_prompt = apply_wildcards(prompt, task_rng)
+                task_prompt = apply_wildcards(prompt, task_rng, i, read_wildcards_in_order)
                 task_prompt = apply_arrays(task_prompt, i)
-                task_negative_prompt = apply_wildcards(negative_prompt, task_rng)
-                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_positive_prompts]
-                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng) for pmt in extra_negative_prompts]
+                task_negative_prompt = apply_wildcards(negative_prompt, task_rng, i, read_wildcards_in_order)
+                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng, i, read_wildcards_in_order) for pmt in extra_positive_prompts]
+                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng, i, read_wildcards_in_order) for pmt in extra_negative_prompts]
 
                 positive_basic_workloads = []
                 negative_basic_workloads = []
@@ -827,7 +821,7 @@ def worker():
 
             try:
                 if async_task.last_stop is not False:
-                    ldm_patched.model_management.interrupt_current_processing()
+                    ldm_patched.modules.model_management.interrupt_current_processing()
                 positive_cond, negative_cond = task['c'], task['uc']
 
                 if 'cn' in goals:
@@ -902,7 +896,7 @@ def worker():
 
                     d.append(('Sampler', 'sampler', sampler_name))
                     d.append(('Scheduler', 'scheduler', scheduler_name))
-                    d.append(('Seed', 'seed', task['task_seed']))
+                    d.append(('Seed', 'seed', str(task['task_seed'])))
 
                     if freeu_enabled:
                         d.append(('FreeU', 'freeu', str((freeu_b1, freeu_b2, freeu_s1, freeu_s2))))
