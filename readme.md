@@ -84,6 +84,10 @@ The first time you launch the software, it will automatically download models:
 
 After Fooocus 2.1.60, you will also have `run_anime.bat` and `run_realistic.bat`. They are different model presets (and require different models, but they will be automatically downloaded). [Check here for more details](https://github.com/lllyasviel/Fooocus/discussions/679).
 
+After Fooocus 2.3.0 you can also switch presets directly in the browser. Keep in mind to add these arguments if you want to change the default behavior:
+* Use `--disable-preset-selection` to disable preset selection in the browser.
+* Use `--always-download-new-model` to download missing models on preset switch. Default is fallback to `previous_default_models` defined in the corresponding preset, also see terminal output.
+
 ![image](https://github.com/lllyasviel/Fooocus/assets/19834515/d386f817-4bd7-490c-ad89-c1e228c23447)
 
 If you already have these files, you can copy them to the above locations to speed up installation.
@@ -115,7 +119,7 @@ See also the common problems and troubleshoots [here](troubleshoot.md).
 
 ### Colab
 
-(Last tested - 2024 Mar 11)
+(Last tested - 2024 Mar 18 - @mashb1t)
 
 | Colab | Info
 | --- | --- |
@@ -125,9 +129,9 @@ In Colab, you can modify the last line to `!python entry_with_update.py --share 
 
 Note that this Colab will disable refiner by default because Colab free's resources are relatively limited (and some "big" features like image prompt may cause free-tier Colab to disconnect). We make sure that basic text-to-image is always working on free-tier Colab.
 
-Using `--always-high-vram` shifts resource allocation from RAM to VRAM and achieves the overall best balance between performance, flexibility and stability on the default T4 instance.
+Using `--always-high-vram` shifts resource allocation from RAM to VRAM and achieves the overall best balance between performance, flexibility and stability on the default T4 instance. Please find more information [here](https://github.com/lllyasviel/Fooocus/pull/1710#issuecomment-1989185346).
 
-Thanks to [camenduru](https://github.com/camenduru)!
+Thanks to [camenduru](https://github.com/camenduru) for the template!
 
 ### Linux (Using Anaconda)
 
