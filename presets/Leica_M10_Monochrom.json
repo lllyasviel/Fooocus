@@ -1,0 +1,52 @@
+{
+  "default_model": "juggernautXL_v8Rundiffusion.safetensors",
+  "default_refiner": "None",
+  "default_refiner_switch": 0.65,
+  "default_loras": [
+    [
+      "monochromeXL.safetensors",
+      1.0
+    ],
+    [
+      "SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors",
+      1.0
+    ],
+    [
+      "Kodak Motion Picture Film Style v4.safetensors",
+      1.0
+    ],
+    [
+      "Cinematic Film.safetensors",
+      1.0
+    ],
+    [
+      "None",
+      1.0
+    ]
+  ],
+  "default_cfg_scale": 3.0,
+  "default_sample_sharpness": 2.0,
+  "default_sampler": "dpmpp_2m",
+  "default_scheduler": "karras",
+  "default_performance": "Speed",
+  "default_prompt": "",
+  "default_prompt_negative": "color,vibrant,staturation,ugly,text, deformed, noisy, blurry,long neck, asymmetrical eyes, signature, watermark, jpeg artifacts, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, extra limbs, disfigured, deformed, body out of frame, bad anatomy, blurred, grainy, signature, cut off, draft, multiple hands,  low contrast, low resolution, out of focus",
+  "default_styles": [
+    "Fooocus Leica M10"
+  ],
+  "default_aspect_ratio": "1152*768",
+  "checkpoint_downloads": {
+    "juggernautXL_v8Rundiffusion.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_v8Rundiffusion.safetensors"
+  },
+  "embeddings_downloads": {},
+  "lora_downloads": {
+    "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors"
+  },
+  "previous_default_models": [
+    "juggernautXL_version8Rundiffusion.safetensors",
+    "juggernautXL_version7Rundiffusion.safetensors",
+    "juggernautXL_v7Rundiffusion.safetensors",
+    "juggernautXL_version6Rundiffusion.safetensors",
+    "juggernautXL_v6Rundiffusion.safetensors"
+  ]
+}
