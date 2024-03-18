@@ -1,0 +1,7 @@
+[
+    {
+        "name": "Fooocus Leica M10",
+        "prompt": "a Cinematic Film Style monochrome photography of  {prompt} . black and white,b&w,high contrast,dramatic shadows,Kodak Motion Picture Film Style, ultra detailed texture,movie still,raw photo, Kodak Motion Picture Film,motion blur,UHD, 8K, ultra detailed, beautiful lighting,dramatic lighting, rule of thirds, perfect composition,ultra realistic, concept art, elegant, intricate, sharp focus, depth of field, f/1.2, 85mm,professionally color graded, bright soft diffused light,film grain",
+          "negative_prompt": "(colorful,vibrant,colors,colour,worst quality, low quality, normal quality, lowres, low details, bad photo, bad photography, bad art:1.4), (watermark, signature, text font, username, error, logo, words, letters, digits, autograph, trademark, name:1.2), morbid, ugly, asymmetrical, mutated malformed, mutilated, poorly lit, bad shadow, draft, cropped, out of frame, cut off, censored, jpeg artifacts, out of focus, glitch, duplicate, (bad hands, bad anatomy, bad body, bad face, bad teeth, bad arms, bad legs)"
+    }
+]
