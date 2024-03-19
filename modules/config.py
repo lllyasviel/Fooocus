@@ -507,7 +507,7 @@ default_inpaint_mask_sam_model = get_config_item_or_set_default(
     validator=lambda x: x in modules.flags.inpaint_mask_sam_model
 )
 
-config_dict["default_loras"] = default_loras = default_loras[:default_max_lora_number] + [['None', 1.0] for _ in range(default_max_lora_number - len(default_loras))]
+config_dict["default_loras"] = default_loras = default_loras[:default_max_lora_number] + [[True, 'None', 1.0] for _ in range(default_max_lora_number - len(default_loras))]
 
 # mapping config to meta parameter 
 possible_preset_keys = {
