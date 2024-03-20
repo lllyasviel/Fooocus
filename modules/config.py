@@ -106,8 +106,6 @@ def get_presets():
 
     return presets + [f[:f.index(".json")] for f in os.listdir(preset_folder) if f.endswith('.json')]
 
-available_presets = get_presets()
-
 def update_presets():
     global available_presets
     available_presets = get_presets()
@@ -127,13 +125,6 @@ def try_get_preset_content(preset):
             print(f'Load preset [{preset_path}] failed')
             print(e)
     return {}
-
-try:
-    with open(os.path.abspath(f'./presets/default.json'), "r", encoding="utf-8") as json_file:
-        config_dict.update(json.load(json_file))
-except Exception as e:
-    print(f'Load default preset failed.')
-    print(e)
 
 available_presets = get_presets()
 preset = args_manager.args.preset
