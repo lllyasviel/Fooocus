@@ -169,11 +169,20 @@ def get_freeu(key: str, fallback: str | None, source_dict: dict, results: list, 
 
 def get_lora(key: str, fallback: str | None, source_dict: dict, results: list):
     try:
-        n, w = source_dict.get(key, source_dict.get(fallback)).split(' : ')
-        w = float(w)
-        results.append(True)
-        results.append(n)
-        results.append(w)
+        split_data = source_dict.get(key, source_dict.get(fallback)).split(' : ')
+        enabled = True
+        name = split_data[0]
+        weight = split_data[1]
+
+        if len(split_data) == 3:
+            enabled = split_data[0] == 'True'
+            name = split_data[1]
+            weight = split_data[2]
+
+        weight = float(weight)
+        results.append(enabled)
+        results.append(name)
+        results.append(weight)
     except:
         results.append(True)
         results.append('None')

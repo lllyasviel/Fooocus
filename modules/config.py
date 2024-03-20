@@ -124,14 +124,6 @@ def try_get_preset_content(preset):
             print(e)
     return {}
 
-
-try:
-    with open(os.path.abspath(f'./presets/default.json'), "r", encoding="utf-8") as json_file:
-        config_dict.update(json.load(json_file))
-except Exception as e:
-    print(f'Load default preset failed.')
-    print(e)
-
 available_presets = get_presets()
 preset = args_manager.args.preset
 config_dict.update(try_get_preset_content(preset))
