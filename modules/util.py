@@ -355,6 +355,8 @@ def makedirs_with_log(path):
     except OSError as error:
         print(f'Directory {path} could not be created, reason: {error}')
 
+def get_enabled_loras(loras: list) -> list:
+    return [[lora[1], lora[2]] for lora in loras if lora[0]]
 
 def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5):
     

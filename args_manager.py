@@ -4,7 +4,10 @@ import os
 from tempfile import gettempdir
 
 args_parser.parser.add_argument("--share", action='store_true', help="Set whether to share on Gradio.")
+
 args_parser.parser.add_argument("--preset", type=str, default=None, help="Apply specified UI preset.")
+args_parser.parser.add_argument("--disable-preset-selection", action='store_true',
+                                help="Disables preset selection in Gradio.")
 
 args_parser.parser.add_argument("--language", type=str, default='default',
                                 help="Translate UI using json files in [language] folder. "
@@ -48,8 +51,5 @@ if args_parser.args.disable_analytics:
 
 if args_parser.args.disable_in_browser:
     args_parser.args.in_browser = False
-
-if args_parser.args.temp_path is None:
-    args_parser.args.temp_path = os.path.join(gettempdir(), 'Fooocus')
 
 args = args_parser.args

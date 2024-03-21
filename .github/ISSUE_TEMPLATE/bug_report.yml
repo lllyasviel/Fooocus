@@ -21,6 +21,7 @@ body:
         　5. Try a fresh installation of Fooocus in a different directory - see if a clean installation solves the issue
         Before making a issue report please, check that the issue hasn't been reported recently.
       options:
+        - label: The issue has not been resolved by following the [troubleshooting guide](https://github.com/lllyasviel/Fooocus/blob/main/troubleshoot.md)
         - label: The issue exists on a clean installation of Fooocus
         - label: The issue exists in the current version of Fooocus
         - label: The issue has not been reported before recently
