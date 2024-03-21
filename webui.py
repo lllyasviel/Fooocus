@@ -257,22 +257,25 @@ with shared.gradio_root:
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
-                if not args_manager.args.disable_preset_selection:
-                    preset_selection = gr.Radio(label='Preset',
-                                                choices=modules.config.available_presets,
-                                                value=args_manager.args.preset if args_manager.args.preset else "initial",
-                                                interactive=True)
-                performance_selection = gr.Radio(label='Performance',
-                                                 choices=flags.Performance.list(),
-                                                 value=modules.config.default_performance)
-                aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
-                                                   value=modules.config.default_aspect_ratio, info='width × height',
-                                                   elem_classes='aspect_ratios')
-                image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
+                with gr.Row():
+                    if not args_manager.args.disable_preset_selection:
+                        preset_selection = gr.Dropdown(label='Preset',
+                                                    choices=modules.config.available_presets,
+                                                    value=args_manager.args.preset if args_manager.args.preset else "initial",
+                                                    interactive=True, scale=3)
+                    performance_selection = gr.Dropdown(label='Performance',
+                                                     choices=flags.Performance.list(),
+                                                     value=modules.config.default_performance, scale=1)
+                with gr.Accordion('Resolution'):
+                    aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
+                                                       value=modules.config.default_aspect_ratio, info='width × height',
+                                                       elem_classes='aspect_ratios')
 
-                output_format = gr.Radio(label='Output Format',
-                                            choices=flags.OutputFormat.list(),
-                                            value=modules.config.default_output_format)
+                with gr.Row():
+                    output_format = gr.Dropdown(label='Output Format',
+                                                choices=flags.OutputFormat.list(),
+                                                value=modules.config.default_output_format, scale=1)
+                    image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number, scale=3)
 
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
