@@ -46,22 +46,9 @@ def worker():
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion, apply_arrays
     from modules.private_logger import log
     from extras.expansion import safe_str
-<<<<<<< HEAD
-    from modules.util import (
-        remove_empty_str, 
-        HWC3, resize_image, 
-        get_image_shape_ceil, 
-        set_image_shape_ceil, 
-        get_shape_ceil, 
-        resample_image, 
-        erode_or_dilate, 
-        ordinal_suffix, 
-        parse_lora_references_from_prompt
-    )
-=======
     from modules.util import remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil, \
         get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix, get_enabled_loras
->>>>>>> 978267f461e204c6c4359a79ed818ee2e3e1af39
+
     from modules.upscaler import perform_upscale
     from modules.flags import Performance
     from modules.meta_parser import get_metadata_parser, MetadataScheme
@@ -161,13 +148,7 @@ def worker():
         base_model_name = args.pop()
         refiner_model_name = args.pop()
         refiner_switch = args.pop()
-<<<<<<< HEAD
-
-        loras = apply_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop()), ] for _ in range(modules.config.default_max_lora_number)])
-
-=======
         loras = get_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop())] for _ in range(modules.config.default_max_lora_number)])
->>>>>>> 978267f461e204c6c4359a79ed818ee2e3e1af39
         input_image_checkbox = args.pop()
         current_tab = args.pop()
         uov_method = args.pop()
