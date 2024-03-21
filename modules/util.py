@@ -1,14 +1,11 @@
-import typing
-
 import numpy as np
 import datetime
 import random
 import math
 import os
 import cv2
-
 import re
-from typing import List, Tuple, AnyStr
+from typing import List, Tuple, AnyStr, NamedTuple
 
 import json
 
@@ -320,7 +317,7 @@ def extract_styles_from_prompt(prompt, negative_prompt):
     return list(reversed(extracted)), real_prompt, negative_prompt
 
 
-class PromptStyle(typing.NamedTuple):
+class PromptStyle(NamedTuple):
     name: str
     prompt: str
     negative_prompt: str

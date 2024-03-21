@@ -48,7 +48,6 @@ def worker():
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil, \
         get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix, get_enabled_loras
-
     from modules.upscaler import perform_upscale
     from modules.flags import Performance
     from modules.meta_parser import get_metadata_parser, MetadataScheme
