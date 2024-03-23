@@ -417,7 +417,7 @@ class A1111MetadataParser(MetadataParser):
             for li, lora in enumerate(lora_data.split(', ')):
                 lora_split = lora.split(': ')
                 lora_name = lora_split[0]
-                lora_weight = lora_split[1]
+                lora_weight = lora_split[2] if len(lora_split) == 3 else lora_split[1]
                 for filename in lora_filenames:
                     path = Path(filename)
                     if lora_name == path.stem:
