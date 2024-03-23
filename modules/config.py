@@ -485,6 +485,7 @@ possible_preset_keys = {
     "default_scheduler": "scheduler",
     "default_overwrite_step": "steps",
     "default_performance": "performance",
+    "default_image_number": "image_number",
     "default_prompt": "prompt",
     "default_prompt_negative": "negative_prompt",
     "default_styles": "styles",
