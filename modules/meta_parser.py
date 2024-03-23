@@ -290,6 +290,12 @@ class MetadataParser(ABC):
                 lora_hash = get_sha256(lora_path)
                 self.loras.append((Path(lora_name).stem, lora_weight, lora_hash))
 
+    @staticmethod
+    def remove_special_loras(lora_filenames):
+        for lora_to_remove in modules.config.loras_metadata_remove:
+            if lora_to_remove in lora_filenames:
+                lora_filenames.remove(lora_to_remove)
+
 
 class A1111MetadataParser(MetadataParser):
     def get_scheme(self) -> MetadataScheme:
@@ -407,9 +413,7 @@ class A1111MetadataParser(MetadataParser):
 
         if lora_data != '':
             lora_filenames = modules.config.lora_filenames.copy()
-            for lora_to_remove in [modules.config.sdxl_lcm_lora, modules.config.sdxl_lightning_lora]:
-                if lora_to_remove in lora_filenames:
-                    lora_filenames.remove(lora_to_remove)
+            self.remove_special_loras(lora_filenames)
             for li, lora in enumerate(lora_data.split(', ')):
                 lora_split = lora.split(': ')
                 lora_name = lora_split[0]
@@ -495,9 +499,7 @@ class FooocusMetadataParser(MetadataParser):
     def parse_json(self, metadata: dict) -> dict:
         model_filenames = modules.config.model_filenames.copy()
         lora_filenames = modules.config.lora_filenames.copy()
-        for lora_to_remove in [modules.config.sdxl_lcm_lora, modules.config.sdxl_lightning_lora]:
-            if lora_to_remove in lora_filenames:
-                lora_filenames.remove(lora_to_remove)
+        self.remove_special_loras(lora_filenames)
         for key, value in metadata.items():
             if value in ['', 'None']:
                 continue

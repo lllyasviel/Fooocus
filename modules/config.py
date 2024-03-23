@@ -539,6 +539,7 @@ wildcard_filenames = []
 
 sdxl_lcm_lora = 'sdxl_lcm_lora.safetensors'
 sdxl_lightning_lora = 'sdxl_lightning_4step_lora.safetensors'
+loras_metadata_remove = [sdxl_lcm_lora, sdxl_lightning_lora]
 
 
 def get_model_filenames(folder_paths, extensions=None, name_filter=None):
