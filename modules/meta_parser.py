@@ -12,7 +12,7 @@ import modules.config
 import modules.sdxl_styles
 from modules.flags import MetadataScheme, Performance, Steps
 from modules.flags import SAMPLERS, CIVITAI_NO_KARRAS
-from modules.util import quote, unquote, extract_styles_from_prompt, is_json, get_file_from_folder_list, calculate_sha256
+from modules.util import quote, unquote, extract_styles_from_prompt, is_json, get_file_from_folder_list, sha256
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
 re_param = re.compile(re_param_code)
@@ -204,7 +204,8 @@ def get_lora(key: str, fallback: str | None, source_dict: dict, results: list):
 def get_sha256(filepath):
     global hash_cache
     if filepath not in hash_cache:
-        hash_cache[filepath] = calculate_sha256(filepath)
+        is_safetensors = os.path.splitext(filepath)[1].lower() == '.safetensors'
+        hash_cache[filepath] = sha256(filepath, is_safetensors)
 
     return hash_cache[filepath]
 
