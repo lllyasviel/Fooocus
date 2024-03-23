@@ -1,5 +1,4 @@
 import json
-import os
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -110,7 +109,8 @@ def get_steps(key: str, fallback: str | None, source_dict: dict, results: list, 
         assert h is not None
         h = int(h)
         # if not in steps or in steps and performance is not the same
-        if h not in iter(Steps) or Steps(h).name.casefold() != source_dict.get('performance', '').replace(' ', '_').casefold():
+        if h not in iter(Steps) or Steps(h).name.casefold() != source_dict.get('performance', '').replace(' ',
+                                                                                                          '_').casefold():
             results.append(h)
             return
         results.append(-1)
@@ -232,8 +232,9 @@ def parse_meta_from_preset(preset_content):
                 height = height[:height.index(" ")]
             preset_prepared[meta_key] = (width, height)
         else:
-            preset_prepared[meta_key] = items[settings_key] if settings_key in items and items[settings_key] is not None else getattr(modules.config, settings_key)
-        
+            preset_prepared[meta_key] = items[settings_key] if settings_key in items and items[
+                settings_key] is not None else getattr(modules.config, settings_key)
+
         if settings_key == "default_styles" or settings_key == "default_aspect_ratio":
             preset_prepared[meta_key] = str(preset_prepared[meta_key])
 
@@ -398,13 +399,21 @@ class A1111MetadataParser(MetadataParser):
                         data[key] = filename
                         break
 
+        lora_data = ''
         if 'lora_weights' in data and data['lora_weights'] != '':
+            lora_data = data['lora_weights']
+        elif 'lora_hashes' in data and data['lora_hashes'] != '' and data['lora_hashes'].split(', ')[0].count(':') == 2:
+            lora_data = data['lora_hashes']
+
+        if lora_data != '':
             lora_filenames = modules.config.lora_filenames.copy()
             for lora_to_remove in [modules.config.sdxl_lcm_lora, modules.config.sdxl_lightning_lora]:
                 if lora_to_remove in lora_filenames:
                     lora_filenames.remove(lora_to_remove)
-            for li, lora in enumerate(data['lora_weights'].split(', ')):
-                lora_name, lora_weight = lora.split(': ')
+            for li, lora in enumerate(lora_data.split(', ')):
+                lora_split = lora.split(': ')
+                lora_name = lora_split[0]
+                lora_weight = lora_split[1]
                 for filename in lora_filenames:
                     path = Path(filename)
                     if lora_name == path.stem:
@@ -486,9 +495,9 @@ class FooocusMetadataParser(MetadataParser):
     def parse_json(self, metadata: dict) -> dict:
         model_filenames = modules.config.model_filenames.copy()
         lora_filenames = modules.config.lora_filenames.copy()
-        if modules.config.sdxl_lcm_lora in lora_filenames:
-            lora_filenames.remove(modules.config.sdxl_lcm_lora)
-
+        for lora_to_remove in [modules.config.sdxl_lcm_lora, modules.config.sdxl_lightning_lora]:
+            if lora_to_remove in lora_filenames:
+                lora_filenames.remove(lora_to_remove)
         for key, value in metadata.items():
             if value in ['', 'None']:
                 continue
