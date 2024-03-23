@@ -204,8 +204,8 @@ def get_lora(key: str, fallback: str | None, source_dict: dict, results: list):
 def get_sha256(filepath):
     global hash_cache
     if filepath not in hash_cache:
-        is_safetensors = os.path.splitext(filepath)[1].lower() == '.safetensors'
-        hash_cache[filepath] = sha256(filepath, is_safetensors)
+        # is_safetensors = os.path.splitext(filepath)[1].lower() == '.safetensors'
+        hash_cache[filepath] = sha256(filepath)
 
     return hash_cache[filepath]
 
@@ -398,12 +398,13 @@ class A1111MetadataParser(MetadataParser):
                         data[key] = filename
                         break
 
-        if 'lora_hashes' in data and data['lora_hashes'] != '':
+        if 'lora_weights' in data and data['lora_weights'] != '':
             lora_filenames = modules.config.lora_filenames.copy()
-            if modules.config.sdxl_lcm_lora in lora_filenames:
-                lora_filenames.remove(modules.config.sdxl_lcm_lora)
-            for li, lora in enumerate(data['lora_hashes'].split(', ')):
-                lora_name, lora_hash, lora_weight = lora.split(': ')
+            for lora_to_remove in [modules.config.sdxl_lcm_lora, modules.config.sdxl_lightning_lora]:
+                if lora_to_remove in lora_filenames:
+                    lora_filenames.remove(lora_to_remove)
+            for li, lora in enumerate(data['lora_weights'].split(', ')):
+                lora_name, lora_weight = lora.split(': ')
                 for filename in lora_filenames:
                     path = Path(filename)
                     if lora_name == path.stem:
@@ -454,11 +455,15 @@ class A1111MetadataParser(MetadataParser):
 
         if len(self.loras) > 0:
             lora_hashes = []
+            lora_weights = []
             for index, (lora_name, lora_weight, lora_hash) in enumerate(self.loras):
                 # workaround for Fooocus not knowing LoRA name in LoRA metadata
-                lora_hashes.append(f'{lora_name}: {lora_hash}: {lora_weight}')
+                lora_hashes.append(f'{lora_name}: {lora_hash}')
+                lora_weights.append(f'{lora_name}: {lora_weight}')
             lora_hashes_string = ', '.join(lora_hashes)
+            lora_weights_string = ', '.join(lora_weights)
             generation_params[self.fooocus_to_a1111['lora_hashes']] = lora_hashes_string
+            generation_params[self.fooocus_to_a1111['lora_weights']] = lora_weights_string
 
         generation_params[self.fooocus_to_a1111['version']] = data['version']
 
