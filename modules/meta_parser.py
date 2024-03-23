@@ -29,7 +29,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
 
     results = [len(loaded_parameter_dict) > 0]
 
-    get_int('image_number', 'Image Number', loaded_parameter_dict, results)
+    get_image_number('image_number', 'Image Number', loaded_parameter_dict, results)
     get_str('prompt', 'Prompt', loaded_parameter_dict, results)
     get_str('negative_prompt', 'Negative Prompt', loaded_parameter_dict, results)
     get_list('styles', 'Styles', loaded_parameter_dict, results)
@@ -93,11 +93,12 @@ def get_float(key: str, fallback: str | None, source_dict: dict, results: list, 
         results.append(gr.update())
 
 
-def get_int(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
+def get_image_number(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
     try:
         h = source_dict.get(key, source_dict.get(fallback, default))
         assert h is not None
         h = int(h)
+        h = min(h, modules.config.default_max_image_number)
         results.append(h)
     except:
         results.append(1)
