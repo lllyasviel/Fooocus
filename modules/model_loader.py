@@ -14,6 +14,8 @@ def load_file_from_url(
 
     Returns the path to the downloaded file.
     """
+    domain = os.environ.get("HF_MIRROR", "https://huggingface.co").rstrip('/')
+    url = str.replace(url, "https://huggingface.co", domain, 1)
     os.makedirs(model_dir, exist_ok=True)
     if not file_name:
         parts = urlparse(url)
