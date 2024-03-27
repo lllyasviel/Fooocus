@@ -8,9 +8,9 @@ import re
 from typing import List, Tuple, AnyStr, NamedTuple
 
 import json
+import hashlib
 
 from PIL import Image
-from hashlib import sha256
 
 import modules.sdxl_styles
 
@@ -172,16 +172,45 @@ def generate_temp_filename(folder='./outputs/', extension='png'):
     return date_string, os.path.abspath(result), filename
 
 
-def calculate_sha256(filename, length=HASH_SHA256_LENGTH) -> str:
-    hash_sha256 = sha256()
+
+def sha256(filename, use_addnet_hash=False, length=HASH_SHA256_LENGTH):
+    print(f"Calculating sha256 for {filename}: ", end='')
+    if use_addnet_hash:
+        with open(filename, "rb") as file:
+            sha256_value = addnet_hash_safetensors(file)
+    else:
+        sha256_value = calculate_sha256(filename)
+    print(f"{sha256_value}")
+
+    return sha256_value[:length] if length is not None else sha256_value
+
+
+def addnet_hash_safetensors(b):
+    """kohya-ss hash for safetensors from https://github.com/kohya-ss/sd-scripts/blob/main/library/train_util.py"""
+    hash_sha256 = hashlib.sha256()
+    blksize = 1024 * 1024
+
+    b.seek(0)
+    header = b.read(8)
+    n = int.from_bytes(header, "little")
+
+    offset = n + 8
+    b.seek(offset)
+    for chunk in iter(lambda: b.read(blksize), b""):
+        hash_sha256.update(chunk)
+
+    return hash_sha256.hexdigest()
+
+
+def calculate_sha256(filename) -> str:
+    hash_sha256 = hashlib.sha256()
     blksize = 1024 * 1024
 
     with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(blksize), b""):
             hash_sha256.update(chunk)
 
-    res = hash_sha256.hexdigest()
-    return res[:length] if length else res
+    return hash_sha256.hexdigest()
 
 
 def quote(text):
@@ -373,3 +402,22 @@ def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, flo
             updated_loras.append(lora)
 
     return updated_loras[:loras_limit]
+
+def get_files_from_folder(folder_path, extensions=None, name_filter=None):
+    if not os.path.isdir(folder_path):
+        raise ValueError("Folder path is not a valid directory.")
+
+    filenames = []
+
+    for root, dirs, files in os.walk(folder_path, topdown=False):
+        relative_path = os.path.relpath(root, folder_path)
+        if relative_path == ".":
+            relative_path = ""
+        for filename in sorted(files, key=lambda s: s.casefold()):
+            _, file_extension = os.path.splitext(filename)
+            if (extensions is None or file_extension.lower() in extensions) and (name_filter is None or name_filter in _):
+                path = os.path.join(relative_path, filename)
+                filenames.append(path)
+
+    return filenames
+

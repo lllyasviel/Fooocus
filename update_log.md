@@ -1,3 +1,10 @@
+# [2.3.1](https://github.com/lllyasviel/Fooocus/releases/tag/2.3.1)
+
+* Remove positive prompt from anime prefix to not reset prompt after switching presets
+* Fix image number being reset to 1 when switching preset, now doesn't reset anymore
+* Fix outpainting dimension calculation when extending left/right
+* Fix LoRA compatibility for LoRAs in a1111 metadata scheme
+
 # [2.3.0](https://github.com/lllyasviel/Fooocus/releases/tag/2.3.0)
 
 * Add performance "lightning" (based on [SDXL-Lightning 4 step LoRA](https://huggingface.co/ByteDance/SDXL-Lightning/blob/main/sdxl_lightning_4step_lora.safetensors))
