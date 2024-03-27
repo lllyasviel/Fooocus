@@ -4,7 +4,7 @@ import json
 import math
 import modules.config
 
-from modules.util import get_files_from_folder
+from modules.path_utils import get_files_from_folder
 
 # cannot use modules.config - validators causing circular imports
 styles_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sdxl_styles/'))
