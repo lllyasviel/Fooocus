@@ -7,9 +7,9 @@ import math
 import os
 import cv2
 import json
+import hashlib
 
 from PIL import Image
-from hashlib import sha256
 
 import modules.sdxl_styles
 
@@ -182,16 +182,44 @@ def get_files_from_folder(folder_path, extensions=None, name_filter=None):
     return filenames
 
 
-def calculate_sha256(filename, length=HASH_SHA256_LENGTH) -> str:
-    hash_sha256 = sha256()
+def sha256(filename, use_addnet_hash=False, length=HASH_SHA256_LENGTH):
+    print(f"Calculating sha256 for {filename}: ", end='')
+    if use_addnet_hash:
+        with open(filename, "rb") as file:
+            sha256_value = addnet_hash_safetensors(file)
+    else:
+        sha256_value = calculate_sha256(filename)
+    print(f"{sha256_value}")
+
+    return sha256_value[:length] if length is not None else sha256_value
+
+
+def addnet_hash_safetensors(b):
+    """kohya-ss hash for safetensors from https://github.com/kohya-ss/sd-scripts/blob/main/library/train_util.py"""
+    hash_sha256 = hashlib.sha256()
+    blksize = 1024 * 1024
+
+    b.seek(0)
+    header = b.read(8)
+    n = int.from_bytes(header, "little")
+
+    offset = n + 8
+    b.seek(offset)
+    for chunk in iter(lambda: b.read(blksize), b""):
+        hash_sha256.update(chunk)
+
+    return hash_sha256.hexdigest()
+
+
+def calculate_sha256(filename) -> str:
+    hash_sha256 = hashlib.sha256()
     blksize = 1024 * 1024
 
     with open(filename, "rb") as f:
         for chunk in iter(lambda: f.read(blksize), b""):
             hash_sha256.update(chunk)
 
-    res = hash_sha256.hexdigest()
-    return res[:length] if length else res
+    return hash_sha256.hexdigest()
 
 
 def quote(text):
