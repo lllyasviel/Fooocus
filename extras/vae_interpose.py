@@ -63,7 +63,7 @@ class Interposer(nn.Module):
 
 
 vae_approx_model = None
-vae_approx_filename = os.path.join(path_vae_approx, 'xl-to-v1_interposer-v3.1.safetensors')
+vae_approx_filename = os.path.join(path_vae_approx, 'xl-to-v1_interposer-v4.0.safetensors')
 
 
 def parse(x):
