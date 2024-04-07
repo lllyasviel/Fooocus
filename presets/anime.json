@@ -1,5 +1,5 @@
 {
-    "default_model": "animaPencilXL_v200.safetensors",
+    "default_model": "animaPencilXL_v260.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
     "default_loras": [
@@ -44,11 +44,12 @@
     "default_aspect_ratio": "896*1152",
     "default_overwrite_step": -1,
     "checkpoint_downloads": {
-        "animaPencilXL_v200.safetensors": "https://huggingface.co/bluepen5805/anima_pencil-XL/resolve/main/anima_pencil-XL-v2.0.0.safetensors"
+        "animaPencilXL_v260.safetensors": "https://huggingface.co/bluepen5805/anima_pencil-XL/resolve/main/anima_pencil-XL-v2.6.0.safetensors"
     },
     "embeddings_downloads": {},
     "lora_downloads": {},
     "previous_default_models": [
+        "animaPencilXL_v200.safetensors",
         "animaPencilXL_v100.safetensors"
     ]
 }
