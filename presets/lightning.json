@@ -33,7 +33,7 @@
     "default_sample_sharpness": 2.0,
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
-    "default_performance": "Extreme Speed",
+    "default_performance": "Lightning",
     "default_prompt": "",
     "default_prompt_negative": "",
     "default_styles": [
