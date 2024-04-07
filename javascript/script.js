@@ -128,8 +128,8 @@ var onAppend = function(elem, f) {
             if (m.addedNodes.length) {
                 f(m.addedNodes);
             }
-        })
-    })
+        });
+    });
     observer.observe(elem, {childList: true});
 }
 
@@ -156,7 +156,7 @@ addObserverIfDesiredNodeAvailable(".toast-wrap", function(added) {
                 document.getElementById("stop_button").classList.add("hidden");
             });
          }
-    })
+    });
 });
 
 /**
