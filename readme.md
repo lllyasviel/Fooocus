@@ -1,4 +1,4 @@
-<div align=center>
+
 <img src="https://github.com/lllyasviel/Fooocus/assets/19834515/483fb86d-c9a2-4c20-997c-46dafc124f25">
 
 **Non-cherry-picked** random batch by just typing two words "forest elf", 
