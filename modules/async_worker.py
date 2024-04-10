@@ -428,7 +428,7 @@ def worker():
             progressbar(async_task, 3, 'Loading models ...')
 
             # Parse lora references from prompt
-            loras = parse_lora_references_from_prompt(prompt, loras, loras_limit=modules.config.default_max_lora_number)
+            loras = parse_lora_references_from_prompt(prompt, loras, modules.config.default_max_lora_number)
 
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
