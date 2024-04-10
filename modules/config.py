@@ -1,6 +1,7 @@
 import os
 import json
 import math
+import re
 import numbers
 import args_manager
 import tempfile
@@ -8,9 +9,7 @@ import modules.flags
 import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
-
-from modules.util import makedirs_with_log
-from modules.path_utils import get_files_from_folder
+from modules.extra_utils import get_files_from_folder, makedirs_with_log
 from modules.flags import OutputFormat, Performance, MetadataScheme
 
 def get_config_path(key, default_value):
@@ -21,7 +20,7 @@ def get_config_path(key, default_value):
     else:
         return os.path.abspath(default_value)
 
-
+wildcards_max_bfs_depth = 64
 config_path = get_config_path('config_path', "./config.txt")
 config_example_path = get_config_path('config_example_path', "config_modification_tutorial.txt")
 config_dict = {}
@@ -679,6 +678,34 @@ def downloading_upscale_model():
         file_name='fooocus_upscaler_s409985e5.bin'
     )
     return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
+
+
+def apply_wildcards(wildcard_text, rng, i, read_wildcards_in_order):
+    for _ in range(wildcards_max_bfs_depth):
+        placeholders = re.findall(r'__([\w-]+)__', wildcard_text)
+        if len(placeholders) == 0:
+            return wildcard_text
+
+        print(f'[Wildcards] processing: {wildcard_text}')
+        for placeholder in placeholders:
+            try:
+                matches = [x for x in wildcard_filenames if os.path.splitext(os.path.basename(x))[0] == placeholder]
+                words = open(os.path.join(path_wildcards, matches[0]), encoding='utf-8').read().splitlines()
+                words = [x for x in words if x != '']
+                assert len(words) > 0
+                if read_wildcards_in_order:
+                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[i % len(words)], 1)
+                else:
+                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
+            except:
+                print(f'[Wildcards] Warning: {placeholder}.txt missing or empty. '
+                      f'Using "{placeholder}" as a normal word.')
+                wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
+            print(f'[Wildcards] {wildcard_text}')
+
+    print(f'[Wildcards] BFS stack overflow. Current text: {wildcard_text}')
+    return wildcard_text
+
 
 
 update_files()

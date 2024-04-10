@@ -2,13 +2,13 @@ import os
 import re
 import json
 import math
-import modules.config
+#import modules.config
 
-from modules.path_utils import get_files_from_folder
+from modules.extra_utils import get_files_from_folder
 
 # cannot use modules.config - validators causing circular imports
 styles_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sdxl_styles/'))
-wildcards_max_bfs_depth = 64
+
 
 
 def normalize_key(k):
@@ -57,33 +57,6 @@ legal_style_names = [fooocus_expansion] + style_keys
 def apply_style(style, positive):
     p, n = styles[style]
     return p.replace('{prompt}', positive).splitlines(), n.splitlines()
-
-
-def apply_wildcards(wildcard_text, rng, i, read_wildcards_in_order):
-    for _ in range(wildcards_max_bfs_depth):
-        placeholders = re.findall(r'__([\w-]+)__', wildcard_text)
-        if len(placeholders) == 0:
-            return wildcard_text
-
-        print(f'[Wildcards] processing: {wildcard_text}')
-        for placeholder in placeholders:
-            try:
-                matches = [x for x in modules.config.wildcard_filenames if os.path.splitext(os.path.basename(x))[0] == placeholder]
-                words = open(os.path.join(modules.config.path_wildcards, matches[0]), encoding='utf-8').read().splitlines()
-                words = [x for x in words if x != '']
-                assert len(words) > 0
-                if read_wildcards_in_order:
-                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[i % len(words)], 1)
-                else:
-                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
-            except:
-                print(f'[Wildcards] Warning: {placeholder}.txt missing or empty. '
-                      f'Using "{placeholder}" as a normal word.')
-                wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
-            print(f'[Wildcards] {wildcard_text}')
-
-    print(f'[Wildcards] BFS stack overflow. Current text: {wildcard_text}')
-    return wildcard_text
 
 
 def get_words(arrays, totalMult, index):
