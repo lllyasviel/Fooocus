@@ -91,7 +91,7 @@ def generate_clicked(task: worker.AsyncTask):
 
 reload_javascript()
 
-title = f'Fooocus {fooocus_version.version}'
+title = f'SynergArt 0.1'
 
 if isinstance(args_manager.args.preset, str):
     title += ' ' + args_manager.args.preset
@@ -100,6 +100,10 @@ shared.gradio_root = gr.Blocks(title=title).queue()
 
 with shared.gradio_root:
     currentTask = gr.State(worker.AsyncTask(args=[]))
+
+    with gr.Row():
+        gr.Image(source="https://dec50970-098d-4ea5-b2f6-fb9746ecea9b.selstorage.ru/46db2962f7342a76df61bd1c1408bbf8/upload/fe1b2593a5334bb58cc47addcf698a2f.png", width="100%", height="auto", align="center")
+
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Row():
