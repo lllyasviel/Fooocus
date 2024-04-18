@@ -1,3 +1,40 @@
+# [2.3.1](https://github.com/lllyasviel/Fooocus/releases/tag/2.3.1)
+
+* Remove positive prompt from anime prefix to not reset prompt after switching presets
+* Fix image number being reset to 1 when switching preset, now doesn't reset anymore
+* Fix outpainting dimension calculation when extending left/right
+* Fix LoRA compatibility for LoRAs in a1111 metadata scheme
+
+# [2.3.0](https://github.com/lllyasviel/Fooocus/releases/tag/2.3.0)
+
+* Add performance "lightning" (based on [SDXL-Lightning 4 step LoRA](https://huggingface.co/ByteDance/SDXL-Lightning/blob/main/sdxl_lightning_4step_lora.safetensors))
+* Add preset selection to UI, disable with argument `--disable-preset-selection`. Use `--always-download-new-model` to download missing models on preset switch.
+* Improve face swap consistency by switching later in the process to (synthetic) refiner
+* Add temp path cleanup on startup
+* Add support for wildcard subdirectories
+* Add scrollable 2 column layout for styles for better structure
+* Improve Colab resource needs for T4 instances (default), positively tested with all image prompt features
+* Improve anime preset, now uses style `Fooocus Semi Realistic` instead of `Fooocus Negative` (less wet look images)
+
+# [2.2.1](https://github.com/lllyasviel/Fooocus/releases/tag/2.2.1)
+
+* Fix some small bugs (e.g. image grid, upscale fast 2x, LoRA weight width in Firefox)
+* Allow prompt weights in array syntax
+* Add steps override and metadata scheme to history log
+
+# [2.2.0](https://github.com/lllyasviel/Fooocus/releases/tag/2.2.0)
+
+* Isolate every image generation to truly allow multi-user usage
+* Add array support, changes the main prompt when increasing the image number. Syntax: `[[red, green, blue]] flower` 
+* Add optional metadata to images, allowing you to regenerate and modify them later with the same parameters 
+* Now supports native PNG, JPG and WEBP image generation
+* Add Docker support
+
+# [2.1.865](https://github.com/lllyasviel/Fooocus/releases/tag/2.1.865)
+
+* Various bugfixes
+* Add authentication to --listen
+
 # 2.1.864
 
 * New model list. See also discussions.
