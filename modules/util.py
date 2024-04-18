@@ -377,7 +377,7 @@ def ordinal_suffix(number: int) -> str:
 def get_enabled_loras(loras: list) -> list:
     return [[lora[1], lora[2]] for lora in loras if lora[0]]
 
-def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5):
+def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5) -> List[Tuple[AnyStr, float]]:
     
     new_loras = []
 
