@@ -35,6 +35,10 @@ class TestUtils(unittest.TestCase):
                 "input": ("some prompt, very cool, <lora:hey-lora:0.4><lora:you-lora:0.2>", [], 3),
                 "output": [("you-lora.safetensors", 0.2)],
             },
+            {
+                 "input": ("<lora:foo:1..2>, <lora:bar:.>, <lora:baz:+> and <lora:quux:>",[], 6),
+                 "output": []
+            }
         ]
 
         for test in test_cases:

@@ -20,7 +20,7 @@ LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.L
 # Regexp compiled once. Matches entries with the following pattern:
 # <lora:some_lora:1>
 # <lora:aNotherLora:-1.6>
-LORAS_PROMPT_PATTERN = re.compile(".*<lora:(.+):([-+]?(?:\d*\.*\d*))>.*")
+LORAS_PROMPT_PATTERN = re.compile(r".* <lora : ([^:]+) : ([+-]? (?: (?:\d+ (?:\.\d*)?) | (?:\.\d+)))> .*", re.X)
 
 HASH_SHA256_LENGTH = 10
 
