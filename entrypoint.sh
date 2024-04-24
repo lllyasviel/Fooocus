@@ -30,4 +30,4 @@ mklink outputs
 import outputs
 
 # Start application
-python launch.py $*
+python entry_with_update.py $*
