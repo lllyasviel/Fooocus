@@ -6,7 +6,7 @@ volumes:
 services:
   app:
     build: .
-    image: fooocus
+    image: ghcr.io/lllyasviel/fooocus
     ports:
      - "7865:7865"
     environment:
