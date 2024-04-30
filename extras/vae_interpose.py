@@ -1,69 +1,85 @@
 # https://github.com/city96/SD-Latent-Interposer/blob/main/interposer.py
 
 import os
-import torch
-import safetensors.torch as sf
-import torch.nn as nn
-import ldm_patched.modules.model_management
 
+import safetensors.torch as sf
+import torch
+import torch.nn as nn
+
+import ldm_patched.modules.model_management
 from ldm_patched.modules.model_patcher import ModelPatcher
 from modules.config import path_vae_approx
 
 
-class Block(nn.Module):
-    def __init__(self, size):
+class ResBlock(nn.Module):
+    """Block with residuals"""
+
+    def __init__(self, ch):
         super().__init__()
         self.join = nn.ReLU()
+        self.norm = nn.BatchNorm2d(ch)
         self.long = nn.Sequential(
-            nn.Conv2d(size, size, kernel_size=3, stride=1, padding=1),
-            nn.LeakyReLU(0.1),
-            nn.Conv2d(size, size, kernel_size=3, stride=1, padding=1),
-            nn.LeakyReLU(0.1),
-            nn.Conv2d(size, size, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(ch, ch, kernel_size=3, stride=1, padding=1),
+            nn.SiLU(),
+            nn.Conv2d(ch, ch, kernel_size=3, stride=1, padding=1),
+            nn.SiLU(),
+            nn.Conv2d(ch, ch, kernel_size=3, stride=1, padding=1),
+            nn.Dropout(0.1)
         )
 
     def forward(self, x):
-        y = self.long(x)
-        z = self.join(y + x)
-        return z
+        x = self.norm(x)
+        return self.join(self.long(x) + x)
 
 
-class Interposer(nn.Module):
-    def __init__(self):
+class ExtractBlock(nn.Module):
+    """Increase no. of channels by [out/in]"""
+
+    def __init__(self, ch_in, ch_out):
         super().__init__()
-        self.chan = 4
-        self.hid = 128
-
-        self.head_join = nn.ReLU()
-        self.head_short = nn.Conv2d(self.chan, self.hid, kernel_size=3, stride=1, padding=1)
-        self.head_long = nn.Sequential(
-            nn.Conv2d(self.chan, self.hid, kernel_size=3, stride=1, padding=1),
-            nn.LeakyReLU(0.1),
-            nn.Conv2d(self.hid, self.hid, kernel_size=3, stride=1, padding=1),
-            nn.LeakyReLU(0.1),
-            nn.Conv2d(self.hid, self.hid, kernel_size=3, stride=1, padding=1),
-        )
-        self.core = nn.Sequential(
-            Block(self.hid),
-            Block(self.hid),
-            Block(self.hid),
-        )
-        self.tail = nn.Sequential(
-            nn.ReLU(),
-            nn.Conv2d(self.hid, self.chan, kernel_size=3, stride=1, padding=1)
+        self.join = nn.ReLU()
+        self.short = nn.Conv2d(ch_in, ch_out, kernel_size=3, stride=1, padding=1)
+        self.long = nn.Sequential(
+            nn.Conv2d(ch_in, ch_out, kernel_size=3, stride=1, padding=1),
+            nn.SiLU(),
+            nn.Conv2d(ch_out, ch_out, kernel_size=3, stride=1, padding=1),
+            nn.SiLU(),
+            nn.Conv2d(ch_out, ch_out, kernel_size=3, stride=1, padding=1),
+            nn.Dropout(0.1)
         )
 
     def forward(self, x):
-        y = self.head_join(
-            self.head_long(x) +
-            self.head_short(x)
+        return self.join(self.long(x) + self.short(x))
+
+
+class InterposerModel(nn.Module):
+    """Main neural network"""
+
+    def __init__(self, ch_in=4, ch_out=4, ch_mid=64, scale=1.0, blocks=12):
+        super().__init__()
+        self.ch_in = ch_in
+        self.ch_out = ch_out
+        self.ch_mid = ch_mid
+        self.blocks = blocks
+        self.scale = scale
+
+        self.head = ExtractBlock(self.ch_in, self.ch_mid)
+        self.core = nn.Sequential(
+            nn.Upsample(scale_factor=self.scale, mode="nearest"),
+            *[ResBlock(self.ch_mid) for _ in range(blocks)],
+            nn.BatchNorm2d(self.ch_mid),
+            nn.SiLU(),
         )
+        self.tail = nn.Conv2d(self.ch_mid, self.ch_out, kernel_size=3, stride=1, padding=1)
+
+    def forward(self, x):
+        y = self.head(x)
         z = self.core(y)
         return self.tail(z)
 
 
 vae_approx_model = None
-vae_approx_filename = os.path.join(path_vae_approx, 'xl-to-v1_interposer-v3.1.safetensors')
+vae_approx_filename = os.path.join(path_vae_approx, 'xl-to-v1_interposer-v4.0.safetensors')
 
 
 def parse(x):
@@ -72,7 +88,7 @@ def parse(x):
     x_origin = x.clone()
 
     if vae_approx_model is None:
-        model = Interposer()
+        model = InterposerModel()
         model.eval()
         sd = sf.load_file(vae_approx_filename)
         model.load_state_dict(sd)
