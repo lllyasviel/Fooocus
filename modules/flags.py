@@ -111,6 +111,7 @@ class Steps(IntEnum):
     SPEED = 30
     EXTREME_SPEED = 8
     LIGHTNING = 4
+    HYPER_SD = 4
 
 
 class StepsUOV(IntEnum):
@@ -118,6 +119,7 @@ class StepsUOV(IntEnum):
     SPEED = 18
     EXTREME_SPEED = 8
     LIGHTNING = 4
+    HYPER_SD = 4
 
 
 class Performance(Enum):
@@ -125,6 +127,7 @@ class Performance(Enum):
     SPEED = 'Speed'
     EXTREME_SPEED = 'Extreme Speed'
     LIGHTNING = 'Lightning'
+    HYPER_SD = 'Hyper-SD'
 
     @classmethod
     def list(cls) -> list:
@@ -134,7 +137,7 @@ class Performance(Enum):
     def has_restricted_features(cls, x) -> bool:
         if isinstance(x, Performance):
             x = x.value
-        return x in [cls.EXTREME_SPEED.value, cls.LIGHTNING.value]
+        return x in [cls.EXTREME_SPEED.value, cls.LIGHTNING.value, cls.HYPER_SD.value]
 
     def steps(self) -> int | None:
         return Steps[self.name].value if Steps[self.name] else None
@@ -147,5 +150,6 @@ performance_selections = [
     (f'Quality <span style="color: grey;"> \U00002223  {Steps.QUALITY.value} steps</span>', Performance.QUALITY.value),
     (f'Speed <span style="color: grey;"> \U00002223  {Steps.SPEED.value} steps</span>', Performance.SPEED.value),
     (f'Extreme Speed (LCM) <span style="color: grey;"> \U00002223 {Steps.EXTREME_SPEED.value} steps, intermediate results disabled</span>', Performance.EXTREME_SPEED.value),
-    (f'Lightning <span style="color: grey;"> \U00002223 {Steps.LIGHTNING.value} steps, intermediate results disabled</span>', Performance.LIGHTNING.value)
+    (f'Lightning <span style="color: grey;"> \U00002223 {Steps.LIGHTNING.value} steps, intermediate results disabled</span>', Performance.LIGHTNING.value),
+    (f'Hyper-SD <span style="color: grey;"> \U00002223 {Steps.HYPER_SD.value} steps, intermediate results disabled</span>', Performance.HYPER_SD.value)
 ]
