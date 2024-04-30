@@ -266,14 +266,14 @@ def worker():
         elif performance_selection == Performance.HYPER_SD:
             print('Enter Hyper-SD mode.')
             progressbar(async_task, 1, 'Downloading Hyper-SD components ...')
-            loras += [(modules.config.downloading_sdxl_hyper_sd_lora(), 1.0)]
+            loras += [(modules.config.downloading_sdxl_hyper_sd_lora(), 0.8)]
 
             if refiner_model_name != 'None':
                 print(f'Refiner disabled in Hyper-SD mode.')
 
             refiner_model_name = 'None'
-            sampler_name = 'ddim'
-            scheduler_name = 'sgm_uniform'
+            sampler_name = 'dpmpp_sde_gpu'
+            scheduler_name = 'karras'
             sharpness = 0.0
             guidance_scale = 1.0
             adaptive_cfg = 1.0
