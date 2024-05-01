@@ -1,7 +1,7 @@
 {
-    "default_model": "Toon\\bluePencilXL_v300.safetensors",
-    "default_refiner": "Toon\\DreamShaper_8_pruned.safetensors",
-    "default_refiner_switch": 0.8,
+    "default_model": "toon\\bluePencilXL_v500.safetensors",
+    "default_refiner": "None",
+    "default_refiner_switch": 0.5,
     "default_loras": [
         [
             "sd_xl_offset_example-lora_1.0.safetensors",
@@ -28,7 +28,7 @@
     "default_sample_sharpness": 2.0,
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
-    "default_performance": "Speed",
+    "default_performance": "Quality",
     "default_prompt": "",
     "default_prompt_negative": "(embedding:unaestheticXLv31:0.8), low quality, watermark",
     "default_styles": [
@@ -40,7 +40,8 @@
         "SAI Fantasy Art"
     ],
     "default_aspect_ratio": "896*1152",
-    "checkpoint_downloads": {},
+    "checkpoint_downloads": {
+    },
     "embeddings_downloads": {},
     "lora_downloads": {}
 }
