@@ -43,7 +43,7 @@ def worker():
     import fooocus_version
     import args_manager
 
-    from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion, apply_arrays
+    from modules.sdxl_styles import apply_style, get_random_style, apply_wildcards, fooocus_expansion, apply_arrays, random_style_name
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil, \
@@ -449,8 +449,12 @@ def worker():
                 positive_basic_workloads = []
                 negative_basic_workloads = []
 
+                task_styles = style_selections.copy()
                 if use_style:
-                    for s in style_selections:
+                    for i, s in enumerate(task_styles):
+                        if s == random_style_name:
+                            s = get_random_style(task_rng)
+                            task_styles[i] = s
                         p, n = apply_style(s, positive=task_prompt)
                         positive_basic_workloads = positive_basic_workloads + p
                         negative_basic_workloads = negative_basic_workloads + n
@@ -478,6 +482,7 @@ def worker():
                     negative_top_k=len(negative_basic_workloads),
                     log_positive_prompt='\n'.join([task_prompt] + task_extra_positive_prompts),
                     log_negative_prompt='\n'.join([task_negative_prompt] + task_extra_negative_prompts),
+                    styles=task_styles
                 ))
 
             if use_expansion:
@@ -842,7 +847,7 @@ def worker():
                     d = [('Prompt', 'prompt', task['log_positive_prompt']),
                          ('Negative Prompt', 'negative_prompt', task['log_negative_prompt']),
                          ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion']),
-                         ('Styles', 'styles', str(raw_style_selections)),
+                         ('Styles', 'styles', str(task['styles'] if not use_expansion else [fooocus_expansion] + task['styles'])),
                          ('Performance', 'performance', performance_selection.value)]
 
                     if performance_selection.steps() != steps:
