@@ -166,6 +166,7 @@ def worker():
         adaptive_cfg = args.pop()
         sampler_name = args.pop()
         scheduler_name = args.pop()
+        vae_name = args.pop()
         overwrite_step = args.pop()
         overwrite_switch = args.pop()
         overwrite_width = args.pop()
@@ -428,7 +429,7 @@ def worker():
             progressbar(async_task, 3, 'Loading models ...')
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
-                                        use_synthetic_refiner=use_synthetic_refiner)
+                                        use_synthetic_refiner=use_synthetic_refiner, vae_name=vae_name)
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
