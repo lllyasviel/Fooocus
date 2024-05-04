@@ -3,6 +3,7 @@ import os
 import torch
 import modules.patch
 import modules.config
+import modules.flags
 import ldm_patched.modules.model_management
 import ldm_patched.modules.latent_formats
 import modules.inpaint_worker
@@ -64,7 +65,7 @@ def refresh_base_model(name, vae_name=None):
     filename = get_file_from_folder_list(name, modules.config.paths_checkpoints)
 
     vae_filename = None
-    if vae_name is not None and vae_name != 'None':
+    if vae_name is not None and vae_name != modules.flags.default_vae:
         vae_filename = get_file_from_folder_list(vae_name, modules.config.path_vae)
 
     if model_base.filename == filename and model_base.vae_filename == vae_filename:

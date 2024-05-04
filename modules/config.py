@@ -349,7 +349,7 @@ default_scheduler = get_config_item_or_set_default(
 )
 default_vae = get_config_item_or_set_default(
     key='default_vae',
-    default_value='None',
+    default_value=modules.flags.default_vae,
     validator=lambda x: isinstance(x, str)
 )
 default_styles = get_config_item_or_set_default(
