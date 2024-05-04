@@ -176,6 +176,7 @@ def worker():
         adaptive_cfg = args.pop()
         sampler_name = args.pop()
         scheduler_name = args.pop()
+        vae_name = args.pop()
         overwrite_step = args.pop()
         overwrite_switch = args.pop()
         overwrite_width = args.pop()
@@ -466,7 +467,7 @@ def worker():
             progressbar(async_task, 3, 'Loading models ...')
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
-                                        use_synthetic_refiner=use_synthetic_refiner)
+                                        use_synthetic_refiner=use_synthetic_refiner, vae_name=vae_name)
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
@@ -920,6 +921,7 @@ def worker():
 
                     d.append(('Sampler', 'sampler', sampler_name))
                     d.append(('Scheduler', 'scheduler', scheduler_name))
+                    d.append(('VAE', 'vae', vae_name))
                     d.append(('Seed', 'seed', str(task['task_seed'])))
 
                     if freeu_enabled:
@@ -934,7 +936,7 @@ def worker():
                         metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
                         metadata_parser.set_data(task['log_positive_prompt'], task['positive'],
                                                  task['log_negative_prompt'], task['negative'],
-                                                 steps, base_model_name, refiner_model_name, loras)
+                                                 steps, base_model_name, refiner_model_name, loras, vae_name)
                     d.append(('Metadata Scheme', 'metadata_scheme', metadata_scheme.value if save_metadata_to_images else save_metadata_to_images))
                     d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
                     img_paths.append(log(x, d, metadata_parser, output_format))

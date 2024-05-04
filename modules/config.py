@@ -191,6 +191,7 @@ paths_checkpoints = get_dir_or_set_default('path_checkpoints', ['../models/check
 paths_loras = get_dir_or_set_default('path_loras', ['../models/loras/'], True)
 path_embeddings = get_dir_or_set_default('path_embeddings', '../models/embeddings/')
 path_vae_approx = get_dir_or_set_default('path_vae_approx', '../models/vae_approx/')
+path_vae = get_dir_or_set_default('path_vae', '../models/vae/')
 path_upscale_models = get_dir_or_set_default('path_upscale_models', '../models/upscale_models/')
 path_inpaint = get_dir_or_set_default('path_inpaint', '../models/inpaint/')
 path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlnet/')
@@ -347,6 +348,11 @@ default_scheduler = get_config_item_or_set_default(
     key='default_scheduler',
     default_value='karras',
     validator=lambda x: x in modules.flags.scheduler_list
+)
+default_vae = get_config_item_or_set_default(
+    key='default_vae',
+    default_value=modules.flags.default_vae,
+    validator=lambda x: isinstance(x, str)
 )
 default_styles = get_config_item_or_set_default(
     key='default_styles',
@@ -565,6 +571,7 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
 
 model_filenames = []
 lora_filenames = []
+vae_filenames = []
 wildcard_filenames = []
 
 sdxl_lcm_lora = 'sdxl_lcm_lora.safetensors'
@@ -577,15 +584,20 @@ def get_model_filenames(folder_paths, extensions=None, name_filter=None):
     if extensions is None:
         extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']
     files = []
+
+    if not isinstance(folder_paths, list):
+        folder_paths = [folder_paths]
     for folder in folder_paths:
         files += get_files_from_folder(folder, extensions, name_filter)
+
     return files
 
 
 def update_files():
-    global model_filenames, lora_filenames, wildcard_filenames, available_presets
+    global model_filenames, lora_filenames, vae_filenames, wildcard_filenames, available_presets
     model_filenames = get_model_filenames(paths_checkpoints)
     lora_filenames = get_model_filenames(paths_loras)
+    vae_filenames = get_model_filenames(path_vae)
     wildcard_filenames = get_files_from_folder(path_wildcards, ['.txt'])
     available_presets = get_presets()
     return
