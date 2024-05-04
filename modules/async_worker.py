@@ -282,6 +282,14 @@ def worker():
             adm_scaler_negative = 1.0
             adm_scaler_end = 0.0
 
+        elif performance_selection == Performance.HYPER_SD8:
+            print('Enter Hyper-SD8 mode.')
+            progressbar(async_task, 1, 'Downloading Hyper-SD components ...')
+            loras += [(modules.config.downloading_sdxl_hyper_sd_cfg_lora(), 0.3)]
+
+            sampler_name = 'dpmpp_sde_gpu'
+            scheduler_name = 'normal'
+
         print(f'[Parameters] Adaptive CFG = {adaptive_cfg}')
         print(f'[Parameters] Sharpness = {sharpness}')
         print(f'[Parameters] ControlNet Softness = {controlnet_softness}')
