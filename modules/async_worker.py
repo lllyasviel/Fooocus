@@ -893,7 +893,7 @@ def worker():
                                                  steps, base_model_name, refiner_model_name, loras, vae_name)
                     d.append(('Metadata Scheme', 'metadata_scheme', metadata_scheme.value if save_metadata_to_images else save_metadata_to_images))
                     d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
-                    img_paths.append(log(x, d, metadata_parser, output_format))
+                    img_paths.append(log(x, d, metadata_parser, output_format, task))
 
                 yield_result(async_task, img_paths, do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
