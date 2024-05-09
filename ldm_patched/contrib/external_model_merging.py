@@ -121,6 +121,48 @@ class ModelMergeBlocks:
             m.add_patches({k: kp[k]}, 1.0 - ratio, ratio)
         return (m, )
 
+def save_checkpoint(model, clip=None, vae=None, clip_vision=None, filename_prefix=None, output_dir=None, prompt=None, extra_pnginfo=None):
+    full_output_folder, filename, counter, subfolder, filename_prefix = ldm_patched.utils.path_utils.get_save_image_path(filename_prefix, output_dir)
+    prompt_info = ""
+    if prompt is not None:
+        prompt_info = json.dumps(prompt)
+
+    metadata = {}
+
+    enable_modelspec = True
+    if isinstance(model.model, ldm_patched.modules.model_base.SDXL):
+        metadata["modelspec.architecture"] = "stable-diffusion-xl-v1-base"
+    elif isinstance(model.model, ldm_patched.modules.model_base.SDXLRefiner):
+        metadata["modelspec.architecture"] = "stable-diffusion-xl-v1-refiner"
+    else:
+        enable_modelspec = False
+
+    if enable_modelspec:
+        metadata["modelspec.sai_model_spec"] = "1.0.0"
+        metadata["modelspec.implementation"] = "sgm"
+        metadata["modelspec.title"] = "{} {}".format(filename, counter)
+
+    #TODO:
+    # "stable-diffusion-v1", "stable-diffusion-v1-inpainting", "stable-diffusion-v2-512",
+    # "stable-diffusion-v2-768-v", "stable-diffusion-v2-unclip-l", "stable-diffusion-v2-unclip-h",
+    # "v2-inpainting"
+
+    if model.model.model_type == ldm_patched.modules.model_base.ModelType.EPS:
+        metadata["modelspec.predict_key"] = "epsilon"
+    elif model.model.model_type == ldm_patched.modules.model_base.ModelType.V_PREDICTION:
+        metadata["modelspec.predict_key"] = "v"
+
+    if not args.disable_server_info:
+        metadata["prompt"] = prompt_info
+        if extra_pnginfo is not None:
+            for x in extra_pnginfo:
+                metadata[x] = json.dumps(extra_pnginfo[x])
+
+    output_checkpoint = f"{filename}_{counter:05}_.safetensors"
+    output_checkpoint = os.path.join(full_output_folder, output_checkpoint)
+
+    ldm_patched.modules.sd.save_checkpoint(output_checkpoint, model, clip, vae, clip_vision, metadata=metadata)
+
 class CheckpointSave:
     def __init__(self):
         self.output_dir = ldm_patched.utils.path_utils.get_output_directory()
@@ -139,46 +181,7 @@ class CheckpointSave:
     CATEGORY = "advanced/model_merging"
 
     def save(self, model, clip, vae, filename_prefix, prompt=None, extra_pnginfo=None):
-        full_output_folder, filename, counter, subfolder, filename_prefix = ldm_patched.utils.path_utils.get_save_image_path(filename_prefix, self.output_dir)
-        prompt_info = ""
-        if prompt is not None:
-            prompt_info = json.dumps(prompt)
-
-        metadata = {}
-
-        enable_modelspec = True
-        if isinstance(model.model, ldm_patched.modules.model_base.SDXL):
-            metadata["modelspec.architecture"] = "stable-diffusion-xl-v1-base"
-        elif isinstance(model.model, ldm_patched.modules.model_base.SDXLRefiner):
-            metadata["modelspec.architecture"] = "stable-diffusion-xl-v1-refiner"
-        else:
-            enable_modelspec = False
-
-        if enable_modelspec:
-            metadata["modelspec.sai_model_spec"] = "1.0.0"
-            metadata["modelspec.implementation"] = "sgm"
-            metadata["modelspec.title"] = "{} {}".format(filename, counter)
-
-        #TODO:
-        # "stable-diffusion-v1", "stable-diffusion-v1-inpainting", "stable-diffusion-v2-512",
-        # "stable-diffusion-v2-768-v", "stable-diffusion-v2-unclip-l", "stable-diffusion-v2-unclip-h",
-        # "v2-inpainting"
-
-        if model.model.model_type == ldm_patched.modules.model_base.ModelType.EPS:
-            metadata["modelspec.predict_key"] = "epsilon"
-        elif model.model.model_type == ldm_patched.modules.model_base.ModelType.V_PREDICTION:
-            metadata["modelspec.predict_key"] = "v"
-
-        if not args.disable_server_info:
-            metadata["prompt"] = prompt_info
-            if extra_pnginfo is not None:
-                for x in extra_pnginfo:
-                    metadata[x] = json.dumps(extra_pnginfo[x])
-
-        output_checkpoint = f"{filename}_{counter:05}_.safetensors"
-        output_checkpoint = os.path.join(full_output_folder, output_checkpoint)
-
-        ldm_patched.modules.sd.save_checkpoint(output_checkpoint, model, clip, vae, metadata=metadata)
+        save_checkpoint(model, clip=clip, vae=vae, filename_prefix=filename_prefix, output_dir=self.output_dir, prompt=prompt, extra_pnginfo=extra_pnginfo)
         return {}
 
 class CLIPSave:
