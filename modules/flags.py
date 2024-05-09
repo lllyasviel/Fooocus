@@ -53,6 +53,8 @@ SAMPLER_NAMES = KSAMPLER_NAMES + list(SAMPLER_EXTRA.keys())
 sampler_list = SAMPLER_NAMES
 scheduler_list = SCHEDULER_NAMES
 
+default_vae = 'Default (model)'
+
 refiner_swap_method = 'joint'
 
 cn_ip = "ImagePrompt"

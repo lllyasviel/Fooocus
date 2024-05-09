@@ -43,7 +43,7 @@ def worker():
     import fooocus_version
     import args_manager
 
-    from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion, apply_arrays
+    from modules.sdxl_styles import apply_style, get_random_style, apply_wildcards, fooocus_expansion, apply_arrays, random_style_name
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil, \
@@ -166,6 +166,7 @@ def worker():
         adaptive_cfg = args.pop()
         sampler_name = args.pop()
         scheduler_name = args.pop()
+        vae_name = args.pop()
         overwrite_step = args.pop()
         overwrite_switch = args.pop()
         overwrite_width = args.pop()
@@ -428,7 +429,7 @@ def worker():
             progressbar(async_task, 3, 'Loading models ...')
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
-                                        use_synthetic_refiner=use_synthetic_refiner)
+                                        use_synthetic_refiner=use_synthetic_refiner, vae_name=vae_name)
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
@@ -449,8 +450,12 @@ def worker():
                 positive_basic_workloads = []
                 negative_basic_workloads = []
 
+                task_styles = style_selections.copy()
                 if use_style:
-                    for s in style_selections:
+                    for i, s in enumerate(task_styles):
+                        if s == random_style_name:
+                            s = get_random_style(task_rng)
+                            task_styles[i] = s
                         p, n = apply_style(s, positive=task_prompt)
                         positive_basic_workloads = positive_basic_workloads + p
                         negative_basic_workloads = negative_basic_workloads + n
@@ -478,6 +483,7 @@ def worker():
                     negative_top_k=len(negative_basic_workloads),
                     log_positive_prompt='\n'.join([task_prompt] + task_extra_positive_prompts),
                     log_negative_prompt='\n'.join([task_negative_prompt] + task_extra_negative_prompts),
+                    styles=task_styles
                 ))
 
             if use_expansion:
@@ -842,7 +848,7 @@ def worker():
                     d = [('Prompt', 'prompt', task['log_positive_prompt']),
                          ('Negative Prompt', 'negative_prompt', task['log_negative_prompt']),
                          ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion']),
-                         ('Styles', 'styles', str(raw_style_selections)),
+                         ('Styles', 'styles', str(task['styles'] if not use_expansion else [fooocus_expansion] + task['styles'])),
                          ('Performance', 'performance', performance_selection.value)]
 
                     if performance_selection.steps() != steps:
@@ -869,6 +875,7 @@ def worker():
 
                     d.append(('Sampler', 'sampler', sampler_name))
                     d.append(('Scheduler', 'scheduler', scheduler_name))
+                    d.append(('VAE', 'vae', vae_name))
                     d.append(('Seed', 'seed', str(task['task_seed'])))
 
                     if freeu_enabled:
@@ -883,7 +890,7 @@ def worker():
                         metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
                         metadata_parser.set_data(task['log_positive_prompt'], task['positive'],
                                                  task['log_negative_prompt'], task['negative'],
-                                                 steps, base_model_name, refiner_model_name, loras)
+                                                 steps, base_model_name, refiner_model_name, loras, vae_name)
                     d.append(('Metadata Scheme', 'metadata_scheme', metadata_scheme.value if save_metadata_to_images else save_metadata_to_images))
                     d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
                     img_paths.append(log(x, d, metadata_parser, output_format))
