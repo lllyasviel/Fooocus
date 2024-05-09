@@ -651,7 +651,7 @@ def downloading_sdxl_lcm_lora():
 
 def downloading_sdxl_lightning_lora():
     load_file_from_url(
-        url='https://huggingface.co/ByteDance/SDXL-Lightning/resolve/main/sdxl_lightning_4step_lora.safetensors',
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sdxl_lightning_4step_lora.safetensors',
         model_dir=paths_loras[0],
         file_name=sdxl_lightning_lora
     )
@@ -660,7 +660,7 @@ def downloading_sdxl_lightning_lora():
 
 def downloading_sdxl_hyper_sd_lora():
     load_file_from_url(
-        url='https://huggingface.co/ByteDance/Hyper-SD/resolve/main/Hyper-SDXL-4steps-lora.safetensors',
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sdxl_hyper_sd_4step_lora.safetensors',
         model_dir=paths_loras[0],
         file_name=sdxl_hyper_sd_lora
     )
