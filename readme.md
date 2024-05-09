@@ -201,12 +201,12 @@ Use `python entry_with_update.py --preset anime` or `python entry_with_update.py
 
 Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
 
+[AMD GPU's Fooocus Tutorial](https://github.com/lllyasviel/Fooocus/tree/main/AMD) Debian and Ubuntu
+
 Same with the above instructions. You need to change torch to the AMD version
 
     pip uninstall torch torchvision torchaudio torchtext functorch xformers 
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-
-AMD is not intensively tested, however. The AMD support is in beta.
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
