@@ -47,7 +47,7 @@ def worker():
     import args_manager
 
     from modules.censor import censor_batch, censor_single
-    from modules.sdxl_styles import get_random_style, random_style_name, apply_style, apply_wildcards, fooocus_expansion, apply_arrays,
+    from modules.sdxl_styles import get_random_style, random_style_name, apply_style, apply_wildcards, fooocus_expansion, apply_arrays
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil, \
