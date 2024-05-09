@@ -3,6 +3,7 @@ import os
 import torch
 import modules.patch
 import modules.config
+import modules.flags
 import ldm_patched.modules.model_management
 import ldm_patched.modules.latent_formats
 import modules.inpaint_worker
@@ -58,17 +59,21 @@ def assert_model_integrity():
 
 @torch.no_grad()
 @torch.inference_mode()
-def refresh_base_model(name):
+def refresh_base_model(name, vae_name=None):
     global model_base
 
     filename = get_file_from_folder_list(name, modules.config.paths_checkpoints)
 
-    if model_base.filename == filename:
+    vae_filename = None
+    if vae_name is not None and vae_name != modules.flags.default_vae:
+        vae_filename = get_file_from_folder_list(vae_name, modules.config.path_vae)
+
+    if model_base.filename == filename and model_base.vae_filename == vae_filename:
         return
 
-    model_base = core.StableDiffusionModel()
-    model_base = core.load_model(filename)
+    model_base = core.load_model(filename, vae_filename)
     print(f'Base model loaded: {model_base.filename}')
+    print(f'VAE loaded: {model_base.vae_filename}')
     return
 
 
@@ -216,7 +221,7 @@ def prepare_text_encoder(async_call=True):
 @torch.no_grad()
 @torch.inference_mode()
 def refresh_everything(refiner_model_name, base_model_name, loras,
-                       base_model_additional_loras=None, use_synthetic_refiner=False):
+                       base_model_additional_loras=None, use_synthetic_refiner=False, vae_name=None):
     global final_unet, final_clip, final_vae, final_refiner_unet, final_refiner_vae, final_expansion
 
     final_unet = None
@@ -227,11 +232,11 @@ def refresh_everything(refiner_model_name, base_model_name, loras,
 
     if use_synthetic_refiner and refiner_model_name == 'None':
         print('Synthetic Refiner Activated')
-        refresh_base_model(base_model_name)
+        refresh_base_model(base_model_name, vae_name)
         synthesize_refiner_model()
     else:
         refresh_refiner_model(refiner_model_name)
-        refresh_base_model(base_model_name)
+        refresh_base_model(base_model_name, vae_name)
 
     refresh_loras(loras, base_model_additional_loras=base_model_additional_loras)
     assert_model_integrity()
@@ -254,7 +259,8 @@ def refresh_everything(refiner_model_name, base_model_name, loras,
 refresh_everything(
     refiner_model_name=modules.config.default_refiner_model_name,
     base_model_name=modules.config.default_base_model_name,
-    loras=get_enabled_loras(modules.config.default_loras)
+    loras=get_enabled_loras(modules.config.default_loras),
+    vae_name=modules.config.default_vae,
 )
 
 
