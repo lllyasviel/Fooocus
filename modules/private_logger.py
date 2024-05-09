@@ -20,13 +20,8 @@ def get_current_html_path(output_format=None):
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
     return html_name
 
-  
-def create_full_prompt_spoiler(positives, negatives):
-    return f"""<details><summary>Positive</summary>{','.join(positives)}</details>
-    <details><summary>Negative</summary>{','.join(negatives)}</details>"""
 
-
-def log(img, metadata, metadata_parser: MetadataParser | None = None, output_format=None) -> str:
+def log(img, metadata, metadata_parser: MetadataParser | None = None, output_format=None, task=None) -> str:
     path_outputs = modules.config.temp_path if args_manager.args.disable_image_log else modules.config.path_outputs
     output_format = output_format if output_format else modules.config.default_output_format
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=path_outputs, extension=output_format)
@@ -116,9 +111,15 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
     for label, key, value in metadata:
         value_txt = str(value).replace('\n', ' </br> ')
         item += f"<tr><td class='label'>{label}</td><td class='value'>{value_txt}</td></tr>\n"
+
+    if task is not None and 'positive' in task and 'negative' in task:
+        full_prompt_details = f"""<details><summary>Positive</summary>{', '.join(task['positive'])}</details>
+        <details><summary>Negative</summary>{', '.join(task['negative'])}</details>"""
+        item += f"<tr><td class='label'>Full raw prompt</td><td class='value'>{full_prompt_details}</td></tr>\n"
+
     item += "</table>"
 
-    js_txt = urllib.parse.quote(json.dumps({k: v for k, v in dic if k != "Full raw prompt"}, indent=0), safe='')
+    js_txt = urllib.parse.quote(json.dumps({k: v for _, k, v, in metadata}, indent=0), safe='')
     item += f"</br><button onclick=\"to_clipboard('{js_txt}')\">Copy to Clipboard</button>"
 
     item += "</td>"

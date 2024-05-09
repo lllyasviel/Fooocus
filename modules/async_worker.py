@@ -44,7 +44,7 @@ def worker():
     import args_manager
 
     from modules.sdxl_styles import apply_style, get_random_style, apply_wildcards, fooocus_expansion, apply_arrays, random_style_name
-    from modules.private_logger import log, create_full_prompt_spoiler
+    from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil, \
         get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix, get_enabled_loras
@@ -893,8 +893,7 @@ def worker():
                                                  steps, base_model_name, refiner_model_name, loras, vae_name)
                     d.append(('Metadata Scheme', 'metadata_scheme', metadata_scheme.value if save_metadata_to_images else save_metadata_to_images))
                     d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
-                    d.append(('Full raw prompt', 'full_raw_prompt', create_full_prompt_spoiler(task['positive'], task['negative'])))
-                    img_paths.append(log(x, d, metadata_parser, output_format))
+                    img_paths.append(log(x, d, metadata_parser, output_format, task))
 
                 yield_result(async_task, img_paths, do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
