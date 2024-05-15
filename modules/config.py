@@ -510,7 +510,12 @@ def add_ratio(x):
     a, b = x.replace('*', ' ').split(' ')[:2]
     a, b = int(a), int(b)
     g = math.gcd(a, b)
-    return f'{a}×{b} <span style="color: grey;"> \U00002223 {a // g}:{b // g}</span>'
+    portrait_color = "cyan"
+    landscape_color = "green"
+    square_color = "red"
+    color = landscape_color if a > b else portrait_color
+    color = square_color if a == b else color
+    return f'{a}×{b} <span style="color: grey;">\U00002223 </span> <span style="color: {color};"> {a // g}:{b // g}</span>'
 
 
 default_aspect_ratio = add_ratio(default_aspect_ratio)
