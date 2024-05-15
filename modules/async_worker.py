@@ -819,19 +819,19 @@ def worker():
         final_sampler_name = sampler_name
         final_scheduler_name = scheduler_name
 
-        if scheduler_name == 'lcm':
+        if scheduler_name in ['lcm', 'tcd']:
             final_scheduler_name = 'sgm_uniform'
             if pipeline.final_unet is not None:
                 pipeline.final_unet = core.opModelSamplingDiscrete.patch(
                     pipeline.final_unet,
-                    sampling='lcm',
+                    sampling=scheduler_name,
                     zsnr=False)[0]
             if pipeline.final_refiner_unet is not None:
                 pipeline.final_refiner_unet = core.opModelSamplingDiscrete.patch(
                     pipeline.final_refiner_unet,
-                    sampling='lcm',
+                    sampling=scheduler_name,
                     zsnr=False)[0]
-            print('Using lcm scheduler.')
+            print(f'Using {scheduler_name} scheduler.')
 
         async_task.yields.append(['preview', (13, 'Moving model to GPU ...', None)])
 
