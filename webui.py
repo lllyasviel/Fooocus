@@ -705,7 +705,7 @@ with shared.gradio_root:
         desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
                        outputs=[prompt, style_selections], show_progress=True, queue=True)
 
-        if not args_manager.args.disable_describe_uov_image:
+        if args_manager.args.enable_describe_uov_image:
             def trigger_uov_describe(mode, img, prompt):
                 # keep prompt if not empty
                 if prompt == '':
