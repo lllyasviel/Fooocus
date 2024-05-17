@@ -799,14 +799,15 @@ with shared.gradio_root:
         desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
                        outputs=[prompt, style_selections], show_progress=True, queue=True)
 
-        def trigger_uov_describe(mode, img, prompt):
-            # keep prompt if not empty
-            if prompt == '':
-                return trigger_describe(mode, img)
-            return gr.update(), gr.update()
+        if args_manager.args.enable_describe_uov_image:
+            def trigger_uov_describe(mode, img, prompt):
+                # keep prompt if not empty
+                if prompt == '':
+                    return trigger_describe(mode, img)
+                return gr.update(), gr.update()
 
-        uov_input_image.upload(trigger_uov_describe, inputs=[desc_method, uov_input_image, prompt],
-                       outputs=[prompt, style_selections], show_progress=True, queue=True)
+            uov_input_image.upload(trigger_uov_describe, inputs=[desc_method, uov_input_image, prompt],
+                           outputs=[prompt, style_selections], show_progress=True, queue=True)
 
 def dump_default_english_config():
     from modules.localization import dump_english_config
