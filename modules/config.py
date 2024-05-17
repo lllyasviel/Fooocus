@@ -451,6 +451,11 @@ example_inpaint_prompts = get_config_item_or_set_default(
     ],
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x)
 )
+default_black_out_nsfw = get_config_item_or_set_default(
+    key='default_black_out_nsfw',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool)
+)
 default_save_metadata_to_images = get_config_item_or_set_default(
     key='default_save_metadata_to_images',
     default_value=False,
@@ -465,11 +470,6 @@ metadata_created_by = get_config_item_or_set_default(
     key='metadata_created_by',
     default_value='',
     validator=lambda x: isinstance(x, str)
-)
-default_black_out_nsfw = get_config_item_or_set_default(
-    key='default_black_out_nsfw',
-    default_value=False,
-    validator=lambda x: isinstance(x, bool)
 )
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
