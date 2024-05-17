@@ -685,5 +685,13 @@ def downloading_upscale_model():
     )
     return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
 
+def downloading_safety_checker_model():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/stable-diffusion-safety-checker.bin',
+        model_dir=path_safety_checker_models,
+        file_name='stable-diffusion-safety-checker.bin'
+    )
+    return os.path.join(path_safety_checker_models, 'stable-diffusion-safety-checker.bin')
+
 
 update_files()

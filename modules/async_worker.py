@@ -43,7 +43,7 @@ def worker():
     import fooocus_version
     import args_manager
 
-    from modules.censor import censor_batch, censor_single
+    from extras.censor import censor_batch, censor_single
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion, apply_arrays
     from modules.private_logger import log
     from extras.expansion import safe_str
