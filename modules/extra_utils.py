@@ -1,7 +1,6 @@
-
 import os
 
-#TODO: Use refactor to use glob instead
+
 def get_files_from_folder(folder_path, extensions=None, name_filter=None):
     if not os.path.isdir(folder_path):
         raise ValueError("Folder path is not a valid directory.")
@@ -19,9 +18,3 @@ def get_files_from_folder(folder_path, extensions=None, name_filter=None):
                 filenames.append(path)
 
     return filenames
-
-def makedirs_with_log(path):
-    try:
-        os.makedirs(path, exist_ok=True)
-    except OSError as error:
-        print(f'Directory {path} could not be created, reason: {error}')

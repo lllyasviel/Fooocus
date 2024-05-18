@@ -172,7 +172,6 @@ def generate_temp_filename(folder='./outputs/', extension='png'):
     return date_string, os.path.abspath(result), filename
 
 
-
 def sha256(filename, use_addnet_hash=False, length=HASH_SHA256_LENGTH):
     print(f"Calculating sha256 for {filename}: ", end='')
     if use_addnet_hash:
@@ -375,6 +374,13 @@ def get_file_from_folder_list(name, folders):
 
 def ordinal_suffix(number: int) -> str:
     return 'th' if 10 <= number % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(number % 10, 'th')
+
+
+def makedirs_with_log(path):
+    try:
+        os.makedirs(path, exist_ok=True)
+    except OSError as error:
+        print(f'Directory {path} could not be created, reason: {error}')
 
 
 def get_enabled_loras(loras: list) -> list:
