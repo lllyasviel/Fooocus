@@ -55,6 +55,8 @@
     "Disable seed increment": "Disable seed increment",
     "Disable automatic seed increment when image number is > 1.": "Disable automatic seed increment when image number is > 1.",
     "Read wildcards in order": "Read wildcards in order",
+    "Black Out NSFW": "Black Out NSFW",
+    "Use black image if NSFW is detected.": "Use black image if NSFW is detected.",
     "\ud83d\udcda History Log": "\uD83D\uDCDA History Log",
     "Image Style": "Image Style",
     "Fooocus V2": "Fooocus V2",
