@@ -46,8 +46,9 @@ def worker():
     from modules.sdxl_styles import apply_style, fooocus_expansion, apply_arrays
     from modules.private_logger import log
     from extras.expansion import safe_str
-    from modules.util import remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil, \
-        get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix, get_enabled_loras, parse_lora_references_from_prompt
+    from modules.util import (remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil,
+        get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix, get_enabled_loras,
+        parse_lora_references_from_prompt, apply_wildcards)
     from modules.upscaler import perform_upscale
     from modules.flags import Performance
     from modules.meta_parser import get_metadata_parser, MetadataScheme
@@ -444,11 +445,11 @@ def worker():
                     task_seed = (seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
 
                 task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
-                task_prompt = modules.config.apply_wildcards(prompt, task_rng, i, read_wildcards_in_order)
+                task_prompt = apply_wildcards(prompt, task_rng, i, read_wildcards_in_order)
                 task_prompt = apply_arrays(task_prompt, i)
-                task_negative_prompt = modules.config.apply_wildcards(negative_prompt, task_rng, i, read_wildcards_in_order)
-                task_extra_positive_prompts = [modules.config.apply_wildcards(pmt, task_rng, i, read_wildcards_in_order) for pmt in extra_positive_prompts]
-                task_extra_negative_prompts = [modules.config.apply_wildcards(pmt, task_rng, i, read_wildcards_in_order) for pmt in extra_negative_prompts]
+                task_negative_prompt = apply_wildcards(negative_prompt, task_rng, i, read_wildcards_in_order)
+                task_extra_positive_prompts = [apply_wildcards(pmt, task_rng, i, read_wildcards_in_order) for pmt in extra_positive_prompts]
+                task_extra_negative_prompts = [apply_wildcards(pmt, task_rng, i, read_wildcards_in_order) for pmt in extra_negative_prompts]
 
                 positive_basic_workloads = []
                 negative_basic_workloads = []
