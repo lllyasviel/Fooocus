@@ -43,7 +43,8 @@ def worker():
     import fooocus_version
     import args_manager
 
-    from modules.sdxl_styles import apply_style, fooocus_expansion, apply_arrays
+    from extras.censor import censor_batch, censor_single
+    from modules.sdxl_styles import apply_style, get_random_style, apply_wildcards, fooocus_expansion, apply_arrays, random_style_name
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import (remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil,
@@ -69,9 +70,13 @@ def worker():
         print(f'[Fooocus] {text}')
         async_task.yields.append(['preview', (number, text, None)])
 
-    def yield_result(async_task, imgs, do_not_show_finished_images=False):
+    def yield_result(async_task, imgs, black_out_nsfw, censor=True, do_not_show_finished_images=False, progressbar_index=13):
         if not isinstance(imgs, list):
             imgs = [imgs]
+
+        if censor and (modules.config.default_black_out_nsfw or black_out_nsfw):
+            progressbar(async_task, progressbar_index, 'Checking for NSFW content ...')
+            imgs = censor_batch(imgs)
 
         async_task.results = async_task.results + imgs
 
@@ -161,12 +166,14 @@ def worker():
         disable_preview = args.pop()
         disable_intermediate_results = args.pop()
         disable_seed_increment = args.pop()
+        black_out_nsfw = args.pop()
         adm_scaler_positive = args.pop()
         adm_scaler_negative = args.pop()
         adm_scaler_end = args.pop()
         adaptive_cfg = args.pop()
         sampler_name = args.pop()
         scheduler_name = args.pop()
+        vae_name = args.pop()
         overwrite_step = args.pop()
         overwrite_switch = args.pop()
         overwrite_width = args.pop()
@@ -432,7 +439,7 @@ def worker():
 
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
-                                        use_synthetic_refiner=use_synthetic_refiner)
+                                        use_synthetic_refiner=use_synthetic_refiner, vae_name=vae_name)
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
@@ -453,8 +460,12 @@ def worker():
                 positive_basic_workloads = []
                 negative_basic_workloads = []
 
+                task_styles = style_selections.copy()
                 if use_style:
-                    for s in style_selections:
+                    for i, s in enumerate(task_styles):
+                        if s == random_style_name:
+                            s = get_random_style(task_rng)
+                            task_styles[i] = s
                         p, n = apply_style(s, positive=task_prompt)
                         positive_basic_workloads = positive_basic_workloads + p
                         negative_basic_workloads = negative_basic_workloads + n
@@ -482,6 +493,7 @@ def worker():
                     negative_top_k=len(negative_basic_workloads),
                     log_positive_prompt='\n'.join([task_prompt] + task_extra_positive_prompts),
                     log_negative_prompt='\n'.join([task_negative_prompt] + task_extra_negative_prompts),
+                    styles=task_styles
                 ))
 
             if use_expansion:
@@ -576,8 +588,11 @@ def worker():
 
             if direct_return:
                 d = [('Upscale (Fast)', 'upscale_fast', '2x')]
+                if modules.config.default_black_out_nsfw or black_out_nsfw:
+                    progressbar(async_task, 100, 'Checking for NSFW content ...')
+                    uov_input_image = censor_single(uov_input_image)
                 uov_input_image_path = log(uov_input_image, d, output_format=output_format)
-                yield_result(async_task, uov_input_image_path, do_not_show_finished_images=True)
+                yield_result(async_task, uov_input_image_path, black_out_nsfw, False, do_not_show_finished_images=True)
                 return
 
             tiled = True
@@ -641,8 +656,7 @@ def worker():
             )
 
             if debugging_inpaint_preprocessor:
-                yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(),
-                             do_not_show_finished_images=True)
+                yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(), black_out_nsfw, do_not_show_finished_images=True)
                 return
 
             progressbar(async_task, 13, 'VAE Inpaint encoding ...')
@@ -705,7 +719,7 @@ def worker():
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if debugging_cn_preprocessor:
-                    yield_result(async_task, cn_img, do_not_show_finished_images=True)
+                    yield_result(async_task, cn_img, black_out_nsfw, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_cpds]:
                 cn_img, cn_stop, cn_weight = task
@@ -717,7 +731,7 @@ def worker():
                 cn_img = HWC3(cn_img)
                 task[0] = core.numpy_to_pytorch(cn_img)
                 if debugging_cn_preprocessor:
-                    yield_result(async_task, cn_img, do_not_show_finished_images=True)
+                    yield_result(async_task, cn_img, black_out_nsfw, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_ip]:
                 cn_img, cn_stop, cn_weight = task
@@ -728,7 +742,7 @@ def worker():
 
                 task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_path)
                 if debugging_cn_preprocessor:
-                    yield_result(async_task, cn_img, do_not_show_finished_images=True)
+                    yield_result(async_task, cn_img, black_out_nsfw, do_not_show_finished_images=True)
                     return
             for task in cn_tasks[flags.cn_ip_face]:
                 cn_img, cn_stop, cn_weight = task
@@ -742,7 +756,7 @@ def worker():
 
                 task[0] = ip_adapter.preprocess(cn_img, ip_adapter_path=ip_adapter_face_path)
                 if debugging_cn_preprocessor:
-                    yield_result(async_task, cn_img, do_not_show_finished_images=True)
+                    yield_result(async_task, cn_img, black_out_nsfw, do_not_show_finished_images=True)
                     return
 
             all_ip_tasks = cn_tasks[flags.cn_ip] + cn_tasks[flags.cn_ip_face]
@@ -842,11 +856,17 @@ def worker():
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
                 img_paths = []
+
+                if modules.config.default_black_out_nsfw or black_out_nsfw:
+                    progressbar(async_task, int(15.0 + 85.0 * float((current_task_id + 1) * steps) / float(all_steps)),
+                                'Checking for NSFW content ...')
+                    imgs = censor_batch(imgs)
+
                 for x in imgs:
                     d = [('Prompt', 'prompt', task['log_positive_prompt']),
                          ('Negative Prompt', 'negative_prompt', task['log_negative_prompt']),
                          ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion']),
-                         ('Styles', 'styles', str(raw_style_selections)),
+                         ('Styles', 'styles', str(task['styles'] if not use_expansion else [fooocus_expansion] + task['styles'])),
                          ('Performance', 'performance', performance_selection.value)]
 
                     if performance_selection.steps() != steps:
@@ -873,6 +893,7 @@ def worker():
 
                     d.append(('Sampler', 'sampler', sampler_name))
                     d.append(('Scheduler', 'scheduler', scheduler_name))
+                    d.append(('VAE', 'vae', vae_name))
                     d.append(('Seed', 'seed', str(task['task_seed'])))
 
                     if freeu_enabled:
@@ -887,12 +908,12 @@ def worker():
                         metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
                         metadata_parser.set_data(task['log_positive_prompt'], task['positive'],
                                                  task['log_negative_prompt'], task['negative'],
-                                                 steps, base_model_name, refiner_model_name, loras)
+                                                 steps, base_model_name, refiner_model_name, loras, vae_name)
                     d.append(('Metadata Scheme', 'metadata_scheme', metadata_scheme.value if save_metadata_to_images else save_metadata_to_images))
                     d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
-                    img_paths.append(log(x, d, metadata_parser, output_format))
+                    img_paths.append(log(x, d, metadata_parser, output_format, task))
 
-                yield_result(async_task, img_paths, do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results)
+                yield_result(async_task, img_paths, black_out_nsfw, False, do_not_show_finished_images=len(tasks) == 1 or disable_intermediate_results)
             except ldm_patched.modules.model_management.InterruptProcessingException as e:
                 if async_task.last_stop == 'skip':
                     print('User skipped')

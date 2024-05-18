@@ -123,8 +123,9 @@ with shared.gradio_root:
 
                 with gr.Column(scale=3, min_width=0):
                     generate_button = gr.Button(label="Generate", value="Generate", elem_classes='type_row', elem_id='generate_button', visible=True)
+                    reset_button = gr.Button(label="Reconnect", value="Reconnect", elem_classes='type_row', elem_id='reset_button', visible=False)
                     load_parameter_button = gr.Button(label="Load Parameters", value="Load Parameters", elem_classes='type_row', elem_id='load_parameter_button', visible=False)
-                    skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', visible=False)
+                    skip_button = gr.Button(label="Skip", value="Skip", elem_classes='type_row_half', elem_id='skip_button', visible=False)
                     stop_button = gr.Button(label="Stop", value="Stop", elem_classes='type_row_half', elem_id='stop_button', visible=False)
 
                     def stop_clicked(currentTask):
@@ -406,6 +407,8 @@ with shared.gradio_root:
                                                    value=modules.config.default_sampler)
                         scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list,
                                                      value=modules.config.default_scheduler)
+                        vae_name = gr.Dropdown(label='VAE', choices=[modules.flags.default_vae] + modules.config.vae_filenames,
+                                                     value=modules.config.default_vae, show_label=True)
 
                         generate_image_grid = gr.Checkbox(label='Generate Image Grid for Each Batch',
                                                           info='(Experimental) This may cause performance problems on some computers and certain internet conditions.',
@@ -433,7 +436,8 @@ with shared.gradio_root:
                         overwrite_upscale_strength = gr.Slider(label='Forced Overwrite of Denoising Strength of "Upscale"',
                                                                minimum=-1, maximum=1.0, step=0.001, value=-1,
                                                                info='Set as negative number to disable. For developer debugging.')
-                        disable_preview = gr.Checkbox(label='Disable Preview', value=False,
+                        disable_preview = gr.Checkbox(label='Disable Preview', value=modules.config.default_black_out_nsfw,
+                                                      interactive=not modules.config.default_black_out_nsfw,
                                                       info='Disable preview during generation.')
                         disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', 
                                                       value=modules.config.default_performance == flags.Performance.EXTREME_SPEED.value,
@@ -443,6 +447,15 @@ with shared.gradio_root:
                                                              info='Disable automatic seed increment when image number is > 1.',
                                                              value=False)
                         read_wildcards_in_order = gr.Checkbox(label="Read wildcards in order", value=False)
+
+                        black_out_nsfw = gr.Checkbox(label='Black Out NSFW',
+                                                     value=modules.config.default_black_out_nsfw,
+                                                     interactive=not modules.config.default_black_out_nsfw,
+                                                     info='Use black image if NSFW is detected.')
+
+                        black_out_nsfw.change(lambda x: gr.update(value=x, interactive=not x),
+                                              inputs=black_out_nsfw, outputs=disable_preview, queue=False,
+                                              show_progress=False)
 
                         if not args_manager.args.disable_metadata:
                             save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
@@ -528,6 +541,7 @@ with shared.gradio_root:
                     modules.config.update_files()
                     results = [gr.update(choices=modules.config.model_filenames)]
                     results += [gr.update(choices=['None'] + modules.config.model_filenames)]
+                    results += [gr.update(choices=['None'] + modules.config.vae_filenames)]
                     if not args_manager.args.disable_preset_selection:
                         results += [gr.update(choices=modules.config.available_presets)]
                     for i in range(modules.config.default_max_lora_number):
@@ -535,7 +549,7 @@ with shared.gradio_root:
                                     gr.update(choices=['None'] + modules.config.lora_filenames), gr.update()]
                     return results
 
-                refresh_files_output = [base_model, refiner_model]
+                refresh_files_output = [base_model, refiner_model, vae_name]
                 if not args_manager.args.disable_preset_selection:
                     refresh_files_output += [preset_selection]
                 refresh_files.click(refresh_files_clicked, [], refresh_files_output + lora_ctrls,
@@ -547,8 +561,8 @@ with shared.gradio_root:
                              performance_selection, overwrite_step, overwrite_switch, aspect_ratios_selection,
                              overwrite_width, overwrite_height, guidance_scale, sharpness, adm_scaler_positive,
                              adm_scaler_negative, adm_scaler_end, refiner_swap_method, adaptive_cfg, base_model,
-                             refiner_model, refiner_switch, sampler_name, scheduler_name, seed_random, image_seed,
-                             generate_button, load_parameter_button] + freeu_ctrls + lora_ctrls
+                             refiner_model, refiner_switch, sampler_name, scheduler_name, vae_name, seed_random,
+                             image_seed, generate_button, load_parameter_button] + freeu_ctrls + lora_ctrls
 
         if not args_manager.args.disable_preset_selection:
             def preset_selection_change(preset, is_generating):
@@ -632,9 +646,9 @@ with shared.gradio_root:
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
-        ctrls += [disable_preview, disable_intermediate_results, disable_seed_increment]
+        ctrls += [disable_preview, disable_intermediate_results, disable_seed_increment, black_out_nsfw]
         ctrls += [adm_scaler_positive, adm_scaler_negative, adm_scaler_end, adaptive_cfg]
-        ctrls += [sampler_name, scheduler_name]
+        ctrls += [sampler_name, scheduler_name, vae_name]
         ctrls += [overwrite_step, overwrite_switch, overwrite_width, overwrite_height, overwrite_vary_strength]
         ctrls += [overwrite_upscale_strength, mixing_image_prompt_and_vary_upscale, mixing_image_prompt_and_inpaint]
         ctrls += [debugging_cn_preprocessor, skipping_cn_preprocessor, canny_low_threshold, canny_high_threshold]
@@ -688,6 +702,14 @@ with shared.gradio_root:
             .then(fn=update_history_link, outputs=history_link) \
             .then(fn=lambda: None, _js='playNotification').then(fn=lambda: None, _js='refresh_grid_delayed')
 
+        reset_button.click(lambda: [worker.AsyncTask(args=[]), False, gr.update(visible=True, interactive=True)] +
+                                   [gr.update(visible=False)] * 6 +
+                                   [gr.update(visible=True, value=[])],
+                           outputs=[currentTask, state_is_generating, generate_button,
+                                    reset_button, stop_button, skip_button,
+                                    progress_html, progress_window, progress_gallery, gallery],
+                           queue=False)
+
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):
                 gr.Audio(interactive=False, value=notification_file, elem_id='audio_notification', visible=False)
@@ -705,6 +727,15 @@ with shared.gradio_root:
         desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
                        outputs=[prompt, style_selections], show_progress=True, queue=True)
 
+        if args_manager.args.enable_describe_uov_image:
+            def trigger_uov_describe(mode, img, prompt):
+                # keep prompt if not empty
+                if prompt == '':
+                    return trigger_describe(mode, img)
+                return gr.update(), gr.update()
+
+            uov_input_image.upload(trigger_uov_describe, inputs=[desc_method, uov_input_image, prompt],
+                           outputs=[prompt, style_selections], show_progress=True, queue=True)
 
 def dump_default_english_config():
     from modules.localization import dump_english_config

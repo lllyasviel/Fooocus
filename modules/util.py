@@ -362,6 +362,9 @@ def is_json(data: str) -> bool:
 
 
 def get_file_from_folder_list(name, folders):
+    if not isinstance(folders, list):
+        folders = [folders]
+
     for folder in folders:
         filename = os.path.abspath(os.path.realpath(os.path.join(folder, name)))
         if os.path.isfile(filename):
