@@ -5,6 +5,7 @@ import math
 import modules.config
 
 from modules.util import get_files_from_folder
+from random import Random
 
 # cannot use modules.config - validators causing circular imports
 styles_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sdxl_styles/'))
@@ -50,8 +51,13 @@ for styles_file in styles_files:
         print(f'Failed to load style file {styles_file}')
 
 style_keys = list(styles.keys())
-fooocus_expansion = "Fooocus V2"
-legal_style_names = [fooocus_expansion] + style_keys
+fooocus_expansion = 'Fooocus V2'
+random_style_name = 'Random Style'
+legal_style_names = [fooocus_expansion, random_style_name] + style_keys
+
+
+def get_random_style(rng: Random) -> str:
+    return rng.choice(list(styles.items()))[0]
 
 
 def apply_style(style, positive):

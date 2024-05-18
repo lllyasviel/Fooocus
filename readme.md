@@ -368,6 +368,7 @@ A safer way is just to try "run_anime.bat" or "run_realistic.bat" - they should 
 entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
                       [--disable-header-check [ORIGIN]]
                       [--web-upload-size WEB_UPLOAD_SIZE]
+                      [--hf-mirror HF_MIRROR]
                       [--external-working-path PATH [PATH ...]]
                       [--output-path OUTPUT_PATH] [--temp-path TEMP_PATH]
                       [--cache-path CACHE_PATH] [--in-browser]
