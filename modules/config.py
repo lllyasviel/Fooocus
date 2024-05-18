@@ -8,7 +8,8 @@ import modules.flags
 import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
-from modules.util import get_files_from_folder, makedirs_with_log
+from modules.util import makedirs_with_log
+from modules.extra_utils import get_files_from_folder
 from modules.flags import OutputFormat, Performance, MetadataScheme
 
 
@@ -20,7 +21,7 @@ def get_config_path(key, default_value):
     else:
         return os.path.abspath(default_value)
 
-
+wildcards_max_bfs_depth = 64
 config_path = get_config_path('config_path', "./config.txt")
 config_example_path = get_config_path('config_example_path', "config_modification_tutorial.txt")
 config_dict = {}

@@ -1,11 +1,12 @@
-import typing
-
 import numpy as np
 import datetime
 import random
 import math
 import os
 import cv2
+import re
+from typing import List, Tuple, AnyStr, NamedTuple
+
 import json
 import hashlib
 
@@ -14,7 +15,15 @@ from PIL import Image
 import modules.sdxl_styles
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
+
+
+# Regexp compiled once. Matches entries with the following pattern:
+# <lora:some_lora:1>
+# <lora:aNotherLora:-1.6>
+LORAS_PROMPT_PATTERN = re.compile(r".* <lora : ([^:]+) : ([+-]? (?: (?:\d+ (?:\.\d*)?) | (?:\.\d+)))> .*", re.X)
+
 HASH_SHA256_LENGTH = 10
+
 
 def erode_or_dilate(x, k):
     k = int(k)
@@ -161,25 +170,6 @@ def generate_temp_filename(folder='./outputs/', extension='png'):
     filename = f"{time_string}_{random_number}.{extension}"
     result = os.path.join(folder, date_string, filename)
     return date_string, os.path.abspath(result), filename
-
-
-def get_files_from_folder(folder_path, extensions=None, name_filter=None):
-    if not os.path.isdir(folder_path):
-        raise ValueError("Folder path is not a valid directory.")
-
-    filenames = []
-
-    for root, dirs, files in os.walk(folder_path, topdown=False):
-        relative_path = os.path.relpath(root, folder_path)
-        if relative_path == ".":
-            relative_path = ""
-        for filename in sorted(files, key=lambda s: s.casefold()):
-            _, file_extension = os.path.splitext(filename)
-            if (extensions is None or file_extension.lower() in extensions) and (name_filter is None or name_filter in _):
-                path = os.path.join(relative_path, filename)
-                filenames.append(path)
-
-    return filenames
 
 
 def sha256(filename, use_addnet_hash=False, length=HASH_SHA256_LENGTH):
@@ -355,7 +345,7 @@ def extract_styles_from_prompt(prompt, negative_prompt):
     return list(reversed(extracted)), real_prompt, negative_prompt
 
 
-class PromptStyle(typing.NamedTuple):
+class PromptStyle(NamedTuple):
     name: str
     prompt: str
     negative_prompt: str
@@ -394,4 +384,47 @@ def makedirs_with_log(path):
 
 
 def get_enabled_loras(loras: list) -> list:
-    return [[lora[1], lora[2]] for lora in loras if lora[0]]
+    return [(lora[1], lora[2]) for lora in loras if lora[0]]
+
+
+def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5) -> List[Tuple[AnyStr, float]]:
+    new_loras = []
+    updated_loras = []
+    for token in prompt.split(","):
+        m = LORAS_PROMPT_PATTERN.match(token)
+
+        if m:
+            new_loras.append((f"{m.group(1)}.safetensors", float(m.group(2))))
+
+    for lora in loras + new_loras:
+        if lora[0] != "None":
+            updated_loras.append(lora)
+
+    return updated_loras[:loras_limit]
+
+
+def apply_wildcards(wildcard_text, rng, i, read_wildcards_in_order) -> str:
+    for _ in range(modules.config.wildcards_max_bfs_depth):
+        placeholders = re.findall(r'__([\w-]+)__', wildcard_text)
+        if len(placeholders) == 0:
+            return wildcard_text
+
+        print(f'[Wildcards] processing: {wildcard_text}')
+        for placeholder in placeholders:
+            try:
+                matches = [x for x in modules.config.wildcard_filenames if os.path.splitext(os.path.basename(x))[0] == placeholder]
+                words = open(os.path.join(modules.config.path_wildcards, matches[0]), encoding='utf-8').read().splitlines()
+                words = [x for x in words if x != '']
+                assert len(words) > 0
+                if read_wildcards_in_order:
+                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[i % len(words)], 1)
+                else:
+                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
+            except:
+                print(f'[Wildcards] Warning: {placeholder}.txt missing or empty. '
+                      f'Using "{placeholder}" as a normal word.')
+                wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
+            print(f'[Wildcards] {wildcard_text}')
+
+    print(f'[Wildcards] BFS stack overflow. Current text: {wildcard_text}')
+    return wildcard_text
