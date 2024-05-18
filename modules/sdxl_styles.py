@@ -2,13 +2,11 @@ import os
 import re
 import json
 import math
-#import modules.config
 
 from modules.extra_utils import get_files_from_folder
 
 # cannot use modules.config - validators causing circular imports
 styles_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sdxl_styles/'))
-
 
 
 def normalize_key(k):
@@ -24,7 +22,6 @@ def normalize_key(k):
 
 
 styles = {}
-
 styles_files = get_files_from_folder(styles_path, ['.json'])
 
 for x in ['sdxl_styles_fooocus.json',
@@ -59,7 +56,7 @@ def apply_style(style, positive):
     return p.replace('{prompt}', positive).splitlines(), n.splitlines()
 
 
-def get_words(arrays, totalMult, index):
+def get_words(arrays, total_mult, index):
     if len(arrays) == 1:
         return [arrays[0].split(',')[index]]
     else:
@@ -68,7 +65,7 @@ def get_words(arrays, totalMult, index):
         index -= index % len(words)
         index /= len(words)
         index = math.floor(index)
-        return [word] + get_words(arrays[1:], math.floor(totalMult/len(words)), index)
+        return [word] + get_words(arrays[1:], math.floor(total_mult / len(words)), index)
 
 
 def apply_arrays(text, index):

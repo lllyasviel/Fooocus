@@ -148,7 +148,7 @@ def worker():
         base_model_name = args.pop()
         refiner_model_name = args.pop()
         refiner_switch = args.pop()
-        loras = get_enabled_loras([[bool(args.pop()), str(args.pop()), float(args.pop())] for _ in range(modules.config.default_max_lora_number)])
+        loras = get_enabled_loras([(bool(args.pop()), str(args.pop()), float(args.pop())) for _ in range(modules.config.default_max_lora_number)])
         input_image_checkbox = args.pop()
         current_tab = args.pop()
         uov_method = args.pop()
@@ -428,7 +428,6 @@ def worker():
 
             progressbar(async_task, 3, 'Loading models ...')
 
-            # Parse lora references from prompt
             loras = parse_lora_references_from_prompt(prompt, loras, modules.config.default_max_lora_number)
 
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
