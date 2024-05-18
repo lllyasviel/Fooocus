@@ -195,7 +195,7 @@ path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlne
 path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vision/')
 path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
 path_wildcards = get_dir_or_set_default('path_wildcards', '../wildcards/')
-path_safety_checker_models = get_dir_or_set_default('path_safety_checker_models', '../models/safety_checker_models/')
+path_safety_checker = get_dir_or_set_default('path_safety_checker', '../models/safety_checker/')
 path_outputs = get_path_output()
 
 
@@ -688,10 +688,10 @@ def downloading_upscale_model():
 def downloading_safety_checker_model():
     load_file_from_url(
         url='https://huggingface.co/mashb1t/misc/resolve/main/stable-diffusion-safety-checker.bin',
-        model_dir=path_safety_checker_models,
+        model_dir=path_safety_checker,
         file_name='stable-diffusion-safety-checker.bin'
     )
-    return os.path.join(path_safety_checker_models, 'stable-diffusion-safety-checker.bin')
+    return os.path.join(path_safety_checker, 'stable-diffusion-safety-checker.bin')
 
 
 update_files()
