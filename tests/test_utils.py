@@ -1,10 +1,10 @@
 import unittest
+
 from modules import util
 
 
 class TestUtils(unittest.TestCase):
     def test_can_parse_tokens_with_lora(self):
-
         test_cases = [
             {
                 "input": ("some prompt, very cool, <lora:hey-lora:0.4>,  cool   <lora:you-lora:0.2>", [], 5),
@@ -36,13 +36,13 @@ class TestUtils(unittest.TestCase):
                 "output": [("you-lora.safetensors", 0.2)],
             },
             {
-                 "input": ("<lora:foo:1..2>, <lora:bar:.>, <lora:baz:+> and <lora:quux:>",[], 6),
-                 "output": []
+                "input": ("<lora:foo:1..2>, <lora:bar:.>, <lora:baz:+> and <lora:quux:>", [], 6),
+                "output": []
             }
         ]
 
         for test in test_cases:
-            promp, loras, loras_limit = test["input"]
+            prompt, loras, loras_limit = test["input"]
             expected = test["output"]
-            actual = util.parse_lora_references_from_prompt(promp, loras, loras_limit)
+            actual = util.parse_lora_references_from_prompt(prompt, loras, loras_limit)
             self.assertEqual(expected, actual)
