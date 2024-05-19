@@ -44,7 +44,7 @@ def worker():
     import fooocus_version
     import args_manager
 
-    from extras.censor import censor_batch, censor_single
+    from extras.censor import default_censor
     from modules.sdxl_styles import apply_style, get_random_style, fooocus_expansion, apply_arrays, random_style_name
     from modules.private_logger import log
     from extras.expansion import safe_str
@@ -78,7 +78,7 @@ def worker():
 
         if censor and (modules.config.default_black_out_nsfw or black_out_nsfw):
             progressbar(async_task, progressbar_index, 'Checking for NSFW content ...')
-            imgs = censor_batch(imgs)
+            imgs = default_censor(imgs)
 
         async_task.results = async_task.results + imgs
 
@@ -615,7 +615,7 @@ def worker():
                 d = [('Upscale (Fast)', 'upscale_fast', '2x')]
                 if modules.config.default_black_out_nsfw or black_out_nsfw:
                     progressbar(async_task, 100, 'Checking for NSFW content ...')
-                    uov_input_image = censor_single(uov_input_image)
+                    uov_input_image = default_censor(uov_input_image)
                 uov_input_image_path = log(uov_input_image, d, output_format=output_format)
                 yield_result(async_task, uov_input_image_path, black_out_nsfw, False, do_not_show_finished_images=True)
                 return
@@ -883,12 +883,12 @@ def worker():
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
                 img_paths = []
-
+                current_progress = int(15.0 + 85.0 * float((current_task_id + 1) * steps) / float(all_steps))
                 if modules.config.default_black_out_nsfw or black_out_nsfw:
-                    progressbar(async_task, int(15.0 + 85.0 * float((current_task_id + 1) * steps) / float(all_steps)),
-                                'Checking for NSFW content ...')
-                    imgs = censor_batch(imgs)
+                    progressbar(async_task, current_progress, 'Checking for NSFW content ...')
+                    imgs = default_censor(imgs)
 
+                progressbar(async_task, current_progress, 'Saving image to system ...')
                 for x in imgs:
                     d = [('Prompt', 'prompt', task['log_positive_prompt']),
                          ('Negative Prompt', 'negative_prompt', task['log_negative_prompt']),
