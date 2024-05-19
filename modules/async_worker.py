@@ -49,7 +49,7 @@ def worker():
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import (remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil,
-                              get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix, get_enabled_loras,
+                              get_shape_ceil, resample_image, erode_or_dilate, get_enabled_loras,
                               parse_lora_references_from_prompt, apply_wildcards)
     from modules.upscaler import perform_upscale
     from modules.flags import Performance
@@ -72,7 +72,7 @@ def worker():
         async_task.yields.append(['preview', (number, text, None)])
 
     def yield_result(async_task, imgs, black_out_nsfw, censor=True, do_not_show_finished_images=False,
-                     progressbar_index=13):
+                     progressbar_index=flags.preparation_step_count):
         if not isinstance(imgs, list):
             imgs = [imgs]
 
@@ -456,7 +456,7 @@ def worker():
             extra_positive_prompts = prompts[1:] if len(prompts) > 1 else []
             extra_negative_prompts = negative_prompts[1:] if len(negative_prompts) > 1 else []
 
-            progressbar(async_task, 3, 'Loading models ...')
+            progressbar(async_task, 2, 'Loading models ...')
 
             loras = parse_lora_references_from_prompt(prompt, loras, modules.config.default_max_lora_number)
 
@@ -523,25 +523,25 @@ def worker():
 
             if use_expansion:
                 for i, t in enumerate(tasks):
-                    progressbar(async_task, 5, f'Preparing Fooocus text #{i + 1} ...')
+                    progressbar(async_task, 4, f'Preparing Fooocus text #{i + 1} ...')
                     expansion = pipeline.final_expansion(t['task_prompt'], t['task_seed'])
                     print(f'[Prompt Expansion] {expansion}')
                     t['expansion'] = expansion
                     t['positive'] = copy.deepcopy(t['positive']) + [expansion]  # Deep copy.
 
             for i, t in enumerate(tasks):
-                progressbar(async_task, 7, f'Encoding positive #{i + 1} ...')
+                progressbar(async_task, 5, f'Encoding positive #{i + 1} ...')
                 t['c'] = pipeline.clip_encode(texts=t['positive'], pool_top_k=t['positive_top_k'])
 
             for i, t in enumerate(tasks):
                 if abs(float(cfg_scale) - 1.0) < 1e-4:
                     t['uc'] = pipeline.clone_cond(t['c'])
                 else:
-                    progressbar(async_task, 10, f'Encoding negative #{i + 1} ...')
+                    progressbar(async_task, 6, f'Encoding negative #{i + 1} ...')
                     t['uc'] = pipeline.clip_encode(texts=t['negative'], pool_top_k=t['negative_top_k'])
 
         if len(goals) > 0:
-            progressbar(async_task, 13, 'Image processing ...')
+            progressbar(async_task, 7, 'Image processing ...')
 
         if 'vary' in goals:
             if 'subtle' in uov_method:
@@ -562,7 +562,7 @@ def worker():
             uov_input_image = set_image_shape_ceil(uov_input_image, shape_ceil)
 
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
-            progressbar(async_task, 13, 'VAE encoding ...')
+            progressbar(async_task, 8, 'VAE encoding ...')
 
             candidate_vae, _ = pipeline.get_candidate_vae(
                 steps=steps,
@@ -579,7 +579,7 @@ def worker():
 
         if 'upscale' in goals:
             H, W, C = uov_input_image.shape
-            progressbar(async_task, 13, f'Upscaling image from {str((H, W))} ...')
+            progressbar(async_task, 9, f'Upscaling image from {str((H, W))} ...')
             uov_input_image = perform_upscale(uov_input_image)
             print(f'Image upscaled.')
 
@@ -628,7 +628,7 @@ def worker():
                 denoising_strength = overwrite_upscale_strength
 
             initial_pixels = core.numpy_to_pytorch(uov_input_image)
-            progressbar(async_task, 13, 'VAE encoding ...')
+            progressbar(async_task, 10, 'VAE encoding ...')
 
             candidate_vae, _ = pipeline.get_candidate_vae(
                 steps=steps,
@@ -686,7 +686,7 @@ def worker():
                              do_not_show_finished_images=True)
                 return
 
-            progressbar(async_task, 13, 'VAE Inpaint encoding ...')
+            progressbar(async_task, 11, 'VAE Inpaint encoding ...')
 
             inpaint_pixel_fill = core.numpy_to_pytorch(inpaint_worker.current_task.interested_fill)
             inpaint_pixel_image = core.numpy_to_pytorch(inpaint_worker.current_task.interested_image)
@@ -706,7 +706,7 @@ def worker():
 
             latent_swap = None
             if candidate_vae_swap is not None:
-                progressbar(async_task, 13, 'VAE SD15 encoding ...')
+                progressbar(async_task, 12, 'VAE SD15 encoding ...')
                 latent_swap = core.encode_vae(
                     vae=candidate_vae_swap,
                     pixels=inpaint_pixel_fill)['samples']
@@ -832,16 +832,17 @@ def worker():
                     zsnr=False)[0]
             print(f'Using {scheduler_name} scheduler.')
 
-        async_task.yields.append(['preview', (13, 'Moving model to GPU ...', None)])
+        async_task.yields.append(['preview', (flags.preparation_step_count, 'Moving model to GPU ...', None)])
 
         def callback(step, x0, x, total_steps, y):
             done_steps = current_task_id * steps + step
             async_task.yields.append(['preview', (
-                int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}{ordinal_suffix(current_task_id + 1)} Sampling',
-                y)])
+                int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(done_steps) / float(all_steps)),
+                f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{image_number} ...', y)])
 
         for current_task_id, task in enumerate(tasks):
+            current_progress = int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(current_task_id * steps) / float(all_steps))
+            progressbar(async_task, current_progress, f'Preparing task {current_task_id + 1}/{image_number} ...')
             execution_start_time = time.perf_counter()
 
             try:
@@ -884,12 +885,12 @@ def worker():
                     imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
 
                 img_paths = []
-                current_progress = int(15.0 + 85.0 * float((current_task_id + 1) * steps) / float(all_steps))
+                current_progress = int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float((current_task_id + 1) * steps) / float(all_steps))
                 if modules.config.default_black_out_nsfw or black_out_nsfw:
                     progressbar(async_task, current_progress, 'Checking for NSFW content ...')
                     imgs = default_censor(imgs)
 
-                progressbar(async_task, current_progress, 'Saving image to system ...')
+                progressbar(async_task, current_progress, f'Saving image {current_task_id + 1}/{image_number} to system ...')
                 for x in imgs:
                     d = [('Prompt', 'prompt', task['log_positive_prompt']),
                          ('Negative Prompt', 'negative_prompt', task['log_negative_prompt']),

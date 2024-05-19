@@ -27,6 +27,7 @@ progress {
   border-radius: 5px; /* Round the corners of the progress bar */
   background-color: #f3f3f3; /* Light grey background */
   width: 100%;
+  vertical-align: middle !important;
 }
 
 /* Style the progress bar container */
@@ -67,6 +68,11 @@ progress::after {
 
 .progress-bar{
   height: 30px !important;
+}
+
+.progress-bar span {
+    text-align: right;
+    width: 200px;
 }
 
 .type_row{
