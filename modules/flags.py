@@ -93,6 +93,7 @@ metadata_scheme = [
 ]
 
 controlnet_image_count = 4
+preparation_step_count = 13
 
 
 class OutputFormat(Enum):
