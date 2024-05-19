@@ -8,7 +8,8 @@ import modules.flags
 import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
-from modules.util import get_files_from_folder, makedirs_with_log
+from modules.util import makedirs_with_log
+from modules.extra_utils import get_files_from_folder
 from modules.flags import OutputFormat, Performance, MetadataScheme
 
 
@@ -20,7 +21,7 @@ def get_config_path(key, default_value):
     else:
         return os.path.abspath(default_value)
 
-
+wildcards_max_bfs_depth = 64
 config_path = get_config_path('config_path', "./config.txt")
 config_example_path = get_config_path('config_example_path', "config_modification_tutorial.txt")
 config_dict = {}
@@ -199,6 +200,7 @@ path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vi
 path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
 path_safety_checker_models = get_dir_or_set_default('path_safety_checker_models', '../models/safety_checker_models/')
 path_wildcards = get_dir_or_set_default('path_wildcards', '../wildcards/')
+path_safety_checker = get_dir_or_set_default('path_safety_checker', '../models/safety_checker/')
 path_outputs = get_path_output()
 
 def get_config_item_or_set_default(key, default_value, validator, disable_empty_as_none=False):
@@ -462,6 +464,11 @@ example_inpaint_prompts = get_config_item_or_set_default(
         'highly detailed face', 'detailed girl face', 'detailed man face', 'detailed hand', 'beautiful eyes'
     ],
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x)
+)
+default_black_out_nsfw = get_config_item_or_set_default(
+    key='default_black_out_nsfw',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool)
 )
 default_save_metadata_to_images = get_config_item_or_set_default(
     key='default_save_metadata_to_images',
@@ -730,6 +737,14 @@ def downloading_upscale_model():
         file_name='fooocus_upscaler_s409985e5.bin'
     )
     return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
+
+def downloading_safety_checker_model():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/stable-diffusion-safety-checker.bin',
+        model_dir=path_safety_checker,
+        file_name='stable-diffusion-safety-checker.bin'
+    )
+    return os.path.join(path_safety_checker, 'stable-diffusion-safety-checker.bin')
 
 
 update_files()
