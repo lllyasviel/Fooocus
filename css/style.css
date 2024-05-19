@@ -70,6 +70,11 @@ progress::after {
   height: 30px !important;
 }
 
+.progress-bar span {
+    text-align: right;
+    width: 200px;
+}
+
 .type_row{
   height: 80px !important;
 }

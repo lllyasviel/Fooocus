@@ -49,7 +49,7 @@ def worker():
     from modules.private_logger import log
     from extras.expansion import safe_str
     from modules.util import (remove_empty_str, HWC3, resize_image, get_image_shape_ceil, set_image_shape_ceil,
-                              get_shape_ceil, resample_image, erode_or_dilate, ordinal_suffix, get_enabled_loras,
+                              get_shape_ceil, resample_image, erode_or_dilate, get_enabled_loras,
                               parse_lora_references_from_prompt, apply_wildcards)
     from modules.upscaler import perform_upscale
     from modules.flags import Performance
@@ -838,10 +838,11 @@ def worker():
             done_steps = current_task_id * steps + step
             async_task.yields.append(['preview', (
                 int(15.0 + 85.0 * float(done_steps) / float(all_steps)),
-                f'Step {step}/{total_steps} in the {current_task_id + 1}{ordinal_suffix(current_task_id + 1)} Sampling',
-                y)])
+                f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{image_number} ...', y)])
 
         for current_task_id, task in enumerate(tasks):
+            current_progress = int(15.0 + 85.0 * float(current_task_id * steps) / float(all_steps))
+            progressbar(async_task, current_progress, f'Preparing task {current_task_id + 1}/{image_number} ...')
             execution_start_time = time.perf_counter()
 
             try:
@@ -889,7 +890,7 @@ def worker():
                     progressbar(async_task, current_progress, 'Checking for NSFW content ...')
                     imgs = default_censor(imgs)
 
-                progressbar(async_task, current_progress, 'Saving image to system ...')
+                progressbar(async_task, current_progress, f'Saving image {current_task_id + 1}/{image_number} to system ...')
                 for x in imgs:
                     d = [('Prompt', 'prompt', task['log_positive_prompt']),
                          ('Negative Prompt', 'negative_prompt', task['log_negative_prompt']),
