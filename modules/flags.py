@@ -107,7 +107,6 @@ class Steps(IntEnum):
     SPEED = 30
     EXTREME_SPEED = 8
     LIGHTNING = 4
-    HYPER_SD8 = 8
     HYPER_SD = 4
 
 
@@ -116,7 +115,6 @@ class StepsUOV(IntEnum):
     SPEED = 18
     EXTREME_SPEED = 8
     LIGHTNING = 4
-    HYPER_SD8 = 8
     HYPER_SD = 4
 
 
@@ -125,7 +123,6 @@ class Performance(Enum):
     SPEED = 'Speed'
     EXTREME_SPEED = 'Extreme Speed'
     LIGHTNING = 'Lightning'
-    HYPER_SD8 = 'Hyper-SD8'
     HYPER_SD = 'Hyper-SD'
 
     @classmethod
