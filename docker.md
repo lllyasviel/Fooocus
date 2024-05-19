@@ -54,6 +54,7 @@ Docker specified environments are there. They are used by 'entrypoint.sh'
 |CMDARGS|Arguments for [entry_with_update.py](entry_with_update.py) which is called by [entrypoint.sh](entrypoint.sh)|
 |config_path|'config.txt' location|
 |config_example_path|'config_modification_tutorial.txt' location|
+|HF_MIRROR| huggingface mirror site domain| 
 
 You can also use the same json key names and values explained in the 'config_modification_tutorial.txt' as the environments.
 See examples in the [docker-compose.yml](docker-compose.yml)

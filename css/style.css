@@ -391,6 +391,6 @@ progress::after {
   background-color: #fff8;
   font-family: monospace;
   text-align: center;
-  border-radius-top: 5px;
+  border-radius: 5px 5px 0px 0px;
   display: none; /* remove this to enable tooltip in preview image */
 }
