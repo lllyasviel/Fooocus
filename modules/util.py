@@ -372,11 +372,6 @@ def get_file_from_folder_list(name, folders):
     return os.path.abspath(os.path.realpath(os.path.join(folders[0], name)))
 
 
-def makedirs_with_log(path):
-    try:
-        os.makedirs(path, exist_ok=True)
-    except OSError as error:
-        print(f'Directory {path} could not be created, reason: {error}')
 
 
 def get_enabled_loras(loras: list) -> list:
