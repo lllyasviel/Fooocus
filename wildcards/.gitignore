@@ -1,0 +1,8 @@
+*.txt
+!animal.txt
+!artist.txt
+!color.txt
+!color_flower.txt
+!extended-color.txt
+!flower.txt
+!nationality.txt
