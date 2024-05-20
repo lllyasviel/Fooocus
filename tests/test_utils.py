@@ -8,12 +8,16 @@ class TestUtils(unittest.TestCase):
         test_cases = [
             {
                 "input": ("some prompt, very cool, <lora:hey-lora:0.4>,  cool   <lora:you-lora:0.2>", [], 5),
-                "output": [("hey-lora.safetensors", 0.4), ("you-lora.safetensors", 0.2)],
+                "output": (
+                    [('hey-lora.safetensors', 0.4), ('you-lora.safetensors', 0.2)], 'some prompt, very cool, cool'),
             },
             # Test can not exceed limit
             {
                 "input": ("some prompt, very cool, <lora:hey-lora:0.4>,  cool   <lora:you-lora:0.2>", [], 1),
-                "output": [("hey-lora.safetensors", 0.4)],
+                "output": (
+                    [('hey-lora.safetensors', 0.4)],
+                    'some prompt, very cool, cool'
+                ),
             },
             # test Loras from UI take precedence over prompt
             {
@@ -22,22 +26,33 @@ class TestUtils(unittest.TestCase):
                     [("hey-lora.safetensors", 0.4)],
                     5,
                 ),
-                "output": [
-                    ("hey-lora.safetensors", 0.4),
-                    ("l1.safetensors", 0.4),
-                    ("l2.safetensors", -0.2),
-                    ("l3.safetensors", 0.3),
-                    ("l4.safetensors", 0.5),
-                ],
+                "output": (
+                    [
+                        ('hey-lora.safetensors', 0.4),
+                        ('l1.safetensors', 0.4),
+                        ('l2.safetensors', -0.2),
+                        ('l3.safetensors', 0.3),
+                        ('l4.safetensors', 0.5)
+                    ],
+                    'some prompt, very cool'
+                )
             },
-            # Test lora specification not separated by comma are ignored, only latest specified is used
             {
                 "input": ("some prompt, very cool, <lora:hey-lora:0.4><lora:you-lora:0.2>", [], 3),
-                "output": [("you-lora.safetensors", 0.2)],
+                "output": (
+                    [
+                        ('hey-lora.safetensors', 0.4),
+                        ('you-lora.safetensors', 0.2)
+                    ],
+                    'some prompt, very cool, <lora:you-lora:0.2><lora:hey-lora:0.4>'
+                ),
             },
             {
-                "input": ("<lora:foo:1..2>, <lora:bar:.>, <lora:baz:+> and <lora:quux:>", [], 6),
-                "output": []
+                "input": ("<lora:foo:1..2>, <lora:bar:.>, <test:1.0>, <lora:baz:+> and <lora:quux:>", [], 6),
+                "output": (
+                    [],
+                    '<lora:foo:1..2>, <lora:bar:.>, <test:1.0>, <lora:baz:+> and <lora:quux:>'
+                )
             }
         ]
 
