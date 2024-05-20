@@ -458,7 +458,7 @@ def worker():
 
             progressbar(async_task, 2, 'Loading models ...')
 
-            loras = parse_lora_references_from_prompt(prompt, loras, modules.config.default_max_lora_number)
+            loras, prompt = parse_lora_references_from_prompt(prompt, loras, modules.config.default_max_lora_number)
 
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
@@ -505,6 +505,10 @@ def worker():
                 positive_basic_workloads = remove_empty_str(positive_basic_workloads, default=task_prompt)
                 negative_basic_workloads = remove_empty_str(negative_basic_workloads, default=task_negative_prompt)
 
+                task_loras, task_prompt = parse_lora_references_from_prompt(task_prompt, loras, modules.config.default_max_lora_number)
+                for i, positive_basic_workload in enumerate(positive_basic_workloads):
+                    task_loras, positive_basic_workloads[i] = parse_lora_references_from_prompt(positive_basic_workloads[i], task_loras, modules.config.default_max_lora_number)
+
                 tasks.append(dict(
                     task_seed=task_seed,
                     task_prompt=task_prompt,
@@ -518,7 +522,8 @@ def worker():
                     negative_top_k=len(negative_basic_workloads),
                     log_positive_prompt='\n'.join([task_prompt] + task_extra_positive_prompts),
                     log_negative_prompt='\n'.join([task_negative_prompt] + task_extra_negative_prompts),
-                    styles=task_styles
+                    styles=task_styles,
+                    task_loras=task_loras
                 ))
 
             if use_expansion:
@@ -843,6 +848,13 @@ def worker():
         for current_task_id, task in enumerate(tasks):
             current_progress = int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(current_task_id * steps) / float(all_steps))
             progressbar(async_task, current_progress, f'Preparing task {current_task_id + 1}/{image_number} ...')
+
+            if task['task_loras'] != loras:
+                pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
+                                            loras=task['task_loras'], base_model_additional_loras=base_model_additional_loras,
+                                            use_synthetic_refiner=use_synthetic_refiner, vae_name=vae_name)
+                # pipeline.refresh_loras(task['task_loras'], base_model_additional_loras)
+
             execution_start_time = time.perf_counter()
 
             try:
@@ -930,7 +942,7 @@ def worker():
                     if freeu_enabled:
                         d.append(('FreeU', 'freeu', str((freeu_b1, freeu_b2, freeu_s1, freeu_s2))))
 
-                    for li, (n, w) in enumerate(loras):
+                    for li, (n, w) in enumerate(task['task_loras']):
                         if n != 'None':
                             d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}'))
 
@@ -939,7 +951,7 @@ def worker():
                         metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
                         metadata_parser.set_data(task['log_positive_prompt'], task['positive'],
                                                  task['log_negative_prompt'], task['negative'],
-                                                 steps, base_model_name, refiner_model_name, loras, vae_name)
+                                                 steps, base_model_name, refiner_model_name, task['task_loras'], vae_name)
                     d.append(('Metadata Scheme', 'metadata_scheme',
                               metadata_scheme.value if save_metadata_to_images else save_metadata_to_images))
                     d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))

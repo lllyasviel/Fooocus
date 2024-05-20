@@ -12,15 +12,15 @@ import hashlib
 
 from PIL import Image
 
+import modules.config
 import modules.sdxl_styles
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 
-
 # Regexp compiled once. Matches entries with the following pattern:
 # <lora:some_lora:1>
 # <lora:aNotherLora:-1.6>
-LORAS_PROMPT_PATTERN = re.compile(r".* <lora : ([^:]+) : ([+-]? (?: (?:\d+ (?:\.\d*)?) | (?:\.\d+)))> .*", re.X)
+LORAS_PROMPT_PATTERN = re.compile(r".*(<lora:([^:]+):([+-]?(?:\d+(?:\.\d*)?|\.\d+))>).*", re.X)
 
 HASH_SHA256_LENGTH = 10
 
@@ -379,24 +379,48 @@ def makedirs_with_log(path):
         print(f'Directory {path} could not be created, reason: {error}')
 
 
-def get_enabled_loras(loras: list) -> list:
-    return [(lora[1], lora[2]) for lora in loras if lora[0]]
+def get_enabled_loras(loras: list, remove_none=True) -> list:
+    return [(lora[1], lora[2]) for lora in loras if lora[0] and (lora[1] != 'None' if remove_none else True)]
 
 
-def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5) -> List[Tuple[AnyStr, float]]:
-    new_loras = []
-    updated_loras = []
-    for token in prompt.split(","):
+def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5,
+                                      prompt_cleanup=True, deduplicate_loras=True) -> tuple[List[Tuple[AnyStr, float]], str]:
+    found_loras = []
+    cleaned_prompt = ""
+    for token in prompt.split(" "):
         m = LORAS_PROMPT_PATTERN.match(token)
 
         if m:
-            new_loras.append((f"{m.group(1)}.safetensors", float(m.group(2))))
+            found_loras.append((f"{m.group(2)}.safetensors", float(m.group(3))))
+            cleaned_prompt += token.replace(m.group(1), '')
+        else:
+            cleaned_prompt += token
+        cleaned_prompt += ' '
 
+    cleaned_prompt = cleaned_prompt[:-1]
+
+    if prompt_cleanup:
+        cleaned_prompt = cleaned_prompt.strip()
+        cleaned_prompt = re.sub(' +', ' ', cleaned_prompt)
+        cleaned_prompt = re.sub(',+', ',', cleaned_prompt)
+        cleaned_prompt = re.sub(' , +', ', ', cleaned_prompt)
+
+    new_loras = []
+    lora_names = [lora[0] for lora in loras]
+    for found_lora in found_loras:
+        if deduplicate_loras and found_lora[0] in lora_names:
+            continue
+        new_loras.append(found_lora)
+
+    if len(new_loras) == 0:
+        return loras, cleaned_prompt
+
+    updated_loras = []
     for lora in loras + new_loras:
         if lora[0] != "None":
             updated_loras.append(lora)
 
-    return updated_loras[:loras_limit]
+    return updated_loras[:loras_limit], cleaned_prompt
 
 
 def apply_wildcards(wildcard_text, rng, i, read_wildcards_in_order) -> str:
