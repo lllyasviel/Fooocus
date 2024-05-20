@@ -205,7 +205,6 @@ def get_lora(key: str, fallback: str | None, source_dict: dict, results: list):
 def get_sha256(filepath):
     global hash_cache
     if filepath not in hash_cache:
-        # is_safetensors = os.path.splitext(filepath)[1].lower() == '.safetensors'
         hash_cache[filepath] = sha256(filepath)
 
     return hash_cache[filepath]
@@ -291,12 +290,6 @@ class MetadataParser(ABC):
                 lora_hash = get_sha256(lora_path)
                 self.loras.append((Path(lora_name).stem, lora_weight, lora_hash))
         self.vae_name = Path(vae_name).stem
-
-    @staticmethod
-    def remove_special_loras(lora_filenames):
-        for lora_to_remove in modules.config.loras_metadata_remove:
-            if lora_to_remove in lora_filenames:
-                lora_filenames.remove(lora_to_remove)
 
 
 class A1111MetadataParser(MetadataParser):
@@ -414,13 +407,11 @@ class A1111MetadataParser(MetadataParser):
             lora_data = data['lora_hashes']
 
         if lora_data != '':
-            lora_filenames = modules.config.lora_filenames.copy()
-            self.remove_special_loras(lora_filenames)
             for li, lora in enumerate(lora_data.split(', ')):
                 lora_split = lora.split(': ')
                 lora_name = lora_split[0]
                 lora_weight = lora_split[2] if len(lora_split) == 3 else lora_split[1]
-                for filename in lora_filenames:
+                for filename in modules.config.lora_filenames_no_special:
                     path = Path(filename)
                     if lora_name == path.stem:
                         data[f'lora_combined_{li + 1}'] = f'{filename} : {lora_weight}'
@@ -509,19 +500,15 @@ class FooocusMetadataParser(MetadataParser):
         return MetadataScheme.FOOOCUS
 
     def parse_json(self, metadata: dict) -> dict:
-        model_filenames = modules.config.model_filenames.copy()
-        lora_filenames = modules.config.lora_filenames.copy()
-        vae_filenames = modules.config.vae_filenames.copy()
-        self.remove_special_loras(lora_filenames)
         for key, value in metadata.items():
             if value in ['', 'None']:
                 continue
             if key in ['base_model', 'refiner_model']:
-                metadata[key] = self.replace_value_with_filename(key, value, model_filenames)
+                metadata[key] = self.replace_value_with_filename(key, value, modules.config.model_filenames)
             elif key.startswith('lora_combined_'):
-                metadata[key] = self.replace_value_with_filename(key, value, lora_filenames)
+                metadata[key] = self.replace_value_with_filename(key, value, modules.config.lora_filenames_no_special)
             elif key == 'vae':
-                metadata[key] = self.replace_value_with_filename(key, value, vae_filenames)
+                metadata[key] = self.replace_value_with_filename(key, value, modules.config.vae_filenames)
             else:
                 continue
 
