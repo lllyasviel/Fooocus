@@ -79,7 +79,7 @@ podman build . -t fooocus
 
 ## Details
 
-### Update the container manually (`docker-compose`)
+### Update the container manually (`docker compose`)
 
 When you are using `docker compose up` continuously, the container is not updated to the latest version of Fooocus automatically.
 Run `git pull` before executing `docker compose build --no-cache` to build an image with the latest Fooocus version.
