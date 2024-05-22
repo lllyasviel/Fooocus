@@ -70,7 +70,7 @@ class ModelSamplingDiscrete:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "model": ("MODEL",),
-                              "sampling": (["eps", "v_prediction", "lcm"],),
+                              "sampling": (["eps", "v_prediction", "lcm", "tcd"]),
                               "zsnr": ("BOOLEAN", {"default": False}),
                               }}
 
@@ -89,6 +89,9 @@ class ModelSamplingDiscrete:
             sampling_type = ldm_patched.modules.model_sampling.V_PREDICTION
         elif sampling == "lcm":
             sampling_type = LCM
+            sampling_base = ModelSamplingDiscreteDistilled
+        elif sampling == "tcd":
+            sampling_type = ldm_patched.modules.model_sampling.EPS
             sampling_base = ModelSamplingDiscreteDistilled
 
         class ModelSamplingAdvanced(sampling_base, sampling_type):

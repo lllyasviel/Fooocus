@@ -3,6 +3,7 @@ import ldm_patched.modules.samplers
 import ldm_patched.modules.model_management
 
 from collections import namedtuple
+from ldm_patched.contrib.external_align_your_steps import AlignYourStepsScheduler
 from ldm_patched.contrib.external_custom_sampler import SDTurboScheduler
 from ldm_patched.k_diffusion import sampling as k_diffusion_sampling
 from ldm_patched.modules.samplers import normal_scheduler, simple_scheduler, ddim_scheduler
@@ -175,6 +176,9 @@ def calculate_sigmas_scheduler_hacked(model, scheduler_name, steps):
         sigmas = normal_scheduler(model, steps, sgm=True)
     elif scheduler_name == "turbo":
         sigmas = SDTurboScheduler().get_sigmas(namedtuple('Patcher', ['model'])(model=model), steps=steps, denoise=1.0)[0]
+    elif scheduler_name == "align_your_steps":
+        model_type = 'SDXL' if isinstance(model.latent_format, ldm_patched.modules.latent_formats.SDXL) else 'SD1'
+        sigmas = AlignYourStepsScheduler().get_sigmas(model_type=model_type, steps=steps, denoise=1.0)[0]
     else:
         raise TypeError("error invalid scheduler")
     return sigmas
