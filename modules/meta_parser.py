@@ -124,7 +124,7 @@ def get_resolution(key: str, fallback: str | None, source_dict: dict, results: l
         h = source_dict.get(key, source_dict.get(fallback, default))
         width, height = eval(h)
         formatted = modules.config.add_ratio(f'{width}*{height}')
-        if formatted in modules.config.available_aspect_ratios:
+        if formatted in modules.config.available_aspect_ratios_labels:
             results.append(formatted)
             results.append(-1)
             results.append(-1)
