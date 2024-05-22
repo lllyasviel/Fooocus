@@ -6,8 +6,6 @@ on:
       - main
   pull_request:
 
-env:
-  IMAGE_NAME: fooocus
 
 jobs:
   build-and-push-image:
