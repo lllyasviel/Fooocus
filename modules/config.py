@@ -418,13 +418,7 @@ embeddings_downloads = get_config_item_or_set_default(
 )
 available_aspect_ratios = get_config_item_or_set_default(
     key='available_aspect_ratios',
-    default_value=[
-        '704*1408', '704*1344', '768*1344', '768*1280', '832*1216', '832*1152',
-        '896*1152', '896*1088', '960*1088', '960*1024', '1024*1024', '1024*960',
-        '1088*960', '1088*896', '1152*896', '1152*832', '1216*832', '1280*768',
-        '1344*768', '1344*704', '1408*704', '1472*704', '1536*640', '1600*640',
-        '1664*576', '1728*576'
-    ],
+    default_value=modules.flags.sdxl_aspect_ratios,
     validator=lambda x: isinstance(x, list) and all('*' in v for v in x) and len(x) > 1
 )
 default_aspect_ratio = get_config_item_or_set_default(
@@ -556,7 +550,7 @@ def add_ratio(x):
 
 
 default_aspect_ratio = add_ratio(default_aspect_ratio)
-available_aspect_ratios = [add_ratio(x) for x in available_aspect_ratios]
+available_aspect_ratios_labels = [add_ratio(x) for x in available_aspect_ratios]
 
 
 # Only write config in the first launch.

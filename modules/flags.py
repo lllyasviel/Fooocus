@@ -85,6 +85,13 @@ inpaint_options = [inpaint_option_default, inpaint_option_detail, inpaint_option
 desc_type_photo = 'Photograph'
 desc_type_anime = 'Art/Anime'
 
+sdxl_aspect_ratios = [
+    '704*1408', '704*1344', '768*1344', '768*1280', '832*1216', '832*1152',
+    '896*1152', '896*1088', '960*1088', '960*1024', '1024*1024', '1024*960',
+    '1088*960', '1088*896', '1152*896', '1152*832', '1216*832', '1280*768',
+    '1344*768', '1344*704', '1408*704', '1472*704', '1536*640', '1600*640',
+    '1664*576', '1728*576'
+]
 
 class MetadataScheme(Enum):
     FOOOCUS = 'fooocus'
