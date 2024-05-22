@@ -101,8 +101,12 @@ progress::after {
   overflow: auto !important;
 }
 
-.aspect_ratios label {
+.performance_selection label {
     width: 140px !important;
+}
+
+.aspect_ratios label {
+    flex: calc(50% - 5px) !important;
 }
 
 .aspect_ratios label span {
