@@ -394,7 +394,7 @@ def get_enabled_loras(loras: list) -> list:
     return [[lora[1], lora[2]] for lora in loras if lora[0]]
 
 
-def get_image_size_info(image: np.ndarray, available_aspect_ratios: list) -> str:
+def get_image_size_info(image: np.ndarray, aspect_ratios: list) -> str:
     try:
         image = Image.fromarray(np.uint8(image))
         width, height = image.size
@@ -403,7 +403,7 @@ def get_image_size_info(image: np.ndarray, available_aspect_ratios: list) -> str
         lcm_ratio = f'{width // gcd}:{height // gcd}'
         size_info = f'Image Size: {width} x {height}, Ratio: {ratio}, {lcm_ratio}'
 
-        closest_ratio = min(available_aspect_ratios, key=lambda x: abs(ratio - float(x.split('*')[0]) / float(x.split('*')[1])))
+        closest_ratio = min(aspect_ratios, key=lambda x: abs(ratio - float(x.split('*')[0]) / float(x.split('*')[1])))
         recommended_width, recommended_height = map(int, closest_ratio.split('*'))
         recommended_ratio = round(recommended_width / recommended_height, 2)
         recommended_gcd = math.gcd(recommended_width, recommended_height)
