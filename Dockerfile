@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.4.0-base-ubuntu22.04
+FROM nvidia/cuda:12.4.1-base-ubuntu22.04
 ENV DEBIAN_FRONTEND noninteractive
 ENV CMDARGS --listen
 
@@ -13,9 +13,6 @@ RUN pip install --no-cache-dir -r /tmp/requirements_docker.txt -r /tmp/requireme
 RUN pip install --no-cache-dir xformers==0.0.23 --no-dependencies
 RUN curl -fsL -o /usr/local/lib/python3.10/dist-packages/gradio/frpc_linux_amd64_v0.2 https://cdn-media.huggingface.co/frpc-gradio-0.2/frpc_linux_amd64 && \
 	chmod +x /usr/local/lib/python3.10/dist-packages/gradio/frpc_linux_amd64_v0.2
-
-# fix Error: libcuda.so: cannot open shared object file:
-RUN ln -s /usr/lib64/libcuda.so.550.67 /usr/lib64/libcuda.so
 
 RUN adduser --disabled-password --gecos '' user && \
 	mkdir -p /content/app /content/data
