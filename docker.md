@@ -6,7 +6,7 @@ The docker image is based on NVIDIA CUDA 12.3 and PyTorch 2.0, see [Dockerfile](
 
 **This is just an easy way for testing. Please find more information in the [notes](#notes).**
 
-1. Clone this repository
+1. Clone this repository with `git clone --config core.autocrlf=false https://github.com/lllyasviel/Fooocus.git` (core.autocrlf=false is required to keep the line endings LF)
 2. Build the image with `docker compose build`
 3. Run the docker container with `docker compose up`. Building the image takes some time.
 
