@@ -221,7 +221,7 @@ with shared.gradio_root:
                                     choices=[flags.desc_type_photo, flags.desc_type_anime],
                                     value=flags.desc_type_photo)
                                 desc_btn = gr.Button(value='Describe this Image into Prompt')
-                                desc_image_size = gr.Markdown(label='Image Size', elem_id='desc_image_size', visible=False)
+                                desc_image_size = gr.Textbox(label='Image Size and Recommended Size', elem_id='desc_image_size', visible=False)
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Document</a>')
 
                                 def trigger_show_image_properties(image):
