@@ -13,7 +13,6 @@ The docker image is based on NVIDIA CUDA 12.4 and PyTorch 2.1, see [Dockerfile](
 
 ### Running with Docker Compose
 
-
 1. Clone this repository with `git clone --config core.autocrlf=false https://github.com/lllyasviel/Fooocus.git` (core.autocrlf=false is required to keep the line endings LF)
 2. Run the docker container with `docker compose up`.
 
