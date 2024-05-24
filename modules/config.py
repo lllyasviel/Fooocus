@@ -487,6 +487,7 @@ possible_preset_keys = {
     "default_loras": "<processed>",
     "default_cfg_scale": "guidance_scale",
     "default_sample_sharpness": "sharpness",
+    "default_cfg_tsnr": "adaptive_cfg",
     "default_sampler": "sampler",
     "default_scheduler": "scheduler",
     "default_overwrite_step": "steps",
