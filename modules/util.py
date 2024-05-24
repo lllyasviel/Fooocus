@@ -494,7 +494,8 @@ def get_image_size_info(image: np.ndarray, aspect_ratios: list) -> str:
         recommended_gcd = math.gcd(recommended_width, recommended_height)
         recommended_lcm_ratio = f'{recommended_width // recommended_gcd}:{recommended_height // recommended_gcd}'
 
-        size_info += f'\nRecommended Size: {recommended_width} x {recommended_height}, Ratio: {recommended_ratio}, {recommended_lcm_ratio}'
+        size_info = f'{width} x {height}, {ratio}, {lcm_ratio}'
+        size_info += f'\n{recommended_width} x {recommended_height}, {recommended_ratio}, {recommended_lcm_ratio}'
 
         return size_info
     except Exception as e:
