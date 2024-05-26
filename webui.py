@@ -524,13 +524,20 @@ with shared.gradio_root:
                         inpaint_mask_upload_checkbox = gr.Checkbox(label='Enable Mask Upload', value=False)
                         invert_mask_checkbox = gr.Checkbox(label='Invert Mask', value=False)
 
+                        inpaint_mask_color = gr.ColorPicker(label='Inpaint brush color', value='#FFFFFF', elem_id='inpaint_brush_color')
+
                         inpaint_ctrls = [debugging_inpaint_preprocessor, inpaint_disable_initial_latent, inpaint_engine,
                                          inpaint_strength, inpaint_respective_field,
                                          inpaint_mask_upload_checkbox, invert_mask_checkbox, inpaint_erode_or_dilate]
 
                         inpaint_mask_upload_checkbox.change(lambda x: gr.update(visible=x),
-                                                           inputs=inpaint_mask_upload_checkbox,
-                                                           outputs=inpaint_mask_image, queue=False, show_progress=False)
+                                                            inputs=inpaint_mask_upload_checkbox,
+                                                            outputs=inpaint_mask_image, queue=False,
+                                                            show_progress=False)
+
+                        inpaint_mask_color.change(lambda x: gr.update(brush_color=x), inputs=inpaint_mask_color,
+                                                  outputs=inpaint_input_image,
+                                                  queue=False, show_progress=False)
 
                     with gr.Tab(label='FreeU'):
                         freeu_enabled = gr.Checkbox(label='Enabled', value=False)
