@@ -142,6 +142,10 @@ class Performance(Enum):
 
     @classmethod
     def list(cls) -> list:
+        return list(map(lambda c: (c.name, c.value), cls))
+
+    @classmethod
+    def values(cls) -> list:
         return list(map(lambda c: c.value, cls))
 
     @classmethod
@@ -157,10 +161,10 @@ class Performance(Enum):
         return StepsUOV[self.name].value if Steps[self.name] else None
 
 
-performance_selections = [
-    (f'Quality <span style="color: grey;"> \U00002223  {Steps.QUALITY.value} steps</span>', Performance.QUALITY.value),
-    (f'Speed <span style="color: grey;"> \U00002223  {Steps.SPEED.value} steps</span>', Performance.SPEED.value),
-    (f'Extreme Speed (LCM) <span style="color: grey;"> \U00002223 {Steps.EXTREME_SPEED.value} steps, intermediate results disabled</span>', Performance.EXTREME_SPEED.value),
-    (f'Lightning <span style="color: grey;"> \U00002223 {Steps.LIGHTNING.value} steps, intermediate results disabled</span>', Performance.LIGHTNING.value),
-    (f'Hyper-SD <span style="color: grey;"> \U00002223 {Steps.HYPER_SD.value} steps, intermediate results disabled</span>', Performance.HYPER_SD.value)
-]
+performance_selections = []
+
+for name, value in Performance.list():
+    restricted_text = ''
+    if Performance.has_restricted_features(value):
+        restricted_text = '*'
+    performance_selections.append((f'{value} <span style="color: grey;"> \U00002223  {Steps[name].value} steps {restricted_text}</span>', Performance[name].value))

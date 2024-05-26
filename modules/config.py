@@ -379,7 +379,7 @@ default_prompt = get_config_item_or_set_default(
 default_performance = get_config_item_or_set_default(
     key='default_performance',
     default_value=Performance.SPEED.value,
-    validator=lambda x: x in Performance.list()
+    validator=lambda x: x in Performance.values()
 )
 default_advanced_checkbox = get_config_item_or_set_default(
     key='default_advanced_checkbox',

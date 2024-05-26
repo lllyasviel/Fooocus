@@ -327,6 +327,7 @@ with shared.gradio_root:
                                                    interactive=True)
 
                 performance_selection = gr.Radio(label='Performance',
+                                                 info='* = restricted feature set, intermediate results disabled',
                                                  choices=modules.flags.performance_selections,
                                                  value=modules.config.default_performance,
                                                  elem_classes='performance_selections')
