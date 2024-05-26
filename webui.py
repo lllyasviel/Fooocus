@@ -231,7 +231,7 @@ with shared.gradio_root:
                                 desc_input_image.upload(trigger_show_image_properties, inputs=desc_input_image,
                                                         outputs=desc_image_size, show_progress=False, queue=False)
 
-                     with gr.TabItem(label='Metadata') as metadata_tab:
+                    with gr.TabItem(label='Metadata') as metadata_tab:
                         with gr.Column():
                             metadata_input_image = grh.Image(label='For images created by Fooocus', source='upload', type='filepath')
                             metadata_json = gr.JSON(label='Metadata')
