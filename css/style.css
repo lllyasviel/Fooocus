@@ -400,3 +400,7 @@ progress::after {
   border-radius: 5px 5px 0px 0px;
   display: none; /* remove this to enable tooltip in preview image */
 }
+
+#inpaint_canvas .canvas-tooltip-info {
+  top: 2px;
+}
