@@ -279,16 +279,14 @@ with shared.gradio_root:
                         cleaned_text = re.sub(regex, '', text)
                         return gr.update(label='Aspect Ratios ' + cleaned_text)
 
-                    aspect_ratios_selection.change(change_aspect_ratio, inputs=aspect_ratios_selection,
-                                                   outputs=aspect_ratios_accordion, show_progress=False, queue=False)
+                    aspect_ratios_selection.change(change_aspect_ratio, inputs=aspect_ratios_selection, outputs=aspect_ratios_accordion, queue=False, show_progress=False)
+                    shared.gradio_root.load(change_aspect_ratio, inputs=aspect_ratios_selection, outputs=aspect_ratios_accordion, queue=False, show_progress=False)
 
-                    shared.gradio_root.load(change_aspect_ratio, inputs=aspect_ratios_selection,
-                                            outputs=aspect_ratios_accordion, queue=False, show_progress=False)
+                image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
                 output_format = gr.Radio(label='Output Format',
                                          choices=flags.OutputFormat.list(),
                                          value=modules.config.default_output_format)
-                image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number, scale=3)
 
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
@@ -586,7 +584,7 @@ with shared.gradio_root:
                 return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
 
             preset_selection.change(preset_selection_change, inputs=[preset_selection, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
-                .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
+                .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
 
         performance_selection.change(lambda x: [gr.update(interactive=not flags.Performance.has_restricted_features(x))] * 11 +
                                                [gr.update(visible=not flags.Performance.has_restricted_features(x))] * 1 +
