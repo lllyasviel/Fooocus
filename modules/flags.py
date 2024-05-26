@@ -54,6 +54,8 @@ SAMPLER_NAMES = KSAMPLER_NAMES + list(SAMPLER_EXTRA.keys())
 sampler_list = SAMPLER_NAMES
 scheduler_list = SCHEDULER_NAMES
 
+clip_skip_max = 12
+
 default_vae = 'Default (model)'
 
 refiner_swap_method = 'joint'
