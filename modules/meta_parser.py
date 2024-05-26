@@ -34,17 +34,16 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
     get_list('styles', 'Styles', loaded_parameter_dict, results)
     get_str('performance', 'Performance', loaded_parameter_dict, results)
     get_steps('steps', 'Steps', loaded_parameter_dict, results)
-    get_number('overwrite_switch', 'Overwrite Switch', loaded_parameter_dict, results)
+    get_float('overwrite_switch', 'Overwrite Switch', loaded_parameter_dict, results)
     get_resolution('resolution', 'Resolution', loaded_parameter_dict, results)
-    get_number('guidance_scale', 'Guidance Scale', loaded_parameter_dict, results)
-    get_number('sharpness', 'Sharpness', loaded_parameter_dict, results)
+    get_float('guidance_scale', 'Guidance Scale', loaded_parameter_dict, results)
+    get_float('sharpness', 'Sharpness', loaded_parameter_dict, results)
     get_adm_guidance('adm_guidance', 'ADM Guidance', loaded_parameter_dict, results)
     get_str('refiner_swap_method', 'Refiner Swap Method', loaded_parameter_dict, results)
-    get_number('adaptive_cfg', 'CFG Mimicking from TSNR', loaded_parameter_dict, results)
-    get_number('clip_skip', 'CLIP Skip', loaded_parameter_dict, results, cast_type=int)
+    get_float('adaptive_cfg', 'CFG Mimicking from TSNR', loaded_parameter_dict, results)
     get_str('base_model', 'Base Model', loaded_parameter_dict, results)
     get_str('refiner_model', 'Refiner Model', loaded_parameter_dict, results)
-    get_number('refiner_switch', 'Refiner Switch', loaded_parameter_dict, results)
+    get_float('refiner_switch', 'Refiner Switch', loaded_parameter_dict, results)
     get_str('sampler', 'Sampler', loaded_parameter_dict, results)
     get_str('scheduler', 'Scheduler', loaded_parameter_dict, results)
     get_str('vae', 'VAE', loaded_parameter_dict, results)
@@ -84,11 +83,11 @@ def get_list(key: str, fallback: str | None, source_dict: dict, results: list, d
         results.append(gr.update())
 
 
-def get_number(key: str, fallback: str | None, source_dict: dict, results: list, default=None, cast_type=float):
+def get_float(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
     try:
         h = source_dict.get(key, source_dict.get(fallback, default))
         assert h is not None
-        h = cast_type(h)
+        h = float(h)
         results.append(h)
     except:
         results.append(gr.update())
@@ -315,7 +314,6 @@ class A1111MetadataParser(MetadataParser):
         'adm_guidance': 'ADM Guidance',
         'refiner_swap_method': 'Refiner Swap Method',
         'adaptive_cfg': 'Adaptive CFG',
-        'clip_skip': 'Clip skip',
         'overwrite_switch': 'Overwrite Switch',
         'freeu': 'FreeU',
         'base_model': 'Model',
@@ -460,7 +458,7 @@ class A1111MetadataParser(MetadataParser):
                 self.fooocus_to_a1111['refiner_model_hash']: self.refiner_model_hash
             }
 
-        for key in ['adaptive_cfg', 'clip_skip', 'overwrite_switch', 'refiner_swap_method', 'freeu']:
+        for key in ['adaptive_cfg', 'overwrite_switch', 'refiner_swap_method', 'freeu']:
             if key in data:
                 generation_params[self.fooocus_to_a1111[key]] = data[key]
 

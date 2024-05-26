@@ -174,7 +174,6 @@ def worker():
         adm_scaler_negative = args.pop()
         adm_scaler_end = args.pop()
         adaptive_cfg = args.pop()
-        clip_skip = args.pop()
         sampler_name = args.pop()
         scheduler_name = args.pop()
         vae_name = args.pop()
@@ -298,7 +297,6 @@ def worker():
             adm_scaler_end = 0.0
 
         print(f'[Parameters] Adaptive CFG = {adaptive_cfg}')
-        print(f'[Parameters] CLIP Skip = {clip_skip}')
         print(f'[Parameters] Sharpness = {sharpness}')
         print(f'[Parameters] ControlNet Softness = {controlnet_softness}')
         print(f'[Parameters] ADM Scale = '
@@ -467,8 +465,6 @@ def worker():
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
                                         use_synthetic_refiner=use_synthetic_refiner, vae_name=vae_name)
-
-            pipeline.set_clip_skip(clip_skip)
 
             progressbar(async_task, 3, 'Processing prompts ...')
             tasks = []
@@ -928,8 +924,6 @@ def worker():
                         d.append(
                             ('CFG Mimicking from TSNR', 'adaptive_cfg', modules.patch.patch_settings[pid].adaptive_cfg))
 
-                    if clip_skip > 1:
-                        d.append(('CLIP Skip', 'clip_skip', clip_skip))
                     d.append(('Sampler', 'sampler', sampler_name))
                     d.append(('Scheduler', 'scheduler', scheduler_name))
                     d.append(('VAE', 'vae', vae_name))
