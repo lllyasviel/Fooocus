@@ -321,6 +321,7 @@
     "CFG Mimicking from TSNR": "CFG Mimicking from TSNR",
     "Enabling Fooocus's implementation of CFG mimicking for TSNR (effective when real CFG > mimicked CFG).": "Enabling Fooocus's implementation of CFG mimicking for TSNR (effective when real CFG > mimicked CFG).",
     "CLIP Skip": "CLIP Skip",
+    "Bypass CLIP layers to avoid overfitting (use 1 to not skip any layers, 2 is recommended).": "Bypass CLIP layers to avoid overfitting (use 1 to not skip any layers, 2 is recommended).",
     "Sampler": "Sampler",
     "dpmpp_2m_sde_gpu": "dpmpp_2m_sde_gpu",
     "Only effective in non-inpaint mode.": "Only effective in non-inpaint mode.",

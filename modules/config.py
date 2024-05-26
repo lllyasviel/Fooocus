@@ -436,8 +436,8 @@ default_cfg_tsnr = get_config_item_or_set_default(
 )
 default_clip_skip = get_config_item_or_set_default(
     key='default_clip_skip',
-    default_value=1,
-    validator=lambda x: isinstance(x, numbers.Number)
+    default_value=2,
+    validator=lambda x: isinstance(x, int) and 1 <= x <= modules.flags.clip_skip_max
 )
 default_overwrite_step = get_config_item_or_set_default(
     key='default_overwrite_step',
