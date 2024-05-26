@@ -231,7 +231,7 @@ with shared.gradio_root:
                                 desc_input_image.upload(trigger_show_image_properties, inputs=desc_input_image,
                                                         outputs=desc_image_size, show_progress=False, queue=False)
 
-                    with gr.TabItem(label='Metadata') as load_tab:
+                    with gr.TabItem(label='Metadata') as metadata_tab:
                         with gr.Column():
                             metadata_input_image = grh.Image(label='For images created by Fooocus', source='upload', type='filepath')
                             metadata_json = gr.JSON(label='Metadata')
@@ -264,25 +264,40 @@ with shared.gradio_root:
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+            metadata_tab.select(lambda: 'metadata', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Setting'):
                 if not args_manager.args.disable_preset_selection:
-                    preset_selection = gr.Radio(label='Preset',
-                                                choices=modules.config.available_presets,
-                                                value=args_manager.args.preset if args_manager.args.preset else "initial",
-                                                interactive=True)
+                    preset_selection = gr.Dropdown(label='Preset',
+                                                   choices=modules.config.available_presets,
+                                                   value=args_manager.args.preset if args_manager.args.preset else "initial",
+                                                   interactive=True)
                 performance_selection = gr.Radio(label='Performance',
                                                  choices=flags.Performance.list(),
-                                                 value=modules.config.default_performance)
-                aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios_labels,
-                                                   value=modules.config.default_aspect_ratio, info='width × height',
-                                                   elem_classes='aspect_ratios')
+                                                 value=modules.config.default_performance,
+                                                 elem_classes=['performance_selection'])
+                with gr.Accordion(label='Aspect Ratios', open=False) as aspect_ratios_accordion:
+                    aspect_ratios_selection = gr.Radio(label='Aspect Ratios', show_label=False,
+                                                       choices=modules.config.available_aspect_ratios_labels,
+                                                       value=modules.config.default_aspect_ratio,
+                                                       info='width × height',
+                                                       elem_classes='aspect_ratios')
+
+                    def change_aspect_ratio(text):
+                        import re
+                        regex = re.compile('<.*?>')
+                        cleaned_text = re.sub(regex, '', text)
+                        return gr.update(label='Aspect Ratios ' + cleaned_text)
+
+                    aspect_ratios_selection.change(change_aspect_ratio, inputs=aspect_ratios_selection, outputs=aspect_ratios_accordion, queue=False, show_progress=False)
+                    shared.gradio_root.load(change_aspect_ratio, inputs=aspect_ratios_selection, outputs=aspect_ratios_accordion, queue=False, show_progress=False)
+
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
                 output_format = gr.Radio(label='Output Format',
-                                            choices=flags.OutputFormat.list(),
-                                            value=modules.config.default_output_format)
+                                         choices=flags.OutputFormat.list(),
+                                         value=modules.config.default_output_format)
 
                 negative_prompt = gr.Textbox(label='Negative Prompt', show_label=True, placeholder="Type prompt here.",
                                              info='Describing what you do not want to see.', lines=2,
@@ -603,7 +618,7 @@ with shared.gradio_root:
                 return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
 
             preset_selection.change(preset_selection_change, inputs=[preset_selection, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
-                .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
+                .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)
 
         performance_selection.change(lambda x: [gr.update(interactive=not flags.Performance.has_restricted_features(x))] * 11 +
                                                [gr.update(visible=not flags.Performance.has_restricted_features(x))] * 1 +
