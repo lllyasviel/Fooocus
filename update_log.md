@@ -1,5 +1,6 @@
 # [2.4.0](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.0)
 
+* Change settings tab elements to be more compact
 * Add clip skip slider
 * Add select for custom VAE
 * Add new style "Random Style"
