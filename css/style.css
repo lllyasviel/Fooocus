@@ -401,6 +401,10 @@ progress::after {
   display: none; /* remove this to enable tooltip in preview image */
 }
 
+#inpaint_canvas .canvas-tooltip-info {
+  top: 2px;
+}
+
 #inpaint_brush_color input[type=color]{
   background: none;
 }
