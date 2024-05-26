@@ -1,4 +1,4 @@
-import typing
+from pathlib import Path
 
 import numpy as np
 import datetime
@@ -6,15 +6,26 @@ import random
 import math
 import os
 import cv2
+import re
+from typing import List, Tuple, AnyStr, NamedTuple
+
 import json
 import hashlib
 
 from PIL import Image
 
+import modules.config
 import modules.sdxl_styles
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
+
+# Regexp compiled once. Matches entries with the following pattern:
+# <lora:some_lora:1>
+# <lora:aNotherLora:-1.6>
+LORAS_PROMPT_PATTERN = re.compile(r"(<lora:([^:]+):([+-]?(?:\d+(?:\.\d*)?|\.\d+))>)", re.X)
+
 HASH_SHA256_LENGTH = 10
+
 
 def erode_or_dilate(x, k):
     k = int(k)
@@ -161,25 +172,6 @@ def generate_temp_filename(folder='./outputs/', extension='png'):
     filename = f"{time_string}_{random_number}.{extension}"
     result = os.path.join(folder, date_string, filename)
     return date_string, os.path.abspath(result), filename
-
-
-def get_files_from_folder(folder_path, extensions=None, name_filter=None):
-    if not os.path.isdir(folder_path):
-        raise ValueError("Folder path is not a valid directory.")
-
-    filenames = []
-
-    for root, dirs, files in os.walk(folder_path, topdown=False):
-        relative_path = os.path.relpath(root, folder_path)
-        if relative_path == ".":
-            relative_path = ""
-        for filename in sorted(files, key=lambda s: s.casefold()):
-            _, file_extension = os.path.splitext(filename)
-            if (extensions is None or file_extension.lower() in extensions) and (name_filter is None or name_filter in _):
-                path = os.path.join(relative_path, filename)
-                filenames.append(path)
-
-    return filenames
 
 
 def sha256(filename, use_addnet_hash=False, length=HASH_SHA256_LENGTH):
@@ -355,7 +347,7 @@ def extract_styles_from_prompt(prompt, negative_prompt):
     return list(reversed(extracted)), real_prompt, negative_prompt
 
 
-class PromptStyle(typing.NamedTuple):
+class PromptStyle(NamedTuple):
     name: str
     prompt: str
     negative_prompt: str
@@ -370,14 +362,24 @@ def is_json(data: str) -> bool:
     return True
 
 
+def get_filname_by_stem(lora_name, filenames: List[str]) -> str | None:
+    for filename in filenames:
+        path = Path(filename)
+        if lora_name == path.stem:
+            return filename
+    return None
+
+
 def get_file_from_folder_list(name, folders):
+    if not isinstance(folders, list):
+        folders = [folders]
+
     for folder in folders:
         filename = os.path.abspath(os.path.realpath(os.path.join(folder, name)))
         if os.path.isfile(filename):
             return filename
 
     return os.path.abspath(os.path.realpath(os.path.join(folders[0], name)))
-
 
 def ordinal_suffix(number: int) -> str:
     return 'th' if 10 <= number % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(number % 10, 'th')
@@ -390,5 +392,111 @@ def makedirs_with_log(path):
         print(f'Directory {path} could not be created, reason: {error}')
 
 
-def get_enabled_loras(loras: list) -> list:
-    return [[lora[1], lora[2]] for lora in loras if lora[0]]
+def get_enabled_loras(loras: list, remove_none=True) -> list:
+    return [(lora[1], lora[2]) for lora in loras if lora[0] and (lora[1] != 'None' if remove_none else True)]
+
+
+def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5,
+                                      skip_file_check=False, prompt_cleanup=True, deduplicate_loras=True) -> tuple[List[Tuple[AnyStr, float]], str]:
+    found_loras = []
+    prompt_without_loras = ''
+    cleaned_prompt = ''
+    for token in prompt.split(','):
+        matches = LORAS_PROMPT_PATTERN.findall(token)
+
+        if len(matches) == 0:
+            prompt_without_loras += token + ', '
+            continue
+        for match in matches:
+            lora_name = match[1] + '.safetensors'
+            if not skip_file_check:
+                lora_name = get_filname_by_stem(match[1], modules.config.lora_filenames_no_special)
+            if lora_name is not None:
+                found_loras.append((lora_name, float(match[2])))
+            token = token.replace(match[0], '')
+        prompt_without_loras += token + ', '
+
+    if prompt_without_loras != '':
+        cleaned_prompt = prompt_without_loras[:-2]
+
+    if prompt_cleanup:
+        cleaned_prompt = cleanup_prompt(prompt_without_loras)
+
+    new_loras = []
+    lora_names = [lora[0] for lora in loras]
+    for found_lora in found_loras:
+        if deduplicate_loras and (found_lora[0] in lora_names or found_lora in new_loras):
+            continue
+        new_loras.append(found_lora)
+
+    if len(new_loras) == 0:
+        return loras, cleaned_prompt
+
+    updated_loras = []
+    for lora in loras + new_loras:
+        if lora[0] != "None":
+            updated_loras.append(lora)
+
+    return updated_loras[:loras_limit], cleaned_prompt
+
+
+def cleanup_prompt(prompt):
+    prompt = re.sub(' +', ' ', prompt)
+    prompt = re.sub(',+', ',', prompt)
+    cleaned_prompt = ''
+    for token in prompt.split(','):
+        token = token.strip()
+        if token == '':
+            continue
+        cleaned_prompt += token + ', '
+    return cleaned_prompt[:-2]
+
+
+def apply_wildcards(wildcard_text, rng, i, read_wildcards_in_order) -> str:
+    for _ in range(modules.config.wildcards_max_bfs_depth):
+        placeholders = re.findall(r'__([\w-]+)__', wildcard_text)
+        if len(placeholders) == 0:
+            return wildcard_text
+
+        print(f'[Wildcards] processing: {wildcard_text}')
+        for placeholder in placeholders:
+            try:
+                matches = [x for x in modules.config.wildcard_filenames if os.path.splitext(os.path.basename(x))[0] == placeholder]
+                words = open(os.path.join(modules.config.path_wildcards, matches[0]), encoding='utf-8').read().splitlines()
+                words = [x for x in words if x != '']
+                assert len(words) > 0
+                if read_wildcards_in_order:
+                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[i % len(words)], 1)
+                else:
+                    wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
+            except:
+                print(f'[Wildcards] Warning: {placeholder}.txt missing or empty. '
+                      f'Using "{placeholder}" as a normal word.')
+                wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
+            print(f'[Wildcards] {wildcard_text}')
+
+    print(f'[Wildcards] BFS stack overflow. Current text: {wildcard_text}')
+    return wildcard_text
+
+
+def get_image_size_info(image: np.ndarray, aspect_ratios: list) -> str:
+    try:
+        image = Image.fromarray(np.uint8(image))
+        width, height = image.size
+        ratio = round(width / height, 2)
+        gcd = math.gcd(width, height)
+        lcm_ratio = f'{width // gcd}:{height // gcd}'
+        size_info = f'Image Size: {width} x {height}, Ratio: {ratio}, {lcm_ratio}'
+
+        closest_ratio = min(aspect_ratios, key=lambda x: abs(ratio - float(x.split('*')[0]) / float(x.split('*')[1])))
+        recommended_width, recommended_height = map(int, closest_ratio.split('*'))
+        recommended_ratio = round(recommended_width / recommended_height, 2)
+        recommended_gcd = math.gcd(recommended_width, recommended_height)
+        recommended_lcm_ratio = f'{recommended_width // recommended_gcd}:{recommended_height // recommended_gcd}'
+
+        size_info = f'{width} x {height}, {ratio}, {lcm_ratio}'
+        size_info += f'\n{recommended_width} x {recommended_height}, {recommended_ratio}, {recommended_lcm_ratio}'
+
+        return size_info
+    except Exception as e:
+        return f'Error reading image: {e}'

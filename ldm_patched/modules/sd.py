@@ -427,12 +427,13 @@ def load_checkpoint(config_path=None, ckpt_path=None, output_vae=True, output_cl
 
     return (ldm_patched.modules.model_patcher.ModelPatcher(model, load_device=model_management.get_torch_device(), offload_device=offload_device), clip, vae)
 
-def load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, output_clipvision=False, embedding_directory=None, output_model=True):
+def load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, output_clipvision=False, embedding_directory=None, output_model=True, vae_filename_param=None):
     sd = ldm_patched.modules.utils.load_torch_file(ckpt_path)
     sd_keys = sd.keys()
     clip = None
     clipvision = None
     vae = None
+    vae_filename = None
     model = None
     model_patcher = None
     clip_target = None
@@ -462,8 +463,12 @@ def load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, o
         model.load_model_weights(sd, "model.diffusion_model.")
 
     if output_vae:
-        vae_sd = ldm_patched.modules.utils.state_dict_prefix_replace(sd, {"first_stage_model.": ""}, filter_keys=True)
-        vae_sd = model_config.process_vae_state_dict(vae_sd)
+        if vae_filename_param is None:
+            vae_sd = ldm_patched.modules.utils.state_dict_prefix_replace(sd, {"first_stage_model.": ""}, filter_keys=True)
+            vae_sd = model_config.process_vae_state_dict(vae_sd)
+        else:
+            vae_sd = ldm_patched.modules.utils.load_torch_file(vae_filename_param)
+            vae_filename = vae_filename_param
         vae = VAE(sd=vae_sd)
 
     if output_clip:
@@ -485,7 +490,7 @@ def load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, o
             print("loaded straight to GPU")
             model_management.load_model_gpu(model_patcher)
 
-    return (model_patcher, clip, vae, clipvision)
+    return model_patcher, clip, vae, vae_filename, clipvision
 
 
 def load_unet_state_dict(sd): #load unet in diffusers format

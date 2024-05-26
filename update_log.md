@@ -1,3 +1,23 @@
+# [2.4.0](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.0)
+
+* Change settings tab elements to be more compact
+* Add clip skip slider
+* Add select for custom VAE
+* Add new style "Random Style"
+* Update default anime model to animaPencilXL_v310
+* Add button to reconnect the UI after Fooocus crashed without having to configure everything again (no page reload required)
+* Add performance "hyper-sd" (based on [Hyper-SDXL 4 step LoRA](https://huggingface.co/ByteDance/Hyper-SD/blob/main/Hyper-SDXL-4steps-lora.safetensors))
+* Add [AlignYourSteps](https://research.nvidia.com/labs/toronto-ai/AlignYourSteps/) scheduler by Nvidia, see 
+* Add [TCD](https://github.com/jabir-zheng/TCD) sampler and scheduler (based on sgm_uniform)
+* Add NSFW image censoring (disables intermediate image preview while generating). Set config value `default_black_out_nsfw` to True to always enable.
+* Add argument `--enable-describe-uov-image` to automatically describe uploaded images for upscaling
+* Add inline lora prompt references with subfolder support, example prompt: `colorful bird <lora:toucan:1.2>`
+* Add size and aspect ratio recommendation on image describe
+* Add inpaint brush color picker, helpful when image and mask brush have the same color
+* Add automated Docker image build using Github Actions on each release.
+* Add full raw prompts to history logs
+* Change code ownership from @lllyasviel to @mashb1t for automated issue / MR notification
+
 # [2.3.1](https://github.com/lllyasviel/Fooocus/releases/tag/2.3.1)
 
 * Remove positive prompt from anime prefix to not reset prompt after switching presets

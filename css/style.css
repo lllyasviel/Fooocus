@@ -27,6 +27,7 @@ progress {
   border-radius: 5px; /* Round the corners of the progress bar */
   background-color: #f3f3f3; /* Light grey background */
   width: 100%;
+  vertical-align: middle !important;
 }
 
 /* Style the progress bar container */
@@ -69,6 +70,11 @@ progress::after {
   height: 30px !important;
 }
 
+.progress-bar span {
+    text-align: right;
+    width: 215px;
+}
+
 .type_row{
   height: 80px !important;
 }
@@ -101,8 +107,12 @@ progress::after {
   overflow: auto !important;
 }
 
-.aspect_ratios label {
+.performance_selection label {
     width: 140px !important;
+}
+
+.aspect_ratios label {
+    flex: calc(50% - 5px) !important;
 }
 
 .aspect_ratios label span {
@@ -391,6 +401,14 @@ progress::after {
   background-color: #fff8;
   font-family: monospace;
   text-align: center;
-  border-radius-top: 5px;
+  border-radius: 5px 5px 0px 0px;
   display: none; /* remove this to enable tooltip in preview image */
+}
+
+#inpaint_canvas .canvas-tooltip-info {
+  top: 2px;
+}
+
+#inpaint_brush_color input[type=color]{
+  background: none;
 }
