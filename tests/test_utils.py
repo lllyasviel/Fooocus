@@ -77,6 +77,5 @@ class TestUtils(unittest.TestCase):
         for test in test_cases:
             prompt, loras, loras_limit, skip_file_check = test["input"]
             expected = test["output"]
-            actual = util.parse_lora_references_from_prompt(prompt, loras, loras_limit=loras_limit,
-                                                            skip_file_check=skip_file_check)
+            actual = util.parse_lora_references_from_prompt(prompt, loras, loras_limit=loras_limit, skip_file_check=skip_file_check)
             self.assertEqual(expected, actual)
