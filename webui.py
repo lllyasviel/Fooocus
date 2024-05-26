@@ -266,10 +266,24 @@ with shared.gradio_root:
                                                  choices=flags.Performance.list(),
                                                  value=modules.config.default_performance,
                                                  elem_classes=['performance_selection'])
-                with gr.Accordion('Resolution', open=False):
-                    aspect_ratios_selection = gr.Radio(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
-                                                       value=modules.config.default_aspect_ratio, info='width × height',
+                with gr.Accordion(label='Aspect Ratios', open=False) as aspect_ratios_accordion:
+                    aspect_ratios_selection = gr.Radio(label='Aspect Ratios', show_label=False,
+                                                       choices=modules.config.available_aspect_ratios,
+                                                       value=modules.config.default_aspect_ratio,
+                                                       info='width × height',
                                                        elem_classes='aspect_ratios')
+
+                    def change_aspect_ratio(text):
+                        import re
+                        regex = re.compile('<.*?>')
+                        cleaned_text = re.sub(regex, '', text)
+                        return gr.update(label='Aspect Ratios ' + cleaned_text)
+
+                    aspect_ratios_selection.change(change_aspect_ratio, inputs=aspect_ratios_selection,
+                                                   outputs=aspect_ratios_accordion, show_progress=False, queue=False)
+
+                    shared.gradio_root.load(change_aspect_ratio, inputs=aspect_ratios_selection,
+                                            outputs=aspect_ratios_accordion, queue=False, show_progress=False)
 
                 output_format = gr.Radio(label='Output Format',
                                          choices=flags.OutputFormat.list(),
