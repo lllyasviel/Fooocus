@@ -436,11 +436,6 @@ default_cfg_tsnr = get_config_item_or_set_default(
     default_value=7.0,
     validator=lambda x: isinstance(x, numbers.Number)
 )
-default_clip_skip = get_config_item_or_set_default(
-    key='default_clip_skip',
-    default_value=1,
-    validator=lambda x: isinstance(x, numbers.Number)
-)
 default_overwrite_step = get_config_item_or_set_default(
     key='default_overwrite_step',
     default_value=-1,
@@ -523,7 +518,6 @@ possible_preset_keys = {
     "default_cfg_scale": "guidance_scale",
     "default_sample_sharpness": "sharpness",
     "default_cfg_tsnr": "adaptive_cfg",
-    "default_clip_skip": "clip_skip",
     "default_sampler": "sampler",
     "default_scheduler": "scheduler",
     "default_overwrite_step": "steps",
