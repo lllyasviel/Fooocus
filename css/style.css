@@ -72,7 +72,7 @@ progress::after {
 
 .progress-bar span {
     text-align: right;
-    width: 200px;
+    width: 215px;
 }
 
 .type_row{
@@ -399,4 +399,8 @@ progress::after {
   text-align: center;
   border-radius: 5px 5px 0px 0px;
   display: none; /* remove this to enable tooltip in preview image */
+}
+
+#inpaint_brush_color input[type=color]{
+  background: none;
 }
