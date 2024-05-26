@@ -203,6 +203,17 @@ def clip_encode(texts, pool_top_k=1):
 
 @torch.no_grad()
 @torch.inference_mode()
+def set_clip_skip(clip_skip: int):
+    global final_clip
+
+    if final_clip is None:
+        return
+
+    final_clip.clip_layer(-abs(clip_skip))
+    return
+
+@torch.no_grad()
+@torch.inference_mode()
 def clear_all_caches():
     final_clip.fcs_cond_cache = {}
 
