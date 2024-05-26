@@ -256,3 +256,8 @@ function set_theme(theme) {
         window.location.replace(gradioURL + '?__theme=' + theme);
     }
 }
+
+function htmlDecode(input) {
+  var doc = new DOMParser().parseFromString(input, "text/html");
+  return doc.documentElement.textContent;
+}
