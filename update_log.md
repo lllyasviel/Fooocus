@@ -1,3 +1,8 @@
+# [2.4.1](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.1)
+
+* Fix some small bugs (e.g. adjust clip skip default value from 1 to 2, add type check to aspect ratios js update function)
+* Add automated docker build on push to main, tagged with `edge`. See [available docker images](https://github.com/lllyasviel/Fooocus/pkgs/container/fooocus).
+
 # [2.4.0](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.0)
 
 * Change settings tab elements to be more compact
