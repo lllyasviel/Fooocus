@@ -2,8 +2,10 @@ name: Create and publish a container image
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - 'v*'
+      - v*
 
 jobs:
   build-and-push-image:
