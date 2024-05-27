@@ -81,9 +81,12 @@ function refresh_style_localization() {
 }
 
 function refresh_aspect_ratios_label(value) {
-    label = document.querySelector('#aspect_ratios_accordion div span[data-original-text="Aspect Ratios"]')
-    translation = getTranslation("Aspect Ratios")
-    label.textContent = translation + " " + htmlDecode(value)
+    label = document.querySelector('#aspect_ratios_accordion div span[data-original-text="Aspect Ratios"]');
+    translation = getTranslation("Aspect Ratios");
+    if (typeof translation == "undefined") {
+        translation = "Aspect Ratios";
+    }
+    label.textContent = translation + " " + htmlDecode(value);
 }
 
 function localizeWholePage() {
