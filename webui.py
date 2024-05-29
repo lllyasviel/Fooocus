@@ -461,8 +461,8 @@ with shared.gradio_root:
                                                       interactive=not modules.config.default_black_out_nsfw,
                                                       info='Disable preview during generation.')
                         disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', 
-                                                      value=modules.config.default_performance == flags.Performance.EXTREME_SPEED.value,
-                                                      interactive=modules.config.default_performance != flags.Performance.EXTREME_SPEED.value,
+                                                      value=flags.Performance.has_restricted_features(modules.config.default_performance),
+                                                      interactive=not flags.Performance.has_restricted_features(modules.config.default_performance),
                                                       info='Disable intermediate results during generation, only show final gallery.')
                         disable_seed_increment = gr.Checkbox(label='Disable seed increment',
                                                              info='Disable automatic seed increment when image number is > 1.',
