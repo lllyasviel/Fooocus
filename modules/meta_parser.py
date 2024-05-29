@@ -261,11 +261,11 @@ class MetadataParser(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def parse_json(self, metadata: dict | str) -> dict:
+    def to_json(self, metadata: dict | str) -> dict:
         raise NotImplementedError
 
     @abstractmethod
-    def parse_string(self, metadata: dict) -> str:
+    def to_string(self, metadata: dict) -> str:
         raise NotImplementedError
 
     def set_data(self, raw_prompt, full_prompt, raw_negative_prompt, full_negative_prompt, steps, base_model_name,
@@ -328,7 +328,7 @@ class A1111MetadataParser(MetadataParser):
         'version': 'Version'
     }
 
-    def parse_json(self, metadata: str) -> dict:
+    def to_json(self, metadata: str) -> dict:
         metadata_prompt = ''
         metadata_negative_prompt = ''
 
@@ -422,7 +422,7 @@ class A1111MetadataParser(MetadataParser):
 
         return data
 
-    def parse_string(self, metadata: dict) -> str:
+    def to_string(self, metadata: dict) -> str:
         data = {k: v for _, k, v in metadata}
 
         width, height = eval(data['resolution'])
@@ -502,7 +502,7 @@ class FooocusMetadataParser(MetadataParser):
     def get_scheme(self) -> MetadataScheme:
         return MetadataScheme.FOOOCUS
 
-    def parse_json(self, metadata: dict) -> dict:
+    def to_json(self, metadata: dict) -> dict:
         for key, value in metadata.items():
             if value in ['', 'None']:
                 continue
@@ -517,7 +517,7 @@ class FooocusMetadataParser(MetadataParser):
 
         return metadata
 
-    def parse_string(self, metadata: list) -> str:
+    def to_string(self, metadata: list) -> str:
         for li, (label, key, value) in enumerate(metadata):
             # remove model folder paths from metadata
             if key.startswith('lora_combined_'):
