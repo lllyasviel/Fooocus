@@ -398,10 +398,15 @@ def get_enabled_loras(loras: list, remove_none=True) -> list:
 
 
 def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, float]], loras_limit: int = 5,
-                                      skip_file_check=False, prompt_cleanup=True, deduplicate_loras=True) -> tuple[List[Tuple[AnyStr, float]], str]:
+                                      skip_file_check=False, prompt_cleanup=True, deduplicate_loras=True,
+                                      lora_filenames=None) -> tuple[List[Tuple[AnyStr, float]], str]:
+    if lora_filenames is None:
+        lora_filenames = []
+
     found_loras = []
     prompt_without_loras = ''
     cleaned_prompt = ''
+
     for token in prompt.split(','):
         matches = LORAS_PROMPT_PATTERN.findall(token)
 
@@ -411,7 +416,7 @@ def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, flo
         for match in matches:
             lora_name = match[1] + '.safetensors'
             if not skip_file_check:
-                lora_name = get_filname_by_stem(match[1], modules.config.lora_filenames_no_special)
+                lora_name = get_filname_by_stem(match[1], lora_filenames)
             if lora_name is not None:
                 found_loras.append((lora_name, float(match[2])))
             token = token.replace(match[0], '')
