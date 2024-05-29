@@ -248,7 +248,7 @@ class MetadataParser(ABC):
         self.full_prompt: str = ''
         self.raw_negative_prompt: str = ''
         self.full_negative_prompt: str = ''
-        self.steps: int = 30
+        self.steps: int = Steps.SPEED.value
         self.base_model_name: str = ''
         self.base_model_hash: str = ''
         self.refiner_model_name: str = ''
