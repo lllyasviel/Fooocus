@@ -115,6 +115,14 @@ class OutputFormat(Enum):
         return list(map(lambda c: c.value, cls))
 
 
+class PerformanceLoRA(Enum):
+    QUALITY = None
+    SPEED = None
+    EXTREME_SPEED = 'sdxl_lcm_lora.safetensors'
+    LIGHTNING = 'sdxl_lightning_4step_lora.safetensors'
+    HYPER_SD = 'sdxl_hyper_sd_4step_lora.safetensors'
+
+
 class Steps(IntEnum):
     QUALITY = 60
     SPEED = 30
