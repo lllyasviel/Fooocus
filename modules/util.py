@@ -16,6 +16,7 @@ from PIL import Image
 
 import modules.config
 import modules.sdxl_styles
+from modules.flags import Performance
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 
@@ -438,6 +439,22 @@ def parse_lora_references_from_prompt(prompt: str, loras: List[Tuple[AnyStr, flo
             updated_loras.append(lora)
 
     return updated_loras[:loras_limit], cleaned_prompt
+
+
+def remove_performance_lora(filenames: list, performance: Performance | None):
+    loras_without_performance = filenames.copy()
+
+    if performance is None:
+        return loras_without_performance
+
+    performance_lora = performance.lora_filename()
+
+    for filename in filenames:
+        path = Path(filename)
+        if performance_lora == path.name:
+            loras_without_performance.remove(filename)
+
+    return loras_without_performance
 
 
 def cleanup_prompt(prompt):
