@@ -59,6 +59,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
 
     get_freeu('freeu', 'FreeU', loaded_parameter_dict, results)
 
+    # prevent performance LoRAs to be added twice, by performance and by lora
     performance_filename = None
     if performance is not None and performance in Performance.list():
         performance = Performance(performance)
@@ -391,19 +392,10 @@ class A1111MetadataParser(MetadataParser):
 
         data['styles'] = str(found_styles)
 
-        performance: Performance | None = None
-        performance_lora = None
-        if 'performance' in data and data['performance'] in Performance.list():
-            performance = Performance(data['performance'])
-            data['performance'] = performance.value
-            performance_lora = performance.lora_filename()
-
         # try to load performance based on steps, fallback for direct A1111 imports
-        if 'steps' in data and performance is None:
+        if 'steps' in data and 'performance' in data is None:
             try:
-                performance = Performance.by_steps(data['steps'])
-                data['performance'] = performance.value
-                performance_lora = performance.lora_filename()
+                data['performance'] = Performance.by_steps(data['steps']).value
             except ValueError | KeyError:
                 pass
 
@@ -435,8 +427,6 @@ class A1111MetadataParser(MetadataParser):
                 lora_weight = lora_split[2] if len(lora_split) == 3 else lora_split[1]
                 for filename in modules.config.lora_filenames:
                     path = Path(filename)
-                    if performance_lora is not None and path.name == performance_lora:
-                        break
                     if lora_name == path.stem:
                         data[f'lora_combined_{li + 1}'] = f'{filename} : {lora_weight}'
                         break
@@ -524,19 +514,13 @@ class FooocusMetadataParser(MetadataParser):
         return MetadataScheme.FOOOCUS
 
     def to_json(self, metadata: dict) -> dict:
-        performance = None
-        if 'performance' in metadata and metadata['performance'] in Performance.list():
-            performance = Performance(metadata['performance'])
-
-        lora_filenames = modules.util.remove_performance_lora(modules.config.lora_filenames, performance)
-
         for key, value in metadata.items():
             if value in ['', 'None']:
                 continue
             if key in ['base_model', 'refiner_model']:
                 metadata[key] = self.replace_value_with_filename(key, value, modules.config.model_filenames)
             elif key.startswith('lora_combined_'):
-                metadata[key] = self.replace_value_with_filename(key, value, lora_filenames)
+                metadata[key] = self.replace_value_with_filename(key, value, modules.config.lora_filenames)
             elif key == 'vae':
                 metadata[key] = self.replace_value_with_filename(key, value, modules.config.vae_filenames)
             else:
