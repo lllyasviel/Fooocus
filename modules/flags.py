@@ -48,7 +48,8 @@ SAMPLERS = KSAMPLER | SAMPLER_EXTRA
 
 KSAMPLER_NAMES = list(KSAMPLER.keys())
 
-SCHEDULER_NAMES = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform", "lcm", "turbo", "align_your_steps", "tcd"]
+SCHEDULER_NAMES = ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform", "lcm", "turbo",
+                   "align_your_steps", "tcd"]
 SAMPLER_NAMES = KSAMPLER_NAMES + list(SAMPLER_EXTRA.keys())
 
 sampler_list = SAMPLER_NAMES
@@ -90,6 +91,7 @@ sdxl_aspect_ratios = [
     '1344*768', '1344*704', '1408*704', '1472*704', '1536*640', '1600*640',
     '1664*576', '1728*576'
 ]
+
 
 class MetadataScheme(Enum):
     FOOOCUS = 'fooocus'
@@ -157,7 +159,10 @@ class Performance(Enum):
         return x in [cls.EXTREME_SPEED.value, cls.LIGHTNING.value, cls.HYPER_SD.value]
 
     def steps(self) -> int | None:
-        return Steps[self.name].value if Steps[self.name] else None
+        return Steps[self.name].value if self.name in Steps.__members__ else None
 
     def steps_uov(self) -> int | None:
-        return StepsUOV[self.name].value if Steps[self.name] else None
+        return StepsUOV[self.name].value if self.name in StepsUOV.__members__ else None
+
+    def lora_filename(self) -> str | None:
+        return PerformanceLoRA[self.name].value if self.name in PerformanceLoRA.__members__ else None
