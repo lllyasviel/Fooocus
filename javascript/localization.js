@@ -81,7 +81,7 @@ function refresh_style_localization() {
 }
 
 function refresh_aspect_ratios_label(value) {
-    label = document.querySelector('#aspect_ratios_accordion div span[data-original-text="Aspect Ratios"]');
+    label = document.querySelector('#aspect_ratios_accordion div span');
     translation = getTranslation("Aspect Ratios");
     if (typeof translation == "undefined") {
         translation = "Aspect Ratios";
