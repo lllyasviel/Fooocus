@@ -712,7 +712,7 @@ with shared.gradio_root:
                 parsed_parameters = {}
             else:
                 metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
-                parsed_parameters = metadata_parser.parse_json(parameters)
+                parsed_parameters = metadata_parser.to_json(parameters)
 
             return modules.meta_parser.load_parameter_button_click(parsed_parameters, state_is_generating)
 
