@@ -461,8 +461,8 @@ with shared.gradio_root:
                                                       interactive=not modules.config.default_black_out_nsfw,
                                                       info='Disable preview during generation.')
                         disable_intermediate_results = gr.Checkbox(label='Disable Intermediate Results', 
-                                                      value=modules.config.default_performance == flags.Performance.EXTREME_SPEED.value,
-                                                      interactive=modules.config.default_performance != flags.Performance.EXTREME_SPEED.value,
+                                                      value=flags.Performance.has_restricted_features(modules.config.default_performance),
+                                                      interactive=not flags.Performance.has_restricted_features(modules.config.default_performance),
                                                       info='Disable intermediate results during generation, only show final gallery.')
                         disable_seed_increment = gr.Checkbox(label='Disable seed increment',
                                                              info='Disable automatic seed increment when image number is > 1.',
@@ -713,7 +713,7 @@ with shared.gradio_root:
                 parsed_parameters = {}
             else:
                 metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
-                parsed_parameters = metadata_parser.parse_json(parameters)
+                parsed_parameters = metadata_parser.to_json(parameters)
 
             return modules.meta_parser.load_parameter_button_click(parsed_parameters, state_is_generating)
 
