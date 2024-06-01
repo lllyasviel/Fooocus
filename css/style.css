@@ -74,17 +74,21 @@ progress::after {
     text-align: right;
     width: 215px;
 }
+div:has(> #positive_prompt) {
+    border: none;
+}
 
-#positive_prompt textarea {
-    height: 80px;
+#positive_prompt {
+    padding: 1px;
+    background: var(--background-fill-primary);
 }
 
 .type_row {
-  height: 80px !important;
+  height: 84px !important;
 }
 
 .type_row_half {
-  height: 32px !important;
+  height: 34px !important;
 }
 
 .refresh_button {
