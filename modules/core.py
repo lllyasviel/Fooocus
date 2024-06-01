@@ -21,8 +21,7 @@ from modules.lora import match_lora
 from modules.util import get_file_from_folder_list
 from ldm_patched.modules.lora import model_lora_keys_unet, model_lora_keys_clip
 from modules.config import path_embeddings
-from ldm_patched.contrib.external_model_advanced import ModelSamplingDiscrete
-
+from ldm_patched.contrib.external_model_advanced import ModelSamplingDiscrete, ModelSamplingContinuousEDM
 
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
@@ -32,6 +31,7 @@ opVAEEncodeTiled = VAEEncodeTiled()
 opControlNetApplyAdvanced = ControlNetApplyAdvanced()
 opFreeU = FreeU_V2()
 opModelSamplingDiscrete = ModelSamplingDiscrete()
+opModelSamplingContinuousEDM = ModelSamplingContinuousEDM()
 
 
 class StableDiffusionModel:
