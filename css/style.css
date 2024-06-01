@@ -75,30 +75,30 @@ progress::after {
     width: 215px;
 }
 
-.type_row{
+#positive_prompt textarea {
+    height: 80px;
+}
+
+.type_row {
   height: 80px !important;
 }
 
-.type_row_half{
+.type_row_half {
   height: 32px !important;
 }
 
-.scroll-hide{
-  resize: none !important;
-}
-
-.refresh_button{
+.refresh_button {
   border: none !important;
   background: none !important;
   font-size: none !important;
   box-shadow: none !important;
 }
 
-.advanced_check_row{
+.advanced_check_row {
   width: 250px !important;
 }
 
-.min_check{
+.min_check {
   min-width: min(1px, 100%) !important;
 }
 
