@@ -74,6 +74,14 @@ progress::after {
     text-align: right;
     width: 215px;
 }
+div:has(> #positive_prompt) {
+    border: none;
+}
+
+#positive_prompt {
+    padding: 1px;
+    background: var(--background-fill-primary);
+}
 
 #positive_prompt textarea {
     height: 80px;
