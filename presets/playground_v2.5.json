@@ -44,7 +44,7 @@
     "default_aspect_ratio": "1024*1024",
     "default_overwrite_step": 50,
     "checkpoint_downloads": {
-        "playground-v2.5-1024px-aesthetic.fp16.safetensors": "https://huggingface.co/playgroundai/playground-v2.5-1024px-aesthetic/resolve/main/playground-v2.5-1024px-aesthetic.fp16.safetensors"
+        "playground-v2.5-1024px-aesthetic.fp16.safetensors": "https://huggingface.co/mashb1t/fav_models/resolve/main/fav/playground-v2.5-1024px-aesthetic.fp16.safetensors"
     },
     "embeddings_downloads": {},
     "lora_downloads": {},
