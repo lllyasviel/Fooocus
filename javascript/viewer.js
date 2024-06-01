@@ -55,7 +55,6 @@ window.addEventListener('resize', (e) => {
 
 onUiLoaded(async () => {
     resized();
-    setTimeout(() => document.querySelector("#positive_prompt textarea").style.height = "80px");
 });
 
 function on_style_selection_blur() {
