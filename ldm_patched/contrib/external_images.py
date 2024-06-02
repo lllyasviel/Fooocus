@@ -1,7 +1,5 @@
-# https://github.com/comfyanonymous/ComfyUI/blob/master/nodes.py 
-
-import ldm_patched.contrib.external
-import ldm_patched.utils.path_utils
+import external
+import ldm_patched.utils.path_utils as folder_paths
 from ldm_patched.modules.args_parser import args
 
 from PIL import Image
@@ -11,7 +9,7 @@ import numpy as np
 import json
 import os
 
-MAX_RESOLUTION = ldm_patched.contrib.external.MAX_RESOLUTION
+MAX_RESOLUTION = external.MAX_RESOLUTION
 
 class ImageCrop:
     @classmethod
@@ -39,7 +37,7 @@ class RepeatImageBatch:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "image": ("IMAGE",),
-                              "amount": ("INT", {"default": 1, "min": 1, "max": 64}),
+                              "amount": ("INT", {"default": 1, "min": 1, "max": 4096}),
                               }}
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "repeat"
@@ -50,9 +48,28 @@ class RepeatImageBatch:
         s = image.repeat((amount, 1,1,1))
         return (s,)
 
+class ImageFromBatch:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "image": ("IMAGE",),
+                              "batch_index": ("INT", {"default": 0, "min": 0, "max": 4095}),
+                              "length": ("INT", {"default": 1, "min": 1, "max": 4096}),
+                              }}
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "frombatch"
+
+    CATEGORY = "image/batch"
+
+    def frombatch(self, image, batch_index, length):
+        s_in = image
+        batch_index = min(s_in.shape[0] - 1, batch_index)
+        length = min(s_in.shape[0] - batch_index, length)
+        s = s_in[batch_index:batch_index + length].clone()
+        return (s,)
+
 class SaveAnimatedWEBP:
     def __init__(self):
-        self.output_dir = ldm_patched.utils.path_utils.get_output_directory()
+        self.output_dir = folder_paths.get_output_directory()
         self.type = "output"
         self.prefix_append = ""
 
@@ -61,7 +78,7 @@ class SaveAnimatedWEBP:
     def INPUT_TYPES(s):
         return {"required":
                     {"images": ("IMAGE", ),
-                     "filename_prefix": ("STRING", {"default": "ldm_patched"}),
+                     "filename_prefix": ("STRING", {"default": "ComfyUI"}),
                      "fps": ("FLOAT", {"default": 6.0, "min": 0.01, "max": 1000.0, "step": 0.01}),
                      "lossless": ("BOOLEAN", {"default": True}),
                      "quality": ("INT", {"default": 80, "min": 0, "max": 100}),
@@ -81,7 +98,7 @@ class SaveAnimatedWEBP:
     def save_images(self, images, fps, filename_prefix, lossless, quality, method, num_frames=0, prompt=None, extra_pnginfo=None):
         method = self.methods.get(method)
         filename_prefix += self.prefix_append
-        full_output_folder, filename, counter, subfolder, filename_prefix = ldm_patched.utils.path_utils.get_save_image_path(filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0])
+        full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0])
         results = list()
         pil_images = []
         for image in images:
@@ -90,7 +107,7 @@ class SaveAnimatedWEBP:
             pil_images.append(img)
 
         metadata = pil_images[0].getexif()
-        if not args.disable_server_info:
+        if not args.disable_metadata:
             if prompt is not None:
                 metadata[0x0110] = "prompt:{}".format(json.dumps(prompt))
             if extra_pnginfo is not None:
@@ -118,7 +135,7 @@ class SaveAnimatedWEBP:
 
 class SaveAnimatedPNG:
     def __init__(self):
-        self.output_dir = ldm_patched.utils.path_utils.get_output_directory()
+        self.output_dir = folder_paths.get_output_directory()
         self.type = "output"
         self.prefix_append = ""
 
@@ -126,7 +143,7 @@ class SaveAnimatedPNG:
     def INPUT_TYPES(s):
         return {"required":
                     {"images": ("IMAGE", ),
-                     "filename_prefix": ("STRING", {"default": "ldm_patched"}),
+                     "filename_prefix": ("STRING", {"default": "ComfyUI"}),
                      "fps": ("FLOAT", {"default": 6.0, "min": 0.01, "max": 1000.0, "step": 0.01}),
                      "compress_level": ("INT", {"default": 4, "min": 0, "max": 9})
                      },
@@ -140,9 +157,9 @@ class SaveAnimatedPNG:
 
     CATEGORY = "image/animation"
 
-    def save_images(self, images, fps, compress_level, filename_prefix="ldm_patched", prompt=None, extra_pnginfo=None):
+    def save_images(self, images, fps, compress_level, filename_prefix="ComfyUI", prompt=None, extra_pnginfo=None):
         filename_prefix += self.prefix_append
-        full_output_folder, filename, counter, subfolder, filename_prefix = ldm_patched.utils.path_utils.get_save_image_path(filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0])
+        full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0])
         results = list()
         pil_images = []
         for image in images:
@@ -151,13 +168,13 @@ class SaveAnimatedPNG:
             pil_images.append(img)
 
         metadata = None
-        if not args.disable_server_info:
+        if not args.disable_metadata:
             metadata = PngInfo()
             if prompt is not None:
-                metadata.add(b"ldm_patched", "prompt".encode("latin-1", "strict") + b"\0" + json.dumps(prompt).encode("latin-1", "strict"), after_idat=True)
+                metadata.add(b"comf", "prompt".encode("latin-1", "strict") + b"\0" + json.dumps(prompt).encode("latin-1", "strict"), after_idat=True)
             if extra_pnginfo is not None:
                 for x in extra_pnginfo:
-                    metadata.add(b"ldm_patched", x.encode("latin-1", "strict") + b"\0" + json.dumps(extra_pnginfo[x]).encode("latin-1", "strict"), after_idat=True)
+                    metadata.add(b"comf", x.encode("latin-1", "strict") + b"\0" + json.dumps(extra_pnginfo[x]).encode("latin-1", "strict"), after_idat=True)
 
         file = f"{filename}_{counter:05}_.png"
         pil_images[0].save(os.path.join(full_output_folder, file), pnginfo=metadata, compress_level=compress_level, save_all=True, duration=int(1000.0/fps), append_images=pil_images[1:])
@@ -172,6 +189,7 @@ class SaveAnimatedPNG:
 NODE_CLASS_MAPPINGS = {
     "ImageCrop": ImageCrop,
     "RepeatImageBatch": RepeatImageBatch,
+    "ImageFromBatch": ImageFromBatch,
     "SaveAnimatedWEBP": SaveAnimatedWEBP,
     "SaveAnimatedPNG": SaveAnimatedPNG,
 }

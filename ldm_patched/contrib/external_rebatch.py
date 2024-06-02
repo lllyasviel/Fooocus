@@ -1,5 +1,3 @@
-# https://github.com/comfyanonymous/ComfyUI/blob/master/nodes.py 
-
 import torch
 
 class LatentRebatch:

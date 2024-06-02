@@ -1,11 +1,12 @@
-# https://github.com/comfyanonymous/ComfyUI/blob/master/nodes.py 
-
 import ldm_patched.modules.sd
 import ldm_patched.modules.utils
 import ldm_patched.modules.model_base
 import ldm_patched.modules.model_management
+import ldm_patched.modules.model_sampling
 
-import ldm_patched.utils.path_utils
+import torch
+import ldm_patched.utils.path_utils as folder_paths
+
 import json
 import os
 
@@ -89,6 +90,50 @@ class CLIPMergeSimple:
             m.add_patches({k: kp[k]}, 1.0 - ratio, ratio)
         return (m, )
 
+
+class CLIPSubtract:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "clip1": ("CLIP",),
+                              "clip2": ("CLIP",),
+                              "multiplier": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
+                              }}
+    RETURN_TYPES = ("CLIP",)
+    FUNCTION = "merge"
+
+    CATEGORY = "advanced/model_merging"
+
+    def merge(self, clip1, clip2, multiplier):
+        m = clip1.clone()
+        kp = clip2.get_key_patches()
+        for k in kp:
+            if k.endswith(".position_ids") or k.endswith(".logit_scale"):
+                continue
+            m.add_patches({k: kp[k]}, - multiplier, multiplier)
+        return (m, )
+
+
+class CLIPAdd:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "clip1": ("CLIP",),
+                              "clip2": ("CLIP",),
+                              }}
+    RETURN_TYPES = ("CLIP",)
+    FUNCTION = "merge"
+
+    CATEGORY = "advanced/model_merging"
+
+    def merge(self, clip1, clip2):
+        m = clip1.clone()
+        kp = clip2.get_key_patches()
+        for k in kp:
+            if k.endswith(".position_ids") or k.endswith(".logit_scale"):
+                continue
+            m.add_patches({k: kp[k]}, 1.0, 1.0)
+        return (m, )
+
+
 class ModelMergeBlocks:
     @classmethod
     def INPUT_TYPES(s):
@@ -122,7 +167,7 @@ class ModelMergeBlocks:
         return (m, )
 
 def save_checkpoint(model, clip=None, vae=None, clip_vision=None, filename_prefix=None, output_dir=None, prompt=None, extra_pnginfo=None):
-    full_output_folder, filename, counter, subfolder, filename_prefix = ldm_patched.utils.path_utils.get_save_image_path(filename_prefix, output_dir)
+    full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, output_dir)
     prompt_info = ""
     if prompt is not None:
         prompt_info = json.dumps(prompt)
@@ -131,9 +176,14 @@ def save_checkpoint(model, clip=None, vae=None, clip_vision=None, filename_prefi
 
     enable_modelspec = True
     if isinstance(model.model, ldm_patched.modules.model_base.SDXL):
-        metadata["modelspec.architecture"] = "stable-diffusion-xl-v1-base"
+        if isinstance(model.model, ldm_patched.modules.model_base.SDXL_instructpix2pix):
+            metadata["modelspec.architecture"] = "stable-diffusion-xl-v1-edit"
+        else:
+            metadata["modelspec.architecture"] = "stable-diffusion-xl-v1-base"
     elif isinstance(model.model, ldm_patched.modules.model_base.SDXLRefiner):
         metadata["modelspec.architecture"] = "stable-diffusion-xl-v1-refiner"
+    elif isinstance(model.model, ldm_patched.modules.model_base.SVD_img2vid):
+        metadata["modelspec.architecture"] = "stable-video-diffusion-img2vid-v1"
     else:
         enable_modelspec = False
 
@@ -147,12 +197,19 @@ def save_checkpoint(model, clip=None, vae=None, clip_vision=None, filename_prefi
     # "stable-diffusion-v2-768-v", "stable-diffusion-v2-unclip-l", "stable-diffusion-v2-unclip-h",
     # "v2-inpainting"
 
+    extra_keys = {}
+    model_sampling = model.get_model_object("model_sampling")
+    if isinstance(model_sampling, ldm_patched.modules.model_sampling.ModelSamplingContinuousEDM):
+        if isinstance(model_sampling, ldm_patched.modules.model_sampling.V_PREDICTION):
+            extra_keys["edm_vpred.sigma_max"] = torch.tensor(model_sampling.sigma_max).float()
+            extra_keys["edm_vpred.sigma_min"] = torch.tensor(model_sampling.sigma_min).float()
+
     if model.model.model_type == ldm_patched.modules.model_base.ModelType.EPS:
         metadata["modelspec.predict_key"] = "epsilon"
     elif model.model.model_type == ldm_patched.modules.model_base.ModelType.V_PREDICTION:
         metadata["modelspec.predict_key"] = "v"
 
-    if not args.disable_server_info:
+    if not args.disable_metadata:
         metadata["prompt"] = prompt_info
         if extra_pnginfo is not None:
             for x in extra_pnginfo:
@@ -161,18 +218,18 @@ def save_checkpoint(model, clip=None, vae=None, clip_vision=None, filename_prefi
     output_checkpoint = f"{filename}_{counter:05}_.safetensors"
     output_checkpoint = os.path.join(full_output_folder, output_checkpoint)
 
-    ldm_patched.modules.sd.save_checkpoint(output_checkpoint, model, clip, vae, clip_vision, metadata=metadata)
+    ldm_patched.modules.sd.save_checkpoint(output_checkpoint, model, clip, vae, clip_vision, metadata=metadata, extra_keys=extra_keys)
 
 class CheckpointSave:
     def __init__(self):
-        self.output_dir = ldm_patched.utils.path_utils.get_output_directory()
+        self.output_dir = folder_paths.get_output_directory()
 
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "model": ("MODEL",),
                               "clip": ("CLIP",),
                               "vae": ("VAE",),
-                              "filename_prefix": ("STRING", {"default": "checkpoints/ldm_patched"}),},
+                              "filename_prefix": ("STRING", {"default": "checkpoints/ComfyUI"}),},
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},}
     RETURN_TYPES = ()
     FUNCTION = "save"
@@ -186,12 +243,12 @@ class CheckpointSave:
 
 class CLIPSave:
     def __init__(self):
-        self.output_dir = ldm_patched.utils.path_utils.get_output_directory()
+        self.output_dir = folder_paths.get_output_directory()
 
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "clip": ("CLIP",),
-                              "filename_prefix": ("STRING", {"default": "clip/ldm_patched"}),},
+                              "filename_prefix": ("STRING", {"default": "clip/ComfyUI"}),},
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},}
     RETURN_TYPES = ()
     FUNCTION = "save"
@@ -205,13 +262,13 @@ class CLIPSave:
             prompt_info = json.dumps(prompt)
 
         metadata = {}
-        if not args.disable_server_info:
+        if not args.disable_metadata:
             metadata["prompt"] = prompt_info
             if extra_pnginfo is not None:
                 for x in extra_pnginfo:
                     metadata[x] = json.dumps(extra_pnginfo[x])
 
-        ldm_patched.modules.model_management.load_models_gpu([clip.load_model()])
+        ldm_patched.modules.model_management.load_models_gpu([clip.load_model()], force_patch_weights=True)
         clip_sd = clip.get_sd()
 
         for prefix in ["clip_l.", "clip_g.", ""]:
@@ -230,7 +287,7 @@ class CLIPSave:
                 replace_prefix[prefix] = ""
             replace_prefix["transformer."] = ""
 
-            full_output_folder, filename, counter, subfolder, filename_prefix_ = ldm_patched.utils.path_utils.get_save_image_path(filename_prefix_, self.output_dir)
+            full_output_folder, filename, counter, subfolder, filename_prefix_ = folder_paths.get_save_image_path(filename_prefix_, self.output_dir)
 
             output_checkpoint = f"{filename}_{counter:05}_.safetensors"
             output_checkpoint = os.path.join(full_output_folder, output_checkpoint)
@@ -242,12 +299,12 @@ class CLIPSave:
 
 class VAESave:
     def __init__(self):
-        self.output_dir = ldm_patched.utils.path_utils.get_output_directory()
+        self.output_dir = folder_paths.get_output_directory()
 
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "vae": ("VAE",),
-                              "filename_prefix": ("STRING", {"default": "vae/ldm_patched_vae"}),},
+                              "filename_prefix": ("STRING", {"default": "vae/ComfyUI_vae"}),},
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},}
     RETURN_TYPES = ()
     FUNCTION = "save"
@@ -256,13 +313,13 @@ class VAESave:
     CATEGORY = "advanced/model_merging"
 
     def save(self, vae, filename_prefix, prompt=None, extra_pnginfo=None):
-        full_output_folder, filename, counter, subfolder, filename_prefix = ldm_patched.utils.path_utils.get_save_image_path(filename_prefix, self.output_dir)
+        full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir)
         prompt_info = ""
         if prompt is not None:
             prompt_info = json.dumps(prompt)
 
         metadata = {}
-        if not args.disable_server_info:
+        if not args.disable_metadata:
             metadata["prompt"] = prompt_info
             if extra_pnginfo is not None:
                 for x in extra_pnginfo:
@@ -281,6 +338,8 @@ NODE_CLASS_MAPPINGS = {
     "ModelMergeAdd": ModelAdd,
     "CheckpointSave": CheckpointSave,
     "CLIPMergeSimple": CLIPMergeSimple,
+    "CLIPMergeSubtract": CLIPSubtract,
+    "CLIPMergeAdd": CLIPAdd,
     "CLIPSave": CLIPSave,
     "VAESave": VAESave,
 }

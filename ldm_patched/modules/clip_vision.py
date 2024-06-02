@@ -2,6 +2,7 @@ from .utils import load_torch_file, transformers_convert, state_dict_prefix_repl
 import os
 import torch
 import json
+import logging
 
 import ldm_patched.modules.ops
 import ldm_patched.modules.model_patcher
@@ -55,7 +56,7 @@ class ClipVisionModel():
         outputs = Output()
         outputs["last_hidden_state"] = out[0].to(ldm_patched.modules.model_management.intermediate_device())
         outputs["image_embeds"] = out[2].to(ldm_patched.modules.model_management.intermediate_device())
-        outputs["penultimate_hidden_states"] = out[1].to(ldm_patched.modules.model_management.intermediate_device())
+        outputs["penultimate_hidden_states"] = out[1].to(comfy.model_management.intermediate_device())
         return outputs
 
 def convert_to_transformers(sd, prefix):
@@ -99,7 +100,7 @@ def load_clipvision_from_sd(sd, prefix="", convert_keys=False):
     clip = ClipVisionModel(json_config)
     m, u = clip.load_sd(sd)
     if len(m) > 0:
-        print("extra clip vision:", m)
+        logging.warning("missing clip vision: {}".format(m))
     u = set(u)
     keys = list(sd.keys())
     for k in keys:
