@@ -1,5 +1,3 @@
-# https://github.com/comfyanonymous/ComfyUI/blob/master/nodes.py 
-
 #Taken from: https://github.com/dbolya/tomesd
 
 import torch
