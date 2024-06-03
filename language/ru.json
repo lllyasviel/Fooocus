@@ -7,7 +7,7 @@
 	"Load Parameters": "Загрузить Параметры",
 	"Type prompt here or paste parameters.": "Введите запрос или вставьте параметры здесь",
     "Input Image": "Добавить изображение",
-    "Advanced": "Дополнительно",
+    "Advanced": "Расширенные настройки",
     "Upscale or Variation": "Увеличить или Изменить",
     "Image Prompt": "Подсказка к изображению",
     "Inpaint or Outpaint (beta)": "Дорисовать или Расширить (beta)",
