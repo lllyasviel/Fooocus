@@ -5,7 +5,7 @@
     "Skip": "Пропустить",
     "Stop": "Остановить",
 	"Load Parameters": "Загрузить Параметры",
-	"Type prompt here or paste parameters.": "Напишите промт здесь или вставьте параметры из буфера обмена",
+	"Type prompt here or paste parameters.": "Введите запрос или вставьте параметры здесь",
     "Input Image": "Добавить изображение",
     "Advanced": "Дополнительно",
     "Upscale or Variation": "Увеличение или Изменение",
