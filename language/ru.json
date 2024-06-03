@@ -463,8 +463,8 @@
     "Type prompt here.": "Введите запрос здесь.",
     "Outpaint Expansion Direction:": "Направление расширения Дорисовки:",
     "* Powered by Fooocus Inpaint Engine (beta)": "* Работает на движке Fooocus Inpaint Engine (beta)",
-    "Fooocus Enhance": "Негатив Fooocus",
-    "Fooocus Cinematic": "Фильм Fooocus",
-    "Fooocus Sharp": "Фильм Констрастный Sharp Fooocus"
+    "Fooocus Enhance": "Fooocus Улучшение",
+    "Fooocus Cinematic": "Fooocus Кинематографичность",
+    "Fooocus Sharp": "Fooocus Резкость"
 	
 }
