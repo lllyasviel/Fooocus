@@ -38,7 +38,7 @@
     "Outpaint Expansion (": "Outpaint Expansion (",
 	"Method": "Метод",
 	"Inpaint or Outpaint (default)": "Inpaint или Outpaint (Базовый)",
-	"Improve Detail (face, hand, eyes, etc.)": "Добавить детализирования (лицо, руки, глаза, др.)",
+	"Improve Detail (face, hand, eyes, etc.)": "Улучшить детали (лицо, руки, глаза и т.д.)",
 	"Modify Content (add objects, change background, etc.)": "Заменить содержимое (добавить объект,заменить фон, др.)",
 	"Inpaint Additional Prompt": "Дополнительная подсказка",
     "Outpaint": "Дорисовать",
