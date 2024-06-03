@@ -437,7 +437,7 @@
 	"Do not preprocess images. (Inputs are already canny/depth/cropped-face/etc.)": "Если загрузили уже обработанное ранее изображение",
     "Mixing Image Prompt and Vary/Upscale": "Смешивать подсказки изображения в режиме Изменить/Увеличить",
     "Mixing Image Prompt and Inpaint": "Смешивать подсказки изображения в режиме Inpaint",
-    "Softness of ControlNet": "Сила воздействия ControlNet",
+    "Softness of ControlNet": "Мягкость воздействия ControlNet",
     "Similar to the Control Mode in A1111 (use 0.0 to disable). ": "Тоже что и Control Mode в A1111 (0.0 для отключения). ",
     "Canny": "Контуры (Canny)",
     "Canny Low Threshold": "MIN порог для Контуров",
