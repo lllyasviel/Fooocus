@@ -385,7 +385,7 @@
     "CFG Mimicking from TSNR": "CFG Mimicking from TSNR",
     "Sampler": "Сэмплер",
     "dpmpp_2m_sde_gpu": "dpmpp_2m_sde_gpu",
-    "Only effective in non-inpaint mode.": "Действует только в режиме без рисования.",
+    "Only effective in non-inpaint mode.": "Эффективно только в режиме без рисования.",
     "euler": "euler",
     "euler_ancestral": "euler_ancestral",
     "heun": "heun",
