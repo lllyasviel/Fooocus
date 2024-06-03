@@ -40,7 +40,7 @@
 	"Inpaint or Outpaint (default)": "Inpaint или Outpaint (Базовый)",
 	"Improve Detail (face, hand, eyes, etc.)": "Улучшить детали (лицо, руки, глаза и т.д.)",
 	"Modify Content (add objects, change background, etc.)": "Изменить содержимое (добавить объекты, изменить фон и т.д.)",
-	"Inpaint Additional Prompt": "Дополнительная подсказка",
+	"Inpaint Additional Prompt": "Дополнительный запрос Inpaint",
     "Outpaint": "Дорисовать",
 	"Outpaint Direction": "Направление генерации Outpaint",
     "Left": "Слева",
