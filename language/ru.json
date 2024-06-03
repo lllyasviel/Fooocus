@@ -42,7 +42,7 @@
 	"Modify Content (add objects, change background, etc.)": "Заменить содержимое (добавить объект,заменить фон, др.)",
 	"Inpaint Additional Prompt": "Дополнительная подсказка",
     "Outpaint": "Дорисовать",
-	"Outpaint Direction": "Направление генирации Outpaint",
+	"Outpaint Direction": "Направление генерации Outpaint",
     "Left": "Слева",
     "Right": "Справва",
     "Top": "Сверху",
