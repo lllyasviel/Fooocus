@@ -548,24 +548,8 @@ with open(config_example_path, "w", encoding="utf-8") as json_file:
 
 model_filenames = []
 lora_filenames = []
-lora_filenames_no_special = []
 vae_filenames = []
 wildcard_filenames = []
-
-sdxl_lcm_lora = 'sdxl_lcm_lora.safetensors'
-sdxl_lightning_lora = 'sdxl_lightning_4step_lora.safetensors'
-sdxl_hyper_sd_lora = 'sdxl_hyper_sd_4step_lora.safetensors'
-loras_metadata_remove = [sdxl_lcm_lora, sdxl_lightning_lora, sdxl_hyper_sd_lora]
-
-
-def remove_special_loras(lora_filenames):
-    global loras_metadata_remove
-
-    loras_no_special = lora_filenames.copy()
-    for lora_to_remove in loras_metadata_remove:
-        if lora_to_remove in loras_no_special:
-            loras_no_special.remove(lora_to_remove)
-    return loras_no_special
 
 
 def get_model_filenames(folder_paths, extensions=None, name_filter=None):
@@ -582,10 +566,9 @@ def get_model_filenames(folder_paths, extensions=None, name_filter=None):
 
 
 def update_files():
-    global model_filenames, lora_filenames, lora_filenames_no_special, vae_filenames, wildcard_filenames, available_presets
+    global model_filenames, lora_filenames, vae_filenames, wildcard_filenames, available_presets
     model_filenames = get_model_filenames(paths_checkpoints)
     lora_filenames = get_model_filenames(paths_loras)
-    lora_filenames_no_special = remove_special_loras(lora_filenames)
     vae_filenames = get_model_filenames(path_vae)
     wildcard_filenames = get_files_from_folder(path_wildcards, ['.txt'])
     available_presets = get_presets()
@@ -634,26 +617,27 @@ def downloading_sdxl_lcm_lora():
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/sdxl_lcm_lora.safetensors',
         model_dir=paths_loras[0],
-        file_name=sdxl_lcm_lora
+        file_name=modules.flags.PerformanceLoRA.EXTREME_SPEED.value
     )
-    return sdxl_lcm_lora
+    return modules.flags.PerformanceLoRA.EXTREME_SPEED.value
+
 
 def downloading_sdxl_lightning_lora():
     load_file_from_url(
         url='https://huggingface.co/mashb1t/misc/resolve/main/sdxl_lightning_4step_lora.safetensors',
         model_dir=paths_loras[0],
-        file_name=sdxl_lightning_lora
+        file_name=modules.flags.PerformanceLoRA.LIGHTNING.value
     )
-    return sdxl_lightning_lora
+    return modules.flags.PerformanceLoRA.LIGHTNING.value
 
 
 def downloading_sdxl_hyper_sd_lora():
     load_file_from_url(
         url='https://huggingface.co/mashb1t/misc/resolve/main/sdxl_hyper_sd_4step_lora.safetensors',
         model_dir=paths_loras[0],
-        file_name=sdxl_hyper_sd_lora
+        file_name=modules.flags.PerformanceLoRA.HYPER_SD.value
     )
-    return sdxl_hyper_sd_lora
+    return modules.flags.PerformanceLoRA.HYPER_SD.value
 
 
 def downloading_controlnet_canny():

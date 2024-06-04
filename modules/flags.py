@@ -91,6 +91,7 @@ sdxl_aspect_ratios = [
     '1664*576', '1728*576'
 ]
 
+
 class MetadataScheme(Enum):
     FOOOCUS = 'fooocus'
     A1111 = 'a1111'
@@ -113,6 +114,14 @@ class OutputFormat(Enum):
     @classmethod
     def list(cls) -> list:
         return list(map(lambda c: c.value, cls))
+
+
+class PerformanceLoRA(Enum):
+    QUALITY = None
+    SPEED = None
+    EXTREME_SPEED = 'sdxl_lcm_lora.safetensors'
+    LIGHTNING = 'sdxl_lightning_4step_lora.safetensors'
+    HYPER_SD = 'sdxl_hyper_sd_4step_lora.safetensors'
 
 
 class Steps(IntEnum):
@@ -143,13 +152,20 @@ class Performance(Enum):
         return list(map(lambda c: c.value, cls))
 
     @classmethod
+    def by_steps(cls, steps: int | str):
+        return cls[Steps(int(steps)).name]
+
+    @classmethod
     def has_restricted_features(cls, x) -> bool:
         if isinstance(x, Performance):
             x = x.value
         return x in [cls.EXTREME_SPEED.value, cls.LIGHTNING.value, cls.HYPER_SD.value]
 
     def steps(self) -> int | None:
-        return Steps[self.name].value if Steps[self.name] else None
+        return Steps[self.name].value if self.name in Steps.__members__ else None
 
     def steps_uov(self) -> int | None:
-        return StepsUOV[self.name].value if Steps[self.name] else None
+        return StepsUOV[self.name].value if self.name in StepsUOV.__members__ else None
+
+    def lora_filename(self) -> str | None:
+        return PerformanceLoRA[self.name].value if self.name in PerformanceLoRA.__members__ else None

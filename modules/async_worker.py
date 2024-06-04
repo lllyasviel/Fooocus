@@ -462,8 +462,10 @@ def worker():
 
             progressbar(async_task, 2, 'Loading models ...')
 
-            loras, prompt = parse_lora_references_from_prompt(prompt, loras, modules.config.default_max_lora_number)
+            lora_filenames = modules.util.remove_performance_lora(modules.config.lora_filenames, performance_selection)
+            loras, prompt = parse_lora_references_from_prompt(prompt, loras, modules.config.default_max_lora_number, lora_filenames=lora_filenames)
             loras += performance_loras
+
             pipeline.refresh_everything(refiner_model_name=refiner_model_name, base_model_name=base_model_name,
                                         loras=loras, base_model_additional_loras=base_model_additional_loras,
                                         use_synthetic_refiner=use_synthetic_refiner, vae_name=vae_name)
