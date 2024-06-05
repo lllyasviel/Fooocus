@@ -1,7 +1,4 @@
 import ldm_patched.modules.args_parser as args_parser
-import os
-
-from tempfile import gettempdir
 
 args_parser.parser.add_argument("--share", action='store_true', help="Set whether to share on Gradio.")
 
