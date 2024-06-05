@@ -11,32 +11,33 @@ Sadly the creator of Fooocus has gone dark multiple times for an extended amount
 ## Additional features included in this fork:
 (mostly a reflection of [my PRs](https://github.com/lllyasviel/Fooocus/pulls/mashb1t))
 
-* ✨ https://github.com/lllyasviel/Fooocus/pull/958 - NSFW image censoring (config and UI)
+* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/958 - NSFW image censoring (config and UI)~~
 * 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/981 - prevent users from skipping/stopping other users tasks in queue (multi-user capabilities) + rework advanced_parameters (removal + PID handling)~~
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/985 - add list of 100 animals to wildcards~~
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1013 - add advanced parameter for disable_intermediate_results (progress_gallery, prevents UI lag when generation is too fast)~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1039 - add prompt translation
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1043 - add lcm realtime canvas painting (not merged to main in this repository)
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1167 - update model BluePencil XL v0.5 to v3.1.0~~
-* ✨ https://github.com/lllyasviel/Fooocus/pull/1570 - add preset selection to Gradio UI (session based)
+* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1570 - add preset selection to Gradio UI (session based)~~
 * 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1578 - add workaround for changing prompt while generating~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1580 - add preset for SDXL Turbo (model DreamShaperXL_Turbo)
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1616 - add config setting for default_max_image_number~~
 * 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1668 - fix path_outputs directory creation if it doesn't exist~~
 * ✨ show more details for each performance setting, e.g. steps
-* ✨ add default_overwrite_step handling for meta data and gradio (allows turbo preset switching to set default_overwrite_step correctly)
+* ✨ ~~add default_overwrite_step handling for meta data and gradio (allows turbo preset switching to set default_overwrite_step correctly)~~
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1762 - add style preview on mouseover~~
 * 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/1784 - correctly sort files, display deepest directory level first~~
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1785 - update model Juggernaut XL v6 to v8~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/1809 - reduce file size of preview images
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1932 - use consistent file name in gradio~~
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1863 - image extension support (png, jpg, webp)~~
-* ✨ https://github.com/lllyasviel/Fooocus/pull/1938 - automatically describe image on uov image upload if prompt is empty
+* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1938 - automatically describe image on uov image upload if prompt is empty~~
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1940 - meta data handling, schemes: Fooocus (json) and A1111 (plain text). Compatible with Civitai.~~
 * ✨ ~~https://github.com/lllyasviel/Fooocus/pull/1979 - prevent outdated history log link after midnight~~
 * ✨ https://github.com/lllyasviel/Fooocus/pull/2032 - add inpaint mask generation functionality using rembg, incl. segmentation support
 * 🐛 ~~https://github.com/lllyasviel/Fooocus/pull/2332 - allow path_outputs to be outside of root dir~~
-* ✨ https://github.com/lllyasviel/Fooocus/pull/2415 - add performance sdxl lightning (4 steps)
+* ✨ ~~https://github.com/lllyasviel/Fooocus/pull/2415 - add performance sdxl lightning (4 steps)~~
+* and many more (90+) are already merged, see [my PRs](https://github.com/lllyasviel/Fooocus/pulls/mashb1t)
 
 ✨ = new feature<br>
 🐛 = bugfix<br>
@@ -45,15 +46,6 @@ Sadly the creator of Fooocus has gone dark multiple times for an extended amount
 ---
 
 ## Feature showcase
-
-### https://github.com/lllyasviel/Fooocus/pull/1570 - Preset Selection
-
-No need to restart your browser to change a preset ever again. Combined with total user isolation, every user can now set and use any preset they desire.
-You can even reload your presets in the browser if you've changed them.
-
-![image](https://github.com/mashb1t/Fooocus/assets/9307310/9b302b04-bbbc-4a21-9ccf-02d2b534d481)
-
----
 
 ### https://github.com/lllyasviel/Fooocus/pull/2032 - Automated Mask Generation + Mask Prompting
 
