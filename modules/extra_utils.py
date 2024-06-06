@@ -28,11 +28,11 @@ def get_files_from_folder(folder_path, extensions=None, name_filter=None):
     return filenames
 
 
-def try_parse_bool(value: str) -> str | bool:
+def try_eval_env_var(value: str, expected_type=None) -> str | bool:
     try:
-        value_eval = literal_eval(value.strip().title())
-        if type(value_eval) is bool:
-            return value_eval
-        return value
-    except ValueError | TypeError:
+        value_eval = literal_eval(value.title())
+        if expected_type is not None and type(value_eval) is not expected_type:
+            return value
+        return value_eval
+    except:
         return value
