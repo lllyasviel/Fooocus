@@ -530,24 +530,28 @@ example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 default_black_out_nsfw = get_config_item_or_set_default(
     key='default_black_out_nsfw',
     default_value=False,
-    validator=lambda x: isinstance(x, bool)
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
 )
 default_inpaint_mask_model = get_config_item_or_set_default(
     key='default_inpaint_mask_model',
     default_value='isnet-general-use',
-    validator=lambda x: x in modules.flags.inpaint_mask_models
+    validator=lambda x: x in modules.flags.inpaint_mask_models,
+    expected_type=str
 )
 
 default_inpaint_mask_cloth_category = get_config_item_or_set_default(
     key='default_inpaint_mask_cloth_category',
     default_value='full',
-    validator=lambda x: x in modules.flags.inpaint_mask_cloth_category
+    validator=lambda x: x in modules.flags.inpaint_mask_cloth_category,
+    expected_type=str
 )
 
 default_inpaint_mask_sam_model = get_config_item_or_set_default(
     key='default_inpaint_mask_sam_model',
     default_value='sam_vit_b_01ec64',
-    validator=lambda x: x in modules.flags.inpaint_mask_sam_model
+    validator=lambda x: x in modules.flags.inpaint_mask_sam_model,
+    expected_type=str
 )
 
 config_dict["default_loras"] = default_loras = default_loras[:default_max_lora_number] + [[True, 'None', 1.0] for _ in range(default_max_lora_number - len(default_loras))]

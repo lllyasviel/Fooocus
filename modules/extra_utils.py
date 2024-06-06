@@ -2,7 +2,6 @@ import os
 from ast import literal_eval
 
 
-
 def makedirs_with_log(path):
     try:
         os.makedirs(path, exist_ok=True)
