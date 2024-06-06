@@ -2,13 +2,14 @@ import os
 import json
 import math
 import numbers
+
 import args_manager
 import tempfile
 import modules.flags
 import modules.sdxl_styles
 
 from modules.model_loader import load_file_from_url
-from modules.extra_utils import makedirs_with_log, get_files_from_folder
+from modules.extra_utils import makedirs_with_log, get_files_from_folder, try_parse_bool
 from modules.flags import OutputFormat, Performance, MetadataScheme
 
 
@@ -209,7 +210,7 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
     v = os.getenv(key)
     if v is not None:
         print(f"Environment: {key} = {v}")
-        config_dict[key] = v
+        config_dict[key] = try_parse_bool(v)
 
     if key not in config_dict:
         config_dict[key] = default_value
