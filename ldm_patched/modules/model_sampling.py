@@ -1,6 +1,7 @@
 import torch
 from ldm_patched.ldm.modules.diffusionmodules.util import make_beta_schedule
 import math
+import numpy as np
 
 class EPS:
     def calculate_input(self, sigma, noise):
@@ -69,11 +70,16 @@ class ModelSamplingDiscrete(torch.nn.Module):
         # self.register_buffer('alphas_cumprod_prev', torch.tensor(alphas_cumprod_prev, dtype=torch.float32))
 
         sigmas = ((1 - alphas_cumprod) / alphas_cumprod) ** 0.5
+        alphas_cumprod = torch.tensor(np.cumprod(alphas, axis=0), dtype=torch.float32)
         self.set_sigmas(sigmas)
+        self.set_alphas_cumprod(alphas_cumprod.float())
 
     def set_sigmas(self, sigmas):
         self.register_buffer('sigmas', sigmas.float())
         self.register_buffer('log_sigmas', sigmas.log().float())
+
+    def set_alphas_cumprod(self, alphas_cumprod):
+        self.register_buffer("alphas_cumprod", alphas_cumprod.float())
 
     @property
     def sigma_min(self):
