@@ -28,7 +28,7 @@ def get_files_from_folder(folder_path, extensions=None, name_filter=None):
     return filenames
 
 
-def try_eval_env_var(value: str, expected_type=None) -> str | bool:
+def try_eval_env_var(value: str, expected_type=None):
     try:
         value_eval = literal_eval(value.title())
         if expected_type is not None and type(value_eval) is not expected_type:
