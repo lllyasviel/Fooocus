@@ -209,8 +209,9 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
     
     v = os.getenv(key)
     if v is not None:
+        v = try_parse_bool(v)
         print(f"Environment: {key} = {v}")
-        config_dict[key] = try_parse_bool(v)
+        config_dict[key] = v
 
     if key not in config_dict:
         config_dict[key] = default_value

@@ -29,7 +29,10 @@ def get_files_from_folder(folder_path, extensions=None, name_filter=None):
 
 
 def try_parse_bool(value: str) -> str | bool:
-    value_eval = literal_eval(value.strip().title())
-    if type(value_eval) is bool:
-        return value_eval
-    return value
+    try:
+        value_eval = literal_eval(value.strip().title())
+        if type(value_eval) is bool:
+            return value_eval
+        return value
+    except ValueError | TypeError:
+        return value
