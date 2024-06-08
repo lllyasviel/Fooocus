@@ -229,7 +229,7 @@ def worker():
 
     def process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, current_task_id,
                      denoising_strength, final_scheduler_name, goals, initial_latent, switch, task, tasks,
-                     tiled, use_expansion, width, height):
+                     tiled, use_expansion, width, height, cleanup_conds=True):
         if async_task.last_stop is not False:
             ldm_patched.modules.model_management.interrupt_current_processing()
         positive_cond, negative_cond = task['c'], task['uc']
@@ -260,7 +260,8 @@ def worker():
             refiner_swap_method=async_task.refiner_swap_method,
             disable_preview=async_task.disable_preview
         )
-        del task['c'], task['uc'], positive_cond, negative_cond  # Save memory
+        if cleanup_conds:
+            del task['c'], task['uc'], positive_cond, negative_cond  # Save memory
         if inpaint_worker.current_task is not None:
             imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
         current_progress = int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(
@@ -1007,9 +1008,51 @@ def worker():
             execution_start_time = time.perf_counter()
 
             try:
-                process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
+                imgs, img_paths = process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
                              current_task_id, denoising_strength, final_scheduler_name, goals, initial_latent,
-                             switch, task, tasks, tiled, use_expansion, width, height)
+                             switch, task, tasks, tiled, use_expansion, width, height, False)
+
+                # adetailer
+                for img in imgs:
+                    from extras.adetailer.ultralytics_predict import ultralytics_predict
+                    predictor = ultralytics_predict
+                    from extras.adetailer.script import get_ad_model
+                    ad_model = get_ad_model('face_yolov8n.pt')
+
+                    kwargs = {}
+                    kwargs["device"] = torch.device('cpu')
+                    kwargs["classes"] = ""
+                    from PIL import Image
+                    img2 = Image.fromarray(img)
+                    pred = predictor(ad_model, img2, **kwargs)
+
+                    if pred.preview is None:
+                        print(
+                            f"[-] ADetailer: nothing detected on image"
+                        )
+                        return False
+
+                    from extras.adetailer.args import ADetailerArgs
+                    args = ADetailerArgs()
+                    from extras.adetailer.script import pred_preprocessing
+                    masks = pred_preprocessing(img, pred, args)
+                    merged_masks = np.maximum(*[np.array(mask) for mask in masks])
+                    async_task.yields.append(['preview', (100, '...', merged_masks)])
+                    denoising_strength = 0.5
+                    inpaint_head_model_path = None
+                    inpaint_parameterized = False
+                    denoising_strength, initial_latent, width, height = apply_inpaint(async_task, None,
+                                                                                      inpaint_head_model_path, img,
+                                                                                      merged_masks,
+                                                                                      inpaint_parameterized,
+                                                                                      denoising_strength, switch)
+
+                    imgs, img_paths = process_task(all_steps, async_task, callback, controlnet_canny_path,
+                                                   controlnet_cpds_path,
+                                                   current_task_id, denoising_strength, final_scheduler_name, goals,
+                                                   initial_latent,
+                                                   switch, task, tasks, tiled, use_expansion, width, height)
+
             except ldm_patched.modules.model_management.InterruptProcessingException:
                 if async_task.last_stop == 'skip':
                     print('User skipped')
