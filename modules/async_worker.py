@@ -274,7 +274,7 @@ def worker():
         yield_result(async_task, img_paths, async_task.black_out_nsfw, False,
                      do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
 
-        return imgs, img_paths
+        return imgs, img_paths, current_progress
 
     def apply_patch_settings(async_task):
         patch_settings[pid] = PatchSettings(
@@ -430,8 +430,8 @@ def worker():
         return initial_latent, width, height
 
     def apply_inpaint(async_task, initial_latent, inpaint_head_model_path, inpaint_image,
-                      inpaint_mask, inpaint_parameterized, denoising_strength, switch, skip_apply_outpaint=False,
-                      step_from=11):
+                      inpaint_mask, inpaint_parameterized, denoising_strength, switch, current_progress,
+                      skip_apply_outpaint=False):
         if not skip_apply_outpaint:
             inpaint_image, inpaint_mask = apply_outpaint(async_task, inpaint_image, inpaint_mask)
 
@@ -446,7 +446,7 @@ def worker():
                          do_not_show_finished_images=True)
             raise EarlyReturnException
 
-        progressbar(async_task, step_from, 'VAE Inpaint encoding ...')
+        progressbar(async_task, current_progress, 'VAE Inpaint encoding ...')
         inpaint_pixel_fill = core.numpy_to_pytorch(inpaint_worker.current_task.interested_fill)
         inpaint_pixel_image = core.numpy_to_pytorch(inpaint_worker.current_task.interested_image)
         inpaint_pixel_mask = core.numpy_to_pytorch(inpaint_worker.current_task.interested_mask)
@@ -462,11 +462,11 @@ def worker():
             pixels=inpaint_pixel_image)
         latent_swap = None
         if candidate_vae_swap is not None:
-            progressbar(async_task, step_from + 1, 'VAE SD15 encoding ...')
+            progressbar(async_task, current_progress, 'VAE SD15 encoding ...')
             latent_swap = core.encode_vae(
                 vae=candidate_vae_swap,
                 pixels=inpaint_pixel_fill)['samples']
-        progressbar(async_task, step_from + 2, 'VAE encoding ...')
+        progressbar(async_task, current_progress, 'VAE encoding ...')
         latent_fill = core.encode_vae(
             vae=candidate_vae,
             pixels=inpaint_pixel_fill)['samples']
@@ -961,7 +961,8 @@ def worker():
                 denoising_strength, initial_latent, width, height = apply_inpaint(async_task, initial_latent,
                                                                                   inpaint_head_model_path, inpaint_image,
                                                                                   inpaint_mask, inpaint_parameterized,
-                                                                                  async_task.inpaint_strength, switch)
+                                                                                  async_task.inpaint_strength, switch,
+                                                                                  11)
             except EarlyReturnException:
                 return
 
@@ -1008,7 +1009,7 @@ def worker():
             execution_start_time = time.perf_counter()
 
             try:
-                imgs, img_paths = process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
+                imgs, img_paths, current_progress = process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
                              current_task_id, denoising_strength, final_scheduler_name, goals, initial_latent,
                              switch, task, tasks, tiled, use_expansion, width, height)
 
@@ -1030,9 +1031,7 @@ def worker():
                     pred = predictor(ad_model, img2, **kwargs)
 
                     if pred.preview is None:
-                        print(
-                            f"[ADetailer] nothing detected on image"
-                        )
+                        print('[ADetailer] nothing detected on image')
                         continue
 
                     from extras.adetailer.args import ADetailerArgs
@@ -1044,13 +1043,14 @@ def worker():
                     # TODO also show do_not_show_finished_images=len(tasks) == 1 when adetailer is on
                     yield_result(async_task, merged_masks, async_task.black_out_nsfw, False,
                                  do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
+                    # TODO make configurable
                     denoising_strength_adetailer = 0.5
                     inpaint_head_model_path_adetailer = None
                     inpaint_parameterized_adetailer = False
                     goals_adetailer = ['inpaint']
                     denoising_strength_adetailer, initial_latent_adetailer, width_adetailer, height_adetailer = apply_inpaint(
                         async_task, None, inpaint_head_model_path_adetailer, img, merged_masks,
-                        inpaint_parameterized_adetailer, denoising_strength_adetailer, switch)
+                        inpaint_parameterized_adetailer, denoising_strength_adetailer, switch, current_progress, True)
 
                     process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
                                  current_task_id, denoising_strength_adetailer, final_scheduler_name, goals_adetailer,
