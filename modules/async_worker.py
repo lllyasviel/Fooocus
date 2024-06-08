@@ -109,6 +109,10 @@ class AsyncTask:
 async_tasks = []
 
 
+class EarlyReturnException:
+    pass
+
+
 def worker():
     global async_tasks
 
@@ -394,19 +398,20 @@ def worker():
             progressbar(async_task, 7, 'Image processing ...')
 
         if 'vary' in goals:
-            height, initial_latent, width = apply_vary(async_task, denoising_strength, height, initial_latent, switch, width)
+            height, initial_latent, width = apply_vary(async_task, denoising_strength, switch)
 
         if 'upscale' in goals:
-            denoising_strength, height, initial_latent, tiled, width, direct_return = apply_upscale(async_task, switch)
-            if direct_return:
+            try:
+                denoising_strength, height, initial_latent, tiled, width = apply_upscale(async_task, switch)
+            except EarlyReturnException:
                 return
-
         if 'inpaint' in goals:
-            denoising_strength, height, initial_latent, width = apply_inpaint(async_task, initial_latent,
-                                                                              inpaint_head_model_path, inpaint_image,
-                                                                              inpaint_mask, inpaint_parameterized,
-                                                                              switch)
-            if async_task.debugging_inpaint_preprocessor:
+            try:
+                denoising_strength, initial_latent, height, width = apply_inpaint(async_task, initial_latent,
+                                                                                  inpaint_head_model_path, inpaint_image,
+                                                                                  inpaint_mask, inpaint_parameterized,
+                                                                                  switch)
+            except EarlyReturnException:
                 return
 
         if 'cn' in goals:
@@ -471,7 +476,6 @@ def worker():
 
         processing_time = time.perf_counter() - processing_start_time
         print(f'Processing time (total): {processing_time:.2f} seconds')
-        return
 
     def process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, current_task_id,
                      denoising_strength, final_scheduler_name, goals, initial_latent, switch, task, tasks,
@@ -521,6 +525,7 @@ def worker():
                      do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
 
         return imgs
+
     def apply_patch_settings(async_task):
         patch_settings[pid] = PatchSettings(
             async_task.sharpness,
@@ -644,22 +649,22 @@ def worker():
         if len(all_ip_tasks) > 0:
             pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, all_ip_tasks)
 
-    def apply_vary(async_task, denoising_strength, height, initial_latent, switch, width):
+    def apply_vary(async_task, uov_input_image, denoising_strength, switch):
         if 'subtle' in async_task.uov_method:
             async_task.denoising_strength = 0.5
         if 'strong' in async_task.uov_method:
             async_task.denoising_strength = 0.85
         if async_task.overwrite_vary_strength > 0:
             async_task.denoising_strength = async_task.overwrite_vary_strength
-        shape_ceil = get_image_shape_ceil(async_task.uov_input_image)
+        shape_ceil = get_image_shape_ceil(uov_input_image)
         if shape_ceil < 1024:
             print(f'[Vary] Image is resized because it is too small.')
             shape_ceil = 1024
         elif shape_ceil > 2048:
             print(f'[Vary] Image is resized because it is too big.')
             shape_ceil = 2048
-        async_task.uov_input_image = set_image_shape_ceil(async_task.uov_input_image, shape_ceil)
-        initial_pixels = core.numpy_to_pytorch(async_task.uov_input_image)
+        uov_input_image = set_image_shape_ceil(uov_input_image, shape_ceil)
+        initial_pixels = core.numpy_to_pytorch(uov_input_image)
         progressbar(async_task, 8, 'VAE encoding ...')
         candidate_vae, _ = pipeline.get_candidate_vae(
             steps=async_task.steps,
@@ -671,8 +676,8 @@ def worker():
         B, C, H, W = initial_latent['samples'].shape
         width = W * 8
         height = H * 8
-        print(f'Final resolution is {str((height, width))}.')
-        return height, initial_latent, width
+        print(f'Final resolution is {str((width, height))}.')
+        return initial_latent, width, height
 
     def apply_inpaint(async_task, initial_latent, inpaint_head_model_path, inpaint_image,
                 inpaint_mask, inpaint_parameterized, switch):
@@ -699,8 +704,8 @@ def worker():
 
             inpaint_image = np.ascontiguousarray(inpaint_image.copy())
             inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
-            inpaint_strength = 1.0
-            inpaint_respective_field = 1.0
+            async_task.inpaint_strength = 1.0
+            async_task.inpaint_respective_field = 1.0
         denoising_strength = async_task.inpaint_strength
         inpaint_worker.current_task = inpaint_worker.InpaintWorker(
             image=inpaint_image,
@@ -711,7 +716,7 @@ def worker():
         if async_task.debugging_inpaint_preprocessor:
             yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(), async_task.black_out_nsfw,
                          do_not_show_finished_images=True)
-            return
+            raise EarlyReturnException
 
         progressbar(async_task, 11, 'VAE Inpaint encoding ...')
         inpaint_pixel_fill = core.numpy_to_pytorch(inpaint_worker.current_task.interested_fill)
@@ -751,8 +756,9 @@ def worker():
         B, C, H, W = latent_fill.shape
         height, width = H * 8, W * 8
         final_height, final_width = inpaint_worker.current_task.image.shape[:2]
-        print(f'Final resolution is {str((final_height, final_width))}, latent is {str((height, width))}.')
-        return denoising_strength, height, initial_latent, width
+        print(f'Final resolution is {str((final_height, final_width))}, latent is {str((width, height))}.')
+
+        return denoising_strength, initial_latent, width, height
 
     def apply_upscale(async_task, switch):
         H, W, C = async_task.uov_input_image.shape
@@ -791,7 +797,7 @@ def worker():
             uov_input_image_path = log(async_task.uov_input_image, d, output_format=async_task.output_format)
             yield_result(async_task, uov_input_image_path, async_task.black_out_nsfw, False,
                          do_not_show_finished_images=True)
-            return direct_return
+            raise EarlyReturnException
 
         tiled = True
         denoising_strength = 0.382
@@ -811,8 +817,8 @@ def worker():
         B, C, H, W = initial_latent['samples'].shape
         width = W * 8
         height = H * 8
-        print(f'Final resolution is {str((height, width))}.')
-        return denoising_strength, height, initial_latent, tiled, width, direct_return
+        print(f'Final resolution is {str((width, height))}.')
+        return denoising_strength, height, initial_latent, tiled, width
 
     def apply_overrides(async_task, height, width):
         if async_task.overwrite_step > 0:
@@ -934,35 +940,28 @@ def worker():
             async_task.freeu_s2
         )
 
+    def patch_discrete(unet, scheduler_name):
+        return core.opModelSamplingDiscrete.patch(unet, scheduler_name, False)[0]
+
+    def patch_edm(unet, scheduler_name):
+        return core.opModelSamplingContinuousEDM.patch(unet, scheduler_name, 120.0, 0.002)[0]
+
     def patch_samplers(async_task):
         final_scheduler_name = async_task.scheduler_name
+
         if async_task.scheduler_name in ['lcm', 'tcd']:
             final_scheduler_name = 'sgm_uniform'
-
-            def patch_discrete(unet):
-                return core.opModelSamplingDiscrete.patch(
-                    pipeline.final_unet,
-                    sampling=async_task.scheduler_name,
-                    zsnr=False)[0]
-
             if pipeline.final_unet is not None:
-                pipeline.final_unet = patch_discrete(pipeline.final_unet)
+                pipeline.final_unet = patch_discrete(pipeline.final_unet, async_task.scheduler_name)
             if pipeline.final_refiner_unet is not None:
-                pipeline.final_refiner_unet = patch_discrete(pipeline.final_refiner_unet)
+                pipeline.final_refiner_unet = patch_discrete(pipeline.final_refiner_unet, async_task.scheduler_name)
+
         elif async_task.scheduler_name == 'edm_playground_v2.5':
             final_scheduler_name = 'karras'
-
-            def patch_edm(unet):
-                return core.opModelSamplingContinuousEDM.patch(
-                    unet,
-                    sampling=async_task.scheduler_name,
-                    sigma_max=120.0,
-                    sigma_min=0.002)[0]
-
             if pipeline.final_unet is not None:
-                pipeline.final_unet = patch_edm(pipeline.final_unet)
+                pipeline.final_unet = patch_edm(pipeline.final_unet, async_task.scheduler_name)
             if pipeline.final_refiner_unet is not None:
-                pipeline.final_refiner_unet = patch_edm(pipeline.final_refiner_unet)
+                pipeline.final_refiner_unet = patch_edm(pipeline.final_refiner_unet, async_task.scheduler_name)
 
         return final_scheduler_name
 
