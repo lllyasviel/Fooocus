@@ -430,8 +430,8 @@ def worker():
         return initial_latent, width, height
 
     def apply_inpaint(async_task, initial_latent, inpaint_head_model_path, inpaint_image,
-                      inpaint_mask, inpaint_parameterized, denoising_strength, switch, current_progress,
-                      skip_apply_outpaint=False):
+                      inpaint_mask, inpaint_parameterized, denoising_strength, inpaint_respective_field, switch,
+                      current_progress, skip_apply_outpaint=False):
         if not skip_apply_outpaint:
             inpaint_image, inpaint_mask = apply_outpaint(async_task, inpaint_image, inpaint_mask)
 
@@ -439,7 +439,7 @@ def worker():
             image=inpaint_image,
             mask=inpaint_mask,
             use_fill=denoising_strength > 0.99,
-            k=async_task.inpaint_respective_field
+            k=inpaint_respective_field
         )
         if async_task.debugging_inpaint_preprocessor:
             yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(), async_task.black_out_nsfw,
@@ -961,8 +961,9 @@ def worker():
                 denoising_strength, initial_latent, width, height = apply_inpaint(async_task, initial_latent,
                                                                                   inpaint_head_model_path, inpaint_image,
                                                                                   inpaint_mask, inpaint_parameterized,
-                                                                                  async_task.inpaint_strength, switch,
-                                                                                  11)
+                                                                                  async_task.inpaint_strength,
+                                                                                  async_task.inpaint_respective_field,
+                                                                                  switch, 11)
             except EarlyReturnException:
                 return
 
@@ -1044,13 +1045,15 @@ def worker():
                     yield_result(async_task, merged_masks, async_task.black_out_nsfw, False,
                                  do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
                     # TODO make configurable
-                    denoising_strength_adetailer = 0.5
+                    denoising_strength_adetailer = 0.3
+                    inpaint_respective_field_adetailer = 0.0
                     inpaint_head_model_path_adetailer = None
                     inpaint_parameterized_adetailer = False
                     goals_adetailer = ['inpaint']
                     denoising_strength_adetailer, initial_latent_adetailer, width_adetailer, height_adetailer = apply_inpaint(
                         async_task, None, inpaint_head_model_path_adetailer, img, merged_masks,
-                        inpaint_parameterized_adetailer, denoising_strength_adetailer, switch, current_progress, True)
+                        inpaint_parameterized_adetailer, denoising_strength_adetailer,
+                        inpaint_respective_field_adetailer, switch, current_progress, True)
 
                     process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
                                  current_task_id, denoising_strength_adetailer, final_scheduler_name, goals_adetailer,
