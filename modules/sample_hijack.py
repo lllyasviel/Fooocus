@@ -175,7 +175,7 @@ def calculate_sigmas_scheduler_hacked(model, scheduler_name, steps):
     elif scheduler_name == "sgm_uniform":
         sigmas = normal_scheduler(model, steps, sgm=True)
     elif scheduler_name == "turbo":
-        sigmas = SDTurboScheduler().get_sigmas(namedtuple('Patcher', ['model'])(model=model), steps=steps, denoise=1.0)[0]
+        sigmas = SDTurboScheduler().get_sigmas(model=model, steps=steps, denoise=1.0)[0]
     elif scheduler_name == "align_your_steps":
         model_type = 'SDXL' if isinstance(model.latent_format, ldm_patched.modules.latent_formats.SDXL) else 'SD1'
         sigmas = AlignYourStepsScheduler().get_sigmas(model_type=model_type, steps=steps, denoise=1.0)[0]

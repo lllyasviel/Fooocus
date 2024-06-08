@@ -74,31 +74,35 @@ progress::after {
     text-align: right;
     width: 215px;
 }
-
-.type_row{
-  height: 80px !important;
+div:has(> #positive_prompt) {
+    border: none;
 }
 
-.type_row_half{
-  height: 32px !important;
+#positive_prompt {
+    padding: 1px;
+    background: var(--background-fill-primary);
 }
 
-.scroll-hide{
-  resize: none !important;
+.type_row {
+  height: 84px !important;
 }
 
-.refresh_button{
+.type_row_half {
+  height: 34px !important;
+}
+
+.refresh_button {
   border: none !important;
   background: none !important;
   font-size: none !important;
   box-shadow: none !important;
 }
 
-.advanced_check_row{
+.advanced_check_row {
   width: 250px !important;
 }
 
-.min_check{
+.min_check {
   min-width: min(1px, 100%) !important;
 }
 

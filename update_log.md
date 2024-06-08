@@ -1,3 +1,16 @@
+# [2.4.3](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.3)
+
+* Fix alphas_cumprod setter for TCD sampler
+* Add parser for env var strings to expected config value types to allow override of all non-path config keys 
+
+# [2.4.2](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.2)
+
+* Fix some small bugs (tcd scheduler when gamma is 0, chown in Dockerfile, update cmd args in readme, translation for aspect ratios, vae default after file reload)
+* Fix performance LoRA replacement when data is loaded from history log and inline prompt
+* Add support and preset for playground v2.5 (only works with performance Quality or Speed, use with scheduler edm_playground_v2)
+* Make textboxes (incl. positive prompt) resizable
+* Hide intermediate images when performance of Gradio would bottleneck the generation process (Extreme Speed, Lightning, Hyper-SD)
+
 # [2.4.1](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.1)
 
 * Fix some small bugs (e.g. adjust clip skip default value from 1 to 2, add type check to aspect ratios js update function)
