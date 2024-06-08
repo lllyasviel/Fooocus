@@ -229,7 +229,7 @@ def worker():
 
     def process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, current_task_id,
                      denoising_strength, final_scheduler_name, goals, initial_latent, switch, task, tasks,
-                     tiled, use_expansion, width, height, cleanup_conds=True):
+                     tiled, use_expansion, width, height):
         if async_task.last_stop is not False:
             ldm_patched.modules.model_management.interrupt_current_processing()
         positive_cond, negative_cond = task['c'], task['uc']
@@ -260,8 +260,7 @@ def worker():
             refiner_swap_method=async_task.refiner_swap_method,
             disable_preview=async_task.disable_preview
         )
-        if cleanup_conds:
-            del task['c'], task['uc'], positive_cond, negative_cond  # Save memory
+        del positive_cond, negative_cond  # Save memory
         if inpaint_worker.current_task is not None:
             imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
         current_progress = int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(
@@ -833,6 +832,7 @@ def worker():
 
         skip_prompt_processing = False
 
+        inpaint_worker.current_task = None
         inpaint_parameterized = async_task.inpaint_engine != 'None'
         inpaint_image = None
         inpaint_mask = None
@@ -1010,9 +1010,12 @@ def worker():
             try:
                 imgs, img_paths = process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
                              current_task_id, denoising_strength, final_scheduler_name, goals, initial_latent,
-                             switch, task, tasks, tiled, use_expansion, width, height, False)
+                             switch, task, tasks, tiled, use_expansion, width, height)
 
                 # adetailer
+                progressbar(async_task, current_progress, 'Processing adetailer ...')
+                final_unet = pipeline.final_unet.clone()
+
                 for img in imgs:
                     from extras.adetailer.ultralytics_predict import ultralytics_predict
                     predictor = ultralytics_predict
@@ -1028,30 +1031,35 @@ def worker():
 
                     if pred.preview is None:
                         print(
-                            f"[-] ADetailer: nothing detected on image"
+                            f"[ADetailer] nothing detected on image"
                         )
-                        return False
+                        continue
 
                     from extras.adetailer.args import ADetailerArgs
                     args = ADetailerArgs()
                     from extras.adetailer.script import pred_preprocessing
                     masks = pred_preprocessing(img, pred, args)
                     merged_masks = np.maximum(*[np.array(mask) for mask in masks])
-                    async_task.yields.append(['preview', (100, '...', merged_masks)])
-                    denoising_strength = 0.5
-                    inpaint_head_model_path = None
-                    inpaint_parameterized = False
-                    denoising_strength, initial_latent, width, height = apply_inpaint(async_task, None,
-                                                                                      inpaint_head_model_path, img,
-                                                                                      merged_masks,
-                                                                                      inpaint_parameterized,
-                                                                                      denoising_strength, switch)
+                    async_task.yields.append(['preview', (current_progress, 'Loading ...', merged_masks)])
+                    # TODO also show do_not_show_finished_images=len(tasks) == 1 when adetailer is on
+                    yield_result(async_task, merged_masks, async_task.black_out_nsfw, False,
+                                 do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
+                    denoising_strength_adetailer = 0.5
+                    inpaint_head_model_path_adetailer = None
+                    inpaint_parameterized_adetailer = False
+                    goals_adetailer = ['inpaint']
+                    denoising_strength_adetailer, initial_latent_adetailer, width_adetailer, height_adetailer = apply_inpaint(
+                        async_task, None, inpaint_head_model_path_adetailer, img, merged_masks,
+                        inpaint_parameterized_adetailer, denoising_strength_adetailer, switch)
 
-                    imgs, img_paths = process_task(all_steps, async_task, callback, controlnet_canny_path,
-                                                   controlnet_cpds_path,
-                                                   current_task_id, denoising_strength, final_scheduler_name, goals,
-                                                   initial_latent,
-                                                   switch, task, tasks, tiled, use_expansion, width, height)
+                    process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
+                                 current_task_id, denoising_strength_adetailer, final_scheduler_name, goals_adetailer,
+                                 initial_latent_adetailer, switch, task, tasks, tiled, use_expansion, width_adetailer,
+                                 height_adetailer)
+
+                    # reset unet and inpaint_worker
+                    pipeline.final_unet = final_unet
+                    inpaint_worker.current_task = None
 
             except ldm_patched.modules.model_management.InterruptProcessingException:
                 if async_task.last_stop == 'skip':
@@ -1062,6 +1070,7 @@ def worker():
                     print('User stopped')
                     break
 
+            del task['c'], task['uc']  # Save memory
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
