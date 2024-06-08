@@ -227,256 +227,6 @@ def worker():
         async_task.results = async_task.results + [wall]
         return
 
-    @torch.no_grad()
-    @torch.inference_mode()
-    def handler(async_task: AsyncTask):
-        preparation_start_time = time.perf_counter()
-        async_task.processing = True
-
-        async_task.outpaint_selections = [o.lower() for o in async_task.outpaint_selections]
-        base_model_additional_loras = []
-        async_task.uov_method = async_task.uov_method.lower()
-
-        if fooocus_expansion in async_task.style_selections:
-            use_expansion = True
-            async_task.style_selections.remove(fooocus_expansion)
-        else:
-            use_expansion = False
-
-        use_style = len(async_task.style_selections) > 0
-
-        if async_task.base_model_name == async_task.refiner_model_name:
-            print(f'Refiner disabled because base model and refiner are same.')
-            async_task.refiner_model_name = 'None'
-
-        if async_task.performance_selection == Performance.EXTREME_SPEED:
-            set_lcm_defaults(async_task)
-        elif async_task.performance_selection == Performance.LIGHTNING:
-            set_lightning_defaults(async_task)
-        elif async_task.performance_selection == Performance.HYPER_SD:
-            set_hyper_sd_defaults(async_task)
-
-        if async_task.translate_prompts:
-            translate_prompts(async_task)
-
-        print(f'[Parameters] Adaptive CFG = {async_task.adaptive_cfg}')
-        print(f'[Parameters] CLIP Skip = {async_task.clip_skip}')
-        print(f'[Parameters] Sharpness = {async_task.sharpness}')
-        print(f'[Parameters] ControlNet Softness = {async_task.controlnet_softness}')
-        print(f'[Parameters] ADM Scale = '
-              f'{async_task.adm_scaler_positive} : '
-              f'{async_task.adm_scaler_negative} : '
-              f'{async_task.adm_scaler_end}')
-        print(f'[Parameters] Seed = {async_task.seed}')
-
-        apply_patch_settings(async_task)
-
-        print(f'[Parameters] CFG = {async_task.cfg_scale}')
-
-        initial_latent = None
-        denoising_strength = 1.0
-        tiled = False
-
-        width, height = async_task.aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
-        width, height = int(width), int(height)
-
-        skip_prompt_processing = False
-
-        inpaint_parameterized = async_task.inpaint_engine != 'None'
-        inpaint_image = None
-        inpaint_mask = None
-        inpaint_head_model_path = None
-
-        use_synthetic_refiner = False
-
-        controlnet_canny_path = None
-        controlnet_cpds_path = None
-        clip_vision_path, ip_negative_path, ip_adapter_path, ip_adapter_face_path = None, None, None, None
-
-        goals = []
-        tasks = []
-
-        if async_task.input_image_checkbox:
-            if (async_task.current_tab == 'uov' or (
-                    async_task.current_tab == 'ip' and async_task.mixing_image_prompt_and_vary_upscale)) \
-                    and async_task.uov_method != flags.disabled and async_task.uov_input_image is not None:
-                async_task.uov_input_image = HWC3(async_task.uov_input_image)
-                if 'vary' in async_task.uov_method:
-                    goals.append('vary')
-                elif 'upscale' in async_task.uov_method:
-                    goals.append('upscale')
-                    if 'fast' in async_task.uov_method:
-                        skip_prompt_processing = True
-                    else:
-                        async_task.steps = async_task.performance_selection.steps_uov()
-
-                    progressbar(async_task, 1, 'Downloading upscale models ...')
-                    modules.config.downloading_upscale_model()
-            if (async_task.current_tab == 'inpaint' or (
-                    async_task.current_tab == 'ip' and async_task.mixing_image_prompt_and_inpaint)) \
-                    and isinstance(async_task.inpaint_input_image, dict):
-                inpaint_image = async_task.inpaint_input_image['image']
-                inpaint_mask = async_task.inpaint_input_image['mask'][:, :, 0]
-
-                if async_task.inpaint_mask_upload_checkbox:
-                    if isinstance(async_task.inpaint_mask_image_upload, dict):
-                        if (isinstance(async_task.inpaint_mask_image_upload['image'], np.ndarray)
-                                and isinstance(async_task.inpaint_mask_image_upload['mask'], np.ndarray)
-                                and async_task.inpaint_mask_image_upload['image'].ndim == 3):
-                            async_task.inpaint_mask_image_upload = np.maximum(async_task.inpaint_mask_image_upload['image'], async_task.inpaint_mask_image_upload['mask'])
-                    if isinstance(async_task.inpaint_mask_image_upload, np.ndarray) and async_task.inpaint_mask_image_upload.ndim == 3:
-                        H, W, C = inpaint_image.shape
-                        async_task.inpaint_mask_image_upload = resample_image(async_task.inpaint_mask_image_upload, width=W, height=H)
-                        async_task.inpaint_mask_image_upload = np.mean(async_task.inpaint_mask_image_upload, axis=2)
-                        async_task.inpaint_mask_image_upload = (async_task.inpaint_mask_image_upload > 127).astype(np.uint8) * 255
-                        async_task.inpaint_mask = np.maximum(inpaint_mask, async_task.inpaint_mask_image_upload)
-
-                if int(async_task.inpaint_erode_or_dilate) != 0:
-                    async_task.inpaint_mask = erode_or_dilate(async_task.inpaint_mask, async_task.inpaint_erode_or_dilate)
-
-                if async_task.invert_mask_checkbox:
-                    async_task.inpaint_mask = 255 - async_task.inpaint_mask
-
-                inpaint_image = HWC3(inpaint_image)
-                if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
-                        and (np.any(inpaint_mask > 127) or len(async_task.outpaint_selections) > 0):
-                    progressbar(async_task, 1, 'Downloading upscale models ...')
-                    modules.config.downloading_upscale_model()
-                    if inpaint_parameterized:
-                        progressbar(async_task, 1, 'Downloading inpainter ...')
-                        inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
-                            async_task.inpaint_engine)
-                        base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
-                        print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
-                        if async_task.refiner_model_name == 'None':
-                            use_synthetic_refiner = True
-                            async_task.refiner_switch = 0.8
-                    else:
-                        inpaint_head_model_path, inpaint_patch_model_path = None, None
-                        print(f'[Inpaint] Parameterized inpaint is disabled.')
-                    if async_task.inpaint_additional_prompt != '':
-                        if async_task.prompt == '':
-                            async_task.prompt = async_task.inpaint_additional_prompt
-                        else:
-                            async_task.prompt = async_task.inpaint_additional_prompt + '\n' + async_task.prompt
-                    goals.append('inpaint')
-            if async_task.current_tab == 'ip' or \
-                    async_task.mixing_image_prompt_and_vary_upscale or \
-                    async_task.mixing_image_prompt_and_inpaint:
-                goals.append('cn')
-                progressbar(async_task, 1, 'Downloading control models ...')
-                if len(async_task.cn_tasks[flags.cn_canny]) > 0:
-                    controlnet_canny_path = modules.config.downloading_controlnet_canny()
-                if len(async_task.cn_tasks[flags.cn_cpds]) > 0:
-                    controlnet_cpds_path = modules.config.downloading_controlnet_cpds()
-                if len(async_task.cn_tasks[flags.cn_ip]) > 0:
-                    clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters('ip')
-                if len(async_task.cn_tasks[flags.cn_ip_face]) > 0:
-                    clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters(
-                        'face')
-
-
-        # Load or unload CNs
-        progressbar(async_task, 1, 'Loading control models ...')
-        pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path])
-        ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
-        ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
-
-        height, switch, width = apply_overrides(async_task, height, width)
-
-        print(f'[Parameters] Sampler = {async_task.sampler_name} - {async_task.scheduler_name}')
-        print(f'[Parameters] Steps = {async_task.steps} - {switch}')
-
-        progressbar(async_task, 1, 'Initializing ...')
-
-        tasks = []
-        if not skip_prompt_processing:
-            tasks, use_expansion = process_prompt(async_task, base_model_additional_loras, use_expansion, use_style,
-                                                  use_synthetic_refiner)
-
-        if len(goals) > 0:
-            progressbar(async_task, 7, 'Image processing ...')
-
-        if 'vary' in goals:
-            height, initial_latent, width = apply_vary(async_task, denoising_strength, switch)
-
-        if 'upscale' in goals:
-            try:
-                denoising_strength, height, initial_latent, tiled, width = apply_upscale(async_task, switch)
-            except EarlyReturnException:
-                return
-        if 'inpaint' in goals:
-            try:
-                denoising_strength, initial_latent, height, width = apply_inpaint(async_task, initial_latent,
-                                                                                  inpaint_head_model_path, inpaint_image,
-                                                                                  inpaint_mask, inpaint_parameterized,
-                                                                                  switch)
-            except EarlyReturnException:
-                return
-
-        if 'cn' in goals:
-            apply_control_nets(async_task, height, ip_adapter_face_path, ip_adapter_path, width)
-            if async_task.debugging_cn_preprocessor:
-                return
-
-        if async_task.freeu_enabled:
-            apply_freeu(async_task)
-
-        all_steps = async_task.steps * async_task.image_number
-
-        print(f'[Parameters] Denoising Strength = {denoising_strength}')
-
-        if isinstance(initial_latent, dict) and 'samples' in initial_latent:
-            log_shape = initial_latent['samples'].shape
-        else:
-            log_shape = f'Image Space {(height, width)}'
-
-        print(f'[Parameters] Initial Latent shape: {log_shape}')
-
-        preparation_time = time.perf_counter() - preparation_start_time
-        print(f'Preparation time: {preparation_time:.2f} seconds')
-
-        final_scheduler_name = patch_samplers(async_task)
-        print(f'Using {final_scheduler_name} scheduler.')
-
-        async_task.yields.append(['preview', (flags.preparation_step_count, 'Moving model to GPU ...', None)])
-
-        processing_start_time = time.perf_counter()
-
-        def callback(step, x0, x, total_steps, y):
-            done_steps = current_task_id * async_task.steps + step
-            async_task.yields.append(['preview', (
-                int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(done_steps) / float(all_steps)),
-                f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{async_task.image_number} ...', y)])
-
-        for current_task_id, task in enumerate(tasks):
-            current_progress = int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(
-                current_task_id * async_task.steps) / float(all_steps))
-            progressbar(async_task, current_progress,
-                        f'Preparing task {current_task_id + 1}/{async_task.image_number} ...')
-            execution_start_time = time.perf_counter()
-
-            try:
-                process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
-                             current_task_id, denoising_strength, final_scheduler_name, goals, initial_latent,
-                             switch, task, tasks, tiled, use_expansion, width, height)
-            except ldm_patched.modules.model_management.InterruptProcessingException:
-                if async_task.last_stop == 'skip':
-                    print('User skipped')
-                    async_task.last_stop = False
-                    continue
-                else:
-                    print('User stopped')
-                    break
-
-            execution_time = time.perf_counter() - execution_start_time
-            print(f'Generating and saving time: {execution_time:.2f} seconds')
-
-        async_task.processing = False
-
-        processing_time = time.perf_counter() - processing_start_time
-        print(f'Processing time (total): {processing_time:.2f} seconds')
-
     def process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, current_task_id,
                      denoising_strength, final_scheduler_name, goals, initial_latent, switch, task, tasks,
                      tiled, use_expansion, width, height):
@@ -649,22 +399,22 @@ def worker():
         if len(all_ip_tasks) > 0:
             pipeline.final_unet = ip_adapter.patch_model(pipeline.final_unet, all_ip_tasks)
 
-    def apply_vary(async_task, uov_input_image, denoising_strength, switch):
+    def apply_vary(async_task, denoising_strength, switch):
         if 'subtle' in async_task.uov_method:
             async_task.denoising_strength = 0.5
         if 'strong' in async_task.uov_method:
             async_task.denoising_strength = 0.85
         if async_task.overwrite_vary_strength > 0:
             async_task.denoising_strength = async_task.overwrite_vary_strength
-        shape_ceil = get_image_shape_ceil(uov_input_image)
+        shape_ceil = get_image_shape_ceil(async_task.uov_input_image)
         if shape_ceil < 1024:
             print(f'[Vary] Image is resized because it is too small.')
             shape_ceil = 1024
         elif shape_ceil > 2048:
             print(f'[Vary] Image is resized because it is too big.')
             shape_ceil = 2048
-        uov_input_image = set_image_shape_ceil(uov_input_image, shape_ceil)
-        initial_pixels = core.numpy_to_pytorch(uov_input_image)
+        async_task.uov_input_image = set_image_shape_ceil(async_task.uov_input_image, shape_ceil)
+        initial_pixels = core.numpy_to_pytorch(async_task.uov_input_image)
         progressbar(async_task, 8, 'VAE encoding ...')
         candidate_vae, _ = pipeline.get_candidate_vae(
             steps=async_task.steps,
@@ -680,7 +430,7 @@ def worker():
         return initial_latent, width, height
 
     def apply_inpaint(async_task, initial_latent, inpaint_head_model_path, inpaint_image,
-                inpaint_mask, inpaint_parameterized, switch):
+                      inpaint_mask, inpaint_parameterized, switch):
         if len(async_task.outpaint_selections) > 0:
             H, W, C = inpaint_image.shape
             if 'top' in async_task.outpaint_selections:
@@ -833,7 +583,7 @@ def worker():
         return height, switch, width
 
     def process_prompt(async_task, base_model_additional_loras, use_expansion, use_style,
-                    use_synthetic_refiner):
+                       use_synthetic_refiner):
         prompts = remove_empty_str([safe_str(p) for p in async_task.prompt.splitlines()], default='')
         negative_prompts = remove_empty_str([safe_str(p) for p in async_task.negative_prompt.splitlines()], default='')
         prompt = prompts[0]
@@ -1020,6 +770,256 @@ def worker():
         async_task.adm_scaler_positive = 1.0
         async_task.adm_scaler_negative = 1.0
         async_task.adm_scaler_end = 0.0
+
+    @torch.no_grad()
+    @torch.inference_mode()
+    def handler(async_task: AsyncTask):
+        preparation_start_time = time.perf_counter()
+        async_task.processing = True
+
+        async_task.outpaint_selections = [o.lower() for o in async_task.outpaint_selections]
+        base_model_additional_loras = []
+        async_task.uov_method = async_task.uov_method.lower()
+
+        if fooocus_expansion in async_task.style_selections:
+            use_expansion = True
+            async_task.style_selections.remove(fooocus_expansion)
+        else:
+            use_expansion = False
+
+        use_style = len(async_task.style_selections) > 0
+
+        if async_task.base_model_name == async_task.refiner_model_name:
+            print(f'Refiner disabled because base model and refiner are same.')
+            async_task.refiner_model_name = 'None'
+
+        if async_task.performance_selection == Performance.EXTREME_SPEED:
+            set_lcm_defaults(async_task)
+        elif async_task.performance_selection == Performance.LIGHTNING:
+            set_lightning_defaults(async_task)
+        elif async_task.performance_selection == Performance.HYPER_SD:
+            set_hyper_sd_defaults(async_task)
+
+        if async_task.translate_prompts:
+            translate_prompts(async_task)
+
+        print(f'[Parameters] Adaptive CFG = {async_task.adaptive_cfg}')
+        print(f'[Parameters] CLIP Skip = {async_task.clip_skip}')
+        print(f'[Parameters] Sharpness = {async_task.sharpness}')
+        print(f'[Parameters] ControlNet Softness = {async_task.controlnet_softness}')
+        print(f'[Parameters] ADM Scale = '
+              f'{async_task.adm_scaler_positive} : '
+              f'{async_task.adm_scaler_negative} : '
+              f'{async_task.adm_scaler_end}')
+        print(f'[Parameters] Seed = {async_task.seed}')
+
+        apply_patch_settings(async_task)
+
+        print(f'[Parameters] CFG = {async_task.cfg_scale}')
+
+        initial_latent = None
+        denoising_strength = 1.0
+        tiled = False
+
+        width, height = async_task.aspect_ratios_selection.replace('×', ' ').split(' ')[:2]
+        width, height = int(width), int(height)
+
+        skip_prompt_processing = False
+
+        inpaint_parameterized = async_task.inpaint_engine != 'None'
+        inpaint_image = None
+        inpaint_mask = None
+        inpaint_head_model_path = None
+
+        use_synthetic_refiner = False
+
+        controlnet_canny_path = None
+        controlnet_cpds_path = None
+        clip_vision_path, ip_negative_path, ip_adapter_path, ip_adapter_face_path = None, None, None, None
+
+        goals = []
+        tasks = []
+
+        if async_task.input_image_checkbox:
+            if (async_task.current_tab == 'uov' or (
+                    async_task.current_tab == 'ip' and async_task.mixing_image_prompt_and_vary_upscale)) \
+                    and async_task.uov_method != flags.disabled and async_task.uov_input_image is not None:
+                async_task.uov_input_image = HWC3(async_task.uov_input_image)
+                if 'vary' in async_task.uov_method:
+                    goals.append('vary')
+                elif 'upscale' in async_task.uov_method:
+                    goals.append('upscale')
+                    if 'fast' in async_task.uov_method:
+                        skip_prompt_processing = True
+                    else:
+                        async_task.steps = async_task.performance_selection.steps_uov()
+
+                    progressbar(async_task, 1, 'Downloading upscale models ...')
+                    modules.config.downloading_upscale_model()
+            if (async_task.current_tab == 'inpaint' or (
+                    async_task.current_tab == 'ip' and async_task.mixing_image_prompt_and_inpaint)) \
+                    and isinstance(async_task.inpaint_input_image, dict):
+                inpaint_image = async_task.inpaint_input_image['image']
+                inpaint_mask = async_task.inpaint_input_image['mask'][:, :, 0]
+
+                if async_task.inpaint_mask_upload_checkbox:
+                    if isinstance(async_task.inpaint_mask_image_upload, dict):
+                        if (isinstance(async_task.inpaint_mask_image_upload['image'], np.ndarray)
+                                and isinstance(async_task.inpaint_mask_image_upload['mask'], np.ndarray)
+                                and async_task.inpaint_mask_image_upload['image'].ndim == 3):
+                            async_task.inpaint_mask_image_upload = np.maximum(async_task.inpaint_mask_image_upload['image'], async_task.inpaint_mask_image_upload['mask'])
+                    if isinstance(async_task.inpaint_mask_image_upload, np.ndarray) and async_task.inpaint_mask_image_upload.ndim == 3:
+                        H, W, C = inpaint_image.shape
+                        async_task.inpaint_mask_image_upload = resample_image(async_task.inpaint_mask_image_upload, width=W, height=H)
+                        async_task.inpaint_mask_image_upload = np.mean(async_task.inpaint_mask_image_upload, axis=2)
+                        async_task.inpaint_mask_image_upload = (async_task.inpaint_mask_image_upload > 127).astype(np.uint8) * 255
+                        async_task.inpaint_mask = np.maximum(inpaint_mask, async_task.inpaint_mask_image_upload)
+
+                if int(async_task.inpaint_erode_or_dilate) != 0:
+                    async_task.inpaint_mask = erode_or_dilate(async_task.inpaint_mask, async_task.inpaint_erode_or_dilate)
+
+                if async_task.invert_mask_checkbox:
+                    async_task.inpaint_mask = 255 - async_task.inpaint_mask
+
+                inpaint_image = HWC3(inpaint_image)
+                if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
+                        and (np.any(inpaint_mask > 127) or len(async_task.outpaint_selections) > 0):
+                    progressbar(async_task, 1, 'Downloading upscale models ...')
+                    modules.config.downloading_upscale_model()
+                    if inpaint_parameterized:
+                        progressbar(async_task, 1, 'Downloading inpainter ...')
+                        inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
+                            async_task.inpaint_engine)
+                        base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
+                        print(f'[Inpaint] Current inpaint model is {inpaint_patch_model_path}')
+                        if async_task.refiner_model_name == 'None':
+                            use_synthetic_refiner = True
+                            async_task.refiner_switch = 0.8
+                    else:
+                        inpaint_head_model_path, inpaint_patch_model_path = None, None
+                        print(f'[Inpaint] Parameterized inpaint is disabled.')
+                    if async_task.inpaint_additional_prompt != '':
+                        if async_task.prompt == '':
+                            async_task.prompt = async_task.inpaint_additional_prompt
+                        else:
+                            async_task.prompt = async_task.inpaint_additional_prompt + '\n' + async_task.prompt
+                    goals.append('inpaint')
+            if async_task.current_tab == 'ip' or \
+                    async_task.mixing_image_prompt_and_vary_upscale or \
+                    async_task.mixing_image_prompt_and_inpaint:
+                goals.append('cn')
+                progressbar(async_task, 1, 'Downloading control models ...')
+                if len(async_task.cn_tasks[flags.cn_canny]) > 0:
+                    controlnet_canny_path = modules.config.downloading_controlnet_canny()
+                if len(async_task.cn_tasks[flags.cn_cpds]) > 0:
+                    controlnet_cpds_path = modules.config.downloading_controlnet_cpds()
+                if len(async_task.cn_tasks[flags.cn_ip]) > 0:
+                    clip_vision_path, ip_negative_path, ip_adapter_path = modules.config.downloading_ip_adapters('ip')
+                if len(async_task.cn_tasks[flags.cn_ip_face]) > 0:
+                    clip_vision_path, ip_negative_path, ip_adapter_face_path = modules.config.downloading_ip_adapters(
+                        'face')
+
+
+        # Load or unload CNs
+        progressbar(async_task, 1, 'Loading control models ...')
+        pipeline.refresh_controlnets([controlnet_canny_path, controlnet_cpds_path])
+        ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
+        ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
+
+        height, switch, width = apply_overrides(async_task, height, width)
+
+        print(f'[Parameters] Sampler = {async_task.sampler_name} - {async_task.scheduler_name}')
+        print(f'[Parameters] Steps = {async_task.steps} - {switch}')
+
+        progressbar(async_task, 1, 'Initializing ...')
+
+        if not skip_prompt_processing:
+            tasks, use_expansion = process_prompt(async_task, base_model_additional_loras, use_expansion, use_style,
+                                                  use_synthetic_refiner)
+
+        if len(goals) > 0:
+            progressbar(async_task, 7, 'Image processing ...')
+
+        if 'vary' in goals:
+            height, initial_latent, width = apply_vary(async_task, denoising_strength, switch)
+
+        if 'upscale' in goals:
+            try:
+                denoising_strength, height, initial_latent, tiled, width = apply_upscale(async_task, switch)
+            except EarlyReturnException:
+                return
+        if 'inpaint' in goals:
+            try:
+                denoising_strength, initial_latent, height, width = apply_inpaint(async_task, initial_latent,
+                                                                                  inpaint_head_model_path, inpaint_image,
+                                                                                  inpaint_mask, inpaint_parameterized,
+                                                                                  switch)
+            except EarlyReturnException:
+                return
+
+        if 'cn' in goals:
+            apply_control_nets(async_task, height, ip_adapter_face_path, ip_adapter_path, width)
+            if async_task.debugging_cn_preprocessor:
+                return
+
+        if async_task.freeu_enabled:
+            apply_freeu(async_task)
+
+        all_steps = async_task.steps * async_task.image_number
+
+        print(f'[Parameters] Denoising Strength = {denoising_strength}')
+
+        if isinstance(initial_latent, dict) and 'samples' in initial_latent:
+            log_shape = initial_latent['samples'].shape
+        else:
+            log_shape = f'Image Space {(height, width)}'
+
+        print(f'[Parameters] Initial Latent shape: {log_shape}')
+
+        preparation_time = time.perf_counter() - preparation_start_time
+        print(f'Preparation time: {preparation_time:.2f} seconds')
+
+        final_scheduler_name = patch_samplers(async_task)
+        print(f'Using {final_scheduler_name} scheduler.')
+
+        async_task.yields.append(['preview', (flags.preparation_step_count, 'Moving model to GPU ...', None)])
+
+        processing_start_time = time.perf_counter()
+
+        def callback(step, x0, x, total_steps, y):
+            done_steps = current_task_id * async_task.steps + step
+            async_task.yields.append(['preview', (
+                int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(done_steps) / float(all_steps)),
+                f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{async_task.image_number} ...', y)])
+
+        for current_task_id, task in enumerate(tasks):
+            current_progress = int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(
+                current_task_id * async_task.steps) / float(all_steps))
+            progressbar(async_task, current_progress,
+                        f'Preparing task {current_task_id + 1}/{async_task.image_number} ...')
+            execution_start_time = time.perf_counter()
+
+            try:
+                process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
+                             current_task_id, denoising_strength, final_scheduler_name, goals, initial_latent,
+                             switch, task, tasks, tiled, use_expansion, width, height)
+            except ldm_patched.modules.model_management.InterruptProcessingException:
+                if async_task.last_stop == 'skip':
+                    print('User skipped')
+                    async_task.last_stop = False
+                    continue
+                else:
+                    print('User stopped')
+                    break
+
+            execution_time = time.perf_counter() - execution_start_time
+            print(f'Generating and saving time: {execution_time:.2f} seconds')
+
+        async_task.processing = False
+
+        processing_time = time.perf_counter() - processing_start_time
+        print(f'Processing time (total): {processing_time:.2f} seconds')
+
 
     while True:
         time.sleep(0.01)
