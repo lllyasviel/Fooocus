@@ -274,7 +274,7 @@ def worker():
         yield_result(async_task, img_paths, async_task.black_out_nsfw, False,
                      do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
 
-        return imgs
+        return imgs, img_paths
 
     def apply_patch_settings(async_task):
         patch_settings[pid] = PatchSettings(
@@ -430,7 +430,65 @@ def worker():
         return initial_latent, width, height
 
     def apply_inpaint(async_task, initial_latent, inpaint_head_model_path, inpaint_image,
-                      inpaint_mask, inpaint_parameterized, switch):
+                      inpaint_mask, inpaint_parameterized, denoising_strength, switch, skip_apply_outpaint=False,
+                      step_from=11):
+        if not skip_apply_outpaint:
+            inpaint_image, inpaint_mask = apply_outpaint(async_task, inpaint_image, inpaint_mask)
+
+        inpaint_worker.current_task = inpaint_worker.InpaintWorker(
+            image=inpaint_image,
+            mask=inpaint_mask,
+            use_fill=denoising_strength > 0.99,
+            k=async_task.inpaint_respective_field
+        )
+        if async_task.debugging_inpaint_preprocessor:
+            yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(), async_task.black_out_nsfw,
+                         do_not_show_finished_images=True)
+            raise EarlyReturnException
+
+        progressbar(async_task, step_from, 'VAE Inpaint encoding ...')
+        inpaint_pixel_fill = core.numpy_to_pytorch(inpaint_worker.current_task.interested_fill)
+        inpaint_pixel_image = core.numpy_to_pytorch(inpaint_worker.current_task.interested_image)
+        inpaint_pixel_mask = core.numpy_to_pytorch(inpaint_worker.current_task.interested_mask)
+        candidate_vae, candidate_vae_swap = pipeline.get_candidate_vae(
+            steps=async_task.steps,
+            switch=switch,
+            denoise=denoising_strength,
+            refiner_swap_method=async_task.refiner_swap_method
+        )
+        latent_inpaint, latent_mask = core.encode_vae_inpaint(
+            mask=inpaint_pixel_mask,
+            vae=candidate_vae,
+            pixels=inpaint_pixel_image)
+        latent_swap = None
+        if candidate_vae_swap is not None:
+            progressbar(async_task, step_from + 1, 'VAE SD15 encoding ...')
+            latent_swap = core.encode_vae(
+                vae=candidate_vae_swap,
+                pixels=inpaint_pixel_fill)['samples']
+        progressbar(async_task, step_from + 2, 'VAE encoding ...')
+        latent_fill = core.encode_vae(
+            vae=candidate_vae,
+            pixels=inpaint_pixel_fill)['samples']
+        inpaint_worker.current_task.load_latent(
+            latent_fill=latent_fill, latent_mask=latent_mask, latent_swap=latent_swap)
+        if inpaint_parameterized:
+            pipeline.final_unet = inpaint_worker.current_task.patch(
+                inpaint_head_model_path=inpaint_head_model_path,
+                inpaint_latent=latent_inpaint,
+                inpaint_latent_mask=latent_mask,
+                model=pipeline.final_unet
+            )
+        if not async_task.inpaint_disable_initial_latent:
+            initial_latent = {'samples': latent_fill}
+        B, C, H, W = latent_fill.shape
+        height, width = H * 8, W * 8
+        final_height, final_width = inpaint_worker.current_task.image.shape[:2]
+        print(f'Final resolution is {str((final_width, final_height))}, latent is {str((width, height))}.')
+
+        return denoising_strength, initial_latent, width, height
+
+    def apply_outpaint(async_task, inpaint_image, inpaint_mask):
         if len(async_task.outpaint_selections) > 0:
             H, W, C = inpaint_image.shape
             if 'top' in async_task.outpaint_selections:
@@ -456,59 +514,7 @@ def worker():
             inpaint_mask = np.ascontiguousarray(inpaint_mask.copy())
             async_task.inpaint_strength = 1.0
             async_task.inpaint_respective_field = 1.0
-        denoising_strength = async_task.inpaint_strength
-        inpaint_worker.current_task = inpaint_worker.InpaintWorker(
-            image=inpaint_image,
-            mask=inpaint_mask,
-            use_fill=denoising_strength > 0.99,
-            k=async_task.inpaint_respective_field
-        )
-        if async_task.debugging_inpaint_preprocessor:
-            yield_result(async_task, inpaint_worker.current_task.visualize_mask_processing(), async_task.black_out_nsfw,
-                         do_not_show_finished_images=True)
-            raise EarlyReturnException
-
-        progressbar(async_task, 11, 'VAE Inpaint encoding ...')
-        inpaint_pixel_fill = core.numpy_to_pytorch(inpaint_worker.current_task.interested_fill)
-        inpaint_pixel_image = core.numpy_to_pytorch(inpaint_worker.current_task.interested_image)
-        inpaint_pixel_mask = core.numpy_to_pytorch(inpaint_worker.current_task.interested_mask)
-        candidate_vae, candidate_vae_swap = pipeline.get_candidate_vae(
-            steps=async_task.steps,
-            switch=switch,
-            denoise=denoising_strength,
-            refiner_swap_method=async_task.refiner_swap_method
-        )
-        latent_inpaint, latent_mask = core.encode_vae_inpaint(
-            mask=inpaint_pixel_mask,
-            vae=candidate_vae,
-            pixels=inpaint_pixel_image)
-        latent_swap = None
-        if candidate_vae_swap is not None:
-            progressbar(async_task, 12, 'VAE SD15 encoding ...')
-            latent_swap = core.encode_vae(
-                vae=candidate_vae_swap,
-                pixels=inpaint_pixel_fill)['samples']
-        progressbar(async_task, 13, 'VAE encoding ...')
-        latent_fill = core.encode_vae(
-            vae=candidate_vae,
-            pixels=inpaint_pixel_fill)['samples']
-        inpaint_worker.current_task.load_latent(
-            latent_fill=latent_fill, latent_mask=latent_mask, latent_swap=latent_swap)
-        if inpaint_parameterized:
-            pipeline.final_unet = inpaint_worker.current_task.patch(
-                inpaint_head_model_path=inpaint_head_model_path,
-                inpaint_latent=latent_inpaint,
-                inpaint_latent_mask=latent_mask,
-                model=pipeline.final_unet
-            )
-        if not async_task.inpaint_disable_initial_latent:
-            initial_latent = {'samples': latent_fill}
-        B, C, H, W = latent_fill.shape
-        height, width = H * 8, W * 8
-        final_height, final_width = inpaint_worker.current_task.image.shape[:2]
-        print(f'Final resolution is {str((final_height, final_width))}, latent is {str((width, height))}.')
-
-        return denoising_strength, initial_latent, width, height
+        return inpaint_image, inpaint_mask
 
     def apply_upscale(async_task, switch):
         H, W, C = async_task.uov_input_image.shape
@@ -568,7 +574,7 @@ def worker():
         width = W * 8
         height = H * 8
         print(f'Final resolution is {str((width, height))}.')
-        return denoising_strength, height, initial_latent, tiled, width
+        return denoising_strength, initial_latent, tiled, width, height
 
     def apply_overrides(async_task, height, width):
         if async_task.overwrite_step > 0:
@@ -941,19 +947,20 @@ def worker():
             progressbar(async_task, 7, 'Image processing ...')
 
         if 'vary' in goals:
-            height, initial_latent, width = apply_vary(async_task, denoising_strength, switch)
+            initial_latent, width, height = apply_vary(async_task, denoising_strength, switch)
 
         if 'upscale' in goals:
             try:
-                denoising_strength, height, initial_latent, tiled, width = apply_upscale(async_task, switch)
+                denoising_strength, initial_latent, tiled, width, height = apply_upscale(async_task, switch)
             except EarlyReturnException:
                 return
+
         if 'inpaint' in goals:
             try:
-                denoising_strength, initial_latent, height, width = apply_inpaint(async_task, initial_latent,
+                denoising_strength, initial_latent, width, height = apply_inpaint(async_task, initial_latent,
                                                                                   inpaint_head_model_path, inpaint_image,
                                                                                   inpaint_mask, inpaint_parameterized,
-                                                                                  switch)
+                                                                                  async_task.inpaint_strength, switch)
             except EarlyReturnException:
                 return
 
