@@ -223,7 +223,7 @@ with shared.gradio_root:
                                                              choices=flags.inpaint_mask_cloth_category,
                                                              value=modules.config.default_inpaint_mask_cloth_category,
                                                              visible=False)
-                                inpaint_mask_sam_prompt_text = gr.Textbox(label='Segmentation prompt', value='', visible=False)
+                                inpaint_mask_sam_prompt_text = gr.Textbox(label='Segmentation prompt', value='', visible=False, info='Use singular whenever possible')
                                 with gr.Accordion("Advanced options", visible=False, open=False) as inpaint_mask_advanced_options:
                                     inpaint_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
                                     inpaint_mask_sam_quant = gr.Checkbox(label='Quantization', value=False)

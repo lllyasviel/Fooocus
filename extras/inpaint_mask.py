@@ -33,11 +33,11 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str, extras: dict, b
 
         if debug_dino:
             from PIL import ImageDraw, Image
-            image_with_boxes = Image.new("RGB", (image.shape[1], image.shape[0]), color="black")
-            draw = ImageDraw.Draw(image_with_boxes)
+            debug_dino_image = Image.new("RGB", (image.shape[1], image.shape[0]), color="black")
+            draw = ImageDraw.Draw(debug_dino_image)
             for box in extras['sam_prompt']:
                 draw.rectangle(box['data'], fill="white")
-            return np.array(image_with_boxes)
+            return np.array(debug_dino_image)
 
     return remove(
         image,

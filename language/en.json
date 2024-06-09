@@ -47,6 +47,7 @@
     "Mask generation model": "Mask generation model",
     "Cloth category": "Cloth category",
     "Segmentation prompt": "Segmentation prompt",
+    "Use singular whenever possible": "Use singular whenever possible",
     "Advanced options": "Advanced options",
     "SAM model": "SAM model",
     "Quantization": "Quantization",
