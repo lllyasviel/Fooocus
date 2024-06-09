@@ -16,6 +16,7 @@ import modules.meta_parser
 import args_manager
 import copy
 import launch
+from extras.inpaint_mask import SAMOptions
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -223,7 +224,7 @@ with shared.gradio_root:
                                                              choices=flags.inpaint_mask_cloth_category,
                                                              value=modules.config.default_inpaint_mask_cloth_category,
                                                              visible=False)
-                                inpaint_mask_sam_prompt_text = gr.Textbox(label='Segmentation prompt', value='', visible=False, info='Use singular whenever possible')
+                                inpaint_mask_dino_prompt_text = gr.Textbox(label='Segmentation prompt', value='', visible=False, info='Use singular whenever possible')
                                 with gr.Accordion("Advanced options", visible=False, open=False) as inpaint_mask_advanced_options:
                                     inpaint_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
                                     inpaint_mask_sam_quant = gr.Checkbox(label='Quantization', value=False)
@@ -231,24 +232,29 @@ with shared.gradio_root:
                                     inpaint_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05)
                                 generate_mask_button = gr.Button(value='Generate mask from image')
 
-                                def generate_mask(image, mask_model, cloth_category, sam_prompt_text, sam_model, sam_quant, box_threshold, text_threshold, debug_dino, dino_erode_or_dilate):
+                                def generate_mask(image, mask_model, cloth_category, dino_prompt_text, sam_model, sam_quant, box_threshold, text_threshold, dino_erode_or_dilate, debug_dino):
                                     from extras.inpaint_mask import generate_mask_from_image
 
                                     extras = {}
+                                    sam_options = None
                                     if mask_model == 'u2net_cloth_seg':
                                         extras['cloth_category'] = cloth_category
                                     elif mask_model == 'sam':
-                                        extras['sam_prompt_text'] = sam_prompt_text
-                                        extras['sam_model'] = sam_model
-                                        extras['sam_quant'] = sam_quant
-                                        extras['box_threshold'] = box_threshold
-                                        extras['text_threshold'] = text_threshold
+                                        sam_options = SAMOptions(
+                                            dino_prompt=dino_prompt_text,
+                                            dino_box_threshold=box_threshold,
+                                            dino_text_threshold=text_threshold,
+                                            box_erode_or_dilate=dino_erode_or_dilate,
+                                            max_num_boxes=2, #TODO replace with actual value
+                                            sam_checkpoint="./models/sam/sam_vit_l_0b3195.pth", # TODO replace with actual value
+                                            model_type="vit_l"
+                                        )
 
-                                    return generate_mask_from_image(image, mask_model, extras, dino_erode_or_dilate, debug_dino)
+                                    return generate_mask_from_image(image, mask_model, extras, sam_options)
 
                                 inpaint_mask_model.change(lambda x: [gr.update(visible=x == 'u2net_cloth_seg'), gr.update(visible=x == 'sam'), gr.update(visible=x == 'sam')],
                                                           inputs=inpaint_mask_model,
-                                                          outputs=[inpaint_mask_cloth_category, inpaint_mask_sam_prompt_text, inpaint_mask_advanced_options],
+                                                          outputs=[inpaint_mask_cloth_category, inpaint_mask_dino_prompt_text, inpaint_mask_advanced_options],
                                                           queue=False, show_progress=False)
 
                     with gr.TabItem(label='Describe') as desc_tab:
@@ -737,9 +743,9 @@ with shared.gradio_root:
 
         generate_mask_button.click(fn=generate_mask,
                                    inputs=[inpaint_input_image, inpaint_mask_model, inpaint_mask_cloth_category,
-                                           inpaint_mask_sam_prompt_text, inpaint_mask_sam_model, inpaint_mask_sam_quant,
-                                           inpaint_mask_box_threshold, inpaint_mask_text_threshold, debug_dino,
-                                           dino_erode_or_dilate],
+                                           inpaint_mask_dino_prompt_text, inpaint_mask_sam_model, inpaint_mask_sam_quant,
+                                           inpaint_mask_box_threshold, inpaint_mask_text_threshold, dino_erode_or_dilate,
+                                           debug_dino],
                                    outputs=inpaint_mask_image, show_progress=True, queue=True)
 
         ctrls = [currentTask, generate_image_grid]
