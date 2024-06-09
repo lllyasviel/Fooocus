@@ -25,7 +25,7 @@ class GroundingDinoModel(Model):
             caption: str,
             box_threshold: float = 0.35,
             text_threshold: float = 0.25
-    ) -> Tuple[sv.Detections, List[str]]:
+    ) -> Tuple[sv.Detections, torch.Tensor, torch.Tensor, List[str]]:
         if self.model is None:
             filename = load_file_from_url(
                 url="https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth",
@@ -56,7 +56,7 @@ class GroundingDinoModel(Model):
             source_w=source_w,
             boxes=boxes,
             logits=logits)
-        return detections, phrases
+        return detections, boxes, logits, phrases
 
 
 def predict(
