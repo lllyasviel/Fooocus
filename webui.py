@@ -231,7 +231,7 @@ with shared.gradio_root:
                                     inpaint_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05)
                                 generate_mask_button = gr.Button(value='Generate mask from image')
 
-                                def generate_mask(image, mask_model, cloth_category, sam_prompt_text, sam_model, sam_quant, box_threshold, text_threshold):
+                                def generate_mask(image, mask_model, cloth_category, sam_prompt_text, sam_model, sam_quant, box_threshold, text_threshold, debug_dino, dino_erode_or_dilate):
                                     from extras.inpaint_mask import generate_mask_from_image
 
                                     extras = {}
@@ -244,19 +244,7 @@ with shared.gradio_root:
                                         extras['box_threshold'] = box_threshold
                                         extras['text_threshold'] = text_threshold
 
-                                    return generate_mask_from_image(image, mask_model, extras)
-
-                                generate_mask_button.click(fn=generate_mask,
-                                                           inputs=[
-                                                               inpaint_input_image, inpaint_mask_model,
-                                                               inpaint_mask_cloth_category,
-                                                               inpaint_mask_sam_prompt_text,
-                                                               inpaint_mask_sam_model,
-                                                               inpaint_mask_sam_quant,
-                                                               inpaint_mask_box_threshold,
-                                                               inpaint_mask_text_threshold
-                                                           ],
-                                                           outputs=inpaint_mask_image, show_progress=True, queue=True)
+                                    return generate_mask_from_image(image, mask_model, extras, dino_erode_or_dilate, debug_dino)
 
                                 inpaint_mask_model.change(lambda x: [gr.update(visible=x == 'u2net_cloth_seg'), gr.update(visible=x == 'sam'), gr.update(visible=x == 'sam')],
                                                           inputs=inpaint_mask_model,
@@ -570,6 +558,8 @@ with shared.gradio_root:
 
                     with gr.Tab(label='Inpaint'):
                         debugging_inpaint_preprocessor = gr.Checkbox(label='Debug Inpaint Preprocessing', value=False)
+                        debug_dino = gr.Checkbox(label='Debug GroundingDINO', value=False,
+                                                 info='Used for SAM object detection and box generation')
                         inpaint_disable_initial_latent = gr.Checkbox(label='Disable initial latent in inpaint', value=False)
                         inpaint_engine = gr.Dropdown(label='Inpaint Engine',
                                                      value=modules.config.default_inpaint_engine_version,
@@ -592,6 +582,10 @@ with shared.gradio_root:
                                                             info='Positive value will make white area in the mask larger, '
                                                                  'negative value will make white area smaller.'
                                                                  '(default is 0, always process before any mask invert)')
+                        dino_erode_or_dilate = gr.Slider(label='GroundingDINO Box Erode or Dilate',
+                                                         minimum=-64, maximum=64, step=1, value=0,
+                                                         info='Positive value will make white area in the mask larger, '
+                                                              'negative value will make white area smaller.')
                         inpaint_mask_upload_checkbox = gr.Checkbox(label='Enable Mask Upload', value=False)
                         invert_mask_checkbox = gr.Checkbox(label='Invert Mask', value=False)
 
@@ -740,6 +734,13 @@ with shared.gradio_root:
             inpaint_disable_initial_latent, inpaint_engine,
             inpaint_strength, inpaint_respective_field
         ], show_progress=False, queue=False)
+
+        generate_mask_button.click(fn=generate_mask,
+                                   inputs=[inpaint_input_image, inpaint_mask_model, inpaint_mask_cloth_category,
+                                           inpaint_mask_sam_prompt_text, inpaint_mask_sam_model, inpaint_mask_sam_quant,
+                                           inpaint_mask_box_threshold, inpaint_mask_text_threshold, debug_dino,
+                                           dino_erode_or_dilate],
+                                   outputs=inpaint_mask_image, show_progress=True, queue=True)
 
         ctrls = [currentTask, generate_image_grid]
         ctrls += [
