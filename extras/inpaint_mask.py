@@ -1,7 +1,8 @@
 import numpy as np
 import torch
+from extras.sam.predictor import SamPredictor
 from rembg import remove, new_session
-from segment_anything import sam_model_registry, SamPredictor
+from segment_anything import sam_model_registry
 from segment_anything.utils.amg import remove_small_regions
 
 from extras.GroundingDINO.util.inference import default_groundingdino
@@ -97,12 +98,8 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
     boxes[:, :2] = boxes[:, :2] - boxes[:, 2:] / 2
     boxes[:, 2:] = boxes[:, 2:] + boxes[:, :2]
 
-    # TODO add model patcher for model logic and device management
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-
     sam_checkpoint = modules.config.download_sam_model(sam_options.model_type)
     sam = sam_model_registry[sam_options.model_type](checkpoint=sam_checkpoint)
-    sam.to(device=device)
 
     sam_predictor = SamPredictor(sam)
     final_mask_tensor = torch.zeros((image.shape[0], image.shape[1]))
@@ -114,7 +111,7 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
         masks, _, _ = sam_predictor.predict_torch(
             point_coords=None,
             point_labels=None,
-            boxes=transformed_boxes.to(device),
+            boxes=transformed_boxes,
             multimask_output=False,
         )
 

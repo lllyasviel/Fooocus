@@ -12,9 +12,9 @@ sam_options = SAMOptions(
     dino_prompt='eye',
     dino_box_threshold=0.3,
     dino_text_threshold=0.25,
-    box_erode_or_dilate=0,
+    dino_erode_or_dilate=0,
+    dino_debug=False,
     max_num_boxes=2,
-    sam_checkpoint="./models/sam/sam_vit_l.safetensors",
     model_type="vit_l"
 )
 
