@@ -1,4 +1,6 @@
 import threading
+
+from extras.inpaint_mask import generate_mask_from_image, SAMOptions
 from modules.patch import PatchSettings, patch_settings, patch_all
 
 patch_all()
@@ -1014,51 +1016,35 @@ def worker():
                              current_task_id, denoising_strength, final_scheduler_name, goals, initial_latent,
                              switch, task, tasks, tiled, use_expansion, width, height)
 
-                # adetailer
-                progressbar(async_task, current_progress, 'Processing adetailer ...')
+                # stage2
+                progressbar(async_task, current_progress, 'Processing stage2 ...')
                 final_unet = pipeline.final_unet.clone()
 
                 for img in imgs:
-                    from extras.adetailer.ultralytics_predict import ultralytics_predict
-                    predictor = ultralytics_predict
-                    from extras.adetailer.script import get_ad_model
-                    ad_model = get_ad_model('face_yolov8n.pt')
+                    # TODO add stage2 check and options from inputs here
+                    mask = generate_mask_from_image(img, sam_options=SAMOptions(
+                        dino_prompt='eye'
+                    ))
 
-                    kwargs = {}
-                    kwargs["device"] = torch.device('cpu')
-                    kwargs["classes"] = ""
-                    from PIL import Image
-                    img2 = Image.fromarray(img)
-                    pred = predictor(ad_model, img2, **kwargs)
-
-                    if pred.preview is None:
-                        print('[ADetailer] nothing detected on image')
-                        continue
-
-                    from extras.adetailer.args import ADetailerArgs
-                    args = ADetailerArgs()
-                    from extras.adetailer.script import pred_preprocessing
-                    masks = pred_preprocessing(img, pred, args)
-                    merged_masks = np.maximum(*[np.array(mask) for mask in masks])
-                    async_task.yields.append(['preview', (current_progress, 'Loading ...', merged_masks)])
-                    # TODO also show do_not_show_finished_images=len(tasks) == 1 when adetailer is on
-                    yield_result(async_task, merged_masks, async_task.black_out_nsfw, False,
+                    async_task.yields.append(['preview', (current_progress, 'Loading ...', mask)])
+                    # TODO also show do_not_show_finished_images=len(tasks) == 1
+                    yield_result(async_task, mask, async_task.black_out_nsfw, False,
                                  do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
                     # TODO make configurable
-                    denoising_strength_adetailer = 0.3
-                    inpaint_respective_field_adetailer = 0.0
-                    inpaint_head_model_path_adetailer = None
-                    inpaint_parameterized_adetailer = False
-                    goals_adetailer = ['inpaint']
-                    denoising_strength_adetailer, initial_latent_adetailer, width_adetailer, height_adetailer = apply_inpaint(
-                        async_task, None, inpaint_head_model_path_adetailer, img, merged_masks,
-                        inpaint_parameterized_adetailer, denoising_strength_adetailer,
-                        inpaint_respective_field_adetailer, switch, current_progress, True)
+                    denoising_strength_stage2 = 0.3
+                    inpaint_respective_field_stage2 = 0.0
+                    inpaint_head_model_path_stage2 = None
+                    inpaint_parameterized_stage2 = False
+                    goals_stage2 = ['inpaint']
+                    denoising_strength_stage2, initial_latent_stage2, width_stage2, height_stage2 = apply_inpaint(
+                        async_task, None, inpaint_head_model_path_stage2, img, mask,
+                        inpaint_parameterized_stage2, denoising_strength_stage2,
+                        inpaint_respective_field_stage2, switch, current_progress, True)
 
                     process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
-                                 current_task_id, denoising_strength_adetailer, final_scheduler_name, goals_adetailer,
-                                 initial_latent_adetailer, switch, task, tasks, tiled, use_expansion, width_adetailer,
-                                 height_adetailer)
+                                 current_task_id, denoising_strength_stage2, final_scheduler_name, goals_stage2,
+                                 initial_latent_stage2, switch, task, tasks, tiled, use_expansion, width_stage2,
+                                 height_stage2)
 
                     # reset unet and inpaint_worker
                     pipeline.final_unet = final_unet
