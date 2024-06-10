@@ -15,7 +15,7 @@ sam_options = SAMOptions(
     dino_erode_or_dilate=0,
     dino_debug=False,
     max_num_boxes=2,
-    model_type="vit_l"
+    model_type='vit_b'
 )
 
 mask_image = generate_mask_from_image(image, sam_options=sam_options)
