@@ -1025,16 +1025,17 @@ def worker():
                     mask = generate_mask_from_image(img, sam_options=SAMOptions(
                         dino_prompt='eye'
                     ))
+                    mask = mask[:, :, 0]
 
                     async_task.yields.append(['preview', (current_progress, 'Loading ...', mask)])
                     # TODO also show do_not_show_finished_images=len(tasks) == 1
                     yield_result(async_task, mask, async_task.black_out_nsfw, False,
                                  do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
                     # TODO make configurable
-                    denoising_strength_stage2 = 0.3
+                    denoising_strength_stage2 = 0.5
                     inpaint_respective_field_stage2 = 0.0
                     inpaint_head_model_path_stage2 = None
-                    inpaint_parameterized_stage2 = False
+                    inpaint_parameterized_stage2 = False  # inpaint_engine = None, improve detail
                     goals_stage2 = ['inpaint']
                     denoising_strength_stage2, initial_latent_stage2, width_stage2, height_stage2 = apply_inpaint(
                         async_task, None, inpaint_head_model_path_stage2, img, mask,
