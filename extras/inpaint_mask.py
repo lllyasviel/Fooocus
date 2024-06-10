@@ -14,7 +14,8 @@ class SAMOptions:
                  dino_prompt: str = '',
                  dino_box_threshold=0.3,
                  dino_text_threshold=0.25,
-                 box_erode_or_dilate=0,
+                 dino_erode_or_dilate=0,
+                 dino_debug=False,
 
                  # SAM
                  max_num_boxes=2,
@@ -23,7 +24,7 @@ class SAMOptions:
         self.dino_prompt = dino_prompt
         self.dino_box_threshold = dino_box_threshold
         self.dino_text_threshold = dino_text_threshold
-        self.box_erode_or_dilate = box_erode_or_dilate
+        self.dino_erode_or_dilate = dino_erode_or_dilate
         self.max_num_boxes = max_num_boxes
         self.model_type = model_type
 
@@ -73,11 +74,11 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
     #
     # for idx, box in enumerate(detection_boxes):
     #     box_list = box.tolist()
-    #     if box_erode_or_dilate != 0:
-    #         box_list[0] -= box_erode_or_dilate
-    #         box_list[1] -= box_erode_or_dilate
-    #         box_list[2] += box_erode_or_dilate
-    #         box_list[3] += box_erode_or_dilate
+    #     if dino_erode_or_dilate != 0:
+    #         box_list[0] -= dino_erode_or_dilate
+    #         box_list[1] -= dino_erode_or_dilate
+    #         box_list[2] += dino_erode_or_dilate
+    #         box_list[3] += dino_erode_or_dilate
     #     extras['sam_prompt'] += [{"type": "rectangle", "data": box_list}]
     #
     # if debug_dino:
@@ -88,7 +89,8 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
     #         draw.rectangle(box['data'], fill="white")
     #     return np.array(debug_dino_image)
 
-    # TODO add support for box_erode_or_dilate again
+    # TODO add support for dino_erode_or_dilate again
+    # TODO add dino_debug again
 
     H, W = image.shape[0], image.shape[1]
     boxes = boxes * torch.Tensor([W, H, W, H])

@@ -243,7 +243,8 @@ with shared.gradio_root:
                                             dino_prompt=dino_prompt_text,
                                             dino_box_threshold=box_threshold,
                                             dino_text_threshold=text_threshold,
-                                            box_erode_or_dilate=dino_erode_or_dilate,
+                                            dino_erode_or_dilate=dino_erode_or_dilate,
+                                            dino_debug=debug_dino,
                                             max_num_boxes=2, #TODO replace with actual value
                                             model_type=sam_model
                                         )
