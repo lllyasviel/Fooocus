@@ -227,12 +227,11 @@ with shared.gradio_root:
                                 inpaint_mask_dino_prompt_text = gr.Textbox(label='Segmentation prompt', value='', visible=False, info='Use singular whenever possible')
                                 with gr.Accordion("Advanced options", visible=False, open=False) as inpaint_mask_advanced_options:
                                     inpaint_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
-                                    inpaint_mask_sam_quant = gr.Checkbox(label='Quantization', value=False)
                                     inpaint_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05)
                                     inpaint_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05)
                                 generate_mask_button = gr.Button(value='Generate mask from image')
 
-                                def generate_mask(image, mask_model, cloth_category, dino_prompt_text, sam_model, sam_quant, box_threshold, text_threshold, dino_erode_or_dilate, debug_dino):
+                                def generate_mask(image, mask_model, cloth_category, dino_prompt_text, sam_model, box_threshold, text_threshold, dino_erode_or_dilate, debug_dino):
                                     from extras.inpaint_mask import generate_mask_from_image
 
                                     extras = {}
@@ -743,7 +742,7 @@ with shared.gradio_root:
 
         generate_mask_button.click(fn=generate_mask,
                                    inputs=[inpaint_input_image, inpaint_mask_model, inpaint_mask_cloth_category,
-                                           inpaint_mask_dino_prompt_text, inpaint_mask_sam_model, inpaint_mask_sam_quant,
+                                           inpaint_mask_dino_prompt_text, inpaint_mask_sam_model,
                                            inpaint_mask_box_threshold, inpaint_mask_text_threshold, dino_erode_or_dilate,
                                            debug_dino],
                                    outputs=inpaint_mask_image, show_progress=True, queue=True)
