@@ -202,6 +202,7 @@ path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../mo
 path_safety_checker_models = get_dir_or_set_default('path_safety_checker_models', '../models/safety_checker_models/')
 path_wildcards = get_dir_or_set_default('path_wildcards', '../wildcards/')
 path_safety_checker = get_dir_or_set_default('path_safety_checker', '../models/safety_checker/')
+path_sam = get_dir_or_set_default('path_sam', '../models/sam/')
 path_outputs = get_path_output()
 
 
@@ -787,6 +788,45 @@ def downloading_safety_checker_model():
         file_name='stable-diffusion-safety-checker.bin'
     )
     return os.path.join(path_safety_checker, 'stable-diffusion-safety-checker.bin')
+
+
+def download_sam_model(sam_model: str) -> str:
+    match sam_model:
+        case 'default', 'vit_b':
+            return downloading_sam_vit_b()
+        case 'vit_l':
+            return downloading_sam_vit_l()
+        case 'vit_h':
+            return downloading_sam_vit_h()
+        case _:
+            raise ValueError(f"sam model {sam_model} does not exist.")
+
+
+def downloading_sam_vit_b():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sam_vit_b_01ec64.pth',
+        model_dir=path_sam,
+        file_name='sam_vit_b_01ec64.pth'
+    )
+    return os.path.join(path_sam, 'sam_vit_b_01ec64.pth')
+
+
+def downloading_sam_vit_l():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sam_vit_l_0b3195.pth',
+        model_dir=path_sam,
+        file_name='sam_vit_l_0b3195.pth'
+    )
+    return os.path.join(path_sam, 'sam_vit_l_0b3195.pth')
+
+
+def downloading_sam_vit_h():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sam_vit_h_4b8939.pth',
+        model_dir=path_sam,
+        file_name='sam_vit_h_4b8939.pth'
+    )
+    return os.path.join(path_sam, 'sam_vit_h_4b8939.pth')
 
 
 update_files()

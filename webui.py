@@ -245,8 +245,7 @@ with shared.gradio_root:
                                             dino_text_threshold=text_threshold,
                                             box_erode_or_dilate=dino_erode_or_dilate,
                                             max_num_boxes=2, #TODO replace with actual value
-                                            sam_checkpoint="./models/sam/sam_vit_l_0b3195.pth", # TODO replace with actual value
-                                            model_type="vit_l"
+                                            model_type=sam_model
                                         )
 
                                     return generate_mask_from_image(image, mask_model, extras, sam_options)

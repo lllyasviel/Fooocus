@@ -5,6 +5,7 @@ from segment_anything import sam_model_registry, SamPredictor
 from segment_anything.utils.amg import remove_small_regions
 
 from extras.GroundingDINO.util.inference import default_groundingdino
+import modules.config
 
 
 class SAMOptions:
@@ -17,7 +18,6 @@ class SAMOptions:
 
                  # SAM
                  max_num_boxes=2,
-                 sam_checkpoint="./models/sam/sam_vit_l_0b3195.pth",
                  model_type="vit_l"
                  ):
         self.dino_prompt = dino_prompt
@@ -25,7 +25,6 @@ class SAMOptions:
         self.dino_text_threshold = dino_text_threshold
         self.box_erode_or_dilate = box_erode_or_dilate
         self.max_num_boxes = max_num_boxes
-        self.sam_checkpoint = sam_checkpoint
         self.model_type = model_type
 
 
@@ -99,7 +98,8 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
     # TODO add model patcher for model logic and device management
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    sam = sam_model_registry[sam_options.model_type](checkpoint=sam_options.sam_checkpoint)
+    sam_checkpoint = modules.config.download_sam_model(sam_options.model_type)
+    sam = sam_model_registry[sam_options.model_type](checkpoint=sam_checkpoint)
     sam.to(device=device)
 
     sam_predictor = SamPredictor(sam)
