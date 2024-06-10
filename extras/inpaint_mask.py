@@ -83,12 +83,13 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
     if boxes.size(0) > 0:
         sam_predictor.set_image(image)
 
-        for index in range(boxes.size(0)):
-            assert boxes.size(1) == 4
-            boxes[index][0] -= sam_options.dino_erode_or_dilate
-            boxes[index][1] -= sam_options.dino_erode_or_dilate
-            boxes[index][2] += sam_options.dino_erode_or_dilate
-            boxes[index][3] += sam_options.dino_erode_or_dilate
+        if sam_options.dino_erode_or_dilate != 0:
+            for index in range(boxes.size(0)):
+                assert boxes.size(1) == 4
+                boxes[index][0] -= sam_options.dino_erode_or_dilate
+                boxes[index][1] -= sam_options.dino_erode_or_dilate
+                boxes[index][2] += sam_options.dino_erode_or_dilate
+                boxes[index][3] += sam_options.dino_erode_or_dilate
 
         if sam_options.dino_debug:
             from PIL import ImageDraw, Image
