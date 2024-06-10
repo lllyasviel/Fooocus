@@ -551,8 +551,8 @@ default_inpaint_mask_cloth_category = get_config_item_or_set_default(
 
 default_inpaint_mask_sam_model = get_config_item_or_set_default(
     key='default_inpaint_mask_sam_model',
-    default_value='sam_vit_b_01ec64',
-    validator=lambda x: x in modules.flags.inpaint_mask_sam_model,
+    default_value='vit_b',
+    validator=lambda x: x in [y[1] for y in modules.flags.inpaint_mask_sam_model if y[1] == x],
     expected_type=str
 )
 
@@ -792,7 +792,7 @@ def downloading_safety_checker_model():
 
 def download_sam_model(sam_model: str) -> str:
     match sam_model:
-        case 'default', 'vit_b':
+        case 'vit_b':
             return downloading_sam_vit_b()
         case 'vit_l':
             return downloading_sam_vit_l()
