@@ -1070,7 +1070,7 @@ def worker():
                         print(f'[Stage2] {sam_detection_on_mask_count} segments applied to mask')
 
                         if dino_detection_count == 0 or not async_task.debugging_dino and sam_detection_on_mask_count == 0:
-                            print(f'[Stage2] Skipping')
+                            print(f'[Stage2] No "{stage2_mask_dino_prompt_text}" detected, skipping')
                             continue
 
                         # TODO make configurable
