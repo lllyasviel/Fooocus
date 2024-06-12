@@ -147,6 +147,7 @@ with shared.gradio_root:
                     skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
+                stage2_checkbox = gr.Checkbox(label='Stage2', value=False, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Tabs():
@@ -297,6 +298,37 @@ with shared.gradio_root:
                         metadata_input_image.upload(trigger_metadata_preview, inputs=metadata_input_image,
                                                     outputs=metadata_json, queue=False, show_progress=True)
 
+            with gr.Row(visible=False) as stage2_input_panel:
+                with gr.Tabs():
+                    stage2_ctrls = []
+                    for index in range(modules.config.default_max_stage2_tabs):
+                        with gr.TabItem(label=f'Iteration #{index + 1}') as stage2_tab_item:
+                            stage2_enabled = gr.Checkbox(label='Enable', value=False, elem_classes='min_check', container=False)
+                            with gr.Accordion('Options', visible=True, open=False) as stage2_accordion:
+                                # stage2_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_detail, label='Method', interactive=True)
+                                stage2_mask_dino_prompt_text = gr.Textbox(label='Segmentation prompt', info='Use singular whenever possible', interactive=True)
+                                example_stage2_mask_dino_prompt_text = gr.Dataset(samples=modules.config.example_stage2_prompts,
+                                                                                  label='Additional Prompt Quick List',
+                                                                                  components=[stage2_mask_dino_prompt_text],
+                                                                                  visible=True)
+                                example_stage2_mask_dino_prompt_text.click(lambda x: x[0], inputs=example_stage2_mask_dino_prompt_text, outputs=stage2_mask_dino_prompt_text, show_progress=False, queue=False)
+
+                                with gr.Accordion("Advanced options", visible=True, open=False) as inpaint_mask_advanced_options:
+                                    stage2_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model, interactive=True)
+                                    stage2_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05, interactive=True)
+                                    stage2_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05, interactive=True)
+
+                        stage2_ctrls += [
+                            stage2_enabled,
+                            # stage2_mode,
+                            stage2_mask_dino_prompt_text,
+                            stage2_mask_sam_model,
+                            stage2_mask_box_threshold,
+                            stage2_mask_text_threshold
+                        ]
+
+                        stage2_enabled.change(lambda x: gr.update(open=x), inputs=stage2_enabled,
+                                              outputs=stage2_accordion, queue=False, show_progress=False)
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
 
@@ -310,6 +342,9 @@ with shared.gradio_root:
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             metadata_tab.select(lambda: 'metadata', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+
+            stage2_checkbox.change(lambda x: gr.update(visible=x), inputs=stage2_checkbox,
+                                        outputs=stage2_input_panel, queue=False, show_progress=False, _js=switch_js)
 
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox) as advanced_column:
             with gr.Tab(label='Settings'):
@@ -772,6 +807,7 @@ with shared.gradio_root:
             ctrls += [save_metadata_to_images, metadata_scheme]
 
         ctrls += ip_ctrls
+        ctrls += stage2_ctrls
 
         def parse_meta(raw_prompt_txt, is_generating):
             loaded_json = None

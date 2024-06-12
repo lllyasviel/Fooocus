@@ -2,6 +2,7 @@ import threading
 
 from extras.inpaint_mask import generate_mask_from_image, SAMOptions
 from modules.patch import PatchSettings, patch_settings, patch_all
+import modules.config
 
 patch_all()
 
@@ -107,6 +108,23 @@ class AsyncTask:
             if cn_img is not None:
                 self.cn_tasks[cn_type].append([cn_img, cn_stop, cn_weight])
 
+        self.stage2_ctrls = []
+        for _ in range(modules.config.default_max_stage2_tabs):
+            stage2_enabled = args.pop()
+            # stage2_mode = args.pop()
+            stage2_mask_dino_prompt_text = args.pop()
+            stage2_mask_sam_model = args.pop()
+            stage2_mask_box_threshold = args.pop()
+            stage2_mask_text_threshold = args.pop()
+            if stage2_enabled:
+                self.stage2_ctrls.append([
+                    # stage2_mode,
+                    stage2_mask_dino_prompt_text,
+                    stage2_mask_sam_model,
+                    stage2_mask_box_threshold,
+                    stage2_mask_text_threshold
+                ])
+
 
 async_tasks = []
 
@@ -131,7 +149,6 @@ def worker():
     import modules.default_pipeline as pipeline
     import modules.core as core
     import modules.flags as flags
-    import modules.config
     import modules.patch
     import ldm_patched.modules.model_management
     import extras.preprocessors as preprocessors
@@ -1019,37 +1036,44 @@ def worker():
                 # stage2
                 progressbar(async_task, current_progress, 'Processing stage2 ...')
                 final_unet = pipeline.final_unet.clone()
+                if len(async_task.stage2_ctrls) == 0:
+                    continue
 
                 for img in imgs:
-                    # TODO add stage2 check and options from inputs here
-                    mask = generate_mask_from_image(img, sam_options=SAMOptions(
-                        dino_prompt='eye'
-                    ))
-                    mask = mask[:, :, 0]
+                    for stage2_mask_dino_prompt_text, stage2_mask_sam_model, stage2_mask_box_threshold, stage2_mask_text_threshold in async_task.stage2_ctrls:
+                        mask = generate_mask_from_image(img, sam_options=SAMOptions(
+                            dino_prompt=stage2_mask_dino_prompt_text,
+                            model_type=stage2_mask_sam_model,
+                            dino_box_threshold=stage2_mask_box_threshold,
+                            dino_text_threshold=stage2_mask_text_threshold,
+                            dino_debug=True
+                        ))
+                        mask = mask[:, :, 0]
 
-                    async_task.yields.append(['preview', (current_progress, 'Loading ...', mask)])
-                    # TODO also show do_not_show_finished_images=len(tasks) == 1
-                    yield_result(async_task, mask, async_task.black_out_nsfw, False,
-                                 do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
-                    # TODO make configurable
-                    denoising_strength_stage2 = 0.5
-                    inpaint_respective_field_stage2 = 0.0
-                    inpaint_head_model_path_stage2 = None
-                    inpaint_parameterized_stage2 = False  # inpaint_engine = None, improve detail
-                    goals_stage2 = ['inpaint']
-                    denoising_strength_stage2, initial_latent_stage2, width_stage2, height_stage2 = apply_inpaint(
-                        async_task, None, inpaint_head_model_path_stage2, img, mask,
-                        inpaint_parameterized_stage2, denoising_strength_stage2,
-                        inpaint_respective_field_stage2, switch, current_progress, True)
+                        async_task.yields.append(['preview', (current_progress, 'Loading ...', mask)])
+                        # TODO also show do_not_show_finished_images=len(tasks) == 1
+                        yield_result(async_task, mask, async_task.black_out_nsfw, False,
+                                     do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
+                        # TODO make configurable
+                        denoising_strength_stage2 = 0.5
+                        inpaint_respective_field_stage2 = 0.0
+                        inpaint_head_model_path_stage2 = None
+                        inpaint_parameterized_stage2 = False  # inpaint_engine = None, improve detail
+                        goals_stage2 = ['inpaint']
+                        denoising_strength_stage2, initial_latent_stage2, width_stage2, height_stage2 = apply_inpaint(
+                            async_task, None, inpaint_head_model_path_stage2, img, mask,
+                            inpaint_parameterized_stage2, denoising_strength_stage2,
+                            inpaint_respective_field_stage2, switch, current_progress, True)
 
-                    process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
-                                 current_task_id, denoising_strength_stage2, final_scheduler_name, goals_stage2,
-                                 initial_latent_stage2, switch, task, tasks, tiled, use_expansion, width_stage2,
-                                 height_stage2)
+                        imgs2, img_paths, current_progress = process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
+                                     current_task_id, denoising_strength_stage2, final_scheduler_name, goals_stage2,
+                                     initial_latent_stage2, switch, task, tasks, tiled, use_expansion, width_stage2,
+                                     height_stage2)
 
-                    # reset unet and inpaint_worker
-                    pipeline.final_unet = final_unet
-                    inpaint_worker.current_task = None
+                        # reset and prepare next iteration
+                        img = imgs2[0]
+                        pipeline.final_unet = final_unet
+                        inpaint_worker.current_task = None
 
             except ldm_patched.modules.model_management.InterruptProcessingException:
                 if async_task.last_stop == 'skip':

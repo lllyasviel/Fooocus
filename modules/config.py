@@ -502,6 +502,20 @@ example_inpaint_prompts = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
     expected_type=list
 )
+example_stage2_prompts = get_config_item_or_set_default(
+    key='example_stage2_prompts',
+    default_value=[
+        'face', 'eye', 'mouth', 'hair', 'hand', 'body'
+    ],
+    validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
+    expected_type=list
+)
+default_max_stage2_tabs = get_config_item_or_set_default(
+    key='default_max_stage2_tabs',
+    default_value=3,
+    validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
+    expected_type=int
+)
 default_black_out_nsfw = get_config_item_or_set_default(
     key='default_black_out_nsfw',
     default_value=False,
@@ -528,6 +542,7 @@ metadata_created_by = get_config_item_or_set_default(
 )
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
+example_stage2_prompts = [[x] for x in example_stage2_prompts]
 
 default_inpaint_mask_model = get_config_item_or_set_default(
     key='default_inpaint_mask_model',
