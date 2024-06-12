@@ -1040,13 +1040,15 @@ def worker():
 
                 # stage2
                 progressbar(async_task, current_progress, 'Processing stage2 ...')
-                final_unet = pipeline.final_unet.clone()
-                if len(async_task.stage2_ctrls) == 0:
+                final_unet = pipeline.final_unet
+                if len(async_task.stage2_ctrls) == 0 or 'inpaint' in goals:
+                    print(f'[Stage2] Skipping, preconditions aren\'t met')
                     continue
 
                 for img in imgs:
                     for stage2_mask_dino_prompt_text, stage2_mask_box_threshold, stage2_mask_text_threshold, stage2_mask_sam_max_num_boxes, stage2_mask_sam_model in async_task.stage2_ctrls:
-                        mask = generate_mask_from_image(img, sam_options=SAMOptions(
+                        print(f'[Stage2] Searching for "{stage2_mask_dino_prompt_text}"')
+                        mask, dino_detection_count, sam_detection_count, sam_detection_on_mask_count = generate_mask_from_image(img, sam_options=SAMOptions(
                             dino_prompt=stage2_mask_dino_prompt_text,
                             dino_box_threshold=stage2_mask_box_threshold,
                             dino_text_threshold=stage2_mask_text_threshold,
@@ -1060,12 +1062,43 @@ def worker():
                         async_task.yields.append(['preview', (current_progress, 'Loading ...', mask)])
                         # TODO also show do_not_show_finished_images=len(tasks) == 1
                         yield_result(async_task, mask, async_task.black_out_nsfw, False,
-                                     do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
+                                     do_not_show_finished_images=len(
+                                         tasks) == 1 or async_task.disable_intermediate_results)
+
+                        print(f'[Stage2] {dino_detection_count} boxes detected')
+                        print(f'[Stage2] {sam_detection_count} segments detected in boxes')
+                        print(f'[Stage2] {sam_detection_on_mask_count} segments applied to mask')
+
+                        if dino_detection_count == 0 or not async_task.debugging_dino and sam_detection_on_mask_count == 0:
+                            print(f'[Stage2] Skipping')
+                            continue
+
                         # TODO make configurable
+
+                        # # do not apply loras / controlnets / etc. twice (samplers are needed though)
+                        # pipeline.final_unet = pipeline.model_base.unet.clone()
+
+                        # pipeline.refresh_everything(refiner_model_name=async_task.refiner_model_name,
+                        #                             base_model_name=async_task.base_model_name,
+                        #                             loras=[],
+                        #                             base_model_additional_loras=[],
+                        #                             use_synthetic_refiner=use_synthetic_refiner,
+                        #                             vae_name=async_task.vae_name)
+                        # pipeline.set_clip_skip(async_task.clip_skip)
+                        #
+                        # # patch everything again except original inpainting
+                        # if 'cn' in goals:
+                        #     apply_control_nets(async_task, height, ip_adapter_face_path, ip_adapter_path, width)
+                        # if async_task.freeu_enabled:
+                        #     apply_freeu(async_task)
+                        # patch_samplers(async_task)
+
+                        # defaults from inpaint mode improve details
                         denoising_strength_stage2 = 0.5
                         inpaint_respective_field_stage2 = 0.0
                         inpaint_head_model_path_stage2 = None
                         inpaint_parameterized_stage2 = False  # inpaint_engine = None, improve detail
+
                         goals_stage2 = ['inpaint']
                         denoising_strength_stage2, initial_latent_stage2, width_stage2, height_stage2 = apply_inpaint(
                             async_task, None, inpaint_head_model_path_stage2, img, mask,
@@ -1080,7 +1113,6 @@ def worker():
                         # reset and prepare next iteration
                         img = imgs2[0]
                         pipeline.final_unet = final_unet
-                        inpaint_worker.current_task = None
 
             except ldm_patched.modules.model_management.InterruptProcessingException:
                 if async_task.last_stop == 'skip':
