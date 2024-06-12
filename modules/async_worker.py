@@ -108,21 +108,26 @@ class AsyncTask:
             if cn_img is not None:
                 self.cn_tasks[cn_type].append([cn_img, cn_stop, cn_weight])
 
+        self.debugging_dino = args.pop()
+        self.dino_erode_or_dilate = args.pop()
+
         self.stage2_ctrls = []
-        for _ in range(modules.config.default_max_stage2_tabs):
+        for _ in range(modules.config.default_stage2_tabs):
             stage2_enabled = args.pop()
             # stage2_mode = args.pop()
             stage2_mask_dino_prompt_text = args.pop()
-            stage2_mask_sam_model = args.pop()
             stage2_mask_box_threshold = args.pop()
             stage2_mask_text_threshold = args.pop()
+            stage2_mask_sam_max_num_boxes = args.pop()
+            stage2_mask_sam_model = args.pop()
             if stage2_enabled:
                 self.stage2_ctrls.append([
                     # stage2_mode,
                     stage2_mask_dino_prompt_text,
-                    stage2_mask_sam_model,
                     stage2_mask_box_threshold,
-                    stage2_mask_text_threshold
+                    stage2_mask_text_threshold,
+                    stage2_mask_sam_max_num_boxes,
+                    stage2_mask_sam_model,
                 ])
 
 
@@ -1040,13 +1045,15 @@ def worker():
                     continue
 
                 for img in imgs:
-                    for stage2_mask_dino_prompt_text, stage2_mask_sam_model, stage2_mask_box_threshold, stage2_mask_text_threshold in async_task.stage2_ctrls:
+                    for stage2_mask_dino_prompt_text, stage2_mask_box_threshold, stage2_mask_text_threshold, stage2_mask_sam_max_num_boxes, stage2_mask_sam_model in async_task.stage2_ctrls:
                         mask = generate_mask_from_image(img, sam_options=SAMOptions(
                             dino_prompt=stage2_mask_dino_prompt_text,
-                            model_type=stage2_mask_sam_model,
                             dino_box_threshold=stage2_mask_box_threshold,
                             dino_text_threshold=stage2_mask_text_threshold,
-                            dino_debug=True
+                            dino_erode_or_dilate=async_task.dino_erode_or_dilate,
+                            dino_debug=async_task.debugging_dino,
+                            max_num_boxes=stage2_mask_sam_max_num_boxes,
+                            model_type=stage2_mask_sam_model
                         ))
                         mask = mask[:, :, 0]
 

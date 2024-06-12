@@ -510,9 +510,15 @@ example_stage2_prompts = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
     expected_type=list
 )
-default_max_stage2_tabs = get_config_item_or_set_default(
-    key='default_max_stage2_tabs',
+default_stage2_tabs = get_config_item_or_set_default(
+    key='default_stage2_tabs',
     default_value=3,
+    validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
+    expected_type=int
+)
+default_sam_max_num_boxes = get_config_item_or_set_default(
+    key='default_sam_max_num_boxes',
+    default_value=2,
     validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
     expected_type=int
 )
