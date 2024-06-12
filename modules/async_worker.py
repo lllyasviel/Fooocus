@@ -403,11 +403,11 @@ def worker():
 
     def apply_vary(async_task, denoising_strength, switch):
         if 'subtle' in async_task.uov_method:
-            async_task.denoising_strength = 0.5
+            denoising_strength = 0.5
         if 'strong' in async_task.uov_method:
-            async_task.denoising_strength = 0.85
+            denoising_strength = 0.85
         if async_task.overwrite_vary_strength > 0:
-            async_task.denoising_strength = async_task.overwrite_vary_strength
+            denoising_strength = async_task.overwrite_vary_strength
         shape_ceil = get_image_shape_ceil(async_task.uov_input_image)
         if shape_ceil < 1024:
             print(f'[Vary] Image is resized because it is too small.')
@@ -429,7 +429,7 @@ def worker():
         width = W * 8
         height = H * 8
         print(f'Final resolution is {str((width, height))}.')
-        return initial_latent, width, height
+        return denoising_strength, initial_latent, width, height
 
     def apply_inpaint(async_task, initial_latent, inpaint_head_model_path, inpaint_image,
                       inpaint_mask, inpaint_parameterized, denoising_strength, inpaint_respective_field, switch,
@@ -950,7 +950,7 @@ def worker():
             progressbar(async_task, 7, 'Image processing ...')
 
         if 'vary' in goals:
-            initial_latent, width, height = apply_vary(async_task, denoising_strength, switch)
+            denoising_strength, initial_latent, width, height = apply_vary(async_task, denoising_strength, switch)
 
         if 'upscale' in goals:
             try:
