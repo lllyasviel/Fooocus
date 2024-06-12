@@ -301,41 +301,39 @@ with shared.gradio_root:
                                                     outputs=metadata_json, queue=False, show_progress=True)
 
             with gr.Row(visible=False) as stage2_input_panel:
-                with gr.Column():
-                    gr.HTML('DISCLAIMER: Stage2 will be skipped when used in combination with Inpaint or Outpaint!')
-                    with gr.Row():
-                        with gr.Tabs():
-                            stage2_ctrls = []
-                            for index in range(modules.config.default_stage2_tabs):
-                                with gr.TabItem(label=f'Iteration #{index + 1}') as stage2_tab_item:
-                                    stage2_enabled = gr.Checkbox(label='Enable', value=False, elem_classes='min_check', container=False)
-                                    with gr.Accordion('Options', visible=True, open=False) as stage2_accordion:
-                                        # stage2_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_detail, label='Method', interactive=True)
-                                        stage2_mask_dino_prompt_text = gr.Textbox(label='Segmentation prompt', info='Use singular whenever possible', interactive=True)
-                                        example_stage2_mask_dino_prompt_text = gr.Dataset(samples=modules.config.example_stage2_prompts,
-                                                                                          label='Additional Prompt Quick List',
-                                                                                          components=[stage2_mask_dino_prompt_text],
-                                                                                          visible=True)
-                                        example_stage2_mask_dino_prompt_text.click(lambda x: x[0], inputs=example_stage2_mask_dino_prompt_text, outputs=stage2_mask_dino_prompt_text, show_progress=False, queue=False)
+                with gr.Tabs():
+                    stage2_ctrls = []
+                    for index in range(modules.config.default_stage2_tabs):
+                        with gr.TabItem(label=f'Iteration #{index + 1}') as stage2_tab_item:
+                            stage2_enabled = gr.Checkbox(label='Enable', value=False, elem_classes='min_check', container=False)
+                            gr.HTML('DISCLAIMER: Stage2 does not work with Inpaint or Outpaint and will be skipped.')
+                            with gr.Accordion('Options', visible=True, open=False) as stage2_accordion:
+                                # stage2_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_detail, label='Method', interactive=True)
+                                stage2_mask_dino_prompt_text = gr.Textbox(label='Segmentation prompt', info='Use singular whenever possible', interactive=True)
+                                example_stage2_mask_dino_prompt_text = gr.Dataset(samples=modules.config.example_stage2_prompts,
+                                                                                  label='Additional Prompt Quick List',
+                                                                                  components=[stage2_mask_dino_prompt_text],
+                                                                                  visible=True)
+                                example_stage2_mask_dino_prompt_text.click(lambda x: x[0], inputs=example_stage2_mask_dino_prompt_text, outputs=stage2_mask_dino_prompt_text, show_progress=False, queue=False)
 
-                                        with gr.Accordion("Advanced options", visible=True, open=False) as inpaint_mask_advanced_options:
-                                            stage2_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model, interactive=True)
-                                            stage2_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05, interactive=True)
-                                            stage2_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05, interactive=True)
-                                            stage2_mask_sam_max_num_boxes = gr.Slider(label="Maximum number of box detections", minimum=1, maximum=5, value=modules.config.default_sam_max_num_boxes, step=1, interactive=True)
+                                with gr.Accordion("Advanced options", visible=True, open=False) as inpaint_mask_advanced_options:
+                                    stage2_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model, interactive=True)
+                                    stage2_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05, interactive=True)
+                                    stage2_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05, interactive=True)
+                                    stage2_mask_sam_max_num_boxes = gr.Slider(label="Maximum number of box detections", minimum=1, maximum=5, value=modules.config.default_sam_max_num_boxes, step=1, interactive=True)
 
-                                stage2_ctrls += [
-                                    stage2_enabled,
-                                    # stage2_mode,
-                                    stage2_mask_dino_prompt_text,
-                                    stage2_mask_box_threshold,
-                                    stage2_mask_text_threshold,
-                                    stage2_mask_sam_max_num_boxes,
-                                    stage2_mask_sam_model,
-                                ]
+                        stage2_ctrls += [
+                            stage2_enabled,
+                            # stage2_mode,
+                            stage2_mask_dino_prompt_text,
+                            stage2_mask_box_threshold,
+                            stage2_mask_text_threshold,
+                            stage2_mask_sam_max_num_boxes,
+                            stage2_mask_sam_model,
+                        ]
 
-                                stage2_enabled.change(lambda x: gr.update(open=x), inputs=stage2_enabled,
-                                                      outputs=stage2_accordion, queue=False, show_progress=False)
+                        stage2_enabled.change(lambda x: gr.update(open=x), inputs=stage2_enabled,
+                                              outputs=stage2_accordion, queue=False, show_progress=False)
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
 
