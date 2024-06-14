@@ -258,9 +258,10 @@ with shared.gradio_root:
                                     inpaint_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
                                     inpaint_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05)
                                     inpaint_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05)
+                                    inpaint_mask_sam_max_num_boxes = gr.Slider(label="Maximum number of box detections", minimum=1, maximum=5, value=modules.config.default_sam_max_num_boxes, step=1, interactive=True)
                                 generate_mask_button = gr.Button(value='Generate mask from image')
 
-                                def generate_mask(image, mask_model, cloth_category, dino_prompt_text, sam_model, box_threshold, text_threshold, dino_erode_or_dilate, dino_debug):
+                                def generate_mask(image, mask_model, cloth_category, dino_prompt_text, sam_model, box_threshold, text_threshold, sam_max_num_boxes, dino_erode_or_dilate, dino_debug):
                                     from extras.inpaint_mask import generate_mask_from_image
 
                                     extras = {}
@@ -274,7 +275,7 @@ with shared.gradio_root:
                                             dino_text_threshold=text_threshold,
                                             dino_erode_or_dilate=dino_erode_or_dilate,
                                             dino_debug=dino_debug,
-                                            max_num_boxes=2, #TODO replace with actual value
+                                            max_num_boxes=sam_max_num_boxes,
                                             model_type=sam_model
                                         )
 
@@ -332,49 +333,67 @@ with shared.gradio_root:
                 with gr.Tabs():
                     stage2_ctrls = []
                     for index in range(modules.config.default_stage2_tabs):
-                        with gr.TabItem(label=f'Iteration #{index + 1}') as stage2_tab_item:
+                        with gr.TabItem(label=f'#{index + 1}') as stage2_tab_item:
                             stage2_enabled = gr.Checkbox(label='Enable', value=False, elem_classes='min_check', container=False)
                             gr.HTML('DISCLAIMER: Stage2 does not work with Inpaint or Outpaint and will be skipped.')
-                            with gr.Accordion('Options', visible=True, open=False) as stage2_accordion:
-                                # stage2_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_detail, label='Method', interactive=True)
-                                stage2_mask_dino_prompt_text = gr.Textbox(label='Segmentation prompt', info='Use singular whenever possible', interactive=True)
-                                example_stage2_mask_dino_prompt_text = gr.Dataset(samples=modules.config.example_stage2_prompts,
-                                                                                  label='Additional Prompt Quick List',
-                                                                                  components=[stage2_mask_dino_prompt_text],
-                                                                                  visible=True)
-                                example_stage2_mask_dino_prompt_text.click(lambda x: x[0], inputs=example_stage2_mask_dino_prompt_text, outputs=stage2_mask_dino_prompt_text, show_progress=False, queue=False)
 
-                                stage2_mask_inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options,
-                                                           value=modules.flags.inpaint_option_default, label='Method')
+                            # TODO add positive and negative prompt here
 
-                                with gr.Accordion("Advanced options", visible=True, open=False) as inpaint_mask_advanced_options:
+                            with gr.Accordion("Detection", open=False):
+                                # TODO check if limiting to SAM is better
+                                stage2_mask_inpaint_mask_model = gr.Dropdown(label='Mask generation model',
+                                                                             choices=flags.inpaint_mask_models,
+                                                                             value=modules.config.default_stage2_inpaint_mask_model)
+                                stage2_mask_inpaint_mask_cloth_category = gr.Dropdown(label='Cloth category',
+                                                                                      choices=flags.inpaint_mask_cloth_category,
+                                                                                      value=modules.config.default_inpaint_mask_cloth_category,
+                                                                                      visible=modules.config.default_stage2_inpaint_mask_model == 'u2net_cloth_seg',
+                                                                                      interactive=True)
+                                stage2_mask_dino_prompt_text = gr.Textbox(label='Segmentation prompt',
+                                                                          info='Use singular whenever possible',
+                                                                          interactive=True,
+                                                                          visible=modules.config.default_stage2_inpaint_mask_model == 'sam')
+                                example_stage2_mask_dino_prompt_text = gr.Dataset(
+                                    samples=modules.config.example_stage2_prompts,
+                                    label='Additional Prompt Quick List',
+                                    components=[stage2_mask_dino_prompt_text],
+                                    visible=modules.config.default_stage2_inpaint_mask_model == 'sam')
+                                example_stage2_mask_dino_prompt_text.click(lambda x: x[0],
+                                                                           inputs=example_stage2_mask_dino_prompt_text,
+                                                                           outputs=stage2_mask_dino_prompt_text,
+                                                                           show_progress=False, queue=False)
+
+                                with gr.Accordion("SAM Options", visible=modules.config.default_stage2_inpaint_mask_model == 'sam', open=False) as sam_options:
                                     stage2_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model, interactive=True)
                                     stage2_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05, interactive=True)
                                     stage2_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05, interactive=True)
                                     stage2_mask_sam_max_num_boxes = gr.Slider(label="Maximum number of box detections", minimum=1, maximum=5, value=modules.config.default_sam_max_num_boxes, step=1, interactive=True)
-                                    stage2_mask_denoising_strength = gr.Slider(label="Maximum number of box detections", minimum=1, maximum=5, value=modules.config.default_sam_max_num_boxes, step=1, interactive=True)
-                                    stage2_mask_inpaint_disable_initial_latent = gr.Checkbox(label='Disable initial latent in inpaint', value=False)
-                                    stage2_mask_inpaint_engine = gr.Dropdown(label='Inpaint Engine',
-                                                                             value=modules.config.default_inpaint_engine_version,
-                                                                             choices=flags.inpaint_engine_versions,
-                                                                             info='Version of Fooocus inpaint model')
-                                    stage2_mask_inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
-                                                                             minimum=0.0, maximum=1.0, step=0.001, value=1.0,
-                                                                             info='Same as the denoising strength in A1111 inpaint. '
-                                                                                  'Only used in inpaint, not used in outpaint. '
-                                                                                  '(Outpaint always use 1.0)')
-                                    stage2_mask_inpaint_respective_field = gr.Slider(label='Inpaint Respective Field',
-                                                                                     minimum=0.0, maximum=1.0, step=0.001,
-                                                                                     value=0.618,
-                                                                                     info='The area to inpaint. '
-                                                                                          'Value 0 is same as "Only Masked" in A1111. '
-                                                                                          'Value 1 is same as "Whole Image" in A1111. '
-                                                                                          'Only used in inpaint, not used in outpaint. '
-                                                                                          '(Outpaint always use 1.0)')
+
+                            with gr.Accordion("Inpaint", visible=True, open=False):
+                                stage2_mask_inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options,
+                                                                       value=modules.flags.inpaint_option_default, # TODO test
+                                                                       label='Method', interactive=True)
+                                stage2_mask_inpaint_disable_initial_latent = gr.Checkbox(label='Disable initial latent in inpaint', value=False)
+                                stage2_mask_inpaint_engine = gr.Dropdown(label='Inpaint Engine',
+                                                                         value=modules.config.default_inpaint_engine_version,
+                                                                         choices=flags.inpaint_engine_versions,
+                                                                         info='Version of Fooocus inpaint model')
+                                stage2_mask_inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
+                                                                         minimum=0.0, maximum=1.0, step=0.001, value=1.0,
+                                                                         info='Same as the denoising strength in A1111 inpaint. '
+                                                                              'Only used in inpaint, not used in outpaint. '
+                                                                              '(Outpaint always use 1.0)')
+                                stage2_mask_inpaint_respective_field = gr.Slider(label='Inpaint Respective Field',
+                                                                                 minimum=0.0, maximum=1.0, step=0.001,
+                                                                                 value=0.618,
+                                                                                 info='The area to inpaint. '
+                                                                                      'Value 0 is same as "Only Masked" in A1111. '
+                                                                                      'Value 1 is same as "Whole Image" in A1111. '
+                                                                                      'Only used in inpaint, not used in outpaint. '
+                                                                                      '(Outpaint always use 1.0)')
 
                         stage2_ctrls += [
                             stage2_enabled,
-                            # stage2_mode,
                             stage2_mask_dino_prompt_text,
                             stage2_mask_box_threshold,
                             stage2_mask_text_threshold,
@@ -386,14 +405,21 @@ with shared.gradio_root:
                             stage2_mask_inpaint_respective_field
                         ]
 
-                        stage2_enabled.change(lambda x: gr.update(open=x), inputs=stage2_enabled,
-                                              outputs=stage2_accordion, queue=False, show_progress=False)
-
-                        inpaint_mode.input(inpaint_mode_change, inputs=inpaint_mode, outputs=[
+                        stage2_mask_inpaint_mode.input(inpaint_mode_change, inputs=stage2_mask_inpaint_mode, outputs=[
                             inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
                             stage2_mask_inpaint_disable_initial_latent, stage2_mask_inpaint_engine,
                             stage2_mask_inpaint_strength, stage2_mask_inpaint_respective_field
                         ], show_progress=False, queue=False)
+
+                        stage2_mask_inpaint_mask_model.change(
+                            lambda x: [gr.update(visible=x == 'u2net_cloth_seg')] +
+                                      [gr.update(visible=x == 'sam')] * 2 +
+                                      [gr.Dataset.update(visible=x == 'sam', samples=modules.config.example_stage2_prompts)],
+                            inputs=stage2_mask_inpaint_mask_model,
+                            outputs=[stage2_mask_inpaint_mask_cloth_category, stage2_mask_dino_prompt_text, sam_options,
+                                     example_stage2_mask_dino_prompt_text],
+                            queue=False, show_progress=False)
+
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
 
@@ -816,8 +842,8 @@ with shared.gradio_root:
         generate_mask_button.click(fn=generate_mask,
                                    inputs=[inpaint_input_image, inpaint_mask_model, inpaint_mask_cloth_category,
                                            inpaint_mask_dino_prompt_text, inpaint_mask_sam_model,
-                                           inpaint_mask_box_threshold, inpaint_mask_text_threshold, dino_erode_or_dilate,
-                                           debugging_dino],
+                                           inpaint_mask_box_threshold, inpaint_mask_text_threshold,
+                                           inpaint_mask_sam_max_num_boxes, dino_erode_or_dilate, debugging_dino],
                                    outputs=inpaint_mask_image, show_progress=True, queue=True)
 
         ctrls = [currentTask, generate_image_grid]

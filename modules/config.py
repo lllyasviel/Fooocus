@@ -557,6 +557,13 @@ default_inpaint_mask_model = get_config_item_or_set_default(
     expected_type=str
 )
 
+default_stage2_inpaint_mask_model = get_config_item_or_set_default(
+    key='default_stage2_inpaint_mask_model',
+    default_value='sam',
+    validator=lambda x: x in modules.flags.inpaint_mask_models,
+    expected_type=str
+)
+
 default_inpaint_mask_cloth_category = get_config_item_or_set_default(
     key='default_inpaint_mask_cloth_category',
     default_value='full',
