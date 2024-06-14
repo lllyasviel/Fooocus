@@ -47,7 +47,6 @@
     },
     "embeddings_downloads": {},
     "lora_downloads": {
-        "saggy-breast.safetensors": "https://civitai.com/api/download/models/476756",
     },
     "previous_default_models": ["Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors"]
 }
