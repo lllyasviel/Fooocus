@@ -47,7 +47,9 @@
     },
     "embeddings_downloads": {},
     "lora_downloads": {
-        "stvmccrr.safetensors": "https://huggingface.co/MarkBW/steve-mccurry-xl/resolve/main/stvmccrr.safetensors"
+        "stvmccrr.safetensors": "https://huggingface.co/MarkBW/steve-mccurry-xl/resolve/main/stvmccrr.safetensors",
+        "saggy-breast.safetensors": "https://civitai.com/api/download/models/476756",
+        
     },
     "previous_default_models": ["realisticStockPhoto_v10.safetensors"]
 }
