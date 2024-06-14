@@ -13,6 +13,14 @@ In the entire open source community, only Fooocus can achieve this level of **no
 
 
 # Fooocus
+<h4 align="center">
+    <p>
+        <b>English</b> |
+        <a href="https://github.com/lllyasviel/Fooocus/blob/main/docs/zh/readme_zh.md">简体中文</a> |
+        Coming soon ...
+
+    <p>
+</h4>
 
 Fooocus is an image generating software (based on [Gradio](https://www.gradio.app/)).
 
