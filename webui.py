@@ -90,6 +90,34 @@ def generate_clicked(task: worker.AsyncTask):
     return
 
 
+def inpaint_mode_change(mode):
+    assert mode in modules.flags.inpaint_options
+
+    # inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
+    # inpaint_disable_initial_latent, inpaint_engine,
+    # inpaint_strength, inpaint_respective_field
+
+    if mode == modules.flags.inpaint_option_detail:
+        return [
+            gr.update(visible=True), gr.update(visible=False, value=[]),
+            gr.Dataset.update(visible=True, samples=modules.config.example_inpaint_prompts),
+            False, 'None', 0.5, 0.0
+        ]
+
+    if mode == modules.flags.inpaint_option_modify:
+        return [
+            gr.update(visible=True), gr.update(visible=False, value=[]),
+            gr.Dataset.update(visible=False, samples=modules.config.example_inpaint_prompts),
+            True, modules.config.default_inpaint_engine_version, 1.0, 0.0
+        ]
+
+    return [
+        gr.update(visible=False, value=''), gr.update(visible=True),
+        gr.Dataset.update(visible=False, samples=modules.config.example_inpaint_prompts),
+        False, modules.config.default_inpaint_engine_version, 1.0, 0.618
+    ]
+
+
 reload_javascript()
 
 title = f'Fooocus {fooocus_version.version}'
@@ -316,11 +344,33 @@ with shared.gradio_root:
                                                                                   visible=True)
                                 example_stage2_mask_dino_prompt_text.click(lambda x: x[0], inputs=example_stage2_mask_dino_prompt_text, outputs=stage2_mask_dino_prompt_text, show_progress=False, queue=False)
 
+                                stage2_mask_inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options,
+                                                           value=modules.flags.inpaint_option_default, label='Method')
+
                                 with gr.Accordion("Advanced options", visible=True, open=False) as inpaint_mask_advanced_options:
                                     stage2_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model, interactive=True)
                                     stage2_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05, interactive=True)
                                     stage2_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05, interactive=True)
                                     stage2_mask_sam_max_num_boxes = gr.Slider(label="Maximum number of box detections", minimum=1, maximum=5, value=modules.config.default_sam_max_num_boxes, step=1, interactive=True)
+                                    stage2_mask_denoising_strength = gr.Slider(label="Maximum number of box detections", minimum=1, maximum=5, value=modules.config.default_sam_max_num_boxes, step=1, interactive=True)
+                                    stage2_mask_inpaint_disable_initial_latent = gr.Checkbox(label='Disable initial latent in inpaint', value=False)
+                                    stage2_mask_inpaint_engine = gr.Dropdown(label='Inpaint Engine',
+                                                                             value=modules.config.default_inpaint_engine_version,
+                                                                             choices=flags.inpaint_engine_versions,
+                                                                             info='Version of Fooocus inpaint model')
+                                    stage2_mask_inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
+                                                                             minimum=0.0, maximum=1.0, step=0.001, value=1.0,
+                                                                             info='Same as the denoising strength in A1111 inpaint. '
+                                                                                  'Only used in inpaint, not used in outpaint. '
+                                                                                  '(Outpaint always use 1.0)')
+                                    stage2_mask_inpaint_respective_field = gr.Slider(label='Inpaint Respective Field',
+                                                                                     minimum=0.0, maximum=1.0, step=0.001,
+                                                                                     value=0.618,
+                                                                                     info='The area to inpaint. '
+                                                                                          'Value 0 is same as "Only Masked" in A1111. '
+                                                                                          'Value 1 is same as "Whole Image" in A1111. '
+                                                                                          'Only used in inpaint, not used in outpaint. '
+                                                                                          '(Outpaint always use 1.0)')
 
                         stage2_ctrls += [
                             stage2_enabled,
@@ -330,10 +380,20 @@ with shared.gradio_root:
                             stage2_mask_text_threshold,
                             stage2_mask_sam_max_num_boxes,
                             stage2_mask_sam_model,
+                            stage2_mask_inpaint_disable_initial_latent,
+                            stage2_mask_inpaint_engine,
+                            stage2_mask_inpaint_strength,
+                            stage2_mask_inpaint_respective_field
                         ]
 
                         stage2_enabled.change(lambda x: gr.update(open=x), inputs=stage2_enabled,
                                               outputs=stage2_accordion, queue=False, show_progress=False)
+
+                        inpaint_mode.input(inpaint_mode_change, inputs=inpaint_mode, outputs=[
+                            inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
+                            stage2_mask_inpaint_disable_initial_latent, stage2_mask_inpaint_engine,
+                            stage2_mask_inpaint_strength, stage2_mask_inpaint_respective_field
+                        ], show_progress=False, queue=False)
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
 
@@ -746,33 +806,6 @@ with shared.gradio_root:
         advanced_checkbox.change(lambda x: gr.update(visible=x), advanced_checkbox, advanced_column,
                                  queue=False, show_progress=False) \
             .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)
-
-        def inpaint_mode_change(mode):
-            assert mode in modules.flags.inpaint_options
-
-            # inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
-            # inpaint_disable_initial_latent, inpaint_engine,
-            # inpaint_strength, inpaint_respective_field
-
-            if mode == modules.flags.inpaint_option_detail:
-                return [
-                    gr.update(visible=True), gr.update(visible=False, value=[]),
-                    gr.Dataset.update(visible=True, samples=modules.config.example_inpaint_prompts),
-                    False, 'None', 0.5, 0.0
-                ]
-
-            if mode == modules.flags.inpaint_option_modify:
-                return [
-                    gr.update(visible=True), gr.update(visible=False, value=[]),
-                    gr.Dataset.update(visible=False, samples=modules.config.example_inpaint_prompts),
-                    True, modules.config.default_inpaint_engine_version, 1.0, 0.0
-                ]
-
-            return [
-                gr.update(visible=False, value=''), gr.update(visible=True),
-                gr.Dataset.update(visible=False, samples=modules.config.example_inpaint_prompts),
-                False, modules.config.default_inpaint_engine_version, 1.0, 0.618
-            ]
 
         inpaint_mode.input(inpaint_mode_change, inputs=inpaint_mode, outputs=[
             inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
