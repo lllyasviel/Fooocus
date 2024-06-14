@@ -1,11 +1,11 @@
 {
-    "default_model": "RealVisXL_V4.0.safetensors",
+    "default_model": "Juggernaut-X-RunDiffusion-NSFW.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
     "default_loras": [
         [
             true,
-            "SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4.safetensors",
+            "None",
             0.25
         ],
         [
@@ -43,13 +43,11 @@
     ],
     "default_aspect_ratio": "896*1152",
     "checkpoint_downloads": {
-        "RealVisXL_V4.0.safetensors": "https://huggingface.co/SG161222/RealVisXL_V4.0/resolve/main/RealVisXL_V4.0.safetensors"
+        "Juggernaut-X-RunDiffusion-NSFW.safetensors": "https://huggingface.co/RunDiffusion/Juggernaut-X-v10/resolve/main/Juggernaut-X-RunDiffusion-NSFW.safetensors?download=true"
     },
     "embeddings_downloads": {},
     "lora_downloads": {
-        "stvmccrr.safetensors": "https://huggingface.co/MarkBW/steve-mccurry-xl/resolve/main/stvmccrr.safetensors",
         "saggy-breast.safetensors": "https://civitai.com/api/download/models/476756",
-        
     },
-    "previous_default_models": ["realisticStockPhoto_v10.safetensors"]
+    "previous_default_models": ["Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors"]
 }
