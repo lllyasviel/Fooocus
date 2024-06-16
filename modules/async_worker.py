@@ -897,12 +897,12 @@ def worker():
                     'face')
         return base_model_additional_loras, clip_vision_path, controlnet_canny_path, controlnet_cpds_path, inpaint_head_model_path, inpaint_image, inpaint_mask, ip_adapter_face_path, ip_adapter_path, ip_negative_path, skip_prompt_processing, use_synthetic_refiner
 
-    def prepare_enhance_prompt(prompt: str, fallback_prompt: str, translate: bool, type: str):
-        if len(remove_empty_str([safe_str(p) for p in prompt.splitlines()], default='')) == 0:
+    def prepare_enhance_prompt(prompt: str, fallback_prompt: str, translate: bool, prompt_type: str):
+        if safe_str(prompt) == '' or len(remove_empty_str([safe_str(p) for p in prompt.splitlines()], default='')) == 0:
             prompt = fallback_prompt
         else:
             if translate:
-                prompt = translate2en(prompt, type)
+                prompt = translate2en(prompt, prompt_type)
             prompt = prompt + '\n' + fallback_prompt
         return prompt
 
@@ -1134,20 +1134,24 @@ def worker():
                         enhance_prompt = prepare_enhance_prompt(enhance_prompt, async_task.prompt, async_task.translate_prompts, 'prompt')
                         enhance_negative_prompt = prepare_enhance_prompt(enhance_negative_prompt, async_task.negative_prompt, async_task.translate_prompts, 'negative prompt')
 
-                        tasks_enhance, use_expansion, loras = process_prompt(async_task, enhance_prompt,
-                                                                             enhance_negative_prompt,
-                                                                             base_model_additional_loras_enhance,
-                                                                             1, True,
-                                                                             use_expansion, use_style,
-                                                                             use_synthetic_refiner)
-                        task_enhance = tasks_enhance[0]
+                        if not inpaint_parameterized_enhance and enhance_prompt == async_task.prompt and enhance_negative_prompt == async_task.negative_prompt:
+                            task_enhance = task.copy()
+                            tasks_enhance = tasks.copy()
+                        else:
+                            tasks_enhance, use_expansion, loras = process_prompt(async_task, enhance_prompt,
+                                                                                 enhance_negative_prompt,
+                                                                                 base_model_additional_loras_enhance,
+                                                                                 1, True,
+                                                                                 use_expansion, use_style,
+                                                                                 use_synthetic_refiner)
+                            task_enhance = tasks_enhance[0]
 
-                        # TODO could support vary, upscale and CN in the future
-                        # if 'cn' in goals:
-                        #     apply_control_nets(async_task, height, ip_adapter_face_path, ip_adapter_path, width)
-                        if async_task.freeu_enabled:
-                            apply_freeu(async_task)
-                        patch_samplers(async_task)
+                            # TODO could support vary, upscale and CN in the future
+                            # if 'cn' in goals:
+                            #     apply_control_nets(async_task, height, ip_adapter_face_path, ip_adapter_path, width)
+                            if async_task.freeu_enabled:
+                                apply_freeu(async_task)
+                            patch_samplers(async_task)
 
                         goals_enhance = ['inpaint']
                         enhance_inpaint_strength, initial_latent_enhance, width_enhance, height_enhance = apply_inpaint(
