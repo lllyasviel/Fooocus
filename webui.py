@@ -712,8 +712,10 @@ with shared.gradio_root:
 
                     with gr.Tab(label='Inpaint'):
                         debugging_inpaint_preprocessor = gr.Checkbox(label='Debug Inpaint Preprocessing', value=False)
+                        debugging_enhance_masks_checkbox = gr.Checkbox(label='Debug Enhance Masks', value=False,
+                                                                       info='Show enhance masks in preview and final results')
                         debugging_dino = gr.Checkbox(label='Debug GroundingDINO', value=False,
-                                                     info='Used for SAM object detection and box generation')
+                                                     info='Use GroundingDINO boxes instead of more detailed SAM masks')
                         inpaint_disable_initial_latent = gr.Checkbox(label='Disable initial latent in inpaint', value=False)
                         inpaint_engine = gr.Dropdown(label='Inpaint Engine',
                                                      value=modules.config.default_inpaint_engine_version,
@@ -894,7 +896,8 @@ with shared.gradio_root:
             ctrls += [save_metadata_to_images, metadata_scheme]
 
         ctrls += ip_ctrls
-        ctrls += [debugging_dino, dino_erode_or_dilate, enhance_checkbox] + enhance_ctrls
+        ctrls += [debugging_dino, dino_erode_or_dilate, debugging_enhance_masks_checkbox, enhance_checkbox]
+        ctrls += enhance_ctrls
 
         def parse_meta(raw_prompt_txt, is_generating):
             loaded_json = None

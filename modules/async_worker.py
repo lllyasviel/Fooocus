@@ -110,6 +110,7 @@ class AsyncTask:
 
         self.debugging_dino = args.pop()
         self.dino_erode_or_dilate = args.pop()
+        self.debugging_enhance_masks_checkbox = args.pop()
 
         self.enhance_checkbox = args.pop()
         self.enhance_ctrls = []
@@ -1107,9 +1108,9 @@ def worker():
                         if int(async_task.inpaint_erode_or_dilate) != 0:
                             mask = erode_or_dilate(mask, async_task.inpaint_erode_or_dilate)
 
-                        async_task.yields.append(['preview', (current_progress, 'Loading ...', mask)])
-                        # TODO also show do_not_show_finished_images=len(tasks) == 1
-                        yield_result(async_task, mask, async_task.black_out_nsfw, False, do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
+                        if async_task.debugging_enhance_masks_checkbox:
+                            async_task.yields.append(['preview', (current_progress, 'Loading ...', mask)])
+                            yield_result(async_task, mask, async_task.black_out_nsfw, False, async_task.disable_intermediate_results)
 
                         print(f'[Enhance] {dino_detection_count} boxes detected')
                         print(f'[Enhance] {sam_detection_count} segments detected in boxes')
