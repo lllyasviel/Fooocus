@@ -46,7 +46,7 @@
     "* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)": "* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)",
     "Mask generation model": "Mask generation model",
     "Cloth category": "Cloth category",
-    "Segmentation prompt": "Segmentation prompt",
+    "Detection prompt": "Detection prompt",
     "Use singular whenever possible": "Use singular whenever possible",
     "Advanced options": "Advanced options",
     "SAM model": "SAM model",
