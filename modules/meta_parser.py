@@ -119,8 +119,9 @@ def get_steps(key: str, fallback: str | None, source_dict: dict, results: list, 
         assert h is not None
         h = int(h)
         # if not in steps or in steps and performance is not the same
-        if h not in iter(Steps) or Steps(h).name.casefold() != source_dict.get('performance', '').replace(' ',
-                                                                                                          '_').casefold():
+        performance_name = source_dict.get('performance', '').replace(' ', '_').replace('-', '_').casefold()
+        performance_candidates = [key for key in Steps.keys() if key.casefold() == performance_name and Steps[key] == h]
+        if len(performance_candidates) == 0:
             results.append(h)
             return
         results.append(-1)
