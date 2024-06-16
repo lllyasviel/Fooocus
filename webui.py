@@ -895,7 +895,7 @@ with shared.gradio_root:
             ctrls += [save_metadata_to_images, metadata_scheme]
 
         ctrls += ip_ctrls
-        ctrls += [debugging_dino, dino_erode_or_dilate] + enhance_ctrls
+        ctrls += [debugging_dino, dino_erode_or_dilate, enhance_checkbox] + enhance_ctrls
 
         def parse_meta(raw_prompt_txt, is_generating):
             loaded_json = None

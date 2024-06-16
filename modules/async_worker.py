@@ -111,6 +111,7 @@ class AsyncTask:
         self.debugging_dino = args.pop()
         self.dino_erode_or_dilate = args.pop()
 
+        self.enhance_checkbox = args.pop()
         self.enhance_ctrls = []
         for _ in range(modules.config.default_enhance_tabs):
             enhance_enabled = args.pop()
@@ -913,13 +914,13 @@ def worker():
                         async_task.inpaint_mask_image_upload = resample_image(async_task.inpaint_mask_image_upload, width=W, height=H)
                         async_task.inpaint_mask_image_upload = np.mean(async_task.inpaint_mask_image_upload, axis=2)
                         async_task.inpaint_mask_image_upload = (async_task.inpaint_mask_image_upload > 127).astype(np.uint8) * 255
-                        async_task.inpaint_mask = np.maximum(inpaint_mask, async_task.inpaint_mask_image_upload)
+                        inpaint_mask = np.maximum(inpaint_mask, async_task.inpaint_mask_image_upload)
 
                 if int(async_task.inpaint_erode_or_dilate) != 0:
-                    async_task.inpaint_mask = erode_or_dilate(async_task.inpaint_mask, async_task.inpaint_erode_or_dilate)
+                    inpaint_mask = erode_or_dilate(inpaint_mask, async_task.inpaint_erode_or_dilate)
 
                 if async_task.invert_mask_checkbox:
-                    async_task.inpaint_mask = 255 - async_task.inpaint_mask
+                    inpaint_mask = 255 - inpaint_mask
 
                 inpaint_image = HWC3(inpaint_image)
                 if isinstance(inpaint_image, np.ndarray) and isinstance(inpaint_mask, np.ndarray) \
@@ -1053,12 +1054,13 @@ def worker():
                                                                  switch, task['c'], task['uc'], task,
                                                                  tasks, tiled, use_expansion, width, height)
 
-                # enhance
-                progressbar(async_task, current_progress, 'Processing enhance ...')
-                final_unet = pipeline.final_unet
-                if len(async_task.enhance_ctrls) == 0 or 'inpaint' in goals:
+                if not async_task.enhance_checkbox or len(async_task.enhance_ctrls) == 0 or 'inpaint' in goals:
                     print(f'[Enhance] Skipping, preconditions aren\'t met')
                     continue
+
+                # enhance
+                progressbar(async_task, current_progress, 'Processing enhance ...')
+                final_unet = pipeline.final_unet.clone()
 
                 for img in imgs:
                     for enhance_mask_dino_prompt_text, enhance_prompt, enhance_negative_prompt, enhance_mask_sam_model, enhance_mask_text_threshold, enhance_mask_box_threshold, enhance_mask_sam_max_num_boxes, enhance_inpaint_disable_initial_latent, enhance_inpaint_engine, enhance_inpaint_strength, enhance_inpaint_respective_field in async_task.enhance_ctrls:
