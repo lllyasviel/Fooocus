@@ -14,7 +14,7 @@ from groundingdino.util.inference import load_model, preprocess_caption, get_phr
 
 class GroundingDinoModel(Model):
     def __init__(self):
-        self.config_file = 'extras/GroundingDINO/config/GroundingDINO_SwinT_OGC.py'
+        self.config_file = 'extras/GroundingDINO/config/GroundingDINO_SwinB_cfg.py'
         self.model = None
         self.load_device = torch.device('cpu')
         self.offload_device = torch.device('cpu')
@@ -28,8 +28,8 @@ class GroundingDinoModel(Model):
     ) -> Tuple[sv.Detections, torch.Tensor, torch.Tensor, List[str]]:
         if self.model is None:
             filename = load_file_from_url(
-                url="https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth",
-                file_name='groundingdino_swint_ogc.pth',
+                url="https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha2/groundingdino_swinb_cogcoor.pth",
+                file_name='groundingdino_swinb_cogcoor.pth',
                 model_dir=path_inpaint)
             model = load_model(model_config_path=self.config_file, model_checkpoint_path=filename)
 
