@@ -416,6 +416,7 @@ with shared.gradio_root:
                             enhance_mask_dino_prompt_text,
                             enhance_prompt,
                             enhance_negative_prompt,
+                            enhance_mask_model,
                             enhance_mask_sam_model,
                             enhance_mask_text_threshold,
                             enhance_mask_box_threshold,

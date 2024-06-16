@@ -56,7 +56,7 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
     if 'image' in image:
         image = image['image']
 
-    if mask_model != 'sam' and sam_options is None:
+    if mask_model != 'sam' or sam_options is None:
         result = remove(
             image,
             session=new_session(mask_model, **extras),
@@ -65,8 +65,6 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
         )
 
         return result, dino_detection_count, sam_detection_count, sam_detection_on_mask_count
-
-    assert sam_options is not None
 
     detections, boxes, logits, phrases = default_groundingdino(
         image=image,
