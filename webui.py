@@ -336,8 +336,6 @@ with shared.gradio_root:
                         with gr.TabItem(label=f'#{index + 1}') as enhance_tab_item:
                             enhance_enabled = gr.Checkbox(label='Enable', value=False, elem_classes='min_check',
                                                           container=False)
-                            gr.HTML(
-                                'DISCLAIMER: The enhance feature does not work with Inpaint or Outpaint and will be skipped.')
 
                             enhance_mask_dino_prompt_text = gr.Textbox(label='Detection prompt',
                                                                        info='Use singular whenever possible',
