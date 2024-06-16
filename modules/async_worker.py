@@ -1118,7 +1118,7 @@ def worker():
                         negative_cond = task['uc']
                         if abs(float(async_task.cfg_scale) - 1.0) < 1e-4:
                             negative_cond = pipeline.clone_cond(positive_cond)
-                        elif enhance_negative_prompt is not '':
+                        elif enhance_negative_prompt != '':
                             progressbar(async_task, current_progress, f'Encoding negative ...')
                             negative_cond = pipeline.clip_encode(texts=[enhance_negative_prompt], pool_top_k=1)
 
