@@ -502,16 +502,16 @@ example_inpaint_prompts = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
     expected_type=list
 )
-example_stage2_prompts = get_config_item_or_set_default(
-    key='example_stage2_prompts',
+example_enhance_prompts = get_config_item_or_set_default(
+    key='example_enhance_prompts',
     default_value=[
         'face', 'eye', 'mouth', 'hair', 'hand', 'body'
     ],
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
     expected_type=list
 )
-default_stage2_tabs = get_config_item_or_set_default(
-    key='default_stage2_tabs',
+default_enhance_tabs = get_config_item_or_set_default(
+    key='default_enhance_tabs',
     default_value=3,
     validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
     expected_type=int
@@ -548,7 +548,7 @@ metadata_created_by = get_config_item_or_set_default(
 )
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
-example_stage2_prompts = [[x] for x in example_stage2_prompts]
+example_enhance_prompts = [[x] for x in example_enhance_prompts]
 
 default_inpaint_mask_model = get_config_item_or_set_default(
     key='default_inpaint_mask_model',
@@ -557,8 +557,8 @@ default_inpaint_mask_model = get_config_item_or_set_default(
     expected_type=str
 )
 
-default_stage2_inpaint_mask_model = get_config_item_or_set_default(
-    key='default_stage2_inpaint_mask_model',
+default_enhance_inpaint_mask_model = get_config_item_or_set_default(
+    key='default_enhance_inpaint_mask_model',
     default_value='sam',
     validator=lambda x: x in modules.flags.inpaint_mask_models,
     expected_type=str

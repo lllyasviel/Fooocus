@@ -111,23 +111,23 @@ class AsyncTask:
         self.debugging_dino = args.pop()
         self.dino_erode_or_dilate = args.pop()
 
-        self.stage2_ctrls = []
-        for _ in range(modules.config.default_stage2_tabs):
-            stage2_enabled = args.pop()
-            # stage2_mode = args.pop()
-            stage2_mask_dino_prompt_text = args.pop()
-            stage2_mask_box_threshold = args.pop()
-            stage2_mask_text_threshold = args.pop()
-            stage2_mask_sam_max_num_boxes = args.pop()
-            stage2_mask_sam_model = args.pop()
-            if stage2_enabled:
-                self.stage2_ctrls.append([
-                    # stage2_mode,
-                    stage2_mask_dino_prompt_text,
-                    stage2_mask_box_threshold,
-                    stage2_mask_text_threshold,
-                    stage2_mask_sam_max_num_boxes,
-                    stage2_mask_sam_model,
+        self.enhance_ctrls = []
+        for _ in range(modules.config.default_enhance_tabs):
+            enhance_enabled = args.pop()
+            # enhance_mode = args.pop()
+            enhance_mask_dino_prompt_text = args.pop()
+            enhance_mask_box_threshold = args.pop()
+            enhance_mask_text_threshold = args.pop()
+            enhance_mask_sam_max_num_boxes = args.pop()
+            enhance_mask_sam_model = args.pop()
+            if enhance_enabled:
+                self.enhance_ctrls.append([
+                    # enhance_mode,
+                    enhance_mask_dino_prompt_text,
+                    enhance_mask_box_threshold,
+                    enhance_mask_text_threshold,
+                    enhance_mask_sam_max_num_boxes,
+                    enhance_mask_sam_model,
                 ])
 
 
@@ -1038,24 +1038,24 @@ def worker():
                              current_task_id, denoising_strength, final_scheduler_name, goals, initial_latent,
                              switch, task, tasks, tiled, use_expansion, width, height)
 
-                # stage2
-                progressbar(async_task, current_progress, 'Processing stage2 ...')
+                # enhance
+                progressbar(async_task, current_progress, 'Processing enhance ...')
                 final_unet = pipeline.final_unet
-                if len(async_task.stage2_ctrls) == 0 or 'inpaint' in goals:
-                    print(f'[Stage2] Skipping, preconditions aren\'t met')
+                if len(async_task.enhance_ctrls) == 0 or 'inpaint' in goals:
+                    print(f'[Enhance] Skipping, preconditions aren\'t met')
                     continue
 
                 for img in imgs:
-                    for stage2_mask_dino_prompt_text, stage2_mask_box_threshold, stage2_mask_text_threshold, stage2_mask_sam_max_num_boxes, stage2_mask_sam_model in async_task.stage2_ctrls:
-                        print(f'[Stage2] Searching for "{stage2_mask_dino_prompt_text}"')
+                    for enhance_mask_dino_prompt_text, enhance_mask_box_threshold, enhance_mask_text_threshold, enhance_mask_sam_max_num_boxes, enhance_mask_sam_model in async_task.enhance_ctrls:
+                        print(f'[Enhance] Searching for "{enhance_mask_dino_prompt_text}"')
                         mask, dino_detection_count, sam_detection_count, sam_detection_on_mask_count = generate_mask_from_image(img, sam_options=SAMOptions(
-                            dino_prompt=stage2_mask_dino_prompt_text,
-                            dino_box_threshold=stage2_mask_box_threshold,
-                            dino_text_threshold=stage2_mask_text_threshold,
+                            dino_prompt=enhance_mask_dino_prompt_text,
+                            dino_box_threshold=enhance_mask_box_threshold,
+                            dino_text_threshold=enhance_mask_text_threshold,
                             dino_erode_or_dilate=async_task.dino_erode_or_dilate,
                             dino_debug=async_task.debugging_dino,
-                            max_num_boxes=stage2_mask_sam_max_num_boxes,
-                            model_type=stage2_mask_sam_model
+                            max_num_boxes=enhance_mask_sam_max_num_boxes,
+                            model_type=enhance_mask_sam_model
                         ))
                         mask = mask[:, :, 0]
 
@@ -1065,12 +1065,12 @@ def worker():
                                      do_not_show_finished_images=len(
                                          tasks) == 1 or async_task.disable_intermediate_results)
 
-                        print(f'[Stage2] {dino_detection_count} boxes detected')
-                        print(f'[Stage2] {sam_detection_count} segments detected in boxes')
-                        print(f'[Stage2] {sam_detection_on_mask_count} segments applied to mask')
+                        print(f'[Enhance] {dino_detection_count} boxes detected')
+                        print(f'[Enhance] {sam_detection_count} segments detected in boxes')
+                        print(f'[Enhance] {sam_detection_on_mask_count} segments applied to mask')
 
                         if dino_detection_count == 0 or not async_task.debugging_dino and sam_detection_on_mask_count == 0:
-                            print(f'[Stage2] No "{stage2_mask_dino_prompt_text}" detected, skipping')
+                            print(f'[Enhance] No "{enhance_mask_dino_prompt_text}" detected, skipping')
                             continue
 
                         # TODO make configurable
@@ -1094,21 +1094,21 @@ def worker():
                         # patch_samplers(async_task)
 
                         # defaults from inpaint mode improve details
-                        denoising_strength_stage2 = 0.5
-                        inpaint_respective_field_stage2 = 0.0
-                        inpaint_head_model_path_stage2 = None
-                        inpaint_parameterized_stage2 = False  # inpaint_engine = None, improve detail
+                        denoising_strength_enhance = 0.5
+                        inpaint_respective_field_enhance = 0.0
+                        inpaint_head_model_path_enhance = None
+                        inpaint_parameterized_enhance = False  # inpaint_engine = None, improve detail
 
-                        goals_stage2 = ['inpaint']
-                        denoising_strength_stage2, initial_latent_stage2, width_stage2, height_stage2 = apply_inpaint(
-                            async_task, None, inpaint_head_model_path_stage2, img, mask,
-                            inpaint_parameterized_stage2, denoising_strength_stage2,
-                            inpaint_respective_field_stage2, switch, current_progress, True)
+                        goals_enhance = ['inpaint']
+                        denoising_strength_enhance, initial_latent_enhance, width_enhance, height_enhance = apply_inpaint(
+                            async_task, None, inpaint_head_model_path_enhance, img, mask,
+                            inpaint_parameterized_enhance, denoising_strength_enhance,
+                            inpaint_respective_field_enhance, switch, current_progress, True)
 
                         imgs2, img_paths, current_progress = process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
-                                     current_task_id, denoising_strength_stage2, final_scheduler_name, goals_stage2,
-                                     initial_latent_stage2, switch, task, tasks, tiled, use_expansion, width_stage2,
-                                     height_stage2)
+                                     current_task_id, denoising_strength_enhance, final_scheduler_name, goals_enhance,
+                                     initial_latent_enhance, switch, task, tasks, tiled, use_expansion, width_enhance,
+                                     height_enhance)
 
                         # reset and prepare next iteration
                         img = imgs2[0]
