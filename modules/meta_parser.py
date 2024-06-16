@@ -61,7 +61,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
 
     # prevent performance LoRAs to be added twice, by performance and by lora
     performance_filename = None
-    if performance is not None and performance in Performance.list():
+    if performance is not None and performance in Performance.values():
         performance = Performance(performance)
         performance_filename = performance.lora_filename()
 
@@ -232,7 +232,7 @@ def parse_meta_from_preset(preset_content):
             loras = getattr(modules.config, settings_key)
             if settings_key in items:
                 loras = items[settings_key]
-            for index, lora in enumerate(loras[:5]):
+            for index, lora in enumerate(loras[:modules.config.default_max_lora_number]):
                 preset_prepared[f'lora_combined_{index + 1}'] = ' : '.join(map(str, lora))
         elif settings_key == "default_aspect_ratio":
             if settings_key in items and items[settings_key] is not None:
