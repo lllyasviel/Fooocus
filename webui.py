@@ -258,7 +258,7 @@ with shared.gradio_root:
                                     samples=modules.config.example_enhance_detection_prompts,
                                     label='Detection Prompt Quick List',
                                     components=[inpaint_mask_dino_prompt_text],
-                                    visible=modules.config.default_enhance_inpaint_mask_model == 'sam')
+                                    visible=modules.config.default_inpaint_mask_model == 'sam')
                                 example_inpaint_mask_dino_prompt_text.click(lambda x: x[0],
                                                                             inputs=example_inpaint_mask_dino_prompt_text,
                                                                             outputs=inpaint_mask_dino_prompt_text,
