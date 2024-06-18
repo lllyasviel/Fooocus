@@ -1157,7 +1157,6 @@ def worker():
             stop_processing(async_task, processing_start_time)
             return
 
-        # enhance
         progressbar(async_task, current_progress, 'Processing enhance ...')
         total_count = sum([len(imgs) for _, imgs in generated_imgs.items()]) * len(async_task.enhance_ctrls)
         base_progress = current_progress
@@ -1223,11 +1222,7 @@ def worker():
                     enhance_negative_prompt = prepare_enhance_prompt(enhance_negative_prompt, async_task.negative_prompt,
                                                                      async_task.translate_prompts, 'negative prompt')
 
-                    # positive and negative conditioning aren't available here anymore
-                    # if not inpaint_parameterized_enhance and enhance_prompt == async_task.prompt and enhance_negative_prompt == async_task.negative_prompt:
-                    #     task_enhance = task.copy()
-                    #     tasks_enhance = tasks.copy()
-                    # else:
+                    # positive and negative conditioning aren't available here anymore, process prompt again
                     tasks_enhance, use_expansion, loras, current_progress = process_prompt(async_task, enhance_prompt,
                                                                                            enhance_negative_prompt,
                                                                                            base_model_additional_loras_enhance,
