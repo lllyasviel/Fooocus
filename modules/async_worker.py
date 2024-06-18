@@ -693,10 +693,10 @@ def worker():
 
             task_styles = async_task.style_selections.copy()
             if use_style:
-                for i, s in enumerate(task_styles):
+                for j, s in enumerate(task_styles):
                     if s == random_style_name:
                         s = get_random_style(task_rng)
-                        task_styles[i] = s
+                        task_styles[j] = s
                     p, n = apply_style(s, positive=task_prompt)
                     positive_basic_workloads = positive_basic_workloads + p
                     negative_basic_workloads = negative_basic_workloads + n
@@ -847,9 +847,9 @@ def worker():
         return current_progress
 
     def apply_image_input(async_task, base_model_additional_loras, clip_vision_path, controlnet_canny_path,
-                          controlnet_cpds_path, goals, inpaint_head_model_path, inpaint_mask, inpaint_parameterized,
-                          ip_adapter_face_path, ip_adapter_path, ip_negative_path, skip_prompt_processing,
-                          use_synthetic_refiner):
+                          controlnet_cpds_path, goals, inpaint_head_model_path, inpaint_image, inpaint_mask,
+                          inpaint_parameterized,  ip_adapter_face_path, ip_adapter_path, ip_negative_path,
+                          skip_prompt_processing, use_synthetic_refiner):
         if (async_task.current_tab == 'uov' or (
                 async_task.current_tab == 'ip' and async_task.mixing_image_prompt_and_vary_upscale)) \
                 and async_task.uov_method != flags.disabled and async_task.uov_input_image is not None:
@@ -1024,9 +1024,8 @@ def worker():
         if async_task.input_image_checkbox:
             base_model_additional_loras, clip_vision_path, controlnet_canny_path, controlnet_cpds_path, inpaint_head_model_path, inpaint_image, inpaint_mask, ip_adapter_face_path, ip_adapter_path, ip_negative_path, skip_prompt_processing, use_synthetic_refiner = apply_image_input(
                 async_task, base_model_additional_loras, clip_vision_path, controlnet_canny_path, controlnet_cpds_path,
-                goals, inpaint_head_model_path, inpaint_mask, inpaint_parameterized, ip_adapter_face_path, ip_adapter_path,
-                ip_negative_path, skip_prompt_processing, use_synthetic_refiner)
-
+                goals, inpaint_head_model_path, inpaint_image, inpaint_mask, inpaint_parameterized, ip_adapter_face_path,
+                ip_adapter_path, ip_negative_path, skip_prompt_processing, use_synthetic_refiner)
 
         # Load or unload CNs
         progressbar(async_task, current_progress, 'Loading control models ...')
