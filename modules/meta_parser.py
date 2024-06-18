@@ -61,7 +61,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
 
     # prevent performance LoRAs to be added twice, by performance and by lora
     performance_filename = None
-    if performance is not None and performance in Performance.list():
+    if performance is not None and performance in Performance.values():
         performance = Performance(performance)
         performance_filename = performance.lora_filename()
 
@@ -119,8 +119,9 @@ def get_steps(key: str, fallback: str | None, source_dict: dict, results: list, 
         assert h is not None
         h = int(h)
         # if not in steps or in steps and performance is not the same
-        if h not in iter(Steps) or Steps(h).name.casefold() != source_dict.get('performance', '').replace(' ',
-                                                                                                          '_').casefold():
+        performance_name = source_dict.get('performance', '').replace(' ', '_').replace('-', '_').casefold()
+        performance_candidates = [key for key in Steps.keys() if key.casefold() == performance_name and Steps[key] == h]
+        if len(performance_candidates) == 0:
             results.append(h)
             return
         results.append(-1)
@@ -232,7 +233,7 @@ def parse_meta_from_preset(preset_content):
             loras = getattr(modules.config, settings_key)
             if settings_key in items:
                 loras = items[settings_key]
-            for index, lora in enumerate(loras[:5]):
+            for index, lora in enumerate(loras[:modules.config.default_max_lora_number]):
                 preset_prepared[f'lora_combined_{index + 1}'] = ' : '.join(map(str, lora))
         elif settings_key == "default_aspect_ratio":
             if settings_key in items and items[settings_key] is not None:

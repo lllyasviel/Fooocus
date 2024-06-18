@@ -131,6 +131,10 @@ class Steps(IntEnum):
     LIGHTNING = 4
     HYPER_SD = 4
 
+    @classmethod
+    def keys(cls) -> list:
+        return list(map(lambda c: c, Steps.__members__))
+
 
 class StepsUOV(IntEnum):
     QUALITY = 36
@@ -149,6 +153,10 @@ class Performance(Enum):
 
     @classmethod
     def list(cls) -> list:
+        return list(map(lambda c: c.value, cls))
+
+    @classmethod
+    def values(cls) -> list:
         return list(map(lambda c: c.value, cls))
 
     @classmethod
