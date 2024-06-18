@@ -253,7 +253,7 @@ with shared.gradio_root:
                                                              choices=flags.inpaint_mask_cloth_category,
                                                              value=modules.config.default_inpaint_mask_cloth_category,
                                                              visible=False)
-                                inpaint_mask_dino_prompt_text = gr.Textbox(label='Detection prompt', value='', visible=False, info='Use singular whenever possible')
+                                inpaint_mask_dino_prompt_text = gr.Textbox(label='Detection prompt', value='', visible=False, info='Use singular whenever possible', placeholder='Describe what you want to detect.')
                                 example_inpaint_mask_dino_prompt_text = gr.Dataset(
                                     samples=modules.config.example_enhance_detection_prompts,
                                     label='Detection Prompt Quick List',
@@ -356,6 +356,7 @@ with shared.gradio_root:
 
                             enhance_mask_dino_prompt_text = gr.Textbox(label='Detection prompt',
                                                                        info='Use singular whenever possible',
+                                                                       placeholder='Describe what you want to detect.',
                                                                        interactive=True,
                                                                        visible=modules.config.default_enhance_inpaint_mask_model == 'sam')
                             example_enhance_mask_dino_prompt_text = gr.Dataset(
@@ -464,7 +465,7 @@ with shared.gradio_root:
                             lambda x: [gr.update(visible=x == 'u2net_cloth_seg')] +
                                       [gr.update(visible=x == 'sam')] * 2 +
                                       [gr.Dataset.update(visible=x == 'sam',
-                                                         samples=modules.config.example_enhance_prompts)],
+                                                         samples=modules.config.example_enhance_detection_prompts)],
                             inputs=enhance_mask_model,
                             outputs=[enhance_mask_cloth_category, enhance_mask_dino_prompt_text, sam_options,
                                      example_enhance_mask_dino_prompt_text],
