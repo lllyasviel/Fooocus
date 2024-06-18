@@ -191,7 +191,6 @@ def get_dir_or_set_default(key, default_value, as_array=False, make_directory=Fa
 paths_checkpoints = get_dir_or_set_default('path_checkpoints', ['../models/checkpoints/'], True)
 paths_loras = get_dir_or_set_default('path_loras', ['../models/loras/'], True)
 path_embeddings = get_dir_or_set_default('path_embeddings', '../models/embeddings/')
-path_adetailer = get_dir_or_set_default('path_adetailer', '../models/adetailer/')
 path_vae_approx = get_dir_or_set_default('path_vae_approx', '../models/vae_approx/')
 path_vae = get_dir_or_set_default('path_vae', '../models/vae/')
 path_upscale_models = get_dir_or_set_default('path_upscale_models', '../models/upscale_models/')
