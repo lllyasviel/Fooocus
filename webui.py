@@ -387,7 +387,6 @@ with shared.gradio_root:
                                                                                 minimum=0, maximum=10,
                                                                                 value=modules.config.default_sam_max_detections,
                                                                                 step=1, interactive=True)
-                            enhance_inpaint_hint = gr.Markdown()
 
                             with gr.Accordion("Inpaint", visible=True, open=False):
                                 enhance_inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options,
@@ -420,15 +419,6 @@ with shared.gradio_root:
                                                                                  '(default is 0, always processed before any mask invert)')
                                 enhance_mask_invert = gr.Checkbox(label='Invert Mask', value=False)
 
-
-                            def update_inpaint_hint(mode):
-                                if mode == modules.flags.inpaint_option_detail:
-                                    return gr.update(value='')
-
-                                return gr.update(value="Hint: Use performance Quality or Speed (no performance LoRAs) for best results.")
-
-                            shared.gradio_root.load(update_inpaint_hint, inputs=enhance_inpaint_mode, outputs=enhance_inpaint_hint, queue=False, show_progress=False)
-
                         enhance_ctrls += [
                             enhance_enabled,
                             enhance_mask_dino_prompt_text,
@@ -451,8 +441,7 @@ with shared.gradio_root:
                             inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
                             enhance_inpaint_disable_initial_latent, enhance_inpaint_engine,
                             enhance_inpaint_strength, enhance_inpaint_respective_field
-                        ], show_progress=False, queue=False) \
-                            .then(update_inpaint_hint, inputs=enhance_inpaint_mode, outputs=enhance_inpaint_hint, show_progress=False, queue=False)
+                        ], show_progress=False, queue=False)
 
                         enhance_mask_model.change(
                             lambda x: [gr.update(visible=x == 'u2net_cloth_seg')] +
