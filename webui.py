@@ -254,6 +254,16 @@ with shared.gradio_root:
                                                              value=modules.config.default_inpaint_mask_cloth_category,
                                                              visible=False)
                                 inpaint_mask_dino_prompt_text = gr.Textbox(label='Detection prompt', value='', visible=False, info='Use singular whenever possible')
+                                example_inpaint_mask_dino_prompt_text = gr.Dataset(
+                                    samples=modules.config.example_enhance_detection_prompts,
+                                    label='Detection Prompt Quick List',
+                                    components=[inpaint_mask_dino_prompt_text],
+                                    visible=modules.config.default_enhance_inpaint_mask_model == 'sam')
+                                example_inpaint_mask_dino_prompt_text.click(lambda x: x[0],
+                                                                            inputs=example_inpaint_mask_dino_prompt_text,
+                                                                            outputs=inpaint_mask_dino_prompt_text,
+                                                                            show_progress=False, queue=False)
+
                                 with gr.Accordion("Advanced options", visible=False, open=False) as inpaint_mask_advanced_options:
                                     inpaint_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
                                     inpaint_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05)
@@ -283,9 +293,16 @@ with shared.gradio_root:
 
                                     return mask
 
-                                inpaint_mask_model.change(lambda x: [gr.update(visible=x == 'u2net_cloth_seg'), gr.update(visible=x == 'sam'), gr.update(visible=x == 'sam')],
+
+                                inpaint_mask_model.change(lambda x: [gr.update(visible=x == 'u2net_cloth_seg')] +
+                                                                    [gr.update(visible=x == 'sam')] * 2 +
+                                                                    [gr.Dataset.update(visible=x == 'sam',
+                                                                                       samples=modules.config.example_enhance_detection_prompts)],
                                                           inputs=inpaint_mask_model,
-                                                          outputs=[inpaint_mask_cloth_category, inpaint_mask_dino_prompt_text, inpaint_mask_advanced_options],
+                                                          outputs=[inpaint_mask_cloth_category,
+                                                                   inpaint_mask_dino_prompt_text,
+                                                                   inpaint_mask_advanced_options,
+                                                                   example_inpaint_mask_dino_prompt_text],
                                                           queue=False, show_progress=False)
 
                     with gr.TabItem(label='Describe') as desc_tab:
@@ -342,8 +359,8 @@ with shared.gradio_root:
                                                                        interactive=True,
                                                                        visible=modules.config.default_enhance_inpaint_mask_model == 'sam')
                             example_enhance_mask_dino_prompt_text = gr.Dataset(
-                                samples=modules.config.example_enhance_prompts,
-                                label='Additional Prompt Quick List',
+                                samples=modules.config.example_enhance_detection_prompts,
+                                label='Detection Prompt Quick List',
                                 components=[enhance_mask_dino_prompt_text],
                                 visible=modules.config.default_enhance_inpaint_mask_model == 'sam')
                             example_enhance_mask_dino_prompt_text.click(lambda x: x[0],
