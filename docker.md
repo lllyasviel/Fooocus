@@ -1,35 +1,99 @@
 # Fooocus on Docker
 
-The docker image is based on NVIDIA CUDA 12.3 and PyTorch 2.0, see [Dockerfile](Dockerfile) and [requirements_docker.txt](requirements_docker.txt) for details.
+The docker image is based on NVIDIA CUDA 12.4 and PyTorch 2.1, see [Dockerfile](Dockerfile) and [requirements_docker.txt](requirements_docker.txt) for details.
+
+## Requirements
+
+- A computer with specs good enough to run Fooocus, and proprietary Nvidia drivers
+- Docker, Docker Compose, or Podman
 
 ## Quick start
 
-**This is just an easy way for testing. Please find more information in the [notes](#notes).**
+**More information in the [notes](#notes).**
+
+### Running with Docker Compose
 
 1. Clone this repository
-2. Build the image with `docker compose build`
-3. Run the docker container with `docker compose up`. Building the image takes some time.
+2. Run the docker container with `docker compose up`.
+
+### Running with Docker
+
+```sh
+docker run -p 7865:7865 -v fooocus-data:/content/data -it \
+--gpus all \
+-e CMDARGS=--listen \
+-e DATADIR=/content/data \
+-e config_path=/content/data/config.txt \
+-e config_example_path=/content/data/config_modification_tutorial.txt \
+-e path_checkpoints=/content/data/models/checkpoints/ \
+-e path_loras=/content/data/models/loras/ \
+-e path_embeddings=/content/data/models/embeddings/ \
+-e path_vae_approx=/content/data/models/vae_approx/ \
+-e path_upscale_models=/content/data/models/upscale_models/ \
+-e path_inpaint=/content/data/models/inpaint/ \
+-e path_controlnet=/content/data/models/controlnet/ \
+-e path_clip_vision=/content/data/models/clip_vision/ \
+-e path_fooocus_expansion=/content/data/models/prompt_expansion/fooocus_expansion/ \
+-e path_outputs=/content/app/outputs/ \
+ghcr.io/lllyasviel/fooocus
+```
+### Running with Podman
+
+```sh
+podman run -p 7865:7865 -v fooocus-data:/content/data -it \
+--security-opt=no-new-privileges --cap-drop=ALL --security-opt label=type:nvidia_container_t --device=nvidia.com/gpu=all \
+-e CMDARGS=--listen \
+-e DATADIR=/content/data \
+-e config_path=/content/data/config.txt \
+-e config_example_path=/content/data/config_modification_tutorial.txt \
+-e path_checkpoints=/content/data/models/checkpoints/ \
+-e path_loras=/content/data/models/loras/ \
+-e path_embeddings=/content/data/models/embeddings/ \
+-e path_vae_approx=/content/data/models/vae_approx/ \
+-e path_upscale_models=/content/data/models/upscale_models/ \
+-e path_inpaint=/content/data/models/inpaint/ \
+-e path_controlnet=/content/data/models/controlnet/ \
+-e path_clip_vision=/content/data/models/clip_vision/ \
+-e path_fooocus_expansion=/content/data/models/prompt_expansion/fooocus_expansion/ \
+-e path_outputs=/content/app/outputs/ \
+ghcr.io/lllyasviel/fooocus
+```
 
 When you see the message  `Use the app with http://0.0.0.0:7865/` in the console, you can access the URL in your browser.
 
-Your models and outputs are stored in the `fooocus-data` volume, which, depending on OS, is stored in `/var/lib/docker/volumes`.
+Your models and outputs are stored in the `fooocus-data` volume, which, depending on OS, is stored in `/var/lib/docker/volumes/` (or `~/.local/share/containers/storage/volumes/` when using `podman`).
+
+## Building the container locally
+
+Clone the repository first, and open a terminal in the folder.
+
+Build with `docker`:
+```sh
+docker build . -t fooocus
+```
+
+Build with `podman`:
+```sh
+podman build . -t fooocus
+```
 
 ## Details
 
-### Update the container manually
+### Update the container manually (`docker compose`)
 
 When you are using `docker compose up` continuously, the container is not updated to the latest version of Fooocus automatically.
 Run `git pull` before executing `docker compose build --no-cache` to build an image with the latest Fooocus version.
 You can then start it with `docker compose up`
 
 ### Import models, outputs
-If you want to import files from models or the outputs folder, you can uncomment the following settings in the [docker-compose.yml](docker-compose.yml):
+
+If you want to import files from models or the outputs folder, you can add the following bind mounts in the [docker-compose.yml](docker-compose.yml) or your preferred method of running the container:
 ```
 #- ./models:/import/models   # Once you import files, you don't need to mount again.
 #- ./outputs:/import/outputs  # Once you import files, you don't need to mount again.
 ```
-After running `docker compose up`, your files will be copied into `/content/data/models` and `/content/data/outputs`
-Since `/content/data` is a persistent volume folder, your files will be persisted even when you re-run `docker compose up --build` without above volume settings.
+After running the container, your files will be copied into `/content/data/models` and `/content/data/outputs`
+Since `/content/data` is a persistent volume folder, your files will be persisted even when you re-run the container without the above mounts.
 
 
 ### Paths inside the container
@@ -54,6 +118,7 @@ Docker specified environments are there. They are used by 'entrypoint.sh'
 |CMDARGS|Arguments for [entry_with_update.py](entry_with_update.py) which is called by [entrypoint.sh](entrypoint.sh)|
 |config_path|'config.txt' location|
 |config_example_path|'config_modification_tutorial.txt' location|
+|HF_MIRROR| huggingface mirror site domain| 
 
 You can also use the same json key names and values explained in the 'config_modification_tutorial.txt' as the environments.
 See examples in the [docker-compose.yml](docker-compose.yml)
