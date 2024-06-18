@@ -301,8 +301,7 @@ def worker():
         del positive_cond, negative_cond  # Save memory
         if inpaint_worker.current_task is not None:
             imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
-        current_progress = int(base_progress + (100 - base_progress) * float(
-            (current_task_id + 1) * async_task.steps) / float(all_steps))
+        current_progress = int(base_progress + (100 - flags.preparation_step_count) * float((current_task_id + 1) * async_task.steps) / float(all_steps))
         if modules.config.default_black_out_nsfw or async_task.black_out_nsfw:
             progressbar(async_task, current_progress, 'Checking for NSFW content ...')
             imgs = default_censor(imgs)
@@ -1072,15 +1071,15 @@ def worker():
         total_count = async_task.image_number
 
         def callback(step, x0, x, total_steps, y):
-            done_steps = current_task_id * async_task.steps + step
+            done_steps = current_task_id * async_task.steps + step + 1
             async_task.yields.append(['preview', (
-                int(base_progress + (100 - base_progress) * float(done_steps) / float(all_steps)),
+                int(base_progress + (100 - flags.preparation_step_count) * float(done_steps) / float(all_steps)),
                 f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{total_count} ...', y)])
 
         generated_imgs = {}
 
         for current_task_id, task in enumerate(tasks):
-            current_progress = int(flags.preparation_step_count + (100 - flags.preparation_step_count) * float(
+            current_progress = int(base_progress + (100 - flags.preparation_step_count) * float(
                 current_task_id * async_task.steps) / float(all_steps))
             progressbar(async_task, current_progress,
                         f'Preparing task {current_task_id + 1}/{async_task.image_number} ...')
@@ -1119,14 +1118,13 @@ def worker():
         progressbar(async_task, current_progress, 'Processing enhance ...')
         total_count = sum([len(imgs) for _, imgs in generated_imgs.items()]) * len(async_task.enhance_ctrls)
         base_progress = current_progress
-        for generated_imgs_idx, (current_task_id, imgs) in enumerate(generated_imgs.items()):
-            for imgs_idx, img in enumerate(imgs):
-                for enhance_ctrls_idx, (enhance_mask_dino_prompt_text, enhance_prompt, enhance_negative_prompt, enhance_mask_model, enhance_mask_sam_model, enhance_mask_text_threshold, enhance_mask_box_threshold, enhance_mask_sam_max_num_boxes, enhance_inpaint_disable_initial_latent, enhance_inpaint_engine, enhance_inpaint_strength, enhance_inpaint_respective_field) in enumerate(async_task.enhance_ctrls):
-                    current_task_id = generated_imgs_idx + imgs_idx + enhance_ctrls_idx
-                    current_progress = int(base_progress + (100 - base_progress) * float(
-                        current_task_id * async_task.steps) / float(all_steps))
-                    progressbar(async_task, current_progress,
-                                f'Preparing enhancement {current_task_id + 1}/{total_count} ...')
+        current_task_id = -1
+        for imgs in generated_imgs.values():
+            for img in imgs:
+                for enhance_mask_dino_prompt_text, enhance_prompt, enhance_negative_prompt, enhance_mask_model, enhance_mask_sam_model, enhance_mask_text_threshold, enhance_mask_box_threshold, enhance_mask_sam_max_num_boxes, enhance_inpaint_disable_initial_latent, enhance_inpaint_engine, enhance_inpaint_strength, enhance_inpaint_respective_field in async_task.enhance_ctrls:
+                    current_task_id += 1
+                    current_progress = int(base_progress + (100 - flags.preparation_step_count) * float(current_task_id * async_task.steps) / float(all_steps))
+                    progressbar(async_task, current_progress, f'Preparing enhancement {current_task_id + 1}/{total_count} ...')
                     enhancement_task_start_time = time.perf_counter()
 
                     if enhance_mask_model == 'sam':
@@ -1215,7 +1213,7 @@ def worker():
                                                                           task_enhance['c'], task_enhance['uc'],
                                                                           task_enhance, tasks_enhance, tiled,
                                                                           use_expansion, width_enhance, height_enhance,
-                                                                          current_progress, total_count)
+                                                                          base_progress, total_count)
                         img = imgs2[0]
 
                     except ldm_patched.modules.model_management.InterruptProcessingException:
