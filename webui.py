@@ -352,9 +352,11 @@ with shared.gradio_root:
                                                                         show_progress=False, queue=False)
 
                             enhance_prompt = gr.Textbox(label="Enhancement positive prompt",
-                                                        placeholder="Uses original prompt instead if empty.")
+                                                        placeholder="Uses original prompt instead if empty.",
+                                                        elem_id='enhance_prompt')
                             enhance_negative_prompt = gr.Textbox(label="Enhancement negative prompt",
-                                                                 placeholder="Uses original negative prompt instead if empty.")
+                                                                 placeholder="Uses original negative prompt instead if empty.",
+                                                                 elem_id='enhance_negative_prompt')
 
                             with gr.Accordion("Detection", open=False):
                                 # TODO check if limiting to SAM is better
