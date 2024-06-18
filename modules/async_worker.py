@@ -128,6 +128,8 @@ class AsyncTask:
             enhance_inpaint_engine = args.pop()
             enhance_inpaint_strength = args.pop()
             enhance_inpaint_respective_field = args.pop()
+            enhance_inpaint_erode_or_dilate = args.pop()
+            enhance_mask_invert = args.pop()
             if enhance_enabled:
                 self.enhance_ctrls.append([
                     enhance_mask_dino_prompt_text,
@@ -141,7 +143,9 @@ class AsyncTask:
                     enhance_inpaint_disable_initial_latent,
                     enhance_inpaint_engine,
                     enhance_inpaint_strength,
-                    enhance_inpaint_respective_field
+                    enhance_inpaint_respective_field,
+                    enhance_inpaint_erode_or_dilate,
+                    enhance_mask_invert
                 ])
 
 
@@ -1160,7 +1164,7 @@ def worker():
         current_task_id = -1
         for imgs in generated_imgs.values():
             for img in imgs:
-                for enhance_mask_dino_prompt_text, enhance_prompt, enhance_negative_prompt, enhance_mask_model, enhance_mask_sam_model, enhance_mask_text_threshold, enhance_mask_box_threshold, enhance_mask_sam_max_detections, enhance_inpaint_disable_initial_latent, enhance_inpaint_engine, enhance_inpaint_strength, enhance_inpaint_respective_field in async_task.enhance_ctrls:
+                for enhance_mask_dino_prompt_text, enhance_prompt, enhance_negative_prompt, enhance_mask_model, enhance_mask_sam_model, enhance_mask_text_threshold, enhance_mask_box_threshold, enhance_mask_sam_max_detections, enhance_inpaint_disable_initial_latent, enhance_inpaint_engine, enhance_inpaint_strength, enhance_inpaint_respective_field, enhance_inpaint_erode_or_dilate, enhance_mask_invert in async_task.enhance_ctrls:
                     current_task_id += 1
                     current_progress = int(base_progress + (100 - preparation_steps) * float(current_task_id * async_task.steps) / float(all_steps))
                     progressbar(async_task, current_progress, f'Preparing enhancement {current_task_id + 1}/{total_count} ...')
@@ -1177,13 +1181,16 @@ def worker():
                             dino_erode_or_dilate=async_task.dino_erode_or_dilate,
                             dino_debug=async_task.debugging_dino,
                             max_detections=enhance_mask_sam_max_detections,
-                            model_type=enhance_mask_sam_model
+                            model_type=enhance_mask_sam_model,
                         ))
                     if len(mask.shape) == 3:
                         mask = mask[:, :, 0]
 
-                    if int(async_task.inpaint_erode_or_dilate) != 0:
-                        mask = erode_or_dilate(mask, async_task.inpaint_erode_or_dilate)
+                    if int(enhance_inpaint_erode_or_dilate) != 0:
+                        mask = erode_or_dilate(mask, enhance_inpaint_erode_or_dilate)
+
+                    if enhance_mask_invert:
+                        mask = 255 - mask
 
                     if async_task.debugging_enhance_masks_checkbox:
                         async_task.yields.append(['preview', (current_progress, 'Loading ...', mask)])

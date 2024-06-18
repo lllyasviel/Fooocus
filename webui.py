@@ -258,7 +258,7 @@ with shared.gradio_root:
                                     inpaint_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
                                     inpaint_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05)
                                     inpaint_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05)
-                                    inpaint_mask_sam_num_boxes = gr.Slider(label="Maximum number of detections", info="Set to 0 to detect all", minimum=0, maximum=10, value=modules.config.default_sam_max_detections, step=1, interactive=True)
+                                    inpaint_mask_sam_max_detections = gr.Slider(label="Maximum number of detections", info="Set to 0 to detect all", minimum=0, maximum=10, value=modules.config.default_sam_max_detections, step=1, interactive=True)
                                 generate_mask_button = gr.Button(value='Generate mask from image')
 
                                 def generate_mask(image, mask_model, cloth_category, dino_prompt_text, sam_model, box_threshold, text_threshold, sam_max_detections, dino_erode_or_dilate, dino_debug):
@@ -389,7 +389,6 @@ with shared.gradio_root:
                             with gr.Accordion("Inpaint", visible=True, open=False):
                                 enhance_inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options,
                                                                    value=modules.flags.inpaint_option_default,
-                                                                   # TODO test
                                                                    label='Method', interactive=True)
                                 enhance_inpaint_disable_initial_latent = gr.Checkbox(
                                     label='Disable initial latent in inpaint', value=False)
@@ -411,6 +410,12 @@ with shared.gradio_root:
                                                                                   'Value 1 is same as "Whole Image" in A1111. '
                                                                                   'Only used in inpaint, not used in outpaint. '
                                                                                   '(Outpaint always use 1.0)')
+                                enhance_inpaint_erode_or_dilate = gr.Slider(label='Mask Erode or Dilate',
+                                                                            minimum=-64, maximum=64, step=1, value=0,
+                                                                            info='Positive value will make white area in the mask larger, '
+                                                                                 'negative value will make white area smaller. '
+                                                                                 '(default is 0, always processed before any mask invert)')
+                                enhance_mask_invert = gr.Checkbox(label='Invert Mask', value=False)
 
                         enhance_ctrls += [
                             enhance_enabled,
@@ -425,7 +430,9 @@ with shared.gradio_root:
                             enhance_inpaint_disable_initial_latent,
                             enhance_inpaint_engine,
                             enhance_inpaint_strength,
-                            enhance_inpaint_respective_field
+                            enhance_inpaint_respective_field,
+                            enhance_inpaint_erode_or_dilate,
+                            enhance_mask_invert
                         ]
 
                         enhance_inpaint_mode.input(inpaint_mode_change, inputs=enhance_inpaint_mode, outputs=[
@@ -737,12 +744,13 @@ with shared.gradio_root:
                         inpaint_erode_or_dilate = gr.Slider(label='Mask Erode or Dilate',
                                                             minimum=-64, maximum=64, step=1, value=0,
                                                             info='Positive value will make white area in the mask larger, '
-                                                                 'negative value will make white area smaller.'
-                                                                 '(default is 0, always process before any mask invert)')
+                                                                 'negative value will make white area smaller. '
+                                                                 '(default is 0, always processed before any mask invert)')
                         dino_erode_or_dilate = gr.Slider(label='GroundingDINO Box Erode or Dilate',
                                                          minimum=-64, maximum=64, step=1, value=0,
                                                          info='Positive value will make white area in the mask larger, '
-                                                              'negative value will make white area smaller.')
+                                                              'negative value will make white area smaller. '
+                                                              '(default is 0, processed before SAM)')
                         inpaint_mask_upload_checkbox = gr.Checkbox(label='Enable Mask Upload', value=False)
                         invert_mask_checkbox = gr.Checkbox(label='Invert Mask', value=False)
 
@@ -869,7 +877,7 @@ with shared.gradio_root:
                                    inputs=[inpaint_input_image, inpaint_mask_model, inpaint_mask_cloth_category,
                                            inpaint_mask_dino_prompt_text, inpaint_mask_sam_model,
                                            inpaint_mask_box_threshold, inpaint_mask_text_threshold,
-                                           inpaint_mask_sam_num_boxes, dino_erode_or_dilate, debugging_dino],
+                                           inpaint_mask_sam_max_detections, dino_erode_or_dilate, debugging_dino],
                                    outputs=inpaint_mask_image, show_progress=True, queue=True)
 
         ctrls = [currentTask, generate_image_grid]
