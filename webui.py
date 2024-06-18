@@ -397,7 +397,7 @@ with shared.gradio_root:
                                 enhance_inpaint_engine = gr.Dropdown(label='Inpaint Engine',
                                                                      value=modules.config.default_inpaint_engine_version,
                                                                      choices=flags.inpaint_engine_versions,
-                                                                     info='Version of Fooocus inpaint model')
+                                                                     info='Version of Fooocus inpaint model. If set, use performance Quality or Speed (no performance LoRAs) for best results.')
                                 enhance_inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
                                                                      minimum=0.0, maximum=1.0, step=0.001,
                                                                      value=1.0,
@@ -730,7 +730,7 @@ with shared.gradio_root:
                         inpaint_engine = gr.Dropdown(label='Inpaint Engine',
                                                      value=modules.config.default_inpaint_engine_version,
                                                      choices=flags.inpaint_engine_versions,
-                                                     info='Version of Fooocus inpaint model')
+                                                     info='Version of Fooocus inpaint model. If set, use performance Quality or Speed (no performance LoRAs) for best results.')
                         inpaint_strength = gr.Slider(label='Inpaint Denoising Strength',
                                                      minimum=0.0, maximum=1.0, step=0.001, value=1.0,
                                                      info='Same as the denoising strength in A1111 inpaint. '
