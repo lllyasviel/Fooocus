@@ -1,3 +1,5 @@
+import sys
+
 import modules.config
 import numpy as np
 import torch
@@ -18,7 +20,7 @@ class SAMOptions:
                  dino_debug=False,
 
                  # SAM
-                 max_num_boxes=2,
+                 max_detections=2,
                  model_type='vit_b'
                  ):
         self.dino_prompt = dino_prompt
@@ -26,7 +28,7 @@ class SAMOptions:
         self.dino_text_threshold = dino_text_threshold
         self.dino_erode_or_dilate = dino_erode_or_dilate
         self.dino_debug = dino_debug
-        self.max_num_boxes = max_num_boxes
+        self.max_detections = max_detections
         self.model_type = model_type
 
 
@@ -114,7 +116,9 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
 
         masks = optimize_masks(masks)
         sam_detection_count = len(masks)
-        sam_objects = min(len(logits), sam_options.max_num_boxes)
+        if sam_options.max_detections == 0:
+            sam_options.max_detections = sys.maxsize
+        sam_objects = min(len(logits), sam_options.max_detections)
         for obj_ind in range(sam_objects):
             mask_tensor = masks[obj_ind][0]
             final_mask_tensor += mask_tensor

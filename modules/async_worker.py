@@ -123,7 +123,7 @@ class AsyncTask:
             enhance_mask_sam_model = args.pop()
             enhance_mask_text_threshold = args.pop()
             enhance_mask_box_threshold = args.pop()
-            enhance_mask_sam_max_num_boxes = args.pop()
+            enhance_mask_sam_max_detections = args.pop()
             enhance_inpaint_disable_initial_latent = args.pop()
             enhance_inpaint_engine = args.pop()
             enhance_inpaint_strength = args.pop()
@@ -137,7 +137,7 @@ class AsyncTask:
                     enhance_mask_sam_model,
                     enhance_mask_text_threshold,
                     enhance_mask_box_threshold,
-                    enhance_mask_sam_max_num_boxes,
+                    enhance_mask_sam_max_detections,
                     enhance_inpaint_disable_initial_latent,
                     enhance_inpaint_engine,
                     enhance_inpaint_strength,
@@ -1160,7 +1160,7 @@ def worker():
         current_task_id = -1
         for imgs in generated_imgs.values():
             for img in imgs:
-                for enhance_mask_dino_prompt_text, enhance_prompt, enhance_negative_prompt, enhance_mask_model, enhance_mask_sam_model, enhance_mask_text_threshold, enhance_mask_box_threshold, enhance_mask_sam_max_num_boxes, enhance_inpaint_disable_initial_latent, enhance_inpaint_engine, enhance_inpaint_strength, enhance_inpaint_respective_field in async_task.enhance_ctrls:
+                for enhance_mask_dino_prompt_text, enhance_prompt, enhance_negative_prompt, enhance_mask_model, enhance_mask_sam_model, enhance_mask_text_threshold, enhance_mask_box_threshold, enhance_mask_sam_max_detections, enhance_inpaint_disable_initial_latent, enhance_inpaint_engine, enhance_inpaint_strength, enhance_inpaint_respective_field in async_task.enhance_ctrls:
                     current_task_id += 1
                     current_progress = int(base_progress + (100 - preparation_steps) * float(current_task_id * async_task.steps) / float(all_steps))
                     progressbar(async_task, current_progress, f'Preparing enhancement {current_task_id + 1}/{total_count} ...')
@@ -1176,7 +1176,7 @@ def worker():
                             dino_text_threshold=enhance_mask_text_threshold,
                             dino_erode_or_dilate=async_task.dino_erode_or_dilate,
                             dino_debug=async_task.debugging_dino,
-                            max_num_boxes=enhance_mask_sam_max_num_boxes,
+                            max_detections=enhance_mask_sam_max_detections,
                             model_type=enhance_mask_sam_model
                         ))
                     if len(mask.shape) == 3:

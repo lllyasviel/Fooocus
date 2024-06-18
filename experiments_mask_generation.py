@@ -14,7 +14,7 @@ sam_options = SAMOptions(
     dino_text_threshold=0.25,
     dino_erode_or_dilate=0,
     dino_debug=False,
-    max_num_boxes=2,
+    max_detections=2,
     model_type='vit_b'
 )
 

@@ -516,10 +516,10 @@ default_enhance_tabs = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
     expected_type=int
 )
-default_sam_max_num_boxes = get_config_item_or_set_default(
-    key='default_sam_max_num_boxes',
-    default_value=2,
-    validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
+default_sam_max_detections = get_config_item_or_set_default(
+    key='default_sam_max_detections',
+    default_value=0,
+    validator=lambda x: isinstance(x, int) and 0 <= x <= 10,
     expected_type=int
 )
 default_black_out_nsfw = get_config_item_or_set_default(

@@ -258,10 +258,10 @@ with shared.gradio_root:
                                     inpaint_mask_sam_model = gr.Dropdown(label='SAM model', choices=flags.inpaint_mask_sam_model, value=modules.config.default_inpaint_mask_sam_model)
                                     inpaint_mask_box_threshold = gr.Slider(label="Box Threshold", minimum=0.0, maximum=1.0, value=0.3, step=0.05)
                                     inpaint_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0, maximum=1.0, value=0.25, step=0.05)
-                                    inpaint_mask_sam_max_num_boxes = gr.Slider(label="Maximum number of box detections", minimum=1, maximum=5, value=modules.config.default_sam_max_num_boxes, step=1, interactive=True)
+                                    inpaint_mask_sam_num_boxes = gr.Slider(label="Maximum number of detections", info="Set to 0 to detect all", minimum=0, maximum=10, value=modules.config.default_sam_max_detections, step=1, interactive=True)
                                 generate_mask_button = gr.Button(value='Generate mask from image')
 
-                                def generate_mask(image, mask_model, cloth_category, dino_prompt_text, sam_model, box_threshold, text_threshold, sam_max_num_boxes, dino_erode_or_dilate, dino_debug):
+                                def generate_mask(image, mask_model, cloth_category, dino_prompt_text, sam_model, box_threshold, text_threshold, sam_max_detections, dino_erode_or_dilate, dino_debug):
                                     from extras.inpaint_mask import generate_mask_from_image
 
                                     extras = {}
@@ -275,7 +275,7 @@ with shared.gradio_root:
                                             dino_text_threshold=text_threshold,
                                             dino_erode_or_dilate=dino_erode_or_dilate,
                                             dino_debug=dino_debug,
-                                            max_num_boxes=sam_max_num_boxes,
+                                            max_detections=sam_max_detections,
                                             model_type=sam_model
                                         )
 
@@ -380,10 +380,11 @@ with shared.gradio_root:
                                     enhance_mask_text_threshold = gr.Slider(label="Text Threshold", minimum=0.0,
                                                                             maximum=1.0, value=0.25, step=0.05,
                                                                             interactive=True)
-                                    enhance_mask_sam_max_num_boxes = gr.Slider(label="Maximum number of box detections",
-                                                                               minimum=1, maximum=5,
-                                                                               value=modules.config.default_sam_max_num_boxes,
-                                                                               step=1, interactive=True)
+                                    enhance_mask_sam_max_detections = gr.Slider(label="Maximum number of detections",
+                                                                                info="Set to 0 to detect all",
+                                                                                minimum=0, maximum=10,
+                                                                                value=modules.config.default_sam_max_detections,
+                                                                                step=1, interactive=True)
 
                             with gr.Accordion("Inpaint", visible=True, open=False):
                                 enhance_inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options,
@@ -420,7 +421,7 @@ with shared.gradio_root:
                             enhance_mask_sam_model,
                             enhance_mask_text_threshold,
                             enhance_mask_box_threshold,
-                            enhance_mask_sam_max_num_boxes,
+                            enhance_mask_sam_max_detections,
                             enhance_inpaint_disable_initial_latent,
                             enhance_inpaint_engine,
                             enhance_inpaint_strength,
@@ -868,7 +869,7 @@ with shared.gradio_root:
                                    inputs=[inpaint_input_image, inpaint_mask_model, inpaint_mask_cloth_category,
                                            inpaint_mask_dino_prompt_text, inpaint_mask_sam_model,
                                            inpaint_mask_box_threshold, inpaint_mask_text_threshold,
-                                           inpaint_mask_sam_max_num_boxes, dino_erode_or_dilate, debugging_dino],
+                                           inpaint_mask_sam_num_boxes, dino_erode_or_dilate, debugging_dino],
                                    outputs=inpaint_mask_image, show_progress=True, queue=True)
 
         ctrls = [currentTask, generate_image_grid]
