@@ -348,6 +348,11 @@ with shared.gradio_root:
 
             with gr.Row(visible=False) as enhance_input_panel:
                 with gr.Tabs():
+                    with gr.TabItem(label='Upscale or Variation'):
+                        with gr.Row():
+                            with gr.Column():
+                                enhance_uov_method = gr.Radio(label='', show_label=False, choices=flags.uov_list, value=flags.disabled)
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390" target="_blank">\U0001F4D4 Document</a>')
                     enhance_ctrls = []
                     for index in range(modules.config.default_enhance_tabs):
                         with gr.TabItem(label=f'#{index + 1}') as enhance_tab_item:
@@ -925,7 +930,7 @@ with shared.gradio_root:
             ctrls += [save_metadata_to_images, metadata_scheme]
 
         ctrls += ip_ctrls
-        ctrls += [debugging_dino, dino_erode_or_dilate, debugging_enhance_masks_checkbox, enhance_checkbox]
+        ctrls += [debugging_dino, dino_erode_or_dilate, debugging_enhance_masks_checkbox, enhance_checkbox, enhance_uov_method]
         ctrls += enhance_ctrls
 
         def parse_meta(raw_prompt_txt, is_generating):
