@@ -1211,7 +1211,7 @@ def worker():
                     if inpaint_parameterized_enhance:
                         progressbar(async_task, current_progress, 'Downloading inpainter ...')
                         inpaint_head_model_path_enhance, inpaint_patch_model_path_enhance = modules.config.downloading_inpaint_models(
-                            async_task.inpaint_engine)
+                            enhance_inpaint_engine)
                         if inpaint_patch_model_path_enhance not in base_model_additional_loras_enhance:
                             base_model_additional_loras_enhance += [(inpaint_patch_model_path_enhance, 1.0)]
 
