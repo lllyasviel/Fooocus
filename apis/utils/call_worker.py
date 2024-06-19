@@ -5,7 +5,6 @@ import asyncio
 import json
 
 from fastapi import Response
-from fastapi.responses import StreamingResponse
 from apis.utils.api_utils import params_to_params
 from apis.utils.img_utils import (
     narray_to_base64img,

@@ -787,6 +787,6 @@ def run_gradio():
         blocked_paths=[constants.AUTH_FILENAME]
     )
 
-
-Thread(target=run_gradio, daemon=True).start()
-run_server()
+if not args_manager.args.nowebui:
+    Thread(target=run_gradio, daemon=True).start()
+run_server(args_manager.args)

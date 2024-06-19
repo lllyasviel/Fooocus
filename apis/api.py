@@ -9,7 +9,6 @@ import uvicorn
 from apis.routes.generate import router as generate
 
 
-API_PORT = int(os.environ["GRADIO_SERVER_PORT"]) + 1
 app = FastAPI()
 
 app.add_middleware(
@@ -25,8 +24,13 @@ app.add_middleware(
 app.include_router(generate)
 
 
-def run_server():
+def run_server(arguments):
     """
     Run the FastAPI server
+    :param arguments: command line arguments
     """
+    try:
+        API_PORT = int(arguments.port) + 1
+    except TypeError:
+        API_PORT = int(os.environ["GRADIO_SERVER_PORT"]) + 1
     uvicorn.run(app, host="0.0.0.0", port=API_PORT)

@@ -34,6 +34,9 @@ args_parser.parser.add_argument("--enable-describe-uov-image", action='store_tru
 args_parser.parser.add_argument("--always-download-new-model", action='store_true',
                                 help="Always download newer models ", default=False)
 
+args_parser.parser.add_argument("--nowebui", action='store_true',
+                                help="Disables web UI", default=False)
+
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
     in_browser=True,
