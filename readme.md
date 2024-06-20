@@ -170,18 +170,18 @@ Your Linux needs to have **Python 3.12** installed, and let's say your Python ca
 See the above sections for model downloads. You can launch the software with:
 
     source fooocus_env/bin/activate
-    python entry_with_update.py
+    python3 entry_with_update.py
 
 Or, if you want to open a remote port, use
 
     source fooocus_env/bin/activate
-    python entry_with_update.py --listen
+    python3 entry_with_update.py --listen
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+Use `python3 entry_with_update.py --preset anime` or `python3 entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Linux (Using native system Python)
 
-If you know what you are doing, and your Linux already has **Python 3.10** installed, and your Python can be called with the command **python3** (and Pip with **pip3**), you can
+If you know what you are doing, and your Linux already has **Python 3.12** installed, and your Python can be called with the command **python3** (and Pip with **pip3**), you can
 
     git clone https://github.com/lllyasviel/Fooocus.git
     cd Fooocus
@@ -195,7 +195,7 @@ Or, if you want to open a remote port, use
 
     python3 entry_with_update.py --listen
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+Use `python3 entry_with_update.py --preset anime` or `python3 entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Linux (AMD GPUs)
 
@@ -203,12 +203,12 @@ Note that the [minimal requirement](#minimal-requirement) for different platform
 
 Same with the above instructions. You need to change torch to the AMD version
 
-    pip uninstall torch torchvision torchaudio torchtext functorch xformers 
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+    pip3 uninstall torch torchvision torchaudio torchtext functorch xformers 
+    pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
 
 AMD is not intensively tested, however. The AMD support is in beta.
 
-Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+Use `python3 entry_with_update.py --preset anime` or `python3 entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
 ### Windows (AMD GPUs)
 
