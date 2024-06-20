@@ -348,14 +348,14 @@ with shared.gradio_root:
 
             with gr.Row(visible=False) as enhance_input_panel:
                 with gr.Tabs():
-                    with gr.TabItem(label='Upscale or Variation'):
+                    with gr.TabItem(label='#1'):
                         with gr.Row():
                             with gr.Column():
-                                enhance_uov_method = gr.Radio(label='', show_label=False, choices=flags.uov_list, value=flags.disabled)
+                                enhance_uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390" target="_blank">\U0001F4D4 Document</a>')
                     enhance_ctrls = []
                     for index in range(modules.config.default_enhance_tabs):
-                        with gr.TabItem(label=f'#{index + 1}') as enhance_tab_item:
+                        with gr.TabItem(label=f'#{index + 2}') as enhance_tab_item:
                             enhance_enabled = gr.Checkbox(label='Enable', value=False, elem_classes='min_check',
                                                           container=False)
 
