@@ -968,6 +968,14 @@ def worker():
             direct_return, img, denoising_strength, initial_latent, tiled, width, height, current_progress = apply_upscale(
                 async_task, img, async_task.enhance_uov_method, switch, current_progress)
             if direct_return:
+                d = [('Upscale (Fast)', 'upscale_fast', '2x')]
+                if modules.config.default_black_out_nsfw or async_task.black_out_nsfw:
+                    progressbar(async_task, current_progress, 'Checking for NSFW content ...')
+                    async_task.uov_input_image = default_censor(async_task.uov_input_image)
+                progressbar(async_task, current_progress, f'Saving image {current_task_id + 1}/{total_count} to system ...')
+                uov_input_image_path = log(async_task.uov_input_image, d, output_format=async_task.output_format)
+                yield_result(async_task, uov_input_image_path, current_progress, async_task.black_out_nsfw, False,
+                             do_not_show_finished_images=True)
                 return current_progress, img
 
         if 'inpaint' in goals and inpaint_parameterized:
