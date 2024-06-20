@@ -306,7 +306,7 @@ def worker():
         del positive_cond, negative_cond  # Save memory
         if inpaint_worker.current_task is not None:
             imgs = [inpaint_worker.current_task.post_process(x) for x in imgs]
-        current_progress = int(base_progress + (100 - preparation_steps) * float((current_task_id + 1) * steps) / float(all_steps))
+        current_progress = int(base_progress + (100 - preparation_steps) / float(all_steps) * steps)
         if modules.config.default_black_out_nsfw or async_task.black_out_nsfw:
             progressbar(async_task, current_progress, 'Checking for NSFW content ...')
             imgs = default_censor(imgs)
@@ -950,7 +950,7 @@ def worker():
         processing_time = time.perf_counter() - processing_start_time
         print(f'Processing time (total): {processing_time:.2f} seconds')
 
-    def process_enhance(all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
+    def process_enhance(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
                         current_progress, current_task_id, denoising_strength, inpaint_disable_initial_latent,
                         inpaint_engine, inpaint_respective_field, inpaint_strength,
                         negative_prompt, prompt, final_scheduler_name, goals, height, img, mask,
@@ -966,11 +966,10 @@ def worker():
                 async_task, async_task.enhance_uov_method, img, denoising_strength, switch, current_progress)
         if 'upscale' in goals:
             direct_return, img, denoising_strength, initial_latent, tiled, width, height, current_progress = apply_upscale(
-                async_task, img, async_task.enhance_uov_method, switch, current_progress,
-                advance_progress=True)
-
+                async_task, img, async_task.enhance_uov_method, switch, current_progress)
             if direct_return:
                 return current_progress, img
+
         if 'inpaint' in goals and inpaint_parameterized:
             progressbar(async_task, current_progress, 'Downloading inpainter ...')
             inpaint_head_model_path, inpaint_patch_model_path = modules.config.downloading_inpaint_models(
@@ -1003,7 +1002,7 @@ def worker():
                                                           final_scheduler_name, goals, initial_latent, steps, switch,
                                                           task_enhance['c'], task_enhance['uc'], task_enhance,
                                                           tasks_enhance, tiled, use_expansion, width, height,
-                                                          base_progress, preparation_steps, total_count)
+                                                          current_progress, preparation_steps, total_count)
 
         del task_enhance['c'], task_enhance['uc']  # Save memory
         return current_progress, imgs[0]
@@ -1161,6 +1160,14 @@ def worker():
         if async_task.enhance_checkbox and len(async_task.enhance_ctrls) != 0:
             all_steps += async_task.image_number * len(async_task.enhance_ctrls) * async_task.steps
 
+        enhance_upscale_steps = 0
+        enhance_upscale_steps_total = 0
+        if 'upscale' not in goals and async_task.enhance_uov_method != flags.disabled:
+            enhance_upscale_steps = async_task.overwrite_step if async_task.overwrite_step > 0 else async_task.performance_selection.steps_uov()
+            enhance_upscale_steps_total = async_task.image_number * enhance_upscale_steps
+            all_steps += enhance_upscale_steps_total
+
+
         print(f'[Parameters] Denoising Strength = {denoising_strength}')
 
         if isinstance(initial_latent, dict) and 'samples' in initial_latent:
@@ -1180,20 +1187,20 @@ def worker():
 
         processing_start_time = time.perf_counter()
 
-        preparation_steps = base_progress = current_progress
+        preparation_steps = current_progress
         total_count = async_task.image_number
 
         def callback(step, x0, x, total_steps, y):
-            done_steps = current_task_id * async_task.steps + step + 1
+            if step == 0:
+                async_task.callback_steps = 0
+            async_task.callback_steps += (100 - preparation_steps) / float(all_steps)
             async_task.yields.append(['preview', (
-                int(base_progress + (100 - preparation_steps) * float(done_steps) / float(all_steps)),
+                int(current_progress + async_task.callback_steps),
                 f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{total_count} ...', y)])
 
         generated_imgs = {}
 
         for current_task_id, task in enumerate(tasks):
-            current_progress = int(base_progress + (100 - preparation_steps) * float(
-                current_task_id * async_task.steps) / float(all_steps))
             progressbar(async_task, current_progress,
                         f'Preparing task {current_task_id + 1}/{async_task.image_number} ...')
             execution_start_time = time.perf_counter()
@@ -1229,15 +1236,25 @@ def worker():
             return
 
         progressbar(async_task, current_progress, 'Processing enhance ...')
-        total_count = sum([len(imgs) for _, imgs in generated_imgs.items()]) * len(async_task.enhance_ctrls)
+
+        active_enhance_tabs = len(async_task.enhance_ctrls)
+        should_process_uov = 'upscale' not in goals and async_task.enhance_uov_method != flags.disabled
+        if should_process_uov:
+            active_enhance_tabs += 1
+        total_count = sum([len(imgs) for _, imgs in generated_imgs.items()]) * active_enhance_tabs
+
         base_progress = current_progress
         current_task_id = -1
+        done_steps_upscaling = 0
+        done_steps_inpainting = 0
         for imgs in generated_imgs.values():
             for img in imgs:
                 enhancement_image_start_time = time.perf_counter()
+
                 # upscale if not disabled or already in goals
-                if 'upscale' not in goals and async_task.enhance_uov_method != flags.disabled:
+                if should_process_uov:
                     current_task_id += 1
+                    current_progress = int(base_progress + (100 - preparation_steps) / float(all_steps) * (done_steps_upscaling + done_steps_inpainting))
                     goals_enhance = []
                     img, skip_prompt_processing, steps = prepare_upscale(async_task, goals_enhance, img,
                                                                          async_task.enhance_uov_method,
@@ -1247,26 +1264,29 @@ def worker():
                     if len(goals_enhance) > 0:
                         try:
                             current_progress, img = process_enhance(
-                                all_steps, async_task, base_progress, callback, controlnet_canny_path,
+                                all_steps, async_task, callback, controlnet_canny_path,
                                 controlnet_cpds_path, current_progress, current_task_id, denoising_strength, False,
                                 'None', 0.0, 0.0, async_task.negative_prompt, async_task.prompt, final_scheduler_name,
                                 goals_enhance, height, img, None, preparation_steps, steps, switch, tiled, total_count,
                                 use_expansion, use_style, use_synthetic_refiner, width)
 
-                            # TODO check steps in progress bar, 100% wrong
                         except ldm_patched.modules.model_management.InterruptProcessingException:
                             if async_task.last_stop == 'skip':
                                 print('User skipped')
                                 async_task.last_stop = False
+                                # also skip all enhance steps for this image, but add the steps to the progress bar
+                                done_steps_inpainting += len(async_task.enhance_ctrls) * async_task.steps
                                 continue
                             else:
                                 print('User stopped')
                                 break
+                        finally:
+                            done_steps_upscaling += steps
 
                 # inpaint for all other tabs
                 for enhance_mask_dino_prompt_text, enhance_prompt, enhance_negative_prompt, enhance_mask_model, enhance_mask_sam_model, enhance_mask_text_threshold, enhance_mask_box_threshold, enhance_mask_sam_max_detections, enhance_inpaint_disable_initial_latent, enhance_inpaint_engine, enhance_inpaint_strength, enhance_inpaint_respective_field, enhance_inpaint_erode_or_dilate, enhance_mask_invert in async_task.enhance_ctrls:
                     current_task_id += 1
-                    current_progress = int(base_progress + (100 - preparation_steps) * float(current_task_id * async_task.steps) / float(all_steps))
+                    current_progress = int(base_progress + (100 - preparation_steps) / float(all_steps) * (done_steps_upscaling + done_steps_inpainting))
                     progressbar(async_task, current_progress, f'Preparing enhancement {current_task_id + 1}/{total_count} ...')
                     enhancement_task_start_time = time.perf_counter()
 
@@ -1310,7 +1330,7 @@ def worker():
 
                     try:
                         current_progress, img = process_enhance(
-                            all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
+                            all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
                             current_progress, current_task_id, denoising_strength,
                             enhance_inpaint_disable_initial_latent, enhance_inpaint_engine,
                             enhance_inpaint_respective_field, enhance_inpaint_strength, enhance_negative_prompt,
@@ -1325,6 +1345,8 @@ def worker():
                         else:
                             print('User stopped')
                             break
+                    finally:
+                        done_steps_inpainting += async_task.steps
 
                     enhancement_task_time = time.perf_counter() - enhancement_task_start_time
                     print(f'Enhancement time: {enhancement_task_time:.2f} seconds')
