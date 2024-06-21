@@ -844,7 +844,7 @@ def worker():
                           skip_prompt_processing, use_synthetic_refiner):
         if (async_task.current_tab == 'uov' or (
                 async_task.current_tab == 'ip' and async_task.mixing_image_prompt_and_vary_upscale)) \
-                and async_task.uov_method != flags.disabled.lower() and async_task.uov_input_image is not None:
+                and async_task.uov_method != flags.disabled.casefold() and async_task.uov_input_image is not None:
             async_task.uov_input_image, skip_prompt_processing, async_task.steps = prepare_upscale(
                 async_task, goals, async_task.uov_input_image, async_task.uov_method, async_task.performance_selection,
                 async_task.steps, 1, skip_prompt_processing=skip_prompt_processing)
@@ -1026,8 +1026,8 @@ def worker():
 
         async_task.outpaint_selections = [o.lower() for o in async_task.outpaint_selections]
         base_model_additional_loras = []
-        async_task.uov_method = async_task.uov_method.lower()
-        async_task.enhance_uov_method = async_task.enhance_uov_method.lower()
+        async_task.uov_method = async_task.uov_method.casefold()
+        async_task.enhance_uov_method = async_task.enhance_uov_method.casefold()
 
         if fooocus_expansion in async_task.style_selections:
             use_expansion = True
@@ -1178,7 +1178,7 @@ def worker():
 
         all_steps = steps * async_task.image_number
 
-        if async_task.enhance_checkbox and async_task.enhance_uov_method != flags.disabled.lower():
+        if async_task.enhance_checkbox and async_task.enhance_uov_method != flags.disabled.casefold():
             enhance_upscale_steps, _, _, _ = apply_overrides(async_task, async_task.performance_selection.steps_uov(), height, width)
             enhance_upscale_steps_total = async_task.image_number * enhance_upscale_steps
             all_steps += enhance_upscale_steps_total
@@ -1248,7 +1248,7 @@ def worker():
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
-        if not async_task.enhance_checkbox or (async_task.enhance_uov_method == flags.disabled.lower() and len(async_task.enhance_ctrls) == 0):
+        if not async_task.enhance_checkbox or (async_task.enhance_uov_method == flags.disabled.casefold() and len(async_task.enhance_ctrls) == 0):
             print(f'[Enhance] Skipping, preconditions aren\'t met')
             stop_processing(async_task, processing_start_time)
             return
@@ -1256,7 +1256,7 @@ def worker():
         progressbar(async_task, current_progress, 'Processing enhance ...')
 
         active_enhance_tabs = len(async_task.enhance_ctrls)
-        should_process_enhance_uov = async_task.enhance_uov_method != flags.disabled.lower()
+        should_process_enhance_uov = async_task.enhance_uov_method != flags.disabled.casefold()
         if should_process_enhance_uov:
             active_enhance_tabs += 1
         total_count = len(images_to_enhance) * active_enhance_tabs
