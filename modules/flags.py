@@ -163,14 +163,6 @@ class Performance(Enum):
         return list(map(lambda c: c.value, cls))
 
     @classmethod
-    def values(cls) -> list:
-        return list(map(lambda c: c.value, cls))
-
-    @classmethod
-    def values(cls) -> list:
-        return list(map(lambda c: c.value, cls))
-
-    @classmethod
     def by_steps(cls, steps: int | str):
         return cls[Steps(int(steps)).name]
 
