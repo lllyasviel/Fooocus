@@ -965,7 +965,7 @@ def worker():
 
         if 'vary' in goals:
             img, denoising_strength, initial_latent, width, height, current_progress = apply_vary(
-                async_task, async_task.enhance_uov_method, img, denoising_strength, switch, current_progress)
+                async_task, async_task.enhance_uov_method, denoising_strength, img, switch, current_progress)
         if 'upscale' in goals:
             direct_return, img, denoising_strength, initial_latent, tiled, width, height, current_progress = apply_upscale(
                 async_task, img, async_task.enhance_uov_method, switch, current_progress)
@@ -1122,7 +1122,7 @@ def worker():
 
         if 'vary' in goals:
             async_task.uov_input_image, denoising_strength, initial_latent, width, height, current_progress = apply_vary(
-                async_task, async_task.uov_method, async_task.uov_input_image, denoising_strength, switch,
+                async_task, async_task.uov_method, denoising_strength, switch, async_task.uov_input_image,
                 current_progress)
 
         if 'upscale' in goals:
