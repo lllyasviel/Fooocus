@@ -295,6 +295,7 @@ See also the common problems and troubleshoots [here](troubleshoot.md).
 3. execute
     ```
     git remote set-url origin https://github.com/mashb1t/Fooocus.git
+    git reset --hard origin/main
     git pull
     ```
 6. activate your venv (not necessary when installed from 7z) and update your python packages depending on your environment (7z, venv, conda, etc.)
