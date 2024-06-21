@@ -930,6 +930,7 @@ def worker():
             goals.append('upscale')
             if 'fast' in uov_method:
                 skip_prompt_processing = True
+                steps = 0
             else:
                 steps = performance.steps_uov()
 
@@ -977,7 +978,7 @@ def worker():
                 progressbar(async_task, current_progress, f'Saving image {current_task_id + 1}/{total_count} to system ...')
                 uov_image_path = log(img, d, output_format=async_task.output_format)
                 yield_result(async_task, uov_image_path, current_progress, async_task.black_out_nsfw, False,
-                             do_not_show_finished_images=True)
+                             do_not_show_finished_images=not show_intermediate_results or async_task.disable_intermediate_results)
                 return current_progress, img
 
         if 'inpaint' in goals and inpaint_parameterized:
@@ -1122,7 +1123,7 @@ def worker():
 
         if 'vary' in goals:
             async_task.uov_input_image, denoising_strength, initial_latent, width, height, current_progress = apply_vary(
-                async_task, async_task.uov_method, denoising_strength, switch, async_task.uov_input_image,
+                async_task, async_task.uov_method, denoising_strength, async_task.uov_input_image, switch,
                 current_progress)
 
         if 'upscale' in goals:
@@ -1178,7 +1179,13 @@ def worker():
         all_steps = steps * async_task.image_number
 
         if async_task.enhance_checkbox and async_task.enhance_uov_method != flags.disabled.casefold():
-            enhance_upscale_steps, _, _, _ = apply_overrides(async_task, async_task.performance_selection.steps_uov(), height, width)
+            enhance_upscale_steps = async_task.performance_selection.steps()
+            if 'upscale' in async_task.enhance_uov_method:
+                if 'fast' in async_task.enhance_uov_method:
+                    enhance_upscale_steps = 0
+                else:
+                    enhance_upscale_steps = async_task.performance_selection.steps_uov()
+            enhance_upscale_steps, _, _, _ = apply_overrides(async_task, enhance_upscale_steps, height, width)
             enhance_upscale_steps_total = async_task.image_number * enhance_upscale_steps
             all_steps += enhance_upscale_steps_total
 
