@@ -945,7 +945,6 @@ def worker():
         else:
             if translate:
                 prompt = translate2en(prompt, prompt_type)
-            prompt = prompt + '\n' + fallback_prompt
         return prompt
 
     def stop_processing(async_task, processing_start_time):
