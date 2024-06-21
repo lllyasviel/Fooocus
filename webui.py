@@ -1011,8 +1011,8 @@ with shared.gradio_root:
             uov_input_image.upload(trigger_auto_describe, inputs=[desc_method, uov_input_image, prompt],
                                    outputs=[prompt, style_selections], show_progress=True, queue=True)
 
-            enhance_input_image.upload(trigger_auto_describe, inputs=[desc_method, enhance_input_image, prompt],
-                                   outputs=[prompt, style_selections], show_progress=True, queue=True)
+            enhance_input_image.upload(lambda: gr.update(value=True), outputs=enhance_checkbox, queue=False, show_progress=False) \
+                .then(trigger_auto_describe, inputs=[desc_method, enhance_input_image, prompt], outputs=[prompt, style_selections], show_progress=True, queue=True)
 
 def dump_default_english_config():
     from modules.localization import dump_english_config
