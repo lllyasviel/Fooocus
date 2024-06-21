@@ -274,8 +274,8 @@ def worker():
 
     def process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, current_task_id,
                      denoising_strength, final_scheduler_name, goals, initial_latent, steps, switch, positive_cond,
-                     negative_cond, task, tasks, tiled, use_expansion, width, height, base_progress, preparation_steps,
-                     total_count):
+                     negative_cond, task, tiled, use_expansion, width, height, base_progress, preparation_steps,
+                     total_count, show_intermediate_results):
         if async_task.last_stop is not False:
             ldm_patched.modules.model_management.interrupt_current_processing()
         if 'cn' in goals:
@@ -316,7 +316,7 @@ def worker():
                     f'Saving image {current_task_id + 1}/{total_count} to system ...')
         img_paths = save_and_log(async_task, height, imgs, task, use_expansion, width)
         yield_result(async_task, img_paths, current_progress, async_task.black_out_nsfw, False,
-                     do_not_show_finished_images=len(tasks) == 1 or async_task.disable_intermediate_results)
+                     do_not_show_finished_images=not show_intermediate_results or async_task.disable_intermediate_results)
 
         return imgs, img_paths, current_progress
 
@@ -957,7 +957,7 @@ def worker():
                         inpaint_engine, inpaint_respective_field, inpaint_strength,
                         negative_prompt, prompt, final_scheduler_name, goals, height, img, mask,
                         preparation_steps, steps, switch, tiled, total_count, use_expansion, use_style,
-                        use_synthetic_refiner, width):
+                        use_synthetic_refiner, width, show_intermediate_results=True):
         base_model_additional_loras = []
         inpaint_head_model_path = None
         inpaint_parameterized = inpaint_engine != 'None'  # inpaint_engine = None, improve detail
@@ -1008,11 +1008,11 @@ def worker():
                 inpaint_respective_field, switch, inpaint_disable_initial_latent,
                 current_progress, True)
         imgs, img_paths, current_progress = process_task(all_steps, async_task, callback, controlnet_canny_path,
-                                                          controlnet_cpds_path, current_task_id, denoising_strength,
-                                                          final_scheduler_name, goals, initial_latent, steps, switch,
-                                                          task_enhance['c'], task_enhance['uc'], task_enhance,
-                                                          tasks_enhance, tiled, use_expansion, width, height,
-                                                          current_progress, preparation_steps, total_count)
+                                                         controlnet_cpds_path, current_task_id, denoising_strength,
+                                                         final_scheduler_name, goals, initial_latent, steps, switch,
+                                                         task_enhance['c'], task_enhance['uc'], task_enhance, tiled,
+                                                         use_expansion, width, height, current_progress,
+                                                         preparation_steps, total_count, show_intermediate_results)
 
         del task_enhance['c'], task_enhance['uc']  # Save memory
         return current_progress, imgs[0]
@@ -1217,20 +1217,21 @@ def worker():
                 int(current_progress + async_task.callback_steps),
                 f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{total_count} ...', y)])
 
+        should_enhance = async_task.enhance_checkbox and (async_task.enhance_uov_method != flags.disabled.casefold() or len(async_task.enhance_ctrls) > 0)
+        show_intermediate_results = len(tasks) > 1 or should_enhance
+
         for current_task_id, task in enumerate(tasks):
-            progressbar(async_task, current_progress,
-                        f'Preparing task {current_task_id + 1}/{async_task.image_number} ...')
+            progressbar(async_task, current_progress, f'Preparing task {current_task_id + 1}/{async_task.image_number} ...')
             execution_start_time = time.perf_counter()
 
             try:
                 imgs, img_paths, current_progress = process_task(all_steps, async_task, callback, controlnet_canny_path,
-                                                                 controlnet_cpds_path,
-                                                                 current_task_id, denoising_strength,
-                                                                 final_scheduler_name, goals, initial_latent,
-                                                                 async_task.steps, switch, task['c'], task['uc'], task,
-                                                                 tasks, tiled, use_expansion, width, height,
+                                                                 controlnet_cpds_path, current_task_id,
+                                                                 denoising_strength, final_scheduler_name, goals,
+                                                                 initial_latent, async_task.steps, switch, task['c'],
+                                                                 task['uc'], task, tiled, use_expansion, width, height,
                                                                  preparation_steps, preparation_steps,
-                                                                 async_task.image_number)
+                                                                 async_task.image_number, show_intermediate_results)
 
                 images_to_enhance += imgs
 
@@ -1247,7 +1248,7 @@ def worker():
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
-        if not async_task.enhance_checkbox or (async_task.enhance_uov_method == flags.disabled.casefold() and len(async_task.enhance_ctrls) == 0):
+        if not should_enhance:
             print(f'[Enhance] Skipping, preconditions aren\'t met')
             stop_processing(async_task, processing_start_time)
             return
