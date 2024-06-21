@@ -325,6 +325,11 @@ with shared.gradio_root:
                                 desc_input_image.upload(trigger_show_image_properties, inputs=desc_input_image,
                                                         outputs=desc_image_size, show_progress=False, queue=False)
 
+                    with gr.TabItem(label='Enhance') as enhance_tab:
+                        with gr.Row():
+                            with gr.Column():
+                                enhance_input_image = grh.Image(label='Image to enhance', source='upload', type='numpy')
+
                     with gr.TabItem(label='Metadata') as metadata_tab:
                         with gr.Column():
                             metadata_input_image = grh.Image(label='For images created by Fooocus', source='upload', type='filepath')
@@ -488,6 +493,7 @@ with shared.gradio_root:
             inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
+            enhance_tab.select(lambda: 'enhance', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
             metadata_tab.select(lambda: 'metadata', outputs=current_tab, queue=False, _js=down_js, show_progress=False)
 
             enhance_checkbox.change(lambda x: gr.update(visible=x), inputs=enhance_checkbox,
@@ -930,7 +936,8 @@ with shared.gradio_root:
             ctrls += [save_metadata_to_images, metadata_scheme]
 
         ctrls += ip_ctrls
-        ctrls += [debugging_dino, dino_erode_or_dilate, debugging_enhance_masks_checkbox, enhance_checkbox, enhance_uov_method]
+        ctrls += [debugging_dino, dino_erode_or_dilate, debugging_enhance_masks_checkbox,
+                  enhance_input_image, enhance_checkbox, enhance_uov_method]
         ctrls += enhance_ctrls
 
         def parse_meta(raw_prompt_txt, is_generating):
