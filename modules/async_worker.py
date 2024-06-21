@@ -34,6 +34,7 @@ class AsyncTask:
 
         self.performance_selection = Performance(args.pop())
         self.steps = self.performance_selection.steps()
+        self.original_steps = self.steps
 
         self.aspect_ratios_selection = args.pop()
         self.image_number = args.pop()
@@ -336,21 +337,18 @@ def worker():
                  ('Fooocus V2 Expansion', 'prompt_expansion', task['expansion']),
                  ('Styles', 'styles',
                   str(task['styles'] if not use_expansion else [fooocus_expansion] + task['styles'])),
-                 ('Performance', 'performance', async_task.performance_selection.value)]
-
-            if async_task.performance_selection.steps() != async_task.steps:
-                d.append(('Steps', 'steps', async_task.steps))
-
-            d += [('Resolution', 'resolution', str((width, height))),
-                  ('Guidance Scale', 'guidance_scale', async_task.cfg_scale),
-                  ('Sharpness', 'sharpness', async_task.sharpness),
-                  ('ADM Guidance', 'adm_guidance', str((
-                      modules.patch.patch_settings[pid].positive_adm_scale,
-                      modules.patch.patch_settings[pid].negative_adm_scale,
-                      modules.patch.patch_settings[pid].adm_scaler_end))),
-                  ('Base Model', 'base_model', async_task.base_model_name),
-                  ('Refiner Model', 'refiner_model', async_task.refiner_model_name),
-                  ('Refiner Switch', 'refiner_switch', async_task.refiner_switch)]
+                 ('Performance', 'performance', async_task.performance_selection.value),
+                 ('Steps', 'steps', async_task.steps),
+                 ('Resolution', 'resolution', str((width, height))),
+                 ('Guidance Scale', 'guidance_scale', async_task.cfg_scale),
+                 ('Sharpness', 'sharpness', async_task.sharpness),
+                 ('ADM Guidance', 'adm_guidance', str((
+                     modules.patch.patch_settings[pid].positive_adm_scale,
+                     modules.patch.patch_settings[pid].negative_adm_scale,
+                     modules.patch.patch_settings[pid].adm_scaler_end))),
+                 ('Base Model', 'base_model', async_task.base_model_name),
+                 ('Refiner Model', 'refiner_model', async_task.refiner_model_name),
+                 ('Refiner Switch', 'refiner_switch', async_task.refiner_switch)]
 
             if async_task.refiner_model_name != 'None':
                 if async_task.overwrite_switch > 0:
@@ -623,9 +621,9 @@ def worker():
         print(f'Final resolution is {str((width, height))}.')
         return direct_return, uov_input_image, denoising_strength, initial_latent, tiled, width, height, current_progress
 
-    def apply_overrides(async_task, height, width):
+    def apply_overrides(async_task, steps, height, width):
         if async_task.overwrite_step > 0:
-            async_task.steps = async_task.overwrite_step
+            steps = async_task.overwrite_step
         switch = int(round(async_task.steps * async_task.refiner_switch))
         if async_task.overwrite_switch > 0:
             switch = async_task.overwrite_switch
@@ -633,7 +631,7 @@ def worker():
             width = async_task.overwrite_width
         if async_task.overwrite_height > 0:
             height = async_task.overwrite_height
-        return height, switch, width
+        return steps, switch, width, height
 
     def process_prompt(async_task, prompt, negative_prompt, base_model_additional_loras, image_number, disable_seed_increment, use_expansion, use_style,
                        use_synthetic_refiner, current_progress, advance_progress=False):
@@ -1101,7 +1099,7 @@ def worker():
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path)
         ip_adapter.load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_face_path)
 
-        height, switch, width = apply_overrides(async_task, height, width)
+        async_task.steps, switch, width, height = apply_overrides(async_task, async_task.steps, height, width)
 
         print(f'[Parameters] Sampler = {async_task.sampler_name} - {async_task.scheduler_name}')
         print(f'[Parameters] Steps = {async_task.steps} - {switch}')
@@ -1163,17 +1161,18 @@ def worker():
         if async_task.freeu_enabled:
             apply_freeu(async_task)
 
-        all_steps = async_task.steps * async_task.image_number
+        steps, _, _, _ = apply_overrides(async_task, async_task.steps, height, width)
+        all_steps = steps * async_task.image_number
 
-        if async_task.enhance_checkbox and len(async_task.enhance_ctrls) != 0:
-            all_steps += async_task.image_number * len(async_task.enhance_ctrls) * async_task.steps
-
-        enhance_upscale_steps = 0
-        enhance_upscale_steps_total = 0
-        if 'upscale' not in goals and async_task.enhance_uov_method != flags.disabled:
-            enhance_upscale_steps = async_task.overwrite_step if async_task.overwrite_step > 0 else async_task.performance_selection.steps_uov()
+        # enhance_upscale_steps = 0
+        # enhance_upscale_steps_total = 0
+        if async_task.enhance_checkbox and async_task.enhance_uov_method != flags.disabled:
+            enhance_upscale_steps, _, _, _ = apply_overrides(async_task, async_task.performance_selection.steps_uov(), height, width)
             enhance_upscale_steps_total = async_task.image_number * enhance_upscale_steps
             all_steps += enhance_upscale_steps_total
+
+        if async_task.enhance_checkbox and len(async_task.enhance_ctrls) != 0:
+            all_steps += async_task.image_number * len(async_task.enhance_ctrls) * steps
 
 
         print(f'[Parameters] Denoising Strength = {denoising_strength}')
@@ -1238,7 +1237,7 @@ def worker():
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
-        if not async_task.enhance_checkbox or ('upscale' in goals and async_task.enhance_uov_method != flags.disabled) and len(async_task.enhance_ctrls) == 0:
+        if not async_task.enhance_checkbox or (async_task.enhance_uov_method == flags.disabled and len(async_task.enhance_ctrls) == 0):
             print(f'[Enhance] Skipping, preconditions aren\'t met')
             stop_processing(async_task, processing_start_time)
             return
@@ -1246,7 +1245,7 @@ def worker():
         progressbar(async_task, current_progress, 'Processing enhance ...')
 
         active_enhance_tabs = len(async_task.enhance_ctrls)
-        should_process_uov = 'upscale' not in goals and async_task.enhance_uov_method != flags.disabled
+        should_process_uov = async_task.enhance_uov_method != flags.disabled
         if should_process_uov:
             active_enhance_tabs += 1
         total_count = sum([len(imgs) for _, imgs in generated_imgs.items()]) * active_enhance_tabs
@@ -1255,6 +1254,7 @@ def worker():
         current_task_id = -1
         done_steps_upscaling = 0
         done_steps_inpainting = 0
+        enhance_steps, _, _, _ = apply_overrides(async_task, async_task.original_steps, height, width)
         for imgs in generated_imgs.values():
             for img in imgs:
                 enhancement_image_start_time = time.perf_counter()
@@ -1267,7 +1267,9 @@ def worker():
                     img, skip_prompt_processing, steps = prepare_upscale(async_task, goals_enhance, img,
                                                                          async_task.enhance_uov_method,
                                                                          async_task.performance_selection,
-                                                                         async_task.steps, current_progress)
+                                                                         enhance_steps, current_progress)
+
+                    steps, _, _, _ = apply_overrides(async_task, async_task.original_steps, height, width)
 
                     if len(goals_enhance) > 0:
                         try:
@@ -1283,7 +1285,7 @@ def worker():
                                 print('User skipped')
                                 async_task.last_stop = False
                                 # also skip all enhance steps for this image, but add the steps to the progress bar
-                                done_steps_inpainting += len(async_task.enhance_ctrls) * async_task.steps
+                                done_steps_inpainting += len(async_task.enhance_ctrls) * enhance_steps
                                 continue
                             else:
                                 print('User stopped')
@@ -1343,7 +1345,7 @@ def worker():
                             enhance_inpaint_disable_initial_latent, enhance_inpaint_engine,
                             enhance_inpaint_respective_field, enhance_inpaint_strength, enhance_negative_prompt,
                             enhance_prompt, final_scheduler_name, goals_enhance, height, img, mask, preparation_steps,
-                            async_task.steps, switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner, width)
+                            enhance_steps, switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner, width)
 
                     except ldm_patched.modules.model_management.InterruptProcessingException:
                         if async_task.last_stop == 'skip':
@@ -1354,7 +1356,7 @@ def worker():
                             print('User stopped')
                             break
                     finally:
-                        done_steps_inpainting += async_task.steps
+                        done_steps_inpainting += enhance_steps
 
                     enhancement_task_time = time.perf_counter() - enhancement_task_start_time
                     print(f'Enhancement time: {enhancement_task_time:.2f} seconds')
