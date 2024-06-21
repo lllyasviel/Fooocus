@@ -971,10 +971,10 @@ def worker():
                 d = [('Upscale (Fast)', 'upscale_fast', '2x')]
                 if modules.config.default_black_out_nsfw or async_task.black_out_nsfw:
                     progressbar(async_task, current_progress, 'Checking for NSFW content ...')
-                    async_task.uov_input_image = default_censor(async_task.uov_input_image)
+                    img = default_censor(img)
                 progressbar(async_task, current_progress, f'Saving image {current_task_id + 1}/{total_count} to system ...')
-                uov_input_image_path = log(async_task.uov_input_image, d, output_format=async_task.output_format)
-                yield_result(async_task, uov_input_image_path, current_progress, async_task.black_out_nsfw, False,
+                uov_image_path = log(img, d, output_format=async_task.output_format)
+                yield_result(async_task, uov_image_path, current_progress, async_task.black_out_nsfw, False,
                              do_not_show_finished_images=True)
                 return current_progress, img
 
