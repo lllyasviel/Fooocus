@@ -353,14 +353,18 @@ with shared.gradio_root:
 
             with gr.Row(visible=False) as enhance_input_panel:
                 with gr.Tabs():
-                    with gr.TabItem(label='#1'):
+                    with gr.TabItem(label='Upscale or Variation'):
                         with gr.Row():
                             with gr.Column():
                                 enhance_uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
-                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390" target="_blank">\U0001F4D4 Document</a>')
+                                enhance_uov_processing_order = gr.Radio(label='Order of Processing',
+                                                                        info='Before is slower (larger area to enhance), but might enhance the overall image quality, whereas after is faster but may apply changes to the image which were already fixed by enhance. Use after when enhancing large areas.',
+                                                                        choices=flags.enhancement_uov_processing_order,
+                                                                        value=modules.config.enhance_uov_processing_order)
+                                # gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390" target="_blank">\U0001F4D4 Document</a>')
                     enhance_ctrls = []
                     for index in range(modules.config.default_enhance_tabs):
-                        with gr.TabItem(label=f'#{index + 2}') as enhance_tab_item:
+                        with gr.TabItem(label=f'#{index + 1}') as enhance_tab_item:
                             enhance_enabled = gr.Checkbox(label='Enable', value=False, elem_classes='min_check',
                                                           container=False)
 
@@ -937,7 +941,7 @@ with shared.gradio_root:
 
         ctrls += ip_ctrls
         ctrls += [debugging_dino, dino_erode_or_dilate, debugging_enhance_masks_checkbox,
-                  enhance_input_image, enhance_checkbox, enhance_uov_method]
+                  enhance_input_image, enhance_checkbox, enhance_uov_method, enhance_uov_processing_order]
         ctrls += enhance_ctrls
 
         def parse_meta(raw_prompt_txt, is_generating):

@@ -116,6 +116,7 @@ class AsyncTask:
         self.enhance_input_image = args.pop()
         self.enhance_checkbox = args.pop()
         self.enhance_uov_method = args.pop()
+        self.enhance_uov_processing_order = args.pop()
         self.enhance_ctrls = []
         for _ in range(modules.config.default_enhance_tabs):
             enhance_enabled = args.pop()
@@ -1018,6 +1019,45 @@ def worker():
         del task_enhance['c'], task_enhance['uc']  # Save memory
         return current_progress, imgs[0]
 
+    def enhance_upscale(all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
+                        current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
+                        final_scheduler_name, height, img, preparation_steps, switch, tiled, total_count, use_expansion,
+                        use_style, use_synthetic_refiner, width):
+        # reset inpaint worker to prevent tensor size issues and not mix upscale and inpainting
+        inpaint_worker.current_task = None
+
+        current_task_id += 1
+        current_progress = int(base_progress + (100 - preparation_steps) / float(all_steps) * (done_steps_upscaling + done_steps_inpainting))
+        goals_enhance = []
+        img, skip_prompt_processing, steps = prepare_upscale(
+            async_task, goals_enhance, img, async_task.enhance_uov_method, async_task.performance_selection,
+            enhance_steps, current_progress)
+        steps, _, _, _ = apply_overrides(async_task, steps, height, width)
+        exception_result = ''
+        if len(goals_enhance) > 0:
+            try:
+                current_progress, img = process_enhance(
+                    all_steps, async_task, callback, controlnet_canny_path,
+                    controlnet_cpds_path, current_progress, current_task_id, denoising_strength, False,
+                    'None', 0.0, 0.0, async_task.negative_prompt, async_task.prompt, final_scheduler_name,
+                    goals_enhance, height, img, None, preparation_steps, steps, switch, tiled, total_count,
+                    use_expansion, use_style, use_synthetic_refiner, width)
+
+            except ldm_patched.modules.model_management.InterruptProcessingException:
+                if async_task.last_stop == 'skip':
+                    print('User skipped')
+                    async_task.last_stop = False
+                    # also skip all enhance steps for this image, but add the steps to the progress bar
+                    if async_task.enhance_uov_processing_order == flags.enhancement_uov_before:
+                        done_steps_inpainting += len(async_task.enhance_ctrls) * enhance_steps
+                    exception_result = 'continue'
+                else:
+                    print('User stopped')
+                    exception_result = 'break'
+            finally:
+                done_steps_upscaling += steps
+        return current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result
+
     @torch.no_grad()
     @torch.inference_mode()
     def handler(async_task: AsyncTask):
@@ -1277,39 +1317,16 @@ def worker():
         for img in images_to_enhance:
             enhancement_image_start_time = time.perf_counter()
 
-            # upscale if not disabled or already in goals
-            if should_process_enhance_uov:
-                current_task_id += 1
-                current_progress = int(base_progress + (100 - preparation_steps) / float(all_steps) * (done_steps_upscaling + done_steps_inpainting))
-                goals_enhance = []
-                img, skip_prompt_processing, steps = prepare_upscale(async_task, goals_enhance, img,
-                                                                     async_task.enhance_uov_method,
-                                                                     async_task.performance_selection,
-                                                                     enhance_steps, current_progress)
-
-                steps, _, _, _ = apply_overrides(async_task, steps, height, width)
-
-                if len(goals_enhance) > 0:
-                    try:
-                        current_progress, img = process_enhance(
-                            all_steps, async_task, callback, controlnet_canny_path,
-                            controlnet_cpds_path, current_progress, current_task_id, denoising_strength, False,
-                            'None', 0.0, 0.0, async_task.negative_prompt, async_task.prompt, final_scheduler_name,
-                            goals_enhance, height, img, None, preparation_steps, steps, switch, tiled, total_count,
-                            use_expansion, use_style, use_synthetic_refiner, width)
-
-                    except ldm_patched.modules.model_management.InterruptProcessingException:
-                        if async_task.last_stop == 'skip':
-                            print('User skipped')
-                            async_task.last_stop = False
-                            # also skip all enhance steps for this image, but add the steps to the progress bar
-                            done_steps_inpainting += len(async_task.enhance_ctrls) * enhance_steps
-                            continue
-                        else:
-                            print('User stopped')
-                            break
-                    finally:
-                        done_steps_upscaling += steps
+            if should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_before:
+                current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
+                    all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
+                    current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
+                    final_scheduler_name, height, img, preparation_steps, switch, tiled, total_count, use_expansion,
+                    use_style, use_synthetic_refiner, width)
+                if exception_result == 'continue':
+                    continue
+                elif exception_result == 'break':
+                    break
 
             # inpaint for all other tabs
             for enhance_mask_dino_prompt_text, enhance_prompt, enhance_negative_prompt, enhance_mask_model, enhance_mask_sam_model, enhance_mask_text_threshold, enhance_mask_box_threshold, enhance_mask_sam_max_detections, enhance_inpaint_disable_initial_latent, enhance_inpaint_engine, enhance_inpaint_strength, enhance_inpaint_respective_field, enhance_inpaint_erode_or_dilate, enhance_mask_invert in async_task.enhance_ctrls:
@@ -1378,6 +1395,17 @@ def worker():
 
                 enhancement_task_time = time.perf_counter() - enhancement_task_start_time
                 print(f'Enhancement time: {enhancement_task_time:.2f} seconds')
+
+            if should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_after:
+                current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
+                    all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
+                    current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
+                    final_scheduler_name, height, img, preparation_steps, switch, tiled, total_count, use_expansion,
+                    use_style, use_synthetic_refiner, width)
+                if exception_result == 'continue':
+                    continue
+                elif exception_result == 'break':
+                    break
 
             enhancement_image_time = time.perf_counter() - enhancement_image_start_time
             print(f'Enhancement image time: {enhancement_image_time:.2f} seconds')

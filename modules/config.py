@@ -515,6 +515,12 @@ default_enhance_tabs = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
     expected_type=int
 )
+enhance_uov_processing_order = get_config_item_or_set_default(
+    key='default_enhance_uov_processing_order',
+    default_value=modules.flags.enhancement_uov_before,
+    validator=lambda x: x in modules.flags.enhancement_uov_processing_order,
+    expected_type=int
+)
 default_sam_max_detections = get_config_item_or_set_default(
     key='default_sam_max_detections',
     default_value=0,

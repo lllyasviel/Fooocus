@@ -12,6 +12,15 @@ uov_list = [
     disabled, subtle_variation, strong_variation, upscale_15, upscale_2, upscale_fast
 ]
 
+enhancement_uov_before = "before"
+enhancement_uov_before_label = "Before First Enhancement"
+enhancement_uov_after = "after"
+enhancement_uov_after_label = "After Last Enhancement"
+enhancement_uov_processing_order = [
+    (enhancement_uov_before_label, enhancement_uov_before),
+    (enhancement_uov_after_label, enhancement_uov_after)
+]
+
 CIVITAI_NO_KARRAS = ["euler", "euler_ancestral", "heun", "dpm_fast", "dpm_adaptive", "ddim", "uni_pc"]
 
 # fooocus: a1111 (Civitai)
