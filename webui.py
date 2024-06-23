@@ -361,7 +361,7 @@ with shared.gradio_root:
                                                                         info='Before is slower (larger area to enhance), but might enhance the overall image quality, whereas after is faster but may apply changes to the image which were already fixed by enhance. Use after when enhancing large areas.',
                                                                         choices=flags.enhancement_uov_processing_order,
                                                                         value=modules.config.enhance_uov_processing_order)
-                                # gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390" target="_blank">\U0001F4D4 Document</a>')
+                                gr.HTML('<a href="https://github.com/mashb1t/Fooocus/discussions/42" target="_blank">\U0001F4D4 Document</a>')
                     enhance_ctrls = []
                     for index in range(modules.config.default_enhance_tabs):
                         with gr.TabItem(label=f'#{index + 1}') as enhance_tab_item:
@@ -450,6 +450,8 @@ with shared.gradio_root:
                                                                                  'negative value will make white area smaller. '
                                                                                  '(default is 0, always processed before any mask invert)')
                                 enhance_mask_invert = gr.Checkbox(label='Invert Mask', value=False)
+
+                            gr.HTML('<a href="https://github.com/mashb1t/Fooocus/discussions/42" target="_blank">\U0001F4D4 Document</a>')
 
                         enhance_ctrls += [
                             enhance_enabled,
