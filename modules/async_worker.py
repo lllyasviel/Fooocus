@@ -1238,7 +1238,7 @@ def worker():
                                                                  denoising_strength, final_scheduler_name, goals,
                                                                  initial_latent, async_task.steps, switch, task['c'],
                                                                  task['uc'], task, tiled, use_expansion, width, height,
-                                                                 preparation_steps, preparation_steps,
+                                                                 current_progress, preparation_steps,
                                                                  async_task.image_number, show_intermediate_results)
 
                 images_to_enhance += imgs
