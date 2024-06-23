@@ -1171,6 +1171,7 @@ def worker():
 
         images_to_enhance = []
         if 'enhance' in goals:
+            async_task.image_number = 1
             images_to_enhance += [async_task.enhance_input_image]
             height, width, _ = async_task.enhance_input_image.shape
             # input image already provided, processing is skipped
