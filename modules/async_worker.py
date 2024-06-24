@@ -1311,7 +1311,7 @@ def worker():
         total_count = len(images_to_enhance) * active_enhance_tabs
 
         base_progress = current_progress
-        current_task_id = -1
+        current_task_id = 0
         done_steps_upscaling = 0
         done_steps_inpainting = 0
         last_enhance_prompt = async_task.prompt
