@@ -117,6 +117,7 @@ class AsyncTask:
         self.enhance_checkbox = args.pop()
         self.enhance_uov_method = args.pop()
         self.enhance_uov_processing_order = args.pop()
+        self.enhance_uov_prompt_type = args.pop()
         self.enhance_ctrls = []
         for _ in range(modules.config.default_enhance_tabs):
             enhance_enabled = args.pop()
@@ -1036,7 +1037,7 @@ def worker():
         exception_result = ''
         if len(goals_enhance) > 0:
             try:
-                current_progress, img = process_enhance(
+                current_progress, img, prompt, negative_prompt = process_enhance(
                     all_steps, async_task, callback, controlnet_canny_path,
                     controlnet_cpds_path, current_progress, current_task_id, denoising_strength, False,
                     'None', 0.0, 0.0, prompt, negative_prompt, final_scheduler_name,
@@ -1385,10 +1386,11 @@ def worker():
                         preparation_steps, enhance_steps, switch, tiled, total_count, use_expansion, use_style,
                         use_synthetic_refiner, width)
 
-                    if enhance_prompt_processed != '':
-                        last_enhance_prompt = enhance_prompt_processed
-                    if enhance_negative_prompt_processed != '':
-                        last_enhance_negative_prompt = enhance_negative_prompt_processed
+                    if async_task.enhance_uov_prompt_type == flags.enhancement_uov_prompt_type_last:
+                        if enhance_prompt_processed != '':
+                            last_enhance_prompt = enhance_prompt_processed
+                        if enhance_negative_prompt_processed != '':
+                            last_enhance_negative_prompt = enhance_negative_prompt_processed
 
                 except ldm_patched.modules.model_management.InterruptProcessingException:
                     if async_task.last_stop == 'skip':

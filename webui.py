@@ -359,9 +359,19 @@ with shared.gradio_root:
                             with gr.Column():
                                 enhance_uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
                                 enhance_uov_processing_order = gr.Radio(label='Order of Processing',
-                                                                        info='Before is slower (larger area to enhance), but might enhance the overall image quality, whereas after is faster but may apply changes to the image which were already fixed by enhance. Use after when enhancing large areas.',
+                                                                        info='Use before for enhancement of small details and after for large areas.',
                                                                         choices=flags.enhancement_uov_processing_order,
                                                                         value=modules.config.enhance_uov_processing_order)
+                                enhance_uov_prompt_type = gr.Radio(label='Prompt',
+                                                                   info='Choose which prompt to use for Upscale or Variation.',
+                                                                   choices=flags.enhancement_uov_prompt_types,
+                                                                   value=modules.config.enhance_uov_prompt_type,
+                                                                   visible=modules.config.enhance_uov_prompt_type == flags.enhancement_uov_after)
+
+                                enhance_uov_processing_order.change(lambda x: gr.update(visible=x == flags.enhancement_uov_after),
+                                                                    inputs=enhance_uov_processing_order,
+                                                                    outputs=enhance_uov_prompt_type,
+                                                                    queue=False, show_progress=False)
                                 gr.HTML('<a href="https://github.com/mashb1t/Fooocus/discussions/42" target="_blank">\U0001F4D4 Document</a>')
                     enhance_ctrls = []
                     for index in range(modules.config.default_enhance_tabs):
@@ -943,7 +953,8 @@ with shared.gradio_root:
 
         ctrls += ip_ctrls
         ctrls += [debugging_dino, dino_erode_or_dilate, debugging_enhance_masks_checkbox,
-                  enhance_input_image, enhance_checkbox, enhance_uov_method, enhance_uov_processing_order]
+                  enhance_input_image, enhance_checkbox, enhance_uov_method, enhance_uov_processing_order,
+                  enhance_uov_prompt_type]
         ctrls += enhance_ctrls
 
         def parse_meta(raw_prompt_txt, is_generating):
