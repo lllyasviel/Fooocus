@@ -175,7 +175,7 @@ with shared.gradio_root:
                     skip_button.click(skip_clicked, inputs=currentTask, outputs=currentTask, queue=False, show_progress=False)
             with gr.Row(elem_classes='advanced_check_row'):
                 input_image_checkbox = gr.Checkbox(label='Input Image', value=False, container=False, elem_classes='min_check')
-                enhance_checkbox = gr.Checkbox(label='Enhance', value=False, container=False, elem_classes='min_check')
+                enhance_checkbox = gr.Checkbox(label='Enhance', value=modules.config.default_enhance_checkbox, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
             with gr.Row(visible=False) as image_input_panel:
                 with gr.Tabs():
@@ -352,21 +352,22 @@ with shared.gradio_root:
                         metadata_input_image.upload(trigger_metadata_preview, inputs=metadata_input_image,
                                                     outputs=metadata_json, queue=False, show_progress=True)
 
-            with gr.Row(visible=False) as enhance_input_panel:
+            with gr.Row(visible=modules.config.default_enhance_checkbox) as enhance_input_panel:
                 with gr.Tabs():
                     with gr.TabItem(label='Upscale or Variation'):
                         with gr.Row():
                             with gr.Column():
-                                enhance_uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list, value=flags.disabled)
+                                enhance_uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list,
+                                                              value=modules.config.default_enhance_uov_method)
                                 enhance_uov_processing_order = gr.Radio(label='Order of Processing',
                                                                         info='Use before for enhancement of small details and after for large areas.',
                                                                         choices=flags.enhancement_uov_processing_order,
-                                                                        value=modules.config.enhance_uov_processing_order)
+                                                                        value=modules.config.default_enhance_uov_processing_order)
                                 enhance_uov_prompt_type = gr.Radio(label='Prompt',
                                                                    info='Choose which prompt to use for Upscale or Variation.',
                                                                    choices=flags.enhancement_uov_prompt_types,
-                                                                   value=modules.config.enhance_uov_prompt_type,
-                                                                   visible=modules.config.enhance_uov_prompt_type == flags.enhancement_uov_after)
+                                                                   value=modules.config.default_enhance_uov_prompt_type,
+                                                                   visible=modules.config.default_enhance_uov_processing_order == flags.enhancement_uov_after)
 
                                 enhance_uov_processing_order.change(lambda x: gr.update(visible=x == flags.enhancement_uov_after),
                                                                     inputs=enhance_uov_processing_order,

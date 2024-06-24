@@ -515,13 +515,25 @@ default_enhance_tabs = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
     expected_type=int
 )
-enhance_uov_processing_order = get_config_item_or_set_default(
+default_enhance_checkbox = get_config_item_or_set_default(
+    key='default_enhance_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+default_enhance_uov_method = get_config_item_or_set_default(
+    key='default_enhance_uov_method',
+    default_value=modules.flags.disabled,
+    validator=lambda x: x in modules.flags.uov_list,
+    expected_type=int
+)
+default_enhance_uov_processing_order = get_config_item_or_set_default(
     key='default_enhance_uov_processing_order',
     default_value=modules.flags.enhancement_uov_before,
     validator=lambda x: x in modules.flags.enhancement_uov_processing_order,
     expected_type=int
 )
-enhance_uov_prompt_type = get_config_item_or_set_default(
+default_enhance_uov_prompt_type = get_config_item_or_set_default(
     key='default_enhance_uov_prompt_type',
     default_value=modules.flags.enhancement_uov_prompt_type_original,
     validator=lambda x: x in modules.flags.enhancement_uov_prompt_types,

@@ -968,10 +968,10 @@ def worker():
 
         if 'vary' in goals:
             img, denoising_strength, initial_latent, width, height, current_progress = apply_vary(
-                async_task, async_task.enhance_uov_method, denoising_strength, img, switch, current_progress)
+                async_task, async_task.default_enhance_uov_method, denoising_strength, img, switch, current_progress)
         if 'upscale' in goals:
             direct_return, img, denoising_strength, initial_latent, tiled, width, height, current_progress = apply_upscale(
-                async_task, img, async_task.enhance_uov_method, switch, current_progress)
+                async_task, img, async_task.default_enhance_uov_method, switch, current_progress)
             if direct_return:
                 d = [('Upscale (Fast)', 'upscale_fast', '2x')]
                 if modules.config.default_black_out_nsfw or async_task.black_out_nsfw:
@@ -1031,7 +1031,7 @@ def worker():
         current_progress = int(base_progress + (100 - preparation_steps) / float(all_steps) * (done_steps_upscaling + done_steps_inpainting))
         goals_enhance = []
         img, skip_prompt_processing, steps = prepare_upscale(
-            async_task, goals_enhance, img, async_task.enhance_uov_method, async_task.performance_selection,
+            async_task, goals_enhance, img, async_task.default_enhance_uov_method, async_task.performance_selection,
             enhance_steps, current_progress)
         steps, _, _, _ = apply_overrides(async_task, steps, height, width)
         exception_result = ''
@@ -1049,7 +1049,7 @@ def worker():
                     print('User skipped')
                     async_task.last_stop = False
                     # also skip all enhance steps for this image, but add the steps to the progress bar
-                    if async_task.enhance_uov_processing_order == flags.enhancement_uov_before:
+                    if async_task.default_enhance_uov_processing_order == flags.enhancement_uov_before:
                         done_steps_inpainting += len(async_task.enhance_ctrls) * enhance_steps
                     exception_result = 'continue'
                 else:
