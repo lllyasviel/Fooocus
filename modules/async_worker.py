@@ -1315,11 +1315,12 @@ def worker():
         current_task_id = 0
         done_steps_upscaling = 0
         done_steps_inpainting = 0
-        last_enhance_prompt = async_task.prompt
-        last_enhance_negative_prompt = async_task.negative_prompt
         enhance_steps, _, _, _ = apply_overrides(async_task, async_task.original_steps, height, width)
         for img in images_to_enhance:
             enhancement_image_start_time = time.perf_counter()
+
+            last_enhance_prompt = async_task.prompt
+            last_enhance_negative_prompt = async_task.negative_prompt
 
             if should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_before:
                 current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
