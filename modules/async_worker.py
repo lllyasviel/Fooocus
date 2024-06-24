@@ -1387,7 +1387,7 @@ def worker():
                         use_synthetic_refiner, width)
 
                     if (should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_after
-                            and async_task.enhance_uov_prompt_type == flags.enhancement_uov_prompt_type_last):
+                            and async_task.enhance_uov_prompt_type == flags.enhancement_uov_prompt_type_last_filled):
                         if enhance_prompt_processed != '':
                             last_enhance_prompt = enhance_prompt_processed
                         if enhance_negative_prompt_processed != '':

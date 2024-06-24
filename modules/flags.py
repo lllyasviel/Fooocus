@@ -15,8 +15,8 @@ enhancement_uov_after = "After Last Enhancement"
 enhancement_uov_processing_order = [enhancement_uov_before, enhancement_uov_after]
 
 enhancement_uov_prompt_type_original = 'Original Prompts'
-enhancement_uov_prompt_type_last = 'Last Filled Enhancement Prompts'
-enhancement_uov_prompt_types = [enhancement_uov_prompt_type_original, enhancement_uov_prompt_type_last]
+enhancement_uov_prompt_type_last_filled = 'Last Filled Enhancement Prompts'
+enhancement_uov_prompt_types = [enhancement_uov_prompt_type_original, enhancement_uov_prompt_type_last_filled]
 
 CIVITAI_NO_KARRAS = ["euler", "euler_ancestral", "heun", "dpm_fast", "dpm_adaptive", "ddim", "uni_pc"]
 
