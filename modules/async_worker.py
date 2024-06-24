@@ -957,7 +957,7 @@ def worker():
     def process_enhance(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
                         current_progress, current_task_id, denoising_strength, inpaint_disable_initial_latent,
                         inpaint_engine, inpaint_respective_field, inpaint_strength,
-                        negative_prompt, prompt, final_scheduler_name, goals, height, img, mask,
+                        prompt, negative_prompt, final_scheduler_name, goals, height, img, mask,
                         preparation_steps, steps, switch, tiled, total_count, use_expansion, use_style,
                         use_synthetic_refiner, width, show_intermediate_results=True):
         base_model_additional_loras = []
@@ -1017,12 +1017,12 @@ def worker():
                                                          preparation_steps, total_count, show_intermediate_results)
 
         del task_enhance['c'], task_enhance['uc']  # Save memory
-        return current_progress, imgs[0]
+        return current_progress, imgs[0], prompt, negative_prompt
 
     def enhance_upscale(all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
                         current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
-                        final_scheduler_name, height, img, preparation_steps, switch, tiled, total_count, use_expansion,
-                        use_style, use_synthetic_refiner, width):
+                        prompt, negative_prompt, final_scheduler_name, height, img, preparation_steps, switch, tiled,
+                        total_count, use_expansion, use_style, use_synthetic_refiner, width):
         # reset inpaint worker to prevent tensor size issues and not mix upscale and inpainting
         inpaint_worker.current_task = None
 
@@ -1039,7 +1039,7 @@ def worker():
                 current_progress, img = process_enhance(
                     all_steps, async_task, callback, controlnet_canny_path,
                     controlnet_cpds_path, current_progress, current_task_id, denoising_strength, False,
-                    'None', 0.0, 0.0, async_task.negative_prompt, async_task.prompt, final_scheduler_name,
+                    'None', 0.0, 0.0, prompt, negative_prompt, final_scheduler_name,
                     goals_enhance, height, img, None, preparation_steps, steps, switch, tiled, total_count,
                     use_expansion, use_style, use_synthetic_refiner, width)
 
@@ -1314,6 +1314,8 @@ def worker():
         current_task_id = -1
         done_steps_upscaling = 0
         done_steps_inpainting = 0
+        last_enhance_prompt = async_task.prompt
+        last_enhance_negative_prompt = async_task.negative_prompt
         enhance_steps, _, _, _ = apply_overrides(async_task, async_task.original_steps, height, width)
         for img in images_to_enhance:
             enhancement_image_start_time = time.perf_counter()
@@ -1322,8 +1324,8 @@ def worker():
                 current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
                     all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
                     current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
-                    final_scheduler_name, height, img, preparation_steps, switch, tiled, total_count, use_expansion,
-                    use_style, use_synthetic_refiner, width)
+                    async_task.prompt, async_task.negative_prompt, final_scheduler_name, height, img, preparation_steps,
+                    switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner, width)
                 if exception_result == 'continue':
                     continue
                 elif exception_result == 'break':
@@ -1375,13 +1377,18 @@ def worker():
                 goals_enhance = ['inpaint']
 
                 try:
-                    current_progress, img = process_enhance(
+                    current_progress, img, enhance_prompt_processed, enhance_negative_prompt_processed = process_enhance(
                         all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
-                        current_progress, current_task_id, denoising_strength,
-                        enhance_inpaint_disable_initial_latent, enhance_inpaint_engine,
-                        enhance_inpaint_respective_field, enhance_inpaint_strength, enhance_negative_prompt,
-                        enhance_prompt, final_scheduler_name, goals_enhance, height, img, mask, preparation_steps,
-                        enhance_steps, switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner, width)
+                        current_progress, current_task_id, denoising_strength, enhance_inpaint_disable_initial_latent,
+                        enhance_inpaint_engine, enhance_inpaint_respective_field, enhance_inpaint_strength,
+                        enhance_prompt, enhance_negative_prompt, final_scheduler_name, goals_enhance, height, img, mask,
+                        preparation_steps, enhance_steps, switch, tiled, total_count, use_expansion, use_style,
+                        use_synthetic_refiner, width)
+
+                    if enhance_prompt_processed != '':
+                        last_enhance_prompt = enhance_prompt_processed
+                    if enhance_negative_prompt_processed != '':
+                        last_enhance_negative_prompt = enhance_negative_prompt_processed
 
                 except ldm_patched.modules.model_management.InterruptProcessingException:
                     if async_task.last_stop == 'skip':
@@ -1401,8 +1408,9 @@ def worker():
                 current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
                     all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
                     current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
-                    final_scheduler_name, height, img, preparation_steps, switch, tiled, total_count, use_expansion,
-                    use_style, use_synthetic_refiner, width)
+                    last_enhance_prompt, last_enhance_negative_prompt, final_scheduler_name, height, img,
+                    preparation_steps, switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner,
+                    width)
                 if exception_result == 'continue':
                     continue
                 elif exception_result == 'break':
