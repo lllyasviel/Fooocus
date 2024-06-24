@@ -1386,7 +1386,8 @@ def worker():
                         preparation_steps, enhance_steps, switch, tiled, total_count, use_expansion, use_style,
                         use_synthetic_refiner, width)
 
-                    if async_task.enhance_uov_prompt_type == flags.enhancement_uov_prompt_type_last:
+                    if (should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_after
+                            and async_task.enhance_uov_prompt_type == flags.enhancement_uov_prompt_type_last):
                         if enhance_prompt_processed != '':
                             last_enhance_prompt = enhance_prompt_processed
                         if enhance_negative_prompt_processed != '':
