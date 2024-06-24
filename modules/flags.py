@@ -12,14 +12,9 @@ uov_list = [
     disabled, subtle_variation, strong_variation, upscale_15, upscale_2, upscale_fast
 ]
 
-enhancement_uov_before = "before"
-enhancement_uov_before_label = "Before First Enhancement"
-enhancement_uov_after = "after"
-enhancement_uov_after_label = "After Last Enhancement"
-enhancement_uov_processing_order = [
-    (enhancement_uov_before_label, enhancement_uov_before),
-    (enhancement_uov_after_label, enhancement_uov_after)
-]
+enhancement_uov_before = "Before First Enhancement"
+enhancement_uov_after = "After Last Enhancement"
+enhancement_uov_processing_order = [enhancement_uov_before, enhancement_uov_after]
 
 enhancement_uov_prompt_type_original = 'Original Prompts'
 enhancement_uov_prompt_type_last = 'Last Filled Enhancement Prompts'
