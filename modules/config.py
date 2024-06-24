@@ -523,7 +523,7 @@ enhance_uov_processing_order = get_config_item_or_set_default(
 )
 enhance_uov_prompt_type = get_config_item_or_set_default(
     key='default_enhance_uov_prompt_type',
-    default_value=modules.flags.enhancement_uov_prompt_type_last,
+    default_value=modules.flags.enhancement_uov_prompt_type_original,
     validator=lambda x: x in modules.flags.enhancement_uov_prompt_types,
     expected_type=int
 )
