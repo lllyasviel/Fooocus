@@ -25,12 +25,6 @@ from apis.models.requests import CommonRequest
 from modules.async_worker import AsyncTask, async_tasks
 
 
-class CurrentTask:
-    """
-    Current task class.
-    """
-    ct = None
-
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUT_PATH = os.path.join(ROOT_DIR, '..', 'inputs')
 OUT_PATH = os.path.join(ROOT_DIR, '..', 'outputs')
@@ -42,6 +36,13 @@ engine = create_engine(
 )
 Session = sessionmaker(bind=engine, autoflush=True)
 session = Session()
+
+
+class CurrentTask:
+    """
+    Current task class.
+    """
+    ct = None
 
 
 # todo: use argument to specify hosts
@@ -115,7 +116,7 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
     finished = False
     started = False
     while not finished:
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.2)
         if len(task.yields) > 0:
             if not started:
                 started = True
