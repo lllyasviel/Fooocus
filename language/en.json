@@ -465,5 +465,16 @@
     "Invert Mask When Generating": "Invert Mask When Generating",
     "Debug Enhance Masks": "Debug Enhance Masks",
     "Show enhance masks in preview and final results": "Show enhance masks in preview and final results",
-    "Use GroundingDINO boxes instead of more detailed SAM masks": "Use GroundingDINO boxes instead of more detailed SAM masks"
+    "Use GroundingDINO boxes instead of more detailed SAM masks": "Use GroundingDINO boxes instead of more detailed SAM masks",
+    "highly detailed face": "highly detailed face",
+    "detailed girl face": "detailed girl face",
+    "detailed man face": "detailed man face",
+    "detailed hand": "detailed hand",
+    "beautiful eyes": "beautiful eyes",
+    "face": "face",
+    "eye": "eye",
+    "mouth": "mouth",
+    "hair": "hair",
+    "hand": "hand",
+    "body": "body"
 }
