@@ -330,7 +330,7 @@ with shared.gradio_root:
                     with gr.TabItem(label='Enhance') as enhance_tab:
                         with gr.Row():
                             with gr.Column():
-                                enhance_input_image = grh.Image(label='Base image for enhance', source='upload', type='numpy')
+                                enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy')
                                 gr.HTML('<a href="https://github.com/mashb1t/Fooocus/discussions/42" target="_blank">\U0001F4D4 Document</a>')
 
                     with gr.TabItem(label='Metadata') as metadata_tab:
@@ -362,7 +362,7 @@ with shared.gradio_root:
                                 enhance_uov_method = gr.Radio(label='Upscale or Variation:', choices=flags.uov_list,
                                                               value=modules.config.default_enhance_uov_method)
                                 enhance_uov_processing_order = gr.Radio(label='Order of Processing',
-                                                                        info='Use before for enhancement of small details and after for large areas.',
+                                                                        info='Use before to enhance small details and after to enhance large areas.',
                                                                         choices=flags.enhancement_uov_processing_order,
                                                                         value=modules.config.default_enhance_uov_processing_order)
                                 enhance_uov_prompt_type = gr.Radio(label='Prompt',
