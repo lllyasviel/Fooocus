@@ -546,7 +546,8 @@ possible_preset_keys = {
     "default_save_metadata_to_images": "default_save_metadata_to_images",
     "checkpoint_downloads": "checkpoint_downloads",
     "embeddings_downloads": "embeddings_downloads",
-    "lora_downloads": "lora_downloads"
+    "lora_downloads": "lora_downloads",
+    "default_vae": "vae"
 }
 
 REWRITE_PRESET = False
