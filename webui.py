@@ -234,6 +234,7 @@ with shared.gradio_root:
                         with gr.Row():
                             with gr.Column():
                                 inpaint_input_image = grh.Image(label='Image', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas', show_label=False)
+                                inpaint_mask_upload_checkbox = gr.Checkbox(label='Enable Mask Upload', value=False)
                                 inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
                                 inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                                 outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
@@ -246,6 +247,7 @@ with shared.gradio_root:
 
                             with gr.Column(visible=False) as inpaint_mask_generation_col:
                                 inpaint_mask_image = grh.Image(label='Mask Upload', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", mask_opacity=1)
+                                invert_mask_checkbox = gr.Checkbox(label='Invert Mask When Generating', value=False)
                                 inpaint_mask_model = gr.Dropdown(label='Mask generation model',
                                                                  choices=flags.inpaint_mask_models,
                                                                  value=modules.config.default_inpaint_mask_model)
@@ -799,8 +801,6 @@ with shared.gradio_root:
                                                          info='Positive value will make white area in the mask larger, '
                                                               'negative value will make white area smaller. '
                                                               '(default is 0, processed before SAM)')
-                        inpaint_mask_upload_checkbox = gr.Checkbox(label='Enable Mask Upload', value=False)
-                        invert_mask_checkbox = gr.Checkbox(label='Invert Mask', value=False)
 
                         inpaint_mask_color = gr.ColorPicker(label='Inpaint brush color', value='#FFFFFF', elem_id='inpaint_brush_color')
 

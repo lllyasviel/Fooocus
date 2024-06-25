@@ -462,7 +462,7 @@
     "The area to inpaint. Value 0 is same as \"Only Masked\" in A1111. Value 1 is same as \"Whole Image\" in A1111. Only used in inpaint, not used in outpaint. (Outpaint always use 1.0)": "The area to inpaint. Value 0 is same as \"Only Masked\" in A1111. Value 1 is same as \"Whole Image\" in A1111. Only used in inpaint, not used in outpaint. (Outpaint always use 1.0)",
     "Mask Erode or Dilate": "Mask Erode or Dilate",
     "Positive value will make white area in the mask larger, negative value will make white area smaller. (default is 0, always processed before any mask invert)": "Positive value will make white area in the mask larger, negative value will make white area smaller. (default is 0, always processed before any mask invert)",
-    "Invert Mask": "Invert Mask",
+    "Invert Mask When Generating": "Invert Mask When Generating",
     "Debug Enhance Masks": "Debug Enhance Masks",
     "Show enhance masks in preview and final results": "Show enhance masks in preview and final results",
     "Use GroundingDINO boxes instead of more detailed SAM masks": "Use GroundingDINO boxes instead of more detailed SAM masks"

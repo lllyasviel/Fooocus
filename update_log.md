@@ -5,6 +5,7 @@
 * Improve GroundingDINO and SAM image masking
 * Rename `--enable-describe-uov-image` to `--enable-auto-describe-image`, now also works for enhance image upload
 * Update python dependencies, remove diffusers, add segment_anything
+* Move checkboxes Enable Mask Upload and Invert Mask When Generating from Developer Debug Mode to Inpaint Or Outpaint
 
 # [2.4.3](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.3)
 
