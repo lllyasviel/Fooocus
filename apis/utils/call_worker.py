@@ -25,8 +25,11 @@ from apis.models.requests import CommonRequest
 from modules.async_worker import AsyncTask, async_tasks
 
 
-global CURRENT_TASK
-CURRENT_TASK = None
+class CurrentTask:
+    """
+    Current task class.
+    """
+    ct = None
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUT_PATH = os.path.join(ROOT_DIR, '..', 'inputs')
@@ -87,7 +90,6 @@ def post_worker(task: AsyncTask, started_at: int):
     :param started_at: The time the task started.
     :return: The task.
     """
-    global CURRENT_TASK
     try:
         query = session.query(GenerateRecord).filter(GenerateRecord.task_id == task.task_id).first()
         query.start_mills = started_at
@@ -98,7 +100,7 @@ def post_worker(task: AsyncTask, started_at: int):
         session.commit()
     except Exception as e:
         print(e)
-    CURRENT_TASK = None
+    CurrentTask.ct = None
     return task
 
 
@@ -110,7 +112,6 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
     :param in_queue_mills: The time the request was enqueued.
     :return: The response.
     """
-    global CURRENT_TASK
     finished = False
     started = False
     while not finished:
@@ -119,7 +120,7 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
             if not started:
                 started = True
                 started_at = int(datetime.datetime.now().timestamp() * 1000)
-                CURRENT_TASK = RecordResponse(
+                CurrentTask.ct = RecordResponse(
                     task_id=task.task_id,
                     req_params=json.loads(raw_req.model_dump_json()),
                     in_queue_mills=in_queue_mills,
@@ -133,8 +134,8 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
                     if task.yields[0][0] == 'preview':
                         continue
                 percentage, _, image = product
-                CURRENT_TASK.progress = percentage
-                CURRENT_TASK.preview = narray_to_base64img(image)
+                CurrentTask.ct.progress = percentage
+                CurrentTask.ct.preview = narray_to_base64img(image)
             if flag == 'finish':
                 finished = True
                 post_worker(task=task, started_at=started_at)
@@ -145,7 +146,6 @@ async def stream_output(request: CommonRequest):
     Calls the worker with the given params.
     :param request: The request object containing the params.
     """
-    global CURRENT_TASK
     raw_req = pre_worker(request)
     params = params_to_params(request)
     task = AsyncTask(args=params)
@@ -167,7 +167,7 @@ async def stream_output(request: CommonRequest):
             if not started:
                 started = True
                 started_at = int(datetime.datetime.now().timestamp() * 1000)
-                CURRENT_TASK = RecordResponse(
+                CurrentTask.ct = RecordResponse(
                     task_id=task.task_id,
                     req_params=json.loads(raw_req.model_dump_json()),
                     in_queue_mills=in_queue_mills,
@@ -188,8 +188,8 @@ async def stream_output(request: CommonRequest):
                     "message": title,
                     "images": []
                 })
-                CURRENT_TASK.progress = percentage
-                CURRENT_TASK.preview = narray_to_base64img(image)
+                CurrentTask.ct.progress = percentage
+                CurrentTask.ct.preview = narray_to_base64img(image)
                 yield f"{text}\n"
             if flag == 'results':
                 print(task.results)
@@ -211,7 +211,6 @@ async def binary_output(request: CommonRequest):
     Calls the worker with the given params.
     :param request: The request object containing the params.
     """
-    global CURRENT_TASK
     request.image_number = 1
     raw_req = pre_worker(request)
     params = params_to_params(request)
@@ -234,7 +233,7 @@ async def binary_output(request: CommonRequest):
             if not started:
                 started = True
                 started_at = int(datetime.datetime.now().timestamp() * 1000)
-                CURRENT_TASK = RecordResponse(
+                CurrentTask.ct = RecordResponse(
                     task_id=task.task_id,
                     req_params=json.loads(raw_req.model_dump_json()),
                     in_queue_mills=in_queue_mills,
@@ -249,8 +248,8 @@ async def binary_output(request: CommonRequest):
                     if task.yields[0][0] == 'preview':
                         continue
                 percentage, _, image = product
-                CURRENT_TASK.progress = percentage
-                CURRENT_TASK.preview = narray_to_base64img(image)
+                CurrentTask.ct.progress = percentage
+                CurrentTask.ct.preview = narray_to_base64img(image)
             if flag == 'finish':
                 finished = True
                 post_worker(task=task, started_at=started_at)
@@ -290,6 +289,6 @@ async def current_task():
     """
     Returns the current task.
     """
-    if CURRENT_TASK is None:
+    if CurrentTask.ct is None:
         return []
-    return [CURRENT_TASK.model_dump()]
+    return [CurrentTask.ct.model_dump()]
