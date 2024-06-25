@@ -201,6 +201,7 @@ path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../mo
 path_safety_checker_models = get_dir_or_set_default('path_safety_checker_models', '../models/safety_checker_models/')
 path_wildcards = get_dir_or_set_default('path_wildcards', '../wildcards/')
 path_safety_checker = get_dir_or_set_default('path_safety_checker', '../models/safety_checker/')
+path_sam = get_dir_or_set_default('path_sam', '../models/sam/')
 path_outputs = get_path_output()
 
 
@@ -500,6 +501,50 @@ example_inpaint_prompts = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
     expected_type=list
 )
+example_enhance_detection_prompts = get_config_item_or_set_default(
+    key='example_enhance_detection_prompts',
+    default_value=[
+        'face', 'eye', 'mouth', 'hair', 'hand', 'body'
+    ],
+    validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
+    expected_type=list
+)
+default_enhance_tabs = get_config_item_or_set_default(
+    key='default_enhance_tabs',
+    default_value=3,
+    validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
+    expected_type=int
+)
+default_enhance_checkbox = get_config_item_or_set_default(
+    key='default_enhance_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+default_enhance_uov_method = get_config_item_or_set_default(
+    key='default_enhance_uov_method',
+    default_value=modules.flags.disabled,
+    validator=lambda x: x in modules.flags.uov_list,
+    expected_type=int
+)
+default_enhance_uov_processing_order = get_config_item_or_set_default(
+    key='default_enhance_uov_processing_order',
+    default_value=modules.flags.enhancement_uov_before,
+    validator=lambda x: x in modules.flags.enhancement_uov_processing_order,
+    expected_type=int
+)
+default_enhance_uov_prompt_type = get_config_item_or_set_default(
+    key='default_enhance_uov_prompt_type',
+    default_value=modules.flags.enhancement_uov_prompt_type_original,
+    validator=lambda x: x in modules.flags.enhancement_uov_prompt_types,
+    expected_type=int
+)
+default_sam_max_detections = get_config_item_or_set_default(
+    key='default_sam_max_detections',
+    default_value=0,
+    validator=lambda x: isinstance(x, int) and 0 <= x <= 10,
+    expected_type=int
+)
 default_black_out_nsfw = get_config_item_or_set_default(
     key='default_black_out_nsfw',
     default_value=False,
@@ -526,16 +571,18 @@ metadata_created_by = get_config_item_or_set_default(
 )
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
+example_enhance_detection_prompts = [[x] for x in example_enhance_detection_prompts]
 
-default_black_out_nsfw = get_config_item_or_set_default(
-    key='default_black_out_nsfw',
-    default_value=False,
-    validator=lambda x: isinstance(x, bool),
-    expected_type=bool
-)
 default_inpaint_mask_model = get_config_item_or_set_default(
     key='default_inpaint_mask_model',
     default_value='isnet-general-use',
+    validator=lambda x: x in modules.flags.inpaint_mask_models,
+    expected_type=str
+)
+
+default_enhance_inpaint_mask_model = get_config_item_or_set_default(
+    key='default_enhance_inpaint_mask_model',
+    default_value='sam',
     validator=lambda x: x in modules.flags.inpaint_mask_models,
     expected_type=str
 )
@@ -549,8 +596,8 @@ default_inpaint_mask_cloth_category = get_config_item_or_set_default(
 
 default_inpaint_mask_sam_model = get_config_item_or_set_default(
     key='default_inpaint_mask_sam_model',
-    default_value='sam_vit_b_01ec64',
-    validator=lambda x: x in modules.flags.inpaint_mask_sam_model,
+    default_value='vit_b',
+    validator=lambda x: x in [y[1] for y in modules.flags.inpaint_mask_sam_model if y[1] == x],
     expected_type=str
 )
 
@@ -787,6 +834,45 @@ def downloading_safety_checker_model():
         file_name='stable-diffusion-safety-checker.bin'
     )
     return os.path.join(path_safety_checker, 'stable-diffusion-safety-checker.bin')
+
+
+def download_sam_model(sam_model: str) -> str:
+    match sam_model:
+        case 'vit_b':
+            return downloading_sam_vit_b()
+        case 'vit_l':
+            return downloading_sam_vit_l()
+        case 'vit_h':
+            return downloading_sam_vit_h()
+        case _:
+            raise ValueError(f"sam model {sam_model} does not exist.")
+
+
+def downloading_sam_vit_b():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sam_vit_b_01ec64.pth',
+        model_dir=path_sam,
+        file_name='sam_vit_b_01ec64.pth'
+    )
+    return os.path.join(path_sam, 'sam_vit_b_01ec64.pth')
+
+
+def downloading_sam_vit_l():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sam_vit_l_0b3195.pth',
+        model_dir=path_sam,
+        file_name='sam_vit_l_0b3195.pth'
+    )
+    return os.path.join(path_sam, 'sam_vit_l_0b3195.pth')
+
+
+def downloading_sam_vit_h():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sam_vit_h_4b8939.pth',
+        model_dir=path_sam,
+        file_name='sam_vit_h_4b8939.pth'
+    )
+    return os.path.join(path_sam, 'sam_vit_h_4b8939.pth')
 
 
 update_files()
