@@ -29,20 +29,40 @@ def tasks_info(task_id: str = None):
 router = APIRouter()
 
 @router.get("/tasks")
-async def get_tasks():
+async def get_tasks(
+    query: str = "all",
+    page: int = 0,
+    page_size: int = 10):
     """
     Get all tasks.
+    :param type: The type of tasks to filter by. One of all, history, current, pending
+    :param page: The page number to return. used for history and pending
+    :param page_size: The number of tasks to return per page.
+    :return: The tasks.
     """
-    historys = []
-    query = session.query(GenerateRecord).order_by(GenerateRecord.id.desc()).limit(20).all()
-    for q in query:
-        result = json.loads(str(q))
-        result["req_params"] = json.loads(result["req_params"])
-        historys.append(result)
+    historys, current, pending = [], [], []
+    if query in ('all', 'history'):
+        query_history = session.query(GenerateRecord).order_by(GenerateRecord.id.desc()).limit(page_size).offset(page * page_size).all()
+        for q in query_history:
+            result = json.loads(str(q))
+            result["req_params"] = json.loads(result["req_params"])
+            historys.append(result)
+    if query in ('all', 'current'):
+        current = await current_task()
+    if query in ('all', 'pending'):
+        pending = [task.task_id for task in async_tasks]
+        start_index = page * page_size
+        end_index = (page + 1) * page_size
+        max_page = len(pending) / page_size if len(pending) / page_size == len(pending) // page_size else len(pending) // page_size + 1
+        if page > max_page:
+            pending = []
+        else:
+            pending = pending[start_index:end_index]
+
     return JSONResponse({
         "history": historys,
-        "current": await current_task(),
-        "pending": [task.task_id for task in async_tasks]
+        "current": current,
+        "pending": pending
     })
 
 
