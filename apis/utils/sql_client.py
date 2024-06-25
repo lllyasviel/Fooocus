@@ -1,16 +1,17 @@
 """
 SQLite client for Fooocus API
 """
-import os
-import time
-from datetime import datetime
 import copy
+import json
+import os
 
 from sqlalchemy import Integer, Float, VARCHAR, JSON, create_engine
-from sqlalchemy.orm import declarative_base, Session, Mapped, mapped_column
+from sqlalchemy.orm import declarative_base, sessionmaker, Mapped, mapped_column
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_PATH = os.path.join(ROOT_DIR, '..', 'outputs')
 
-DB_PATH = os.path.join("outputs", "db.sqlite3")
+DB_PATH = os.path.join(OUT_PATH, "db.sqlite3")
 Base = declarative_base()
 
 
@@ -26,17 +27,23 @@ class GenerateRecord(Base):
 
     task_id: Mapped[str] = mapped_column(VARCHAR(255), nullable=False, comment="Task ID")
     req_params: Mapped[dict] = mapped_column(JSON, nullable=False, comment="Request Parameters")
-    in_queue_mills: Mapped[int] = mapped_column(Integer, nullable=False, comment="In Queue Milliseconds")
-    start_mills: Mapped[int] = mapped_column(Integer, nullable=False, comment="Start Milliseconds")
-    finish_mills: Mapped[int] = mapped_column(Integer, nullable=False, comment="Finish Milliseconds")
-    task_status: Mapped[str] = mapped_column(VARCHAR(255), nullable=False, comment="Task Status")
-    progress: Mapped[float] = mapped_column(Float, nullable=False, comment="Progress")
+    in_queue_mills: Mapped[int] = mapped_column(Integer, nullable=True, comment="In Queue Milliseconds")
+    start_mills: Mapped[int] = mapped_column(Integer, nullable=True, comment="Start Milliseconds")
+    finish_mills: Mapped[int] = mapped_column(Integer, nullable=True, comment="Finish Milliseconds")
+    task_status: Mapped[str] = mapped_column(VARCHAR(255), nullable=True, comment="Task Status")
+    progress: Mapped[float] = mapped_column(Float, nullable=True, comment="Progress")
     webhook_url: Mapped[str] = mapped_column(VARCHAR(255), nullable=True, comment="Webhook URL")
     result: Mapped[list] = mapped_column(JSON, nullable=True, comment="Result")
 
+    def __repr__(self):
+        d = copy.deepcopy(self.__dict__)
+        d.pop("_sa_instance_state")
+        return json.dumps(d, ensure_ascii=False)
 
-engine = create_engine(DB_PATH)
 
-session = Session(engine)
+engine = create_engine(f"sqlite:///{DB_PATH}", connect_args={"check_same_thread": False}, future=True)
+
 Base.metadata.create_all(engine, checkfirst=True)
+Session = sessionmaker(bind=engine)
+session = Session()
 session.close()

@@ -1,6 +1,5 @@
 """Common model for requests"""
-import json
-from typing import List, Union
+from typing import List
 from pydantic import (
     BaseModel,
     Field,
@@ -132,7 +131,7 @@ class CommonRequest(BaseModel):
 
     generate_image_grid: bool = Field(default=False, description="Generate Image Grid for Each Batch, (Experimental) This may cause performance problems on some computers and certain internet conditions.")
 
-    save_name: StrictStr = Field(default='', description="Image name for output image, default is job id + seq")
+    stream_output: bool = Field(default=False, description="Stream output")
     require_base64: bool = Field(default=False, description="Return base64 data of generated image")
     async_process: bool = Field(default=False, description="Set to true will run async and return job info for retrieve generation result later")
     webhook_url: str | None = Field(default='', description="Optional URL for a webhook callback. If provided, the system will send a POST request to this URL upon task completion or failure."

@@ -10,6 +10,7 @@ Use for managing generated files
 """
 import base64
 import datetime
+import hashlib
 from io import BytesIO
 import os
 import json
@@ -136,3 +137,26 @@ def get_file_serve_url(filename: str | None) -> str | None:
     if filename is None:
         return None
     return STATIC_SERVER_BASE + filename.replace('\\', '/')
+
+
+def save_base64(base64_str: str, file_dir: str) -> str:
+    """
+    Save a base64 string to a file.
+    Args:
+        base64_str: str of base64 string
+        file_dir: str of file path
+    """
+    if base64_str is None or base64_str == '' or base64_str.lower() == 'none':
+        return ''
+    sha256 = hashlib.sha256(base64_str.encode('utf-8')).hexdigest()
+    file_path = os.path.join(file_dir, f'{sha256}.png')
+    if os.path.exists(file_path):
+        return file_path
+    try:
+        img_data = base64.b64decode(base64_str)
+    except Exception as e:
+        print(f'[Fooocus API] Decode base64 string failed: {e}')
+        return ''
+    with open(file_path, 'wb') as f:
+        f.write(img_data)
+    return file_path
