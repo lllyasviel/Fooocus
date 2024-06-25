@@ -405,7 +405,6 @@ with shared.gradio_root:
                                                                  elem_id='enhance_negative_prompt')
 
                             with gr.Accordion("Detection", open=False):
-                                # TODO check if limiting to SAM is better
                                 enhance_mask_model = gr.Dropdown(label='Mask generation model',
                                                                  choices=flags.inpaint_mask_models,
                                                                  value=modules.config.default_enhance_inpaint_mask_model)
