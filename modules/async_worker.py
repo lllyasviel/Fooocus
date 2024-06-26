@@ -1029,7 +1029,6 @@ def worker():
         # reset inpaint worker to prevent tensor size issues and not mix upscale and inpainting
         inpaint_worker.current_task = None
 
-        current_task_id += 1
         current_progress = int(base_progress + (100 - preparation_steps) / float(all_steps) * (done_steps_upscaling + done_steps_inpainting))
         goals_enhance = []
         img, skip_prompt_processing, steps = prepare_upscale(
@@ -1314,7 +1313,7 @@ def worker():
         total_count = len(images_to_enhance) * active_enhance_tabs
 
         base_progress = current_progress
-        current_task_id = 0
+        current_task_id = -1
         done_steps_upscaling = 0
         done_steps_inpainting = 0
         enhance_steps, _, _, _ = apply_overrides(async_task, async_task.original_steps, height, width)
@@ -1325,6 +1324,7 @@ def worker():
             last_enhance_negative_prompt = async_task.negative_prompt
 
             if should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_before:
+                current_task_id += 1
                 current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
                     all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
                     current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
@@ -1414,6 +1414,7 @@ def worker():
                 print(f'Enhancement time: {enhancement_task_time:.2f} seconds')
 
             if should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_after:
+                current_task_id += 1
                 current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
                     all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
                     current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
