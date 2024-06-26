@@ -17,6 +17,7 @@ class Lora(BaseModel):
         protected_namespaces=('protect_me_', 'also_protect_')
     )
 
+
 class UpscaleOrVaryMethod(str, Enum):
     """Upscale or Vary method"""
     disable = "Disabled"
@@ -56,3 +57,10 @@ class DescribeImageType(str, Enum):
     """Image type for image to prompt"""
     photo = 'Photo'
     anime = 'Anime'
+
+
+class DescribeImageResponse(BaseModel):
+    """
+    describe image response
+    """
+    describe: str

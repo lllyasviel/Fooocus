@@ -2,20 +2,24 @@
 Generate API routes
 """
 from fastapi import (
-    APIRouter
+    APIRouter, Query, UploadFile
 )
 from sse_starlette.sse import EventSourceResponse
+
+from apis.models.base import DescribeImageResponse, DescribeImageType
 from apis.utils.call_worker import (
     async_worker,
     stream_output,
     binary_output
 )
 from apis.models.requests import CommonRequest
+from apis.utils.img_utils import read_input_image
+from modules.util import HWC3
 
 router = APIRouter()
 
 
-@router.post("/generate/", summary="Generate API V2 routes")
+@router.post("/v1/engine/generate/", summary="Generate API V2 routes")
 async def generate_routes(common_request: CommonRequest):
     """
     Generate API routes
@@ -29,3 +33,31 @@ async def generate_routes(common_request: CommonRequest):
         return await async_worker(request=common_request)
 
     return await binary_output(request=common_request)
+
+
+@router.post(
+        path="/v1/tools/describe-image",
+        response_model=DescribeImageResponse,
+        tags=["GenerateV1"])
+def describe_image(
+    image: UploadFile,
+    image_type: DescribeImageType = Query(
+        DescribeImageType.photo,
+        description="Image type, 'Photo' or 'Anime'")):
+    """\nDescribe image\n
+    Describe image, Get tags from an image
+    Arguments:
+        image {UploadFile} -- Image to get tags
+        image_type {DescribeImageType} -- Image type, 'Photo' or 'Anime'
+    Returns:
+        DescribeImageResponse -- Describe image response, a string
+    """
+    if image_type == DescribeImageType.photo:
+        from extras.interrogate import default_interrogator as default_interrogator_photo
+        interrogator = default_interrogator_photo
+    else:
+        from extras.wd14tagger import default_interrogator as default_interrogator_anime
+        interrogator = default_interrogator_anime
+    img = HWC3(read_input_image(image))
+    result = interrogator(img)
+    return DescribeImageResponse(describe=result)

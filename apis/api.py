@@ -57,7 +57,7 @@ def run_server(arguments):
     :param arguments: command line arguments
     """
     try:
-        API_PORT = int(arguments.port) + 1
+        api_port = int(arguments.port) + 1
     except TypeError:
-        API_PORT = int(os.environ["GRADIO_SERVER_PORT"]) + 1
-    uvicorn.run(app, host="0.0.0.0", port=API_PORT)
+        api_port = int(os.environ["GRADIO_SERVER_PORT"]) + 1
+    uvicorn.run(app, host="0.0.0.0", port=api_port)
