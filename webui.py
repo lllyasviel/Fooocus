@@ -472,6 +472,7 @@ with shared.gradio_root:
                             enhance_prompt,
                             enhance_negative_prompt,
                             enhance_mask_model,
+                            enhance_mask_cloth_category,
                             enhance_mask_sam_model,
                             enhance_mask_text_threshold,
                             enhance_mask_box_threshold,
