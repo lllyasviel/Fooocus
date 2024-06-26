@@ -19,6 +19,8 @@ import numpy as np
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
+from apis.utils.img_utils import narray_to_base64img
+
 
 output_dir = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '../..', 'outputs', 'files'))
@@ -139,13 +141,15 @@ def get_file_serve_url(filename: str | None) -> str | None:
     return STATIC_SERVER_BASE + filename.replace('\\', '/')
 
 
-def save_base64(base64_str: str, file_dir: str) -> str:
+def save_base64(base64_str: str | np.ndarray, file_dir: str) -> str:
     """
     Save a base64 string to a file.
     Args:
         base64_str: str of base64 string
         file_dir: str of file path
     """
+    if not isinstance(base64_str, str):
+        base64_str = narray_to_base64img(base64_str)
     if base64_str is None or base64_str == '' or base64_str.lower() == 'none':
         return ''
     sha256 = hashlib.sha256(base64_str.encode('utf-8')).hexdigest()

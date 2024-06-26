@@ -11,6 +11,7 @@ from io import BytesIO
 from fastapi import UploadFile
 from PIL import Image
 
+import httpx
 import requests
 import numpy as np
 
@@ -67,7 +68,7 @@ def narray_to_bytesimg(narray) -> bytes | None:
     return byte_data
 
 
-def read_input_image(input_image: UploadFile | str | None) -> np.ndarray | None:
+async def read_input_image(input_image: UploadFile | str | None) -> np.ndarray | None:
     """
     Read input image from UploadFile or base64 string.
     Args:
@@ -75,14 +76,22 @@ def read_input_image(input_image: UploadFile | str | None) -> np.ndarray | None:
     Returns:
         numpy array of image
     """
-    if input_image is None or input_image == '':
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0'
+    }
+    if input_image is None or input_image in ('', 'None', 'null', 'string', 'none'):
         return None
-    if isinstance(input_image, str):
-        input_image_bytes = base64.b64decode(input_image)
+    if input_image.startswith("http"):
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(input_image, headers=headers, timeout=20)
+                input_image_bytes = response.content
+        except:
+            return None
     else:
-        input_image_bytes = input_image.file.read()
+        input_image_bytes = base64.b64decode(input_image)
     pil_image = Image.open(BytesIO(input_image_bytes))
-    image = np.array(pil_image)
+    image = np.array(pil_image, dtype=np.uint8)
     return image
 
 
@@ -118,7 +127,7 @@ def get_check_image(url: str) -> UploadFile | None:
     if url == '':
         return None
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0'
     }
     try:
         response = requests.get(url, headers=headers, timeout=10)

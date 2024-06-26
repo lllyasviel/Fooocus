@@ -64,3 +64,10 @@ class DescribeImageResponse(BaseModel):
     describe image response
     """
     describe: str
+
+
+class CurrentTask:
+    """
+    Current task class.
+    """
+    ct = None

@@ -1,84 +1,8 @@
 """
 API utils
 """
-import random
-from modules.config import default_max_lora_number
-from modules.flags import controlnet_image_count
-from modules import constants
+
 from apis.models.requests import CommonRequest
-from apis.models.base import Lora, ImagePrompt
-
-
-def refresh_seed(seed_string: int | str | None) -> int:
-    """
-    Refresh and check seed number.
-    :params seed_string: seed, str or int. None means random
-    :return: seed number
-    """
-    if seed_string is None or seed_string == -1:
-        return random.randint(constants.MIN_SEED, constants.MAX_SEED)
-
-    try:
-        seed_value = int(seed_string)
-        if constants.MIN_SEED <= seed_value <= constants.MAX_SEED:
-            return seed_value
-    except ValueError:
-        pass
-    return random.randint(constants.MIN_SEED, constants.MAX_SEED)
-
-
-def aspect_ratios_parser(aspect_ratios: str) -> str:
-    """
-    Convert aspect ratios to aspect ratios string
-    """
-    return aspect_ratios.replace("*", "×")
-
-
-def lora_parser(loras: list) -> list:
-    """
-    Convert loras to loras list
-    """
-    default_lora = {
-        "enabled": True,
-        "model_name": "None",
-        "weight": 1,
-    }
-    while len(loras) < default_max_lora_number:
-        loras.append(Lora(**default_lora))
-    loras = loras[:default_max_lora_number]
-    loras_list = []
-    for lora in loras:
-        loras_list.extend([
-            lora.enabled,
-            lora.model_name,
-            lora.weight
-        ])
-    return loras_list
-
-
-def control_net_parser(control_net: list) -> list:
-    """
-    Convert control net to control net list
-    """
-    default_cn_image = {
-        "cn_img": None,
-        "cn_stop": 0.6,
-        "cn_weight": 0.6,
-        "cn_type": "ImagePrompt"
-    }
-    while len(control_net) < controlnet_image_count:
-        control_net.append(ImagePrompt(**default_cn_image))
-
-    control_net = control_net[:controlnet_image_count]
-    cn_list = []
-    for cn in control_net:
-        cn_list.extend([
-            cn.cn_img,
-            cn.cn_stop,
-            cn.cn_weight,
-            cn.cn_type.value
-        ])
-    return cn_list
 
 
 def params_to_params(req: CommonRequest):
@@ -91,10 +15,10 @@ def params_to_params(req: CommonRequest):
         req.negative_prompt,
         req.style_selections,
         req.performance_selection.value,
-        aspect_ratios_parser(req.aspect_ratios_selection),
+        req.aspect_ratios_selection,
         req.image_number,
         req.output_format,
-        refresh_seed(req.image_seed),
+        req.image_seed,
         req.read_wildcards_in_order,
         req.sharpness,
         req.guidance_scale,
@@ -102,7 +26,7 @@ def params_to_params(req: CommonRequest):
         req.refiner_model_name,
         req.refiner_switch
     ]
-    params.extend(lora_parser(req.loras))
+    params.extend(req.loras)
     params.extend([
         req.input_image_checkbox,
         req.current_tab,
@@ -156,5 +80,5 @@ def params_to_params(req: CommonRequest):
         req.save_metadata_to_images,
         req.metadata_scheme.value,
     ])
-    params.extend(control_net_parser(req.controlnet_image))
+    params.extend(req.controlnet_image)
     return params

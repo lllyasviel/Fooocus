@@ -19,7 +19,7 @@ from modules.util import HWC3
 router = APIRouter()
 
 
-@router.post("/v1/engine/generate/", summary="Generate API V2 routes")
+@router.post("/v1/engine/generate/", summary="Generate endpoint all in one")
 async def generate_routes(common_request: CommonRequest):
     """
     Generate API routes
