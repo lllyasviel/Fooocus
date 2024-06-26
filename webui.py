@@ -234,7 +234,7 @@ with shared.gradio_root:
                         with gr.Row():
                             with gr.Column():
                                 inpaint_input_image = grh.Image(label='Image', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas', show_label=False)
-                                inpaint_mask_upload_checkbox = gr.Checkbox(label='Enable Mask Upload', value=False)
+                                inpaint_advanced_masking_checkbox = gr.Checkbox(label='Enable Advanced Masking Features', value=False)
                                 inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
                                 inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                                 outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
@@ -806,12 +806,12 @@ with shared.gradio_root:
 
                         inpaint_ctrls = [debugging_inpaint_preprocessor, inpaint_disable_initial_latent, inpaint_engine,
                                          inpaint_strength, inpaint_respective_field,
-                                         inpaint_mask_upload_checkbox, invert_mask_checkbox, inpaint_erode_or_dilate]
+                                         inpaint_advanced_masking_checkbox, invert_mask_checkbox, inpaint_erode_or_dilate]
 
-                        inpaint_mask_upload_checkbox.change(lambda x: [gr.update(visible=x)] * 2,
-                                                            inputs=inpaint_mask_upload_checkbox,
-                                                            outputs=[inpaint_mask_image, inpaint_mask_generation_col],
-                                                            queue=False, show_progress=False)
+                        inpaint_advanced_masking_checkbox.change(lambda x: [gr.update(visible=x)] * 2,
+                                                                 inputs=inpaint_advanced_masking_checkbox,
+                                                                 outputs=[inpaint_mask_image, inpaint_mask_generation_col],
+                                                                 queue=False, show_progress=False)
 
                         inpaint_mask_color.change(lambda x: gr.update(brush_color=x), inputs=inpaint_mask_color,
                                                   outputs=inpaint_input_image,

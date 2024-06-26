@@ -93,7 +93,7 @@ class AsyncTask:
         self.inpaint_engine = args.pop()
         self.inpaint_strength = args.pop()
         self.inpaint_respective_field = args.pop()
-        self.inpaint_mask_upload_checkbox = args.pop()
+        self.inpaint_advanced_masking_checkbox = args.pop()
         self.invert_mask_checkbox = args.pop()
         self.inpaint_erode_or_dilate = args.pop()
         self.save_metadata_to_images = args.pop() if not args_manager.args.disable_metadata else False
@@ -858,7 +858,7 @@ def worker():
             inpaint_image = async_task.inpaint_input_image['image']
             inpaint_mask = async_task.inpaint_input_image['mask'][:, :, 0]
 
-            if async_task.inpaint_mask_upload_checkbox:
+            if async_task.inpaint_advanced_masking_checkbox:
                 if isinstance(async_task.inpaint_mask_image_upload, dict):
                     if (isinstance(async_task.inpaint_mask_image_upload['image'], np.ndarray)
                             and isinstance(async_task.inpaint_mask_image_upload['mask'], np.ndarray)
