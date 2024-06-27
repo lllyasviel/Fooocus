@@ -968,6 +968,10 @@ def worker():
         inpaint_parameterized = inpaint_engine != 'None'  # inpaint_engine = None, improve detail
         initial_latent = None
 
+        prompt = prepare_enhance_prompt(prompt, async_task.prompt, async_task.translate_prompts, 'prompt')
+        negative_prompt = prepare_enhance_prompt(negative_prompt, async_task.negative_prompt,
+                                                 async_task.translate_prompts, 'negative prompt')
+
         if 'vary' in goals:
             img, denoising_strength, initial_latent, width, height, current_progress = apply_vary(
                 async_task, async_task.enhance_uov_method, denoising_strength, img, switch, current_progress)
@@ -983,7 +987,7 @@ def worker():
                 uov_image_path = log(img, d, output_format=async_task.output_format)
                 yield_result(async_task, uov_image_path, current_progress, async_task.black_out_nsfw, False,
                              do_not_show_finished_images=not show_intermediate_results or async_task.disable_intermediate_results)
-                return current_progress, img
+                return current_progress, img, prompt, negative_prompt
 
         if 'inpaint' in goals and inpaint_parameterized:
             progressbar(async_task, current_progress, 'Downloading inpainter ...')
@@ -992,9 +996,6 @@ def worker():
             if inpaint_patch_model_path not in base_model_additional_loras:
                 base_model_additional_loras += [(inpaint_patch_model_path, 1.0)]
         progressbar(async_task, current_progress, 'Preparing enhance prompts ...')
-        prompt = prepare_enhance_prompt(prompt, async_task.prompt, async_task.translate_prompts, 'prompt')
-        negative_prompt = prepare_enhance_prompt(negative_prompt, async_task.negative_prompt,
-                                                 async_task.translate_prompts, 'negative prompt')
         # positive and negative conditioning aren't available here anymore, process prompt again
         tasks_enhance, use_expansion, loras, current_progress = process_prompt(
             async_task, prompt, negative_prompt, base_model_additional_loras, 1, True,
