@@ -1237,6 +1237,7 @@ def worker():
             enhance_steps, _, _, _ = apply_overrides(async_task, async_task.original_steps, height, width)
             all_steps += async_task.image_number * len(async_task.enhance_ctrls) * enhance_steps
 
+        all_steps = max(all_steps, 1)
 
         print(f'[Parameters] Denoising Strength = {denoising_strength}')
 
