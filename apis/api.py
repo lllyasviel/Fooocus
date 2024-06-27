@@ -57,6 +57,7 @@ def run_server(arguments):
     Run the FastAPI server
     :param arguments: command line arguments
     """
+    os.environ["WEBHOOK_URL"] = arguments.webhook_url
     try:
         api_port = int(arguments.port) + 1
     except TypeError:

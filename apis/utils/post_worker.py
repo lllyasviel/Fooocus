@@ -2,6 +2,7 @@
 Do something after generate
 """
 import datetime
+import json
 import os
 from pathlib import Path
 
@@ -10,6 +11,7 @@ from sqlalchemy.orm import sessionmaker
 
 from apis.models.base import CurrentTask
 from apis.utils.sql_client import GenerateRecord
+from apis.utils.web_hook import send_result_to_web_hook
 from modules.async_worker import AsyncTask
 
 from apis.utils import file_utils
@@ -63,6 +65,7 @@ def post_worker(task: AsyncTask, started_at: int):
         query.task_status = "finished"
         query.progress = 100
         query.result = url_path(task.results)
+        send_result_to_web_hook(query.webhook_url, json.loads(query))
         session.commit()
     except Exception as e:
         print(e)

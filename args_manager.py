@@ -40,6 +40,9 @@ args_parser.parser.add_argument("--nowebui", action='store_true',
 args_parser.parser.add_argument("--base-url", type=str, default="127.0.0.1",
                                 help="Host for result of async tasks, also for persistent storage")
 
+args_parser.parser.add_argument("--webhook-url", type=str, default='',
+                                help="Webhook URL for async tasks")
+
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
     in_browser=True,
