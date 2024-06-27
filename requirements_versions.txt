@@ -4,7 +4,7 @@ transformers==4.30.2
 safetensors==0.3.1
 accelerate==0.21.0
 pyyaml==6.0
-Pillow==9.2.0
+Pillow==9.4.0
 scipy==1.9.3
 tqdm==4.64.1
 psutil==5.9.5

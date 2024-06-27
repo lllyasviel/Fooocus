@@ -66,7 +66,7 @@ def lora_parser(loras: list) -> list:
     return loras_list
 
 
-def control_net_parser(control_net: list) -> list:
+async def control_net_parser(control_net: list) -> list:
     """
     Convert control net to control net list
     """
@@ -83,7 +83,7 @@ def control_net_parser(control_net: list) -> list:
     cn_list = []
     for cn in control_net:
         cn_list.extend([
-            cn.cn_img,
+            await read_input_image(cn.cn_img),
             cn.cn_stop,
             cn.cn_weight,
             cn.cn_type.value
@@ -111,7 +111,7 @@ async def pre_worker(request: CommonRequest):
     request.inpaint_mask_image_upload = await read_input_image(request.inpaint_mask_image_upload)
 
     request.loras = lora_parser(request.loras)
-    request.controlnet_image = control_net_parser(request.controlnet_image)
+    request.controlnet_image = await control_net_parser(request.controlnet_image)
 
     if request.controlnet_image[0] is not None:
         request.current_tab = 'ip'
