@@ -113,12 +113,12 @@ async def pre_worker(request: CommonRequest):
     request.loras = lora_parser(request.loras)
     request.controlnet_image = control_net_parser(request.controlnet_image)
 
-    if request.uov_input_image is not None:
-        request.current_tab = 'uov'
-    if request.inpaint_input_image is not None:
-        request.current_tab = 'inpaint'
     if request.controlnet_image[0] is not None:
         request.current_tab = 'ip'
+    elif request.uov_input_image is not None:
+        request.current_tab = 'uov'
+    elif request.inpaint_input_image is not None:
+        request.current_tab = 'inpaint'
 
     req_copy = copy.deepcopy(request)
 
