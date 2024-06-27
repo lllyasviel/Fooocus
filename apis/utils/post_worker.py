@@ -12,10 +12,12 @@ from apis.models.base import CurrentTask
 from apis.utils.sql_client import GenerateRecord
 from modules.async_worker import AsyncTask
 
+from apis.utils import file_utils
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-INPUT_PATH = os.path.join(ROOT_DIR, '..', 'inputs')
-OUT_PATH = os.path.join(ROOT_DIR, '..', 'outputs')
+
+ROOT_DIR = file_utils.SCRIPT_PATH
+INPUT_PATH = os.path.join(ROOT_DIR, 'inputs')
+OUT_PATH = os.path.join(ROOT_DIR, 'outputs')
 
 engine = create_engine(
     f"sqlite:///{OUT_PATH}/db.sqlite3",
@@ -26,7 +28,6 @@ Session = sessionmaker(bind=engine, autoflush=True)
 session = Session()
 
 
-# todo: use argument to specify hosts
 def url_path(result: list) -> list:
     """
     Converts the result to a list of URL paths.
@@ -44,7 +45,7 @@ def url_path(result: list) -> list:
     for res in result:
         path = Path(res).as_posix()
         uri = '/'.join(path.split('/')[-2:])
-        url_or_path.append(f"http://127.0.0.1:7866/outputs/{uri}")
+        url_or_path.append(f"{file_utils.STATIC_SERVER_BASE}/outputs/{uri}")
     return url_or_path
 
 

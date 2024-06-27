@@ -10,6 +10,7 @@ import uvicorn
 
 from apis.routes.generate import router as generate
 from apis.routes.query import router as query
+from apis.utils import file_utils
 
 
 app = FastAPI()
@@ -60,4 +61,5 @@ def run_server(arguments):
         api_port = int(arguments.port) + 1
     except TypeError:
         api_port = int(os.environ["GRADIO_SERVER_PORT"]) + 1
-    uvicorn.run(app, host="0.0.0.0", port=api_port)
+    file_utils.STATIC_SERVER_BASE = f"http://{arguments.base_url}:{api_port}"
+    uvicorn.run(app, host=arguments.listen, port=api_port)

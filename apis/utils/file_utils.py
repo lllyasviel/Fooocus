@@ -21,12 +21,12 @@ from PIL.PngImagePlugin import PngInfo
 
 from apis.utils.img_utils import narray_to_base64img
 
+SCRIPT_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../..'))
 
-output_dir = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), '../..', 'outputs', 'files'))
-os.makedirs(output_dir, exist_ok=True)
+output_dir = os.path.join(SCRIPT_PATH, 'outputs')
 
-STATIC_SERVER_BASE = 'http://127.0.0.1:8888/files/'
+STATIC_SERVER_BASE = 'http://127.0.0.1:7866'
 
 
 def save_output_file(
@@ -58,7 +58,7 @@ def save_output_file(
         image_meta = {}
 
     meta = None
-    if extension == 'png'and image_meta != {}:
+    if extension == 'png' and image_meta != {}:
         meta = PngInfo()
         meta.add_text("parameters", json.dumps(image_meta))
         meta.add_text("fooocus_scheme", image_meta['metadata_scheme'])

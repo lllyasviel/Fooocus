@@ -2,15 +2,16 @@
 Query routes.
 """
 import json
+
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from modules.async_worker import async_tasks
+
 from apis.utils.call_worker import current_task, session
 from apis.utils.sql_client import GenerateRecord
-from apis.models.response import RecordResponse
+from modules.async_worker import async_tasks
 
 
-def tasks_info(task_id: str = None):
+async def tasks_info(task_id: str = None):
     """
     Returns the tasks.
     :param task_id: The task ID to filter by.
@@ -28,14 +29,15 @@ def tasks_info(task_id: str = None):
 
 router = APIRouter()
 
+
 @router.get("/tasks")
 async def get_tasks(
-    query: str = "all",
-    page: int = 0,
-    page_size: int = 10):
+        query: str = "all",
+        page: int = 0,
+        page_size: int = 10):
     """
     Get all tasks.
-    :param type: The type of tasks to filter by. One of all, history, current, pending
+    :param query: The type of tasks to filter by. One of all, history, current, pending
     :param page: The page number to return. used for history and pending
     :param page_size: The number of tasks to return per page.
     :return: The tasks.
@@ -71,4 +73,4 @@ async def get_task(task_id: str):
     """
     Get a specific task by its ID.
     """
-    return JSONResponse(tasks_info(task_id))
+    return JSONResponse(await tasks_info(task_id))
