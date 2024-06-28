@@ -2,11 +2,12 @@
 Generate API routes
 """
 from fastapi import (
-    APIRouter, Query, UploadFile
+    APIRouter, Depends, Query, UploadFile
 )
 from sse_starlette.sse import EventSourceResponse
 
 from apis.models.base import DescribeImageResponse, DescribeImageType
+from apis.utils.api_utils import api_key_auth
 from apis.utils.call_worker import (
     async_worker,
     stream_output,
@@ -16,10 +17,13 @@ from apis.models.requests import CommonRequest
 from apis.utils.img_utils import read_input_image
 from modules.util import HWC3
 
-router = APIRouter()
+
+secure_router = APIRouter(
+    dependencies=[Depends(api_key_auth)]
+)
 
 
-@router.post("/v1/engine/generate/", summary="Generate endpoint all in one")
+@secure_router.post("/v1/engine/generate/", summary="Generate endpoint all in one")
 async def generate_routes(common_request: CommonRequest):
     """
     Generate API routes
@@ -35,7 +39,7 @@ async def generate_routes(common_request: CommonRequest):
     return await binary_output(request=common_request)
 
 
-@router.post(
+@secure_router.post(
         path="/v1/tools/describe-image",
         response_model=DescribeImageResponse,
         tags=["GenerateV1"])

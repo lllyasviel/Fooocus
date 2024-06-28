@@ -1,8 +1,26 @@
 """
 API utils
 """
-
+from fastapi import HTTPException, Security
+from fastapi.security import APIKeyHeader
 from apis.models.requests import CommonRequest
+
+api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=False)
+APIKEY_AUTH = None
+
+
+def api_key_auth(apikey: str = Security(api_key_header)):
+    """
+    Check if the API key is valid, API key is not required if no API key is set
+    Args:
+        apikey: API key
+    returns:
+        None if API key is not set, otherwise raise HTTPException
+    """
+    if APIKEY_AUTH is None:
+        return  # Skip API key check if no API key is set
+    if apikey != APIKEY_AUTH:
+        raise HTTPException(status_code=403, detail="Forbidden")
 
 
 def params_to_params(req: CommonRequest):

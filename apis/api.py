@@ -8,10 +8,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from apis.routes.generate import router as generate
-from apis.routes.query import router as query
+from apis.routes.generate import secure_router as generate
+from apis.routes.query import secure_router as query
 from apis.utils import file_utils
-
+from apis.utils import api_utils
 
 app = FastAPI()
 
@@ -37,26 +37,14 @@ async def root():
     return RedirectResponse("/docs")
 
 
-@app.get("/outputs/{file_name}")
-async def serve_outputs(file_name: str):
-    """
-    Serve outputs directory
-    :param file_name: file name
-    :return: file content
-    """
-    print(file_name)
-    if file_name.split('.')[-1] in ['sqlite3', 'html']:
-        return Response(status_code=404)
-    return FileResponse(f"outputs/{file_name}")
-
-app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
-
-
 def run_server(arguments):
     """
     Run the FastAPI server
     :param arguments: command line arguments
     """
+    if arguments.apikey != "":
+        api_utils.APIKEY_AUTH = arguments.apikey
+
     os.environ["WEBHOOK_URL"] = arguments.webhook_url
     try:
         api_port = int(arguments.port) + 1

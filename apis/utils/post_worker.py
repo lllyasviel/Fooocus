@@ -65,8 +65,9 @@ def post_worker(task: AsyncTask, started_at: int):
         query.task_status = "finished"
         query.progress = 100
         query.result = url_path(task.results)
-        send_result_to_web_hook(query.webhook_url, json.loads(query))
+        finally_result = str(query)
         session.commit()
+        send_result_to_web_hook(query.webhook_url, finally_result)
     except Exception as e:
         print(e)
     CurrentTask.ct = None

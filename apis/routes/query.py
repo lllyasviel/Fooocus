@@ -3,9 +3,11 @@ Query routes.
 """
 import json
 
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse, Response
+from starlette.responses import FileResponse
 
+from apis.utils.api_utils import api_key_auth
 from apis.utils.call_worker import current_task, session
 from apis.utils.sql_client import GenerateRecord
 from modules.async_worker import async_tasks
@@ -27,10 +29,12 @@ async def tasks_info(task_id: str = None):
     return async_tasks
 
 
-router = APIRouter()
+secure_router = APIRouter(
+    dependencies=[Depends(api_key_auth)]
+)
 
 
-@router.get("/tasks")
+@secure_router.get("/tasks")
 async def get_tasks(
         query: str = "all",
         page: int = 0,
@@ -47,7 +51,6 @@ async def get_tasks(
         query_history = session.query(GenerateRecord).order_by(GenerateRecord.id.desc()).limit(page_size).offset(page * page_size).all()
         for q in query_history:
             result = json.loads(str(q))
-            result["req_params"] = json.loads(result["req_params"])
             historys.append(result)
     if query in ('all', 'current'):
         current = await current_task()
@@ -68,9 +71,19 @@ async def get_tasks(
     })
 
 
-@router.get("/tasks/{task_id}")
+@secure_router.get("/tasks/{task_id}")
 async def get_task(task_id: str):
     """
     Get a specific task by its ID.
     """
     return JSONResponse(await tasks_info(task_id))
+
+
+@secure_router.get("/outputs/{data}/{file_name}")
+async def get_output(data: str, file_name: str):
+    """
+    Get a specific output by its ID.
+    """
+    if not file_name.endswith(('.png', '.jpg', '.jpeg', '.webp')):
+        return Response(status_code=404)
+    return FileResponse(f"outputs/{data}/{file_name}")

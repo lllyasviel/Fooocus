@@ -80,6 +80,8 @@ async def stream_output(request: CommonRequest):
     Calls the worker with the given params.
     :param request: The request object containing the params.
     """
+    if request.webhook_url is None or request.webhook_url == "":
+        request.webhook_url = os.environ.get("WEBHOOK_URL")
     raw_req, request = await pre_worker(request)
     params = params_to_params(request)
     task = AsyncTask(args=params)
@@ -145,6 +147,8 @@ async def binary_output(request: CommonRequest):
     Calls the worker with the given params.
     :param request: The request object containing the params.
     """
+    if request.webhook_url is None or request.webhook_url == "":
+        request.webhook_url = os.environ.get("WEBHOOK_URL")
     request.image_number = 1
     raw_req, request = await pre_worker(request)
     params = params_to_params(request)
@@ -211,7 +215,7 @@ async def async_worker(request: CommonRequest) -> dict:
     session.add(GenerateRecord(
         task_id=task.task_id,
         req_params=json.loads(raw_req.model_dump_json()),
-        webhook_url=request.webhook_url,
+        webhook_url=raw_req.webhook_url,
         in_queue_mills=in_queue_mills
     ))
     session.commit()
