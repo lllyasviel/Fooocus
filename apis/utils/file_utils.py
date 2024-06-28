@@ -29,6 +29,23 @@ output_dir = os.path.join(SCRIPT_PATH, 'outputs')
 STATIC_SERVER_BASE = 'http://127.0.0.1:7866'
 
 
+def delete_tasks(tasks: list) -> None:
+    """
+    Delete tasks from database
+    Args:
+        tasks: list of tasks
+    """
+    files_to_delete = []
+    for task in tasks:
+        if task['result'] is None:
+            continue
+        files_to_delete.extend(task['result'])
+    if len(files_to_delete) == 0:
+        return
+    for file in url_path(files_to_delete):
+        delete_output_file(file)
+
+
 def save_output_file(
         img: np.ndarray,
         image_meta: dict = None,
@@ -72,20 +89,20 @@ def save_output_file(
     return Path(filename).as_posix()
 
 
-def delete_output_file(filename: str):
+def delete_output_file(file_path: str):
     """
     Delete files specified in the output directory
     Args:
-        filename: str of file name
+        file_path: str of file name
     """
-    file_path = os.path.join(output_dir, filename)
+    file_name = os.path.basename(file_path)
     if not os.path.exists(file_path) or not os.path.isfile(file_path):
-        print(f'[Fooocus API] {filename} not exists or is not a file')
+        print(f'[Fooocus API] {file_name} not exists or is not a file')
     try:
         os.remove(file_path)
-        print(f'[Fooocus API] Delete output file: {filename}')
+        print(f'[Fooocus API] Delete output file: {file_name}')
     except OSError:
-        print(f'[Fooocus API] Delete output file failed: {filename}')
+        print(f'[Fooocus API] Delete output file failed: {file_name}')
 
 
 def output_file_to_base64img(filename: str | None) -> str | None:
@@ -164,3 +181,24 @@ def save_base64(base64_str: str | np.ndarray, file_dir: str) -> str:
     with open(file_path, 'wb') as f:
         f.write(img_data)
     return file_path
+
+
+def url_path(result: list) -> list:
+    """
+    Converts the result to a list of URL paths.
+    :param result: The result to convert.
+    :return: The list of URL paths.
+    """
+    url_or_path = []
+    if len(result) == 0:
+        return url_or_path
+    if str.startswith(result[0], 'http'):
+        for res in result:
+            uri = '/'.join(res.split('/')[-2:])
+            url_or_path.append(os.path.join(output_dir, uri))
+        return url_or_path
+    for res in result:
+        path = Path(res).as_posix()
+        uri = '/'.join(path.split('/')[-2:])
+        url_or_path.append(f"{STATIC_SERVER_BASE}/outputs/{uri}")
+    return url_or_path

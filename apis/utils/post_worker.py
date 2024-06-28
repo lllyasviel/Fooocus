@@ -2,14 +2,13 @@
 Do something after generate
 """
 import datetime
-import json
 import os
-from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from apis.models.base import CurrentTask
+from apis.utils.file_utils import url_path
 from apis.utils.sql_client import GenerateRecord
 from apis.utils.web_hook import send_result_to_web_hook
 from modules.async_worker import AsyncTask
@@ -28,27 +27,6 @@ engine = create_engine(
 )
 Session = sessionmaker(bind=engine, autoflush=True)
 session = Session()
-
-
-def url_path(result: list) -> list:
-    """
-    Converts the result to a list of URL paths.
-    :param result: The result to convert.
-    :return: The list of URL paths.
-    """
-    url_or_path = []
-    if len(result) == 0:
-        return url_or_path
-    if str.startswith(result[0], 'http'):
-        for res in result:
-            uri = '/'.join(res.split('/')[-2:])
-            url_or_path.append(os.path.join(OUT_PATH, uri))
-        return url_or_path
-    for res in result:
-        path = Path(res).as_posix()
-        uri = '/'.join(path.split('/')[-2:])
-        url_or_path.append(f"{file_utils.STATIC_SERVER_BASE}/outputs/{uri}")
-    return url_or_path
 
 
 def post_worker(task: AsyncTask, started_at: int):

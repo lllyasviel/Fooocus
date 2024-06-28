@@ -1,7 +1,10 @@
 """
 Query routes.
 """
+import re
 import json
+
+from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse, Response
@@ -9,8 +12,25 @@ from starlette.responses import FileResponse
 
 from apis.utils.api_utils import api_key_auth
 from apis.utils.call_worker import current_task, session
+from apis.utils.file_utils import delete_tasks
 from apis.utils.sql_client import GenerateRecord
 from modules.async_worker import async_tasks
+
+
+def date_to_timestamp(date: str) -> int | None:
+    """
+    Converts the date to a timestamp.
+    :param date: The ISO 8601 date to convert.
+    :return: The timestamp in millisecond.
+    """
+    pattern = '\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'
+    if date is None:
+        return None
+    try:
+        date = re.match(pattern, date).group()
+    except AttributeError:
+        return None
+    return int(datetime.fromisoformat(date).timestamp()) * 1000
 
 
 async def tasks_info(task_id: str = None):
@@ -38,17 +58,43 @@ secure_router = APIRouter(
 async def get_tasks(
         query: str = "all",
         page: int = 0,
-        page_size: int = 10):
+        page_size: int = 10,
+        start_at: str = None,
+        end_at: str = datetime.now().isoformat(),
+        action: str = None):
     """
     Get all tasks.
     :param query: The type of tasks to filter by. One of all, history, current, pending
     :param page: The page number to return. used for history and pending
     :param page_size: The number of tasks to return per page.
+    :param start_at: The start time to filter by.
+    :param end_at: The end time to filter by.
+    :param action: Delete only.
     :return: The tasks.
     """
+    start_at = date_to_timestamp(start_at)
+    end_at = date_to_timestamp(end_at)
+    action = action.lower() if action is not None else None
+    if start_at is None or start_at >= end_at:
+        start_at, end_at = None, None
+
+    if action == 'delete':
+        try:
+            query_result = session.query(GenerateRecord).filter(GenerateRecord.in_queue_mills >= start_at).filter(GenerateRecord.in_queue_mills <= end_at).all()
+            tasks = [json.loads(str(task)) for task in query_result]
+            delete_tasks(tasks)
+            session.query(GenerateRecord).filter(GenerateRecord.in_queue_mills >= start_at).filter(GenerateRecord.in_queue_mills <= end_at).delete()
+            session.commit()
+        except Exception as e:
+            print(e)
+        return
+
     historys, current, pending = [], [], []
-    if query in ('all', 'history'):
-        query_history = session.query(GenerateRecord).order_by(GenerateRecord.id.desc()).limit(page_size).offset(page * page_size).all()
+    if query in ('all', 'history') and action != "delete":
+        if start_at is not None:
+            query_history = session.query(GenerateRecord).filter(GenerateRecord.in_queue_mills >= start_at).filter(GenerateRecord.in_queue_mills <= end_at).all()
+        else:
+            query_history = session.query(GenerateRecord).order_by(GenerateRecord.id.desc()).limit(page_size).offset(page * page_size).all()
         for q in query_history:
             result = json.loads(str(q))
             historys.append(result)

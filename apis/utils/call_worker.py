@@ -16,7 +16,8 @@ from apis.models.response import RecordResponse
 from apis.utils.api_utils import params_to_params
 from apis.utils.pre_process import pre_worker
 from apis.utils.sql_client import GenerateRecord
-from apis.utils.post_worker import post_worker, url_path
+from apis.utils.post_worker import post_worker
+from apis.utils.file_utils import url_path
 
 from apis.utils.img_utils import (
     narray_to_base64img
