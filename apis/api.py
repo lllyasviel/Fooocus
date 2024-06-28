@@ -2,9 +2,8 @@
 Entry for startup fastapi server
 """
 import os
-from fastapi import FastAPI, Response
-from fastapi.responses import FileResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 

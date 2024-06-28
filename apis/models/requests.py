@@ -131,6 +131,7 @@ class CommonRequest(BaseModel):
 
     generate_image_grid: bool = Field(default=False, description="Generate Image Grid for Each Batch, (Experimental) This may cause performance problems on some computers and certain internet conditions.")
 
+    preset: str = Field(default='initial', description="Presets")
     stream_output: bool = Field(default=False, description="Stream output")
     require_base64: bool = Field(default=False, description="Return base64 data of generated image")
     async_process: bool = Field(default=False, description="Set to true will run async and return job info for retrieve generation result later")

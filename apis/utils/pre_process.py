@@ -5,14 +5,14 @@ import copy
 import os
 import random
 
-from modules.config import default_max_lora_number
-from modules.flags import controlnet_image_count
-from modules import constants
+from modules.config import default_max_lora_number, try_get_preset_content
+from modules.flags import Performance, controlnet_image_count
+from modules import constants, config
 from apis.models.requests import CommonRequest
 from apis.utils.file_utils import save_base64
 from apis.utils.img_utils import read_input_image
 from apis.models.base import Lora, ImagePrompt
-
+from modules.model_loader import load_file_from_url
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUT_PATH = os.path.join(ROOT_DIR, '..', 'inputs')
@@ -91,12 +91,50 @@ async def control_net_parser(control_net: list) -> list:
     return cn_list
 
 
+def parse_preset(request: CommonRequest) -> CommonRequest:
+    """
+    Parse preset content.
+    :param request: The request to parse.
+    :return: The parsed request.
+    """
+    default_params = CommonRequest()
+    preset_content = try_get_preset_content(request.preset)
+
+    if preset_content != {}:
+        request.prompt = preset_content.get("default_prompt") if request.prompt == default_params.prompt else request.prompt
+        request.negative_prompt = preset_content.get("default_prompt_negative") if request.negative_prompt == default_params.negative_prompt else request.negative_prompt
+        request.base_model_name = preset_content.get("default_model") if request.base_model_name == default_params.base_model_name else request.base_model_name
+        request.refiner_model_name = preset_content.get("default_refiner") if request.refiner_model_name == default_params.refiner_model_name else request.refiner_model_name
+        request.refiner_switch = preset_content.get("default_refiner_switch") if request.refiner_switch == default_params.refiner_switch else request.refiner_switch
+        request.style_selections = preset_content.get("default_styles") if request.style_selections == default_params.style_selections else request.style_selections
+        request.adaptive_cfg = preset_content.get("default_cfg_scale") if request.adaptive_cfg == default_params.adaptive_cfg else request.adaptive_cfg
+        request.sharpness = preset_content.get("default_sample_sharpness") if request.sharpness == default_params.sharpness else request.sharpness
+        request.sampler_name = preset_content.get("default_sampler") if request.sampler_name == default_params.sampler_name else request.sampler_name
+        request.scheduler_name = preset_content.get("default_scheduler") if request.scheduler_name == default_params.scheduler_name else request.scheduler_name
+        request.performance_selection = Performance(preset_content.get("default_performance")) if request.performance_selection == default_params.performance_selection else request.performance_selection
+        request.aspect_ratios_selection = preset_content.get("default_aspect_ratio") if request.aspect_ratios_selection == default_params.aspect_ratios_selection else request.aspect_ratios_selection
+
+        checkpoint_downloads = preset_content.get("checkpoint_downloads", {})
+        embeddings_downloads = preset_content.get("embeddings_downloads", {})
+        lora_downloads = preset_content.get("lora_downloads", {})
+        for file_name, url in checkpoint_downloads.items():
+            load_file_from_url(url=url, model_dir=config.paths_checkpoints[0], file_name=file_name)
+        for file_name, url in embeddings_downloads.items():
+            load_file_from_url(url=url, model_dir=config.path_embeddings, file_name=file_name)
+        for file_name, url in lora_downloads.items():
+            load_file_from_url(url=url, model_dir=config.paths_loras[0], file_name=file_name)
+    return request
+
+
 async def pre_worker(request: CommonRequest):
     """
     Pre-processes the request.
     :param request: The request to pre-process.
     :return: The pre-processed request.
     """
+    if request.preset != 'initial':
+        request = parse_preset(request)
+
     os.makedirs(INPUT_PATH, exist_ok=True)
 
     request.aspect_ratios_selection = aspect_ratios_parser(request.aspect_ratios_selection)
