@@ -1,12 +1,14 @@
 import threading
 import re
+import uuid
 from modules.patch import PatchSettings, patch_settings, patch_all
 
 patch_all()
 
 
 class AsyncTask:
-    def __init__(self, args):
+    def __init__(self, args, task_id = uuid.uuid4().hex):
+        self.task_id = task_id
         self.args = args
         self.yields = []
         self.results = []

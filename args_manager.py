@@ -8,12 +8,12 @@ args_parser.parser.add_argument("--disable-preset-selection", action='store_true
 
 args_parser.parser.add_argument("--language", type=str, default='default',
                                 help="Translate UI using json files in [language] folder. "
-                                  "For example, [--language example] will use [language/example.json] for translation.")
+                                     "For example, [--language example] will use [language/example.json] for translation.")
 
 # For example, https://github.com/lllyasviel/Fooocus/issues/849
 args_parser.parser.add_argument("--disable-offload-from-vram", action="store_true",
                                 help="Force loading models to vram when the unload can be avoided. "
-                                  "Some Mac users may need this.")
+                                     "Some Mac users may need this.")
 
 args_parser.parser.add_argument("--theme", type=str, help="launches the UI with light or dark theme", default=None)
 args_parser.parser.add_argument("--disable-image-log", action='store_true',
@@ -34,6 +34,18 @@ args_parser.parser.add_argument("--enable-describe-uov-image", action='store_tru
 args_parser.parser.add_argument("--always-download-new-model", action='store_true',
                                 help="Always download newer models ", default=False)
 
+args_parser.parser.add_argument("--nowebui", action='store_true',
+                                help="Disables web UI", default=False)
+
+args_parser.parser.add_argument("--base-url", type=str, default="127.0.0.1",
+                                help="Host for result of async tasks, also for persistent storage")
+
+args_parser.parser.add_argument("--apikey", type=str, default='',
+                                help="API key for routes")
+
+args_parser.parser.add_argument("--webhook-url", type=str, default='',
+                                help="Webhook URL for async tasks")
+
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
     in_browser=True,
@@ -47,6 +59,7 @@ args_parser.args.always_offload_from_vram = not args_parser.args.disable_offload
 
 if args_parser.args.disable_analytics:
     import os
+
     os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
 
 if args_parser.args.disable_in_browser:

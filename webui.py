@@ -1,4 +1,5 @@
 import gradio as gr
+from threading import Thread
 import random
 import os
 import json
@@ -22,6 +23,8 @@ from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 from modules.util import is_json
+from apis.api import run_server
+
 
 def get_task(*args):
     args = list(args)
@@ -568,7 +571,7 @@ with shared.gradio_root:
                     modules.config.update_files()
                     results = [gr.update(choices=modules.config.model_filenames)]
                     results += [gr.update(choices=['None'] + modules.config.model_filenames)]
-                    results += [gr.update(choices=[flags.default_vae] + modules.config.vae_filenames)]
+                    results += [gr.update(choices=['None'] + modules.config.vae_filenames)]
                     if not args_manager.args.disable_preset_selection:
                         results += [gr.update(choices=modules.config.available_presets)]
                     for i in range(modules.config.default_max_lora_number):
@@ -770,13 +773,20 @@ def dump_default_english_config():
 
 
 # dump_default_english_config()
+def run_gradio():
+    """
+    Run the gradio interface
+    """
+    shared.gradio_root.launch(
+        inbrowser=args_manager.args.in_browser,
+        server_name=args_manager.args.listen,
+        server_port=args_manager.args.port,
+        share=args_manager.args.share,
+        auth=check_auth if (args_manager.args.share or args_manager.args.listen) and auth_enabled else None,
+        allowed_paths=[modules.config.path_outputs],
+        blocked_paths=[constants.AUTH_FILENAME]
+    )
 
-shared.gradio_root.launch(
-    inbrowser=args_manager.args.in_browser,
-    server_name=args_manager.args.listen,
-    server_port=args_manager.args.port,
-    share=args_manager.args.share,
-    auth=check_auth if (args_manager.args.share or args_manager.args.listen) and auth_enabled else None,
-    allowed_paths=[modules.config.path_outputs],
-    blocked_paths=[constants.AUTH_FILENAME]
-)
+if not args_manager.args.nowebui:
+    Thread(target=run_gradio, daemon=True).start()
+run_server(args_manager.args)
