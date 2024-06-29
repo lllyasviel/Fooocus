@@ -1,12 +1,10 @@
 """
 web hook, send results to given url, or some other place.
 """
-import json
-
 import httpx
 
 
-def send_result_to_web_hook(url: str, result):
+async def send_result_to_web_hook(url: str, result):
     """
     send result to web hook
     :param url: web hook url

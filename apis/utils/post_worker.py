@@ -29,7 +29,7 @@ Session = sessionmaker(bind=engine, autoflush=True)
 session = Session()
 
 
-def post_worker(task: AsyncTask, started_at: int):
+async def post_worker(task: AsyncTask, started_at: int):
     """
     Posts the task to the worker.
     :param task: The task to post.
@@ -45,7 +45,7 @@ def post_worker(task: AsyncTask, started_at: int):
         query.result = url_path(task.results)
         finally_result = str(query)
         session.commit()
-        send_result_to_web_hook(query.webhook_url, finally_result)
+        await send_result_to_web_hook(query.webhook_url, finally_result)
     except Exception as e:
         print(e)
     CurrentTask.ct = None

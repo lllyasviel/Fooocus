@@ -73,7 +73,7 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
                 CurrentTask.ct.preview = narray_to_base64img(image)
             if flag == 'finish':
                 finished = True
-                post_worker(task=task, started_at=started_at)
+                await post_worker(task=task, started_at=started_at)
 
 
 async def stream_output(request: CommonRequest):
@@ -85,7 +85,7 @@ async def stream_output(request: CommonRequest):
         request.webhook_url = os.environ.get("WEBHOOK_URL")
     raw_req, request = await pre_worker(request)
     params = params_to_params(request)
-    task = AsyncTask(args=params)
+    task = AsyncTask(args=params, task_id=uuid.uuid4().hex)
     async_tasks.append(task)
     in_queue_mills = int(datetime.datetime.now().timestamp() * 1000)
     session.add(GenerateRecord(
@@ -132,13 +132,14 @@ async def stream_output(request: CommonRequest):
                 print(task.results)
                 print(task.processing)
             if flag == 'finish':
+                # await post_worker(task=task, started_at=started_at)
+                await asyncio.create_task(post_worker(task=task, started_at=started_at))
                 text = json.dumps({
                     "progress": 100,
                     "preview": None,
                     "message": "",
                     "images": url_path(task.results)
                 })
-                post_worker(task=task, started_at=started_at)
                 yield f"{text}\n"
                 finished = True
 
@@ -191,7 +192,7 @@ async def binary_output(request: CommonRequest):
                 CurrentTask.ct.preview = narray_to_base64img(image)
             if flag == 'finish':
                 finished = True
-                post_worker(task=task, started_at=started_at)
+                await post_worker(task=task, started_at=started_at)
 
     with open(task.results[0], "rb") as f:
         image = f.read()
