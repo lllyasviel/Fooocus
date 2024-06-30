@@ -35,9 +35,11 @@
     "default_sampler": "dpmpp_2m_sde_gpu",
     "default_scheduler": "karras",
     "default_performance": "Speed",
-    "default_prompt": "score_9, score_8_up, score_7_up, ",
-    "default_prompt_negative": "score_6, score_5, score_4, censored",
-    "default_styles": [],
+    "default_prompt": "",
+    "default_prompt_negative": "",
+    "default_styles": [
+        "Fooocus Pony"
+    ],
     "default_aspect_ratio": "896*1152",
     "default_overwrite_step": -1,
     "checkpoint_downloads": {
