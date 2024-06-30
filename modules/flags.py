@@ -35,7 +35,8 @@ KSAMPLER = {
     "dpmpp_3m_sde_gpu": "",
     "ddpm": "",
     "lcm": "LCM",
-    "tcd": "TCD"
+    "tcd": "TCD",
+    "restart": "Restart"
 }
 
 SAMPLER_EXTRA = {
