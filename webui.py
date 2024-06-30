@@ -235,7 +235,7 @@ with shared.gradio_root:
                             with gr.Column():
                                 inpaint_input_image = grh.Image(label='Image', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas', show_label=False)
                                 inpaint_advanced_masking_checkbox = gr.Checkbox(label='Enable Advanced Masking Features', value=False)
-                                inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
+                                inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.config.default_inpaint_method, label='Method')
                                 inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                                 outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
                                 example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts,
@@ -874,7 +874,8 @@ with shared.gradio_root:
                              overwrite_width, overwrite_height, guidance_scale, sharpness, adm_scaler_positive,
                              adm_scaler_negative, adm_scaler_end, refiner_swap_method, adaptive_cfg, clip_skip,
                              base_model, refiner_model, refiner_switch, sampler_name, scheduler_name, vae_name,
-                             seed_random, image_seed, generate_button, load_parameter_button] + freeu_ctrls + lora_ctrls
+                             seed_random, image_seed, inpaint_mode, generate_button, load_parameter_button
+                             ] + freeu_ctrls + lora_ctrls
 
         if not args_manager.args.disable_preset_selection:
             def preset_selection_change(preset, is_generating):
@@ -917,7 +918,14 @@ with shared.gradio_root:
                                  queue=False, show_progress=False) \
             .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)
 
-        inpaint_mode.input(inpaint_mode_change, inputs=inpaint_mode, outputs=[
+        inpaint_mode.change(inpaint_mode_change, inputs=inpaint_mode, outputs=[
+            inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
+            inpaint_disable_initial_latent, inpaint_engine,
+            inpaint_strength, inpaint_respective_field
+        ], show_progress=False, queue=False)
+
+        # load configured default_inpaint_method
+        shared.gradio_root.load(inpaint_mode_change, inputs=inpaint_mode, outputs=[
             inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
             inpaint_disable_initial_latent, inpaint_engine,
             inpaint_strength, inpaint_respective_field

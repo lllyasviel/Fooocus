@@ -469,6 +469,12 @@ default_inpaint_engine_version = get_config_item_or_set_default(
     validator=lambda x: x in modules.flags.inpaint_engine_versions,
     expected_type=str
 )
+default_inpaint_method = get_config_item_or_set_default(
+    key='default_inpaint_method',
+    default_value=modules.flags.inpaint_option_default,
+    validator=lambda x: x in modules.flags.inpaint_options,
+    expected_type=str
+)
 default_cfg_tsnr = get_config_item_or_set_default(
     key='default_cfg_tsnr',
     default_value=7.0,
@@ -634,7 +640,8 @@ possible_preset_keys = {
     "checkpoint_downloads": "checkpoint_downloads",
     "embeddings_downloads": "embeddings_downloads",
     "lora_downloads": "lora_downloads",
-    "default_vae": "vae"
+    "default_vae": "vae",
+    "default_inpaint_method": "inpaint_method"
 }
 
 REWRITE_PRESET = False
