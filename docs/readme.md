@@ -233,7 +233,7 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
 - 属性：
   - `enabled` (bool): 是否启用 Lora，默认 false
   - `model_name` (string): Lora 名称，默认 None
-  - `weight` (float): Lora 权重，默认 0.5，默认 -2-2
+  - `weight` (float): Lora 权重，默认 0.5，范围 -2-2
 
 ### UpscaleOrVaryMethod
 
@@ -251,7 +251,7 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - `cn_img` (str): ImageUrl 或者 base64 格式图片
   - `cn_stop` (float): 默认 0.6，范围 0-1
   - `cn_weight` (float): 默认 0.5，范围 0-2
-  - `cn_type` (string): 默认 ImagePrompt，可选 F阿册Swap，PyraCanny，CPDS
+  - `cn_type` (string): 默认 ImagePrompt，可选 FaceSwap，PyraCanny，CPDS
 
 ### DescribeImageResponse
 
