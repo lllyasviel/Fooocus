@@ -4,22 +4,27 @@
     "default_refiner_switch": 0.75,
     "default_loras": [
         [
+            true,
             "sd_xl_offset_example-lora_1.0.safetensors",
             0.5
         ],
         [
+            true,
             "None",
             1.0
         ],
         [
+            true,
             "None",
             1.0
         ],
         [
+            true,
             "None",
             1.0
         ],
         [
+            true,
             "None",
             1.0
         ]
@@ -43,5 +48,6 @@
     "embeddings_downloads": {},
     "lora_downloads": {
         "sd_xl_offset_example-lora_1.0.safetensors": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_offset_example-lora_1.0.safetensors"
-    }
+    },
+    "previous_default_models": []
 }

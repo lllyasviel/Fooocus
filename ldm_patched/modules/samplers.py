@@ -1,13 +1,9 @@
 from ldm_patched.k_diffusion import sampling as k_diffusion_sampling
 from ldm_patched.unipc import uni_pc
 import torch
-import enum
 import collections
 from ldm_patched.modules import model_management
 import math
-from ldm_patched.modules import model_base
-import ldm_patched.modules.utils
-import ldm_patched.modules.conds
 
 def get_area_and_mult(conds, x_in, timestep_in):
     area = (x_in.shape[2], x_in.shape[3], 0, 0)
@@ -244,7 +240,7 @@ def calc_cond_uncond_batch(model, cond, uncond, x_in, timestep, model_options):
 #The main sampling function shared by all the samplers
 #Returns denoised
 def sampling_function(model, x, timestep, uncond, cond, cond_scale, model_options={}, seed=None):
-        if math.isclose(cond_scale, 1.0):
+        if math.isclose(cond_scale, 1.0) and model_options.get("disable_cfg1_optimization", False) == False:
             uncond_ = None
         else:
             uncond_ = uncond
@@ -527,7 +523,7 @@ class UNIPCBH2(Sampler):
 
 KSAMPLER_NAMES = ["euler", "euler_ancestral", "heun", "heunpp2","dpm_2", "dpm_2_ancestral",
                   "lms", "dpm_fast", "dpm_adaptive", "dpmpp_2s_ancestral", "dpmpp_sde", "dpmpp_sde_gpu",
-                  "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "dpmpp_3m_sde", "dpmpp_3m_sde_gpu", "ddpm", "lcm"]
+                  "dpmpp_2m", "dpmpp_2m_sde", "dpmpp_2m_sde_gpu", "dpmpp_3m_sde", "dpmpp_3m_sde_gpu", "ddpm", "lcm", "tcd", "edm_playground_v2.5"]
 
 class KSAMPLER(Sampler):
     def __init__(self, sampler_function, extra_options={}, inpaint_options={}):
@@ -599,6 +595,13 @@ def sample(model, noise, positive, negative, cfg, device, sampler, sigmas, model
     calculate_start_end_timesteps(model, negative)
     calculate_start_end_timesteps(model, positive)
 
+    if latent_image is not None:
+        latent_image = model.process_latent_in(latent_image)
+
+    if hasattr(model, 'extra_conds'):
+        positive = encode_model_conds(model.extra_conds, positive, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask, seed=seed)
+        negative = encode_model_conds(model.extra_conds, negative, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask, seed=seed)
+
     #make sure each cond area has an opposite one with the same area
     for c in positive:
         create_cond_with_same_area_if_none(negative, c)
@@ -609,13 +612,6 @@ def sample(model, noise, positive, negative, cfg, device, sampler, sigmas, model
 
     apply_empty_x_to_equal_area(list(filter(lambda c: c.get('control_apply_to_uncond', False) == True, positive)), negative, 'control', lambda cond_cnets, x: cond_cnets[x])
     apply_empty_x_to_equal_area(positive, negative, 'gligen', lambda cond_cnets, x: cond_cnets[x])
-
-    if latent_image is not None:
-        latent_image = model.process_latent_in(latent_image)
-
-    if hasattr(model, 'extra_conds'):
-        positive = encode_model_conds(model.extra_conds, positive, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask)
-        negative = encode_model_conds(model.extra_conds, negative, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask)
 
     extra_args = {"cond":positive, "uncond":negative, "cond_scale": cfg, "model_options": model_options, "seed":seed}
 
@@ -639,7 +635,7 @@ def calculate_sigmas_scheduler(model, scheduler_name, steps):
     elif scheduler_name == "sgm_uniform":
         sigmas = normal_scheduler(model, steps, sgm=True)
     else:
-        print("error invalid scheduler", self.scheduler)
+        print("error invalid scheduler", scheduler_name)
     return sigmas
 
 def sampler_object(name):

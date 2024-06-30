@@ -119,6 +119,44 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
     mutationObserver.observe(gradioApp(), {childList: true, subtree: true});
+    initStylePreviewOverlay();
+});
+
+var onAppend = function(elem, f) {
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(m) {
+            if (m.addedNodes.length) {
+                f(m.addedNodes);
+            }
+        });
+    });
+    observer.observe(elem, {childList: true});
+}
+
+function addObserverIfDesiredNodeAvailable(querySelector, callback) {
+    var elem = document.querySelector(querySelector);
+    if (!elem) {
+        window.setTimeout(() => addObserverIfDesiredNodeAvailable(querySelector, callback), 1000);
+        return;
+    }
+
+    onAppend(elem, callback);
+}
+
+/**
+ * Show reset button on toast "Connection errored out."
+ */
+addObserverIfDesiredNodeAvailable(".toast-wrap", function(added) {
+    added.forEach(function(element) {
+         if (element.innerText.includes("Connection errored out.")) {
+             window.setTimeout(function() {
+                document.getElementById("reset_button").classList.remove("hidden");
+                document.getElementById("generate_button").classList.add("hidden");
+                document.getElementById("skip_button").classList.add("hidden");
+                document.getElementById("stop_button").classList.add("hidden");
+            });
+         }
+    });
 });
 
 /**
@@ -144,6 +182,46 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+function initStylePreviewOverlay() {
+    let overlayVisible = false;
+    const samplesPath = document.querySelector("meta[name='samples-path']").getAttribute("content")
+    const overlay = document.createElement('div');
+    const tooltip = document.createElement('div');
+    tooltip.className = 'preview-tooltip';
+    overlay.appendChild(tooltip);
+    overlay.id = 'stylePreviewOverlay';
+    document.body.appendChild(overlay);
+    document.addEventListener('mouseover', function (e) {
+        const label = e.target.closest('.style_selections label');
+        if (!label) return;
+        label.removeEventListener("mouseout", onMouseLeave);
+        label.addEventListener("mouseout", onMouseLeave);
+        overlayVisible = true;
+        overlay.style.opacity = "1";
+        const originalText = label.querySelector("span").getAttribute("data-original-text");
+        const name = originalText || label.querySelector("span").textContent;
+        overlay.style.backgroundImage = `url("${samplesPath.replace(
+            "fooocus_v2",
+            name.toLowerCase().replaceAll(" ", "_")
+        ).replaceAll("\\", "\\\\")}")`;
+
+        tooltip.textContent = name;
+
+        function onMouseLeave() {
+            overlayVisible = false;
+            overlay.style.opacity = "0";
+            overlay.style.backgroundImage = "";
+            label.removeEventListener("mouseout", onMouseLeave);
+        }
+    });
+    document.addEventListener('mousemove', function (e) {
+        if (!overlayVisible) return;
+        overlay.style.left = `${e.clientX}px`;
+        overlay.style.top = `${e.clientY}px`;
+        overlay.className = e.clientY > window.innerHeight / 2 ? "lower-half" : "upper-half";
+    });
+}
 
 /**
  * checks that a UI element is not in another hidden element or tab content
@@ -177,4 +255,9 @@ function set_theme(theme) {
     if (!gradioURL.includes('?__theme=')) {
         window.location.replace(gradioURL + '?__theme=' + theme);
     }
+}
+
+function htmlDecode(input) {
+  var doc = new DOMParser().parseFromString(input, "text/html");
+  return doc.documentElement.textContent;
 }

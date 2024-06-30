@@ -15,6 +15,7 @@ class BasicScheduler:
                     {"model": ("MODEL",),
                      "scheduler": (ldm_patched.modules.samplers.SCHEDULER_NAMES, ),
                      "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
+                     "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
                       }
                }
     RETURN_TYPES = ("SIGMAS",)
@@ -22,8 +23,14 @@ class BasicScheduler:
 
     FUNCTION = "get_sigmas"
 
-    def get_sigmas(self, model, scheduler, steps):
-        sigmas = ldm_patched.modules.samplers.calculate_sigmas_scheduler(model.model, scheduler, steps).cpu()
+    def get_sigmas(self, model, scheduler, steps, denoise):
+        total_steps = steps
+        if denoise < 1.0:
+            total_steps = int(steps/denoise)
+
+        ldm_patched.modules.model_management.load_models_gpu([model])
+        sigmas = ldm_patched.modules.samplers.calculate_sigmas_scheduler(model.model, scheduler, total_steps).cpu()
+        sigmas = sigmas[-(steps + 1):]
         return (sigmas, )
 
 
@@ -89,6 +96,7 @@ class SDTurboScheduler:
         return {"required":
                     {"model": ("MODEL",),
                      "steps": ("INT", {"default": 1, "min": 1, "max": 10}),
+                     "denoise": ("FLOAT", {"default": 1.0, "min": 0, "max": 1.0, "step": 0.01}),
                       }
                }
     RETURN_TYPES = ("SIGMAS",)
@@ -96,9 +104,10 @@ class SDTurboScheduler:
 
     FUNCTION = "get_sigmas"
 
-    def get_sigmas(self, model, steps):
-        timesteps = torch.flip(torch.arange(1, 11) * 100 - 1, (0,))[:steps]
-        sigmas = model.model.model_sampling.sigma(timesteps)
+    def get_sigmas(self, model, steps, denoise):
+        start_step = 10 - int(10 * denoise)
+        timesteps = torch.flip(torch.arange(1, 11) * 100 - 1, (0,))[start_step:start_step + steps]
+        sigmas = model.model_sampling.sigma(timesteps)
         sigmas = torch.cat([sigmas, sigmas.new_zeros([1])])
         return (sigmas, )
 
@@ -220,6 +229,25 @@ class SamplerDPMPP_SDE:
         sampler = ldm_patched.modules.samplers.ksampler(sampler_name, {"eta": eta, "s_noise": s_noise, "r": r})
         return (sampler, )
 
+
+class SamplerTCD:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "eta": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.01}),
+            }
+        }
+    RETURN_TYPES = ("SAMPLER",)
+    CATEGORY = "sampling/custom_sampling/samplers"
+
+    FUNCTION = "get_sampler"
+
+    def get_sampler(self, eta=0.3):
+        sampler = ldm_patched.modules.samplers.ksampler("tcd", {"eta": eta})
+        return (sampler, )
+
+
 class SamplerCustom:
     @classmethod
     def INPUT_TYPES(s):
@@ -282,6 +310,7 @@ NODE_CLASS_MAPPINGS = {
     "KSamplerSelect": KSamplerSelect,
     "SamplerDPMPP_2M_SDE": SamplerDPMPP_2M_SDE,
     "SamplerDPMPP_SDE": SamplerDPMPP_SDE,
+    "SamplerTCD": SamplerTCD,
     "SplitSigmas": SplitSigmas,
     "FlipSigmas": FlipSigmas,
 }
