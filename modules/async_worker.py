@@ -1319,6 +1319,7 @@ def worker():
         done_steps_upscaling = 0
         done_steps_inpainting = 0
         enhance_steps, _, _, _ = apply_overrides(async_task, async_task.original_steps, height, width)
+        exception_result = None
         for img in images_to_enhance:
             enhancement_image_start_time = time.perf_counter()
 
@@ -1408,12 +1409,16 @@ def worker():
                         continue
                     else:
                         print('User stopped')
+                        exception_result = 'break'
                         break
                 finally:
                     done_steps_inpainting += enhance_steps
 
                 enhancement_task_time = time.perf_counter() - enhancement_task_start_time
                 print(f'Enhancement time: {enhancement_task_time:.2f} seconds')
+
+            if exception_result == 'break':
+                break
 
             if should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_after:
                 current_task_id += 1
