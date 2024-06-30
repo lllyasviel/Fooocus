@@ -166,10 +166,13 @@ def get_inpaint_method(key: str, fallback: str | None, source_dict: dict, result
         h = source_dict.get(key, source_dict.get(fallback, default))
         assert isinstance(h, str) and h in modules.flags.inpaint_options
         results.append(h)
+        for i in range(modules.config.default_enhance_tabs):
+            results.append(h)
         return h
     except:
         results.append(gr.update())
-        return None
+        for i in range(modules.config.default_enhance_tabs):
+            results.append(gr.update())
 
 
 def get_adm_guidance(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
