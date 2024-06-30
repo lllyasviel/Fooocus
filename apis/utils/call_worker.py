@@ -121,7 +121,7 @@ async def stream_output(request: CommonRequest):
                 percentage, title, image = product
                 text = json.dumps({
                     "progress": percentage,
-                    "preview": narray_to_base64img(image),
+                    "preview": "data:image/png;base64," + narray_to_base64img(image) if narray_to_base64img(image) is not None else narray_to_base64img(image),
                     "message": title,
                     "images": []
                 })
@@ -137,7 +137,7 @@ async def stream_output(request: CommonRequest):
                 text = json.dumps({
                     "progress": 100,
                     "preview": None,
-                    "message": "",
+                    "message": "Finished",
                     "images": url_path(task.results)
                 })
                 yield f"{text}\n"

@@ -183,6 +183,23 @@ def save_base64(base64_str: str | np.ndarray, file_dir: str) -> str:
     return file_path
 
 
+def to_http(path: str, dir_name: str) -> str:
+    """
+    Convert a file path to a HTTP URL.
+    Args:
+        str: str of file path
+    """
+    if path == '':
+        return ''
+    path = Path(path).as_posix()
+    uri = '/'.join(path.split('/')[-2:])
+    file_name = path.rsplit('/', maxsplit=1)[-1]
+    if dir_name == 'outputs':
+        return f"{STATIC_SERVER_BASE}/outputs/{uri}"
+    return f"{STATIC_SERVER_BASE}/inputs/{file_name}"
+
+
+
 def url_path(result: list) -> list:
     """
     Converts the result to a list of URL paths.
@@ -198,7 +215,5 @@ def url_path(result: list) -> list:
             url_or_path.append(os.path.join(output_dir, uri))
         return url_or_path
     for res in result:
-        path = Path(res).as_posix()
-        uri = '/'.join(path.split('/')[-2:])
-        url_or_path.append(f"{STATIC_SERVER_BASE}/outputs/{uri}")
+        url_or_path.append(to_http(res, "outputs"))
     return url_or_path

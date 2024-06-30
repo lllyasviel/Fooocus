@@ -8,11 +8,12 @@ import random
 from modules.config import default_max_lora_number, try_get_preset_content
 from modules.flags import Performance, controlnet_image_count
 from modules import constants, config
+from modules.model_loader import load_file_from_url
+
 from apis.models.requests import CommonRequest
-from apis.utils.file_utils import save_base64
+from apis.utils.file_utils import save_base64, to_http
 from apis.utils.img_utils import read_input_image
 from apis.models.base import Lora, ImagePrompt
-from modules.model_loader import load_file_from_url
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUT_PATH = os.path.join(ROOT_DIR, '..', 'inputs')
@@ -165,15 +166,15 @@ async def pre_worker(request: CommonRequest):
         "mask": request.inpaint_mask_image_upload
     }
 
-    req_copy.uov_input_image = save_base64(req_copy.uov_input_image, INPUT_PATH)
-    req_copy.inpaint_input_image = save_base64(req_copy.inpaint_input_image, INPUT_PATH)
-    req_copy.inpaint_mask_image_upload = save_base64(req_copy.inpaint_mask_image_upload, INPUT_PATH)
+    req_copy.uov_input_image = to_http(save_base64(req_copy.uov_input_image, INPUT_PATH), "inputs")
+    req_copy.inpaint_input_image = to_http(save_base64(req_copy.inpaint_input_image, INPUT_PATH), "inputs")
+    req_copy.inpaint_mask_image_upload = to_http(save_base64(req_copy.inpaint_mask_image_upload, INPUT_PATH), "inputs")
 
     cn_imgs = []
     controlnet_images = [list(group) for group in zip(*[iter(req_copy.controlnet_image)]*4)]
     for cn in controlnet_images:
         control_net = {
-            "cn_img": save_base64(cn[0], INPUT_PATH),
+            "cn_img": to_http(save_base64(cn[0], INPUT_PATH), "inputs"),
             "cn_stop": cn[1],
             "cn_weight": cn[2],
             "cn_type": cn[3]

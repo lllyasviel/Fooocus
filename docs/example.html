@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Stream Output</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #app {
+            width: 80%;
+            display: flex;
+            flex-direction: row;
+        }
+        .sidebar {
+            width: 30%;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
+        }
+        .main-content {
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+        }
+        .output {
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            height: 800px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+        .thumbnail {
+            cursor: pointer;
+            border: 1px solid #ccc;
+            padding: 5px;
+            text-align: center;
+        }
+        .thumbnail img {
+            max-width: 100%;
+            height: auto;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .options input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        .options button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+        .options button:hover {
+            background-color: #0056b3;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #eee;
+            margin-bottom: 10px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #007bff;
+            width: 0%;
+        }
+        .message {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="sidebar">
+            <!-- 更多参数可以放在这里 -->
+            <div class="field">
+                <label class="label">image_number:</label>
+                <div class="control">
+                    <input class="input" type="number" v-model="params.image_number" placeholder="1">
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">performance_selection:</label>
+                <div class="control">
+                    <input class="input" type="text" v-model="params.performance_selection" placeholder="Speed">
+                </div>
+            </div>
+            <!-- 添加更多参数 -->
+        </div>
+        <div class="main-content">
+            <div class="output">
+                <div v-if="finalImages.length > 0" class="thumbnails">
+                    <div v-for="(image, index) in finalImages" :key="index" class="thumbnail" @click="showOriginalImage(image)">
+                        <img :src="image" alt="Thumbnail">
+                    </div>
+                </div>
+                <div v-else>
+                    <img v-if="preview" :src="preview" alt="Preview">
+                    <img v-else-if="finalImage" :src="finalImage" alt="Final Image">
+                </div>
+            </div>
+            <div class="options">
+                <div class="field">
+                    <label class="label">Prompt:</label>
+                    <div class="control">
+                        <input class="input" type="text" v-model="data.prompt" placeholder="Prompt">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Negative Prompt:</label>
+                    <div class="control">
+                        <input class="input" type="text" v-model="data.negative_prompt" placeholder="Negative Prompt">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary" @click="fetchStream">Generate</button>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <progress class="progress is-primary" :value="progress" max="100">{{ progress }}%</progress>
+            </div>
+            <div class="message">{{ message }}</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref, reactive, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const output = ref(null);
+                const data = reactive({
+                    prompt: "nsfw, girl",
+                    negative_prompt: "",
+                    async_process: true,
+                    stream_output: true
+                });
+                const params = reactive({
+                    image_number: 1,
+                    performance_selection: "Speed"
+                });
+                const progress = ref(0);
+                const preview = ref(null);
+                const finalImage = ref(null);
+                const finalImages = ref([]);
+                const message = ref("");
+
+                async function fetchStream() {
+                    // 重置图像显示区域
+                    finalImages.value = [];
+                    finalImage.value = null;
+                    preview.value = null;
+                    progress.value = 0;
+                    message.value = "";
+
+                    const url = 'http://127.0.0.1:7866/v1/engine/generate/';
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ ...data, ...params })
+                    });
+
+                    if (!response.ok) {
+                        message.value = 'Error: ' + response.statusText;
+                        return;
+                    }
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder('utf-8');
+                    let buffer = '';
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        const chunk = decoder.decode(value, { stream: true });
+                        buffer += chunk;
+
+                        // 检查缓冲区中是否有完整的 JSON 数据
+                        const jsonStart = buffer.indexOf('{');
+                        const jsonEnd = buffer.lastIndexOf('}');
+                        if (jsonStart !== -1 && jsonEnd !== -1 && jsonStart < jsonEnd) {
+                            const jsonString = buffer.slice(jsonStart, jsonEnd + 1);
+                            buffer = buffer.slice(jsonEnd + 1);
+                            const data = JSON.parse(jsonString);
+                            progress.value = data.progress;
+                            preview.value = data.preview;
+                            message.value = data.message;
+                            if (data.progress === 100) {
+                                finalImages.value = data.images;
+                                preview.value = null;
+                            }
+                        }
+                    }
+                }
+
+                function showOriginalImage(image) {
+                    finalImage.value = image;
+                }
+
+                return {
+                    output,
+                    data,
+                    params,
+                    fetchStream,
+                    progress,
+                    preview,
+                    finalImage,
+                    finalImages,
+                    message,
+                    showOriginalImage
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
