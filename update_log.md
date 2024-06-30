@@ -1,3 +1,10 @@
+# [2.5.2](https://github.com/mashb1t/Fooocus/releases/tag/v2.5.2)
+
+* Add missing prompt return values for `Upscale (Fast 2x)` in enhance
+* Add handling for executing only enhance `Upscale (Fast 2x)` to not divide by 0 on step calculation
+* Get upscale model filepath by calling downloading_upscale_model() to ensure the model exists
+* Correctly break after user stopped during enhance inpainting
+
 # [2.5.1](https://github.com/mashb1t/Fooocus/releases/tag/v2.5.1)
 
 * Fix missing handling for cloth category for u2net_cloth_seg in enhance tabs
