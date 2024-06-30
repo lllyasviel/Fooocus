@@ -30,5 +30,10 @@
         "name": "Fooocus Cinematic",
         "prompt": "cinematic still {prompt} . emotional, harmonious, vignette, highly detailed, high budget, bokeh, cinemascope, moody, epic, gorgeous, film grain, grainy",
         "negative_prompt": "anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured"
+    },
+    {
+        "name": "Fooocus Pony",
+        "prompt": "score_9, score_8_up, score_7_up, {prompt}",
+        "negative_prompt": "score_6, score_5, score_4"
     }
 ]
