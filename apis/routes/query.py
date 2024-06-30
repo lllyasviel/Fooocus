@@ -54,7 +54,7 @@ secure_router = APIRouter(
 )
 
 
-@secure_router.get("/tasks")
+@secure_router.get("/tasks", tags=["Query"])
 async def get_tasks(
         query: str = "all",
         page: int = 0,
@@ -117,7 +117,7 @@ async def get_tasks(
     })
 
 
-@secure_router.get("/tasks/{task_id}")
+@secure_router.get("/tasks/{task_id}", tags=["Query"])
 async def get_task(task_id: str):
     """
     Get a specific task by its ID.
@@ -125,7 +125,7 @@ async def get_task(task_id: str):
     return JSONResponse(await tasks_info(task_id))
 
 
-@secure_router.get("/outputs/{data}/{file_name}")
+@secure_router.get("/outputs/{data}/{file_name}", tags=["Query"])
 async def get_output(data: str, file_name: str):
     """
     Get a specific output by its ID.
@@ -133,3 +133,11 @@ async def get_output(data: str, file_name: str):
     if not file_name.endswith(('.png', '.jpg', '.jpeg', '.webp')):
         return Response(status_code=404)
     return FileResponse(f"outputs/{data}/{file_name}")
+
+
+@secure_router.get("/inputs/{file_name}", tags=["Query"])
+async def get_input(file_name: str):
+    """
+    Get a specific input by its ID.
+    """
+    return FileResponse(f"inputs/{file_name}")

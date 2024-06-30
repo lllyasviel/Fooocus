@@ -23,7 +23,10 @@ secure_router = APIRouter(
 )
 
 
-@secure_router.post("/v1/engine/generate/", summary="Generate endpoint all in one")
+@secure_router.post(
+        path="/v1/engine/generate/",
+        summary="Generate endpoint all in one",
+        tags=["GenerateV1"])
 async def generate_routes(common_request: CommonRequest):
     """
     Generate API routes

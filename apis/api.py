@@ -27,7 +27,7 @@ app.include_router(query)
 app.include_router(generate)
 
 
-@app.get("/")
+@app.get("/", tags=["Query"])
 async def root():
     """
     Root endpoint
