@@ -80,6 +80,15 @@ function refresh_style_localization() {
     processNode(document.querySelector('.style_selections'));
 }
 
+function refresh_aspect_ratios_label(value) {
+    label = document.querySelector('#aspect_ratios_accordion div span');
+    translation = getTranslation("Aspect Ratios");
+    if (typeof translation == "undefined") {
+        translation = "Aspect Ratios";
+    }
+    label.textContent = translation + " " + htmlDecode(value);
+}
+
 function localizeWholePage() {
     processNode(gradioApp());
 

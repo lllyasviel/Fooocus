@@ -107,8 +107,7 @@ class SDTurboScheduler:
     def get_sigmas(self, model, steps, denoise):
         start_step = 10 - int(10 * denoise)
         timesteps = torch.flip(torch.arange(1, 11) * 100 - 1, (0,))[start_step:start_step + steps]
-        ldm_patched.modules.model_management.load_models_gpu([model])
-        sigmas = model.model.model_sampling.sigma(timesteps)
+        sigmas = model.model_sampling.sigma(timesteps)
         sigmas = torch.cat([sigmas, sigmas.new_zeros([1])])
         return (sigmas, )
 
@@ -230,6 +229,25 @@ class SamplerDPMPP_SDE:
         sampler = ldm_patched.modules.samplers.ksampler(sampler_name, {"eta": eta, "s_noise": s_noise, "r": r})
         return (sampler, )
 
+
+class SamplerTCD:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "eta": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.01}),
+            }
+        }
+    RETURN_TYPES = ("SAMPLER",)
+    CATEGORY = "sampling/custom_sampling/samplers"
+
+    FUNCTION = "get_sampler"
+
+    def get_sampler(self, eta=0.3):
+        sampler = ldm_patched.modules.samplers.ksampler("tcd", {"eta": eta})
+        return (sampler, )
+
+
 class SamplerCustom:
     @classmethod
     def INPUT_TYPES(s):
@@ -292,6 +310,7 @@ NODE_CLASS_MAPPINGS = {
     "KSamplerSelect": KSamplerSelect,
     "SamplerDPMPP_2M_SDE": SamplerDPMPP_2M_SDE,
     "SamplerDPMPP_SDE": SamplerDPMPP_SDE,
+    "SamplerTCD": SamplerTCD,
     "SplitSigmas": SplitSigmas,
     "FlipSigmas": FlipSigmas,
 }
