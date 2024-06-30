@@ -42,6 +42,7 @@
     ],
     "default_aspect_ratio": "896*1152",
     "default_overwrite_step": -1,
+    "default_inpaint_method": "Improve Detail (face, hand, eyes, etc.)",
     "checkpoint_downloads": {
         "ponyDiffusionV6XL.safetensors": "https://huggingface.co/mashb1t/fav_models/resolve/main/fav/ponyDiffusionV6XL.safetensors"
     },

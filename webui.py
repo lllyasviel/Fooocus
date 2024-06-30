@@ -207,7 +207,7 @@ with shared.gradio_root:
                         with gr.Row():
                             inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                             outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
-                            inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
+                            inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.config.default_inpaint_method, label='Method')
                         example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts, label='Additional Prompt Quick List', components=[inpaint_additional_prompt], visible=False)
                         gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
                         example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
@@ -589,7 +589,8 @@ with shared.gradio_root:
                              overwrite_width, overwrite_height, guidance_scale, sharpness, adm_scaler_positive,
                              adm_scaler_negative, adm_scaler_end, refiner_swap_method, adaptive_cfg, clip_skip,
                              base_model, refiner_model, refiner_switch, sampler_name, scheduler_name, vae_name,
-                             seed_random, image_seed, generate_button, load_parameter_button] + freeu_ctrls + lora_ctrls
+                             seed_random, image_seed, inpaint_mode, generate_button, load_parameter_button
+                             ] + freeu_ctrls + lora_ctrls
 
         if not args_manager.args.disable_preset_selection:
             def preset_selection_change(preset, is_generating):
@@ -658,7 +659,14 @@ with shared.gradio_root:
                 False, modules.config.default_inpaint_engine_version, 1.0, 0.618
             ]
 
-        inpaint_mode.input(inpaint_mode_change, inputs=inpaint_mode, outputs=[
+        inpaint_mode.change(inpaint_mode_change, inputs=inpaint_mode, outputs=[
+            inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
+            inpaint_disable_initial_latent, inpaint_engine,
+            inpaint_strength, inpaint_respective_field
+        ], show_progress=False, queue=False)
+
+        # load configured default_inpaint_method
+        shared.gradio_root.load(inpaint_mode_change, inputs=inpaint_mode, outputs=[
             inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
             inpaint_disable_initial_latent, inpaint_engine,
             inpaint_strength, inpaint_respective_field
