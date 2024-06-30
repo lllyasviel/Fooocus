@@ -228,14 +228,14 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - `webhook_url` (string): Webhook URL，默认 ""
 
 
-### Lora
+#### Lora
 
 - 属性：
   - `enabled` (bool): 是否启用 Lora，默认 false
   - `model_name` (string): Lora 名称，默认 None
   - `weight` (float): Lora 权重，默认 0.5，范围 -2-2
 
-### UpscaleOrVaryMethod
+#### UpscaleOrVaryMethod
 
 - 属性：
   - "Disabled"
@@ -245,7 +245,7 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - "Upscale (2x)"
   - "Upscale (Fast 2x)"
 
-### ImagePrompt
+#### ImagePrompt
 
 - 属性：
   - `cn_img` (str): ImageUrl 或者 base64 格式图片
@@ -253,12 +253,12 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - `cn_weight` (float): 默认 0.5，范围 0-2
   - `cn_type` (string): 默认 ImagePrompt，可选 FaceSwap，PyraCanny，CPDS
 
-### DescribeImageResponse
+#### DescribeImageResponse
 
 - 属性:
   - `describe` (string): 图像描述。
 
-### RecordResponse
+#### RecordResponse
 - 属性：
   - `id` (int): 数据库 ID，对于返回来说是无用的。
   - `task_id` (str): 任务 ID，任务 ID，使用 uuid.uuid4().hex 生成。
