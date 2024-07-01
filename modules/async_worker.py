@@ -278,7 +278,7 @@ def worker():
 
     def process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, current_task_id,
                      denoising_strength, final_scheduler_name, goals, initial_latent, steps, switch, positive_cond,
-                     negative_cond, task, tiled, use_expansion, width, height, base_progress, preparation_steps,
+                     negative_cond, task, loras, tiled, use_expansion, width, height, base_progress, preparation_steps,
                      total_count, show_intermediate_results):
         if async_task.last_stop is not False:
             ldm_patched.modules.model_management.interrupt_current_processing()
@@ -318,7 +318,7 @@ def worker():
             imgs = default_censor(imgs)
         progressbar(async_task, current_progress,
                     f'Saving image {current_task_id + 1}/{total_count} to system ...')
-        img_paths = save_and_log(async_task, height, imgs, task, use_expansion, width)
+        img_paths = save_and_log(async_task, height, imgs, task, use_expansion, width, loras)
         yield_result(async_task, img_paths, current_progress, async_task.black_out_nsfw, False,
                      do_not_show_finished_images=not show_intermediate_results or async_task.disable_intermediate_results)
 
@@ -334,7 +334,7 @@ def worker():
             async_task.adaptive_cfg
         )
 
-    def save_and_log(async_task, height, imgs, task, use_expansion, width) -> list:
+    def save_and_log(async_task, height, imgs, task, use_expansion, width, loras) -> list:
         img_paths = []
         for x in imgs:
             d = [('Prompt', 'prompt', task['log_positive_prompt']),
@@ -375,7 +375,7 @@ def worker():
                 d.append(('FreeU', 'freeu',
                           str((async_task.freeu_b1, async_task.freeu_b2, async_task.freeu_s1, async_task.freeu_s2))))
 
-            for li, (n, w) in enumerate(async_task.loras):
+            for li, (n, w) in enumerate(loras):
                 if n != 'None':
                     d.append((f'LoRA {li + 1}', f'lora_combined_{li + 1}', f'{n} : {w}'))
 
@@ -385,7 +385,7 @@ def worker():
                 metadata_parser.set_data(task['log_positive_prompt'], task['positive'],
                                          task['log_negative_prompt'], task['negative'],
                                          async_task.steps, async_task.base_model_name, async_task.refiner_model_name,
-                                         async_task.loras, async_task.vae_name)
+                                         loras, async_task.vae_name)
             d.append(('Metadata Scheme', 'metadata_scheme',
                       async_task.metadata_scheme.value if async_task.save_metadata_to_images else async_task.save_metadata_to_images))
             d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
@@ -1016,8 +1016,8 @@ def worker():
         imgs, img_paths, current_progress = process_task(all_steps, async_task, callback, controlnet_canny_path,
                                                          controlnet_cpds_path, current_task_id, denoising_strength,
                                                          final_scheduler_name, goals, initial_latent, steps, switch,
-                                                         task_enhance['c'], task_enhance['uc'], task_enhance, tiled,
-                                                         use_expansion, width, height, current_progress,
+                                                         task_enhance['c'], task_enhance['uc'], task_enhance, loras,
+                                                         tiled, use_expansion, width, height, current_progress,
                                                          preparation_steps, total_count, show_intermediate_results)
 
         del task_enhance['c'], task_enhance['uc']  # Save memory
@@ -1154,6 +1154,7 @@ def worker():
 
         progressbar(async_task, current_progress, 'Initializing ...')
 
+        loras = async_task.loras
         if not skip_prompt_processing:
             tasks, use_expansion, loras, current_progress = process_prompt(async_task, async_task.prompt, async_task.negative_prompt,
                                                          base_model_additional_loras, async_task.image_number,
@@ -1281,8 +1282,8 @@ def worker():
                                                                  controlnet_cpds_path, current_task_id,
                                                                  denoising_strength, final_scheduler_name, goals,
                                                                  initial_latent, async_task.steps, switch, task['c'],
-                                                                 task['uc'], task, tiled, use_expansion, width, height,
-                                                                 current_progress, preparation_steps,
+                                                                 task['uc'], task, loras, tiled, use_expansion, width,
+                                                                 height, current_progress, preparation_steps,
                                                                  async_task.image_number, show_intermediate_results)
 
                 current_progress = int(preparation_steps + (100 - preparation_steps) / float(all_steps) * async_task.steps * (current_task_id + 1))
