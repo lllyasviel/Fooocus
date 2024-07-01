@@ -32,7 +32,10 @@ args_parser.parser.add_argument("--enable-describe-uov-image", action='store_tru
                                 help="Disables automatic description of uov images when prompt is empty", default=False)
 
 args_parser.parser.add_argument("--always-download-new-model", action='store_true',
-                                help="Always download newer models ", default=False)
+                                help="Always download newer models", default=False)
+
+args_parser.parser.add_argument("--rebuild-hash-cache", action='store_true',
+                                help="Generates missing model and LoRA hashes.", default=False)
 
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
