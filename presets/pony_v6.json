@@ -1,7 +1,7 @@
 {
     "default_model": "ponyDiffusionV6XL.safetensors",
     "default_refiner": "None",
-    "default_refiner_switch": 0.5,
+    "default_refiner_switch": 1,
     "default_vae": "ponyDiffusionV6XL_vae.safetensors",
     "default_loras": [
         [
@@ -42,7 +42,7 @@
     ],
     "default_aspect_ratio": "896*1152",
     "default_overwrite_step": -1,
-    "default_inpaint_method": "Improve Detail (face, hand, eyes, etc.)",
+    "default_overwrite_switch": 999,
     "checkpoint_downloads": {
         "ponyDiffusionV6XL.safetensors": "https://huggingface.co/mashb1t/fav_models/resolve/main/fav/ponyDiffusionV6XL.safetensors"
     },

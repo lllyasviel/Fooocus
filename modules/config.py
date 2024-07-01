@@ -549,6 +549,7 @@ possible_preset_keys = {
     "default_sampler": "sampler",
     "default_scheduler": "scheduler",
     "default_overwrite_step": "steps",
+    "default_overwrite_switch": "overwrite_switch",
     "default_performance": "performance",
     "default_image_number": "image_number",
     "default_prompt": "prompt",
