@@ -10,6 +10,7 @@ __pycache__
 *.partial
 *.onnx
 sorted_styles.json
+hash_cache.txt
 /input
 /cache
 /language/default.json
