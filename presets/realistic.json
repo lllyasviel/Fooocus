@@ -43,6 +43,7 @@
     ],
     "default_aspect_ratio": "896*1152",
     "default_overwrite_step": -1,
+    "default_overwrite_switch": -1,
     "checkpoint_downloads": {
         "realisticStockPhoto_v20.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/realisticStockPhoto_v20.safetensors"
     },
