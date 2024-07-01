@@ -20,7 +20,7 @@ re_param = re.compile(re_param_code)
 re_imagesize = re.compile(r"^(\d+)x(\d+)$")
 
 
-def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
+def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, inpaint_mode: str):
     loaded_parameter_dict = raw_metadata
     if isinstance(raw_metadata, str):
         loaded_parameter_dict = json.loads(raw_metadata)
@@ -49,7 +49,7 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
     get_str('scheduler', 'Scheduler', loaded_parameter_dict, results)
     get_str('vae', 'VAE', loaded_parameter_dict, results)
     get_seed('seed', 'Seed', loaded_parameter_dict, results)
-    get_inpaint_engine_version('inpaint_engine_version', 'Inpaint Engine Version', loaded_parameter_dict, results)
+    get_inpaint_engine_version('inpaint_engine_version', 'Inpaint Engine Version', loaded_parameter_dict, results, inpaint_mode)
     get_inpaint_method('inpaint_method', 'Inpaint Mode', loaded_parameter_dict, results)
 
     if is_generating:
@@ -162,11 +162,14 @@ def get_seed(key: str, fallback: str | None, source_dict: dict, results: list, d
         results.append(gr.update())
 
 
-def get_inpaint_engine_version(key: str, fallback: str | None, source_dict: dict, results: list, default=None) -> str | None:
+def get_inpaint_engine_version(key: str, fallback: str | None, source_dict: dict, results: list, inpaint_mode: str, default=None) -> str | None:
     try:
         h = source_dict.get(key, source_dict.get(fallback, default))
         assert isinstance(h, str) and h in modules.flags.inpaint_engine_versions
-        results.append(h)
+        if inpaint_mode != modules.flags.inpaint_option_detail:
+            results.append(h)
+        else:
+            results.append(gr.update())
         results.append(h)
         return h
     except:
