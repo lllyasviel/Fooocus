@@ -30,9 +30,8 @@ def load_cache_from_file():
                             print(f'[Cache] Skipping invalid cache entry: {filepath}')
                             continue
                         hash_cache[filepath] = hash_value
-            print(f'[Cache] Warmed cache from file')
     except Exception as e:
-        print(f'[Cache] Warming failed: {e}')
+        print(f'[Cache] Loading failed: {e}')
 
 
 def save_cache_to_file(filename=None, hash_value=None):
@@ -50,6 +49,5 @@ def save_cache_to_file(filename=None, hash_value=None):
             for filepath, hash_value in items:
                 json.dump({filepath: hash_value}, fp)
                 fp.write('\n')
-        print(f'[Cache] Updated cache file')
     except Exception as e:
         print(f'[Cache] Saving failed: {e}')

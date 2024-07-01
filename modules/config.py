@@ -762,12 +762,14 @@ if args_manager.args.rebuild_hash_cache:
     from modules.hash_cache import sha256_from_cache
     from modules.util import get_file_from_folder_list
 
+    print('[Cache] Rebuilding hash cache')
     for filename in model_filenames:
         filepath = get_file_from_folder_list(filename, paths_checkpoints)
         sha256_from_cache(filepath)
     for filename in lora_filenames:
         filepath = get_file_from_folder_list(filename, paths_loras)
         sha256_from_cache(filepath)
+    print('[Cache] Done')
 
 # write cache to file again for sorting and cleanup of invalid cache entries
 save_cache_to_file()
