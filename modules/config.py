@@ -559,6 +559,7 @@ possible_preset_keys = {
     "checkpoint_downloads": "checkpoint_downloads",
     "embeddings_downloads": "embeddings_downloads",
     "lora_downloads": "lora_downloads",
+    "vae_downloads": "vae_downloads",
     "default_vae": "vae",
     "default_inpaint_method": "inpaint_method"
 }
