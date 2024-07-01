@@ -7,6 +7,7 @@ import args_manager
 import tempfile
 import modules.flags
 import modules.sdxl_styles
+from modules.hash_cache import load_cache_from_file, save_cache_to_file
 
 from modules.model_loader import load_file_from_url
 from modules.extra_utils import makedirs_with_log, get_files_from_folder, try_eval_env_var
@@ -755,3 +756,6 @@ def downloading_safety_checker_model():
 
 
 update_files()
+load_cache_from_file()
+# write cache to file again for cleanup of invalid cache entries
+save_cache_to_file()

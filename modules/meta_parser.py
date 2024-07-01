@@ -9,15 +9,15 @@ from PIL import Image
 import fooocus_version
 import modules.config
 import modules.sdxl_styles
+from modules import hash_cache
 from modules.flags import MetadataScheme, Performance, Steps
 from modules.flags import SAMPLERS, CIVITAI_NO_KARRAS
-from modules.util import quote, unquote, extract_styles_from_prompt, is_json, get_file_from_folder_list, sha256
+from modules.hash_cache import sha256_from_cache
+from modules.util import quote, unquote, extract_styles_from_prompt, is_json, get_file_from_folder_list
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
 re_param = re.compile(re_param_code)
 re_imagesize = re.compile(r"^(\d+)x(\d+)$")
-
-hash_cache = {}
 
 
 def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
@@ -215,14 +215,6 @@ def get_lora(key: str, fallback: str | None, source_dict: dict, results: list, p
         results.append(1)
 
 
-def get_sha256(filepath):
-    global hash_cache
-    if filepath not in hash_cache:
-        hash_cache[filepath] = sha256(filepath)
-
-    return hash_cache[filepath]
-
-
 def parse_meta_from_preset(preset_content):
     assert isinstance(preset_content, dict)
     preset_prepared = {}
@@ -290,18 +282,18 @@ class MetadataParser(ABC):
         self.base_model_name = Path(base_model_name).stem
 
         base_model_path = get_file_from_folder_list(base_model_name, modules.config.paths_checkpoints)
-        self.base_model_hash = get_sha256(base_model_path)
+        self.base_model_hash = sha256_from_cache(base_model_path)
 
         if refiner_model_name not in ['', 'None']:
             self.refiner_model_name = Path(refiner_model_name).stem
             refiner_model_path = get_file_from_folder_list(refiner_model_name, modules.config.paths_checkpoints)
-            self.refiner_model_hash = get_sha256(refiner_model_path)
+            self.refiner_model_hash = sha256_from_cache(refiner_model_path)
 
         self.loras = []
         for (lora_name, lora_weight) in loras:
             if lora_name != 'None':
                 lora_path = get_file_from_folder_list(lora_name, modules.config.paths_loras)
-                lora_hash = get_sha256(lora_path)
+                lora_hash = sha256_from_cache(lora_path)
                 self.loras.append((Path(lora_name).stem, lora_weight, lora_hash))
         self.vae_name = Path(vae_name).stem
 
