@@ -100,6 +100,7 @@ shared.gradio_root = gr.Blocks(title=title).queue()
 
 with shared.gradio_root:
     currentTask = gr.State(worker.AsyncTask(args=[]))
+    inpaint_engine_state = gr.State('empty')
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Row():
@@ -589,8 +590,8 @@ with shared.gradio_root:
                              overwrite_width, overwrite_height, guidance_scale, sharpness, adm_scaler_positive,
                              adm_scaler_negative, adm_scaler_end, refiner_swap_method, adaptive_cfg, clip_skip,
                              base_model, refiner_model, refiner_switch, sampler_name, scheduler_name, vae_name,
-                             seed_random, image_seed, inpaint_mode, generate_button, load_parameter_button
-                             ] + freeu_ctrls + lora_ctrls
+                             seed_random, image_seed, inpaint_engine, inpaint_engine_state, inpaint_mode,
+                             generate_button, load_parameter_button] + freeu_ctrls + lora_ctrls
 
         if not args_manager.args.disable_preset_selection:
             def preset_selection_change(preset, is_generating):
@@ -632,7 +633,7 @@ with shared.gradio_root:
                                  queue=False, show_progress=False) \
             .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)
 
-        def inpaint_mode_change(mode):
+        def inpaint_mode_change(mode, inpaint_engine_version):
             assert mode in modules.flags.inpaint_options
 
             # inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
@@ -645,28 +646,30 @@ with shared.gradio_root:
                     gr.Dataset.update(visible=True, samples=modules.config.example_inpaint_prompts),
                     False, 'None', 0.5, 0.0
                 ]
+            if inpaint_engine_version == 'empty':
+                inpaint_engine_version = modules.config.default_inpaint_engine_version
 
             if mode == modules.flags.inpaint_option_modify:
                 return [
                     gr.update(visible=True), gr.update(visible=False, value=[]),
                     gr.Dataset.update(visible=False, samples=modules.config.example_inpaint_prompts),
-                    True, modules.config.default_inpaint_engine_version, 1.0, 0.0
+                    True, inpaint_engine_version, 1.0, 0.0
                 ]
 
             return [
                 gr.update(visible=False, value=''), gr.update(visible=True),
                 gr.Dataset.update(visible=False, samples=modules.config.example_inpaint_prompts),
-                False, modules.config.default_inpaint_engine_version, 1.0, 0.618
+                False, inpaint_engine_version, 1.0, 0.618
             ]
 
-        inpaint_mode.change(inpaint_mode_change, inputs=inpaint_mode, outputs=[
+        inpaint_mode.change(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state], outputs=[
             inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
             inpaint_disable_initial_latent, inpaint_engine,
             inpaint_strength, inpaint_respective_field
         ], show_progress=False, queue=False)
 
         # load configured default_inpaint_method
-        shared.gradio_root.load(inpaint_mode_change, inputs=inpaint_mode, outputs=[
+        shared.gradio_root.load(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state], outputs=[
             inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
             inpaint_disable_initial_latent, inpaint_engine,
             inpaint_strength, inpaint_respective_field
