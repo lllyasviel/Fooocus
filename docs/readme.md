@@ -1,19 +1,38 @@
 ## 概述
 
-FastAPI 是一个现代、快速（高性能）的Web框架，用于构建APIs。该项目基于 Fastapi 构建了 Fooocus 的 Rest 接口。
+FastAPI 是一个现代、快速（高性能）的Web框架，用于构建APIs。该项目基于 Fastapi 构建了 [Fooocus](https://github.com/lllyasviel/Fooocus) 的 Rest 接口。
+
+关于 Fooocus 的部分说明请参考 [Fooocus 文档](https://github.com/lllyasviel/Fooocus)，该文档主要介绍接口部分。
+
+和上一个 API 项目 [Fooocus-API](https://github.com/mrhan1993/Fooocus-API) 相比，主要有以改动：
+
+- 移除任务队列，不再单独维护一个队列
+- 完全使用 Fooocus 的生成代码
+- 可以和 WebUI 同时启动
+- 移除了表单提交的接口，只保留了 JSON 提交的接口
+- 主要功能合并到一个接口
+- 简化参数结构，和 Fooocus 的 WebUI 保持一致
+- 增加了流式输出功能
+- preset 支持
+- 更完整的任务历史记录功能
+
+优点：
+- 降低开发负载
+- 更完整的 Fooocus 支持
+- 更简单快捷的追踪 Fooocus 版本
 
 ## 功能特性
 
-- 完整保留了 Fooocus 的代码，也即 Fooocus 的所有功能以及使用不受影响
+- 完整的 Fooocus 支持
 - 可以同时启动 API 以及 WebUI，或者选择不启动 WebUI
 - 使用 X-API-KEY 进行接口认证
-- 完整的 Fooocus 支持
 - all-in-one 接口
 - 使用 URL 提供 INPUT 图像
 - 接口提供了流式输出、二进制图像以及异步任务三种方式
 - 持久化任务历史
 - 增强的任务历史管理
 - 任务查询功能
+- preset 支持
 - WebHook 支持
 
 ## 安装
@@ -84,6 +103,16 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
 
 > `stream_output` 的优先级高于 `async_process`, 即同时为 true 的时候, 返回流式输出。当全部为 false 时, 返回二进制图像, 并设置 image_number 为 1
 
+### 终止或跳过任务
+
+`POST /v1/engine/control/`
+- **标签**: GenerateV1
+- **摘要**: 终止或跳过任务
+- **描述**: 终止或跳过任务，仅对当前任务有效，终止会将当前 task 停止，并进行下一个任务。跳过是将当前生成跳过，任务仍继续。
+- **参数**:
+  - `action` (string): 操作类型，可以是"stop"或"skip"。
+- **响应**:
+  - `{"message": "{message}"}`
 
 ### 获取任务
 `GET /tasks`
@@ -91,11 +120,11 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
 - **摘要**: 获取所有任务
 - **描述**: 根据类型过滤任务，并支持分页和时间过滤。
 - **参数**:
-  - `query` (string, 默认值: "all"): 任务类型，可以是"all", "history", 或 "current"。
-  - `page` (integer, 默认值: 0): 返回的页码，用于历史和待办任务。
-  - `page_size` (integer, 默认值: 10): 每页返回的任务数量。
-  - `start_at` (string): 过滤任务的开始时间, 仅对 history 生效。
-  - `end_at` (string, 默认值为 ISO8601 格式的时间，比如: "2024-06-30T17:57:07.045812"): 过滤任务的结束时间, 仅对 history 生效
+  - `query` (string): 默认值: "all", 任务类型，可以是"all", "history", 或 "current"。
+  - `page` (integer): 默认值: 0, 返回的页码，用于历史和待办任务。
+  - `page_size` (integer): 默认值: 10, 每页返回的任务数量。
+  - `start_at` (string): 过滤任务的开始时间, 仅对 history 生效。ISO8601 格式的时间，比如: "2024-06-30T17:57:07.045812"
+  - `end_at` (string): 默认值为 ISO8601 格式的时间，比如: "2024-06-30T17:57:07.045812"，过滤任务的结束时间, 仅对 history 生效
   - `action` (string): 删除操作专用, 仅对 history 生效, 会删除数据库中记录以及生成的图片。
 - **响应**:
   - 200: 成功响应，返回任务列表。
@@ -111,24 +140,29 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - 200: 成功响应，返回特定任务的详情。
   - 422: 验证错误。
 
+### 获取所有模型
+`GET /v1/engines/all-models`
+- **标签**: Query
+- **摘要**: 获取所有模型
+- **响应**:
+  - 200: 成功响应，返回所有本地 checkpoint 和 lora 模型。
+
+### 获取所有风格
+`GET /v1/engines/styles`
+- **标签**: Query
+- **摘要**: 获取所有风格
+- **响应**:
+  - 200: 成功响应，返回所有风格列表。 
+
 ### 获取特定输出
-`GET /outputs/{data}/{file_name}`
+`GET /outputs/{date}/{file_name}`
 - **标签**: Query
 - **摘要**: 通过ID获取特定输出
 - **参数**:
-  - `data` (string): 日期，生成的图片以天为单位创建的文件夹进行归类, 该部分即生成日期。
+  - `date` (string): 日期，生成的图片以天为单位创建的文件夹进行归类, 该部分即生成日期。
   - `file_name` (string): 文件的名称。
 - **响应**:
   - 200: 成功响应，返回特定输出的内容。
-  - 422: 验证错误。
-
-### 生成API路由
-`POST /v1/engine/generate/`
-- **标签**: GenerateV1
-- **摘要**: 生成API路由
-- **请求体**: 必须，JSON格式，基于`CommonRequest`模型。
-- **响应**:
-  - 200: 成功响应，返回生成结果。
   - 422: 验证错误。
 
 ### 描述图像
@@ -261,11 +295,11 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
 #### RecordResponse
 - 属性：
   - `id` (int): 数据库 ID，对于返回来说是无用的。
-  - `task_id` (str): 任务 ID，任务 ID，使用 uuid.uuid4().hex 生成。
+  - `task_id` (str): 任务 ID，任务 ID，使用 `uuid.uuid4().hex` 生成。
   - `req_params` (CommonRequest): 请求参数，对于图片，会转换为 URL。
-  - `in_queue_mills` (int): 记录进入队列的时间（毫秒）。
-  - `start_mills` (int): 记录开始处理的时间（毫秒）。
-  - `finish_mills` (int): 记录完成处理的时间（毫秒）。
+  - `in_queue_mills` (int): 任务进入队列的时间（毫秒）。
+  - `start_mills` (int): 任务开始处理的时间（毫秒）。
+  - `finish_mills` (int): 任务完成处理的时间（毫秒）。
   - `task_status` (str): 任务状态。
   - `progress` (float): 任务进度。
   - `preview` (str): 任务预览。

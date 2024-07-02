@@ -127,14 +127,14 @@ async def get_task(task_id: str):
     return JSONResponse(await tasks_info(task_id))
 
 
-@secure_router.get("/outputs/{data}/{file_name}", tags=["Query"])
-async def get_output(data: str, file_name: str):
+@secure_router.get("/outputs/{date}/{file_name}", tags=["Query"])
+async def get_output(date: str, file_name: str):
     """
     Get a specific output by its ID.
     """
     if not file_name.endswith(('.png', '.jpg', '.jpeg', '.webp')):
         return Response(status_code=404)
-    return FileResponse(f"outputs/{data}/{file_name}")
+    return FileResponse(f"outputs/{date}/{file_name}")
 
 
 @secure_router.get("/inputs/{file_name}", tags=["Query"])
