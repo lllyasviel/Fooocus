@@ -6,7 +6,11 @@ from fastapi import (
 )
 from sse_starlette.sse import EventSourceResponse
 
-from apis.models.base import DescribeImageResponse, DescribeImageType
+from apis.models.base import (
+    DescribeImageResponse,
+    DescribeImageType,
+    CurrentTask
+)
 from apis.utils.api_utils import api_key_auth
 from apis.utils.call_worker import (
     async_worker,
@@ -68,3 +72,18 @@ def describe_image(
     img = HWC3(read_input_image(image))
     result = interrogator(img)
     return DescribeImageResponse(describe=result)
+
+
+@secure_router.post("/v1/engine/control", tags=["GenerateV1"])
+async def stop_engine(action: str):
+    """Stop or skip engine"""
+    if action not in ["stop", "skip"]:
+        return {"message": "Invalid control action"}
+    if CurrentTask.task is None:
+        return {"message": "No task running"}
+    from ldm_patched.modules import model_management
+    ct = CurrentTask.task
+    ct.last_stop = action
+    if ct.processing:
+        model_management.interrupt_current_processing()
+    return {"message": f"task {action}ed"}

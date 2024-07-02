@@ -4,7 +4,7 @@ The response model is used to define the structure of the response object that w
 from typing import List
 from pydantic import (
     BaseModel,
-    Field
+    ConfigDict, Field
 )
 
 
@@ -23,3 +23,15 @@ class RecordResponse(BaseModel):
     preview: str = Field(default="", title="Preview", description="The preview of the task associated with the record.")
     webhook_url: str = Field(default="", title="Webhook URL", description="The webhook URL associated with the record.")
     result: List = Field(default=[], title="Result", description="The result of the task associated with the record.")
+
+
+class AllModelNamesResponse(BaseModel):
+    """
+    all model list response
+    """
+    model_filenames: List[str] = Field(description="All available model filenames")
+    lora_filenames: List[str] = Field(description="All available lora filenames")
+
+    model_config = ConfigDict(
+        protected_namespaces=('protect_me_', 'also_protect_')
+    )
