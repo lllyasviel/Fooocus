@@ -5,11 +5,13 @@ import re
 import json
 
 from datetime import datetime
+from typing import List
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse, Response
 from starlette.responses import FileResponse
 
+from apis.models.response import AllModelNamesResponse
 from apis.utils.api_utils import api_key_auth
 from apis.utils.call_worker import current_task, session
 from apis.utils.file_utils import delete_tasks
@@ -23,7 +25,7 @@ def date_to_timestamp(date: str) -> int | None:
     :param date: The ISO 8601 date to convert.
     :return: The timestamp in millisecond.
     """
-    pattern = '\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'
+    pattern = r'\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'
     if date is None:
         return None
     try:
@@ -141,3 +143,29 @@ async def get_input(file_name: str):
     Get a specific input by its ID.
     """
     return FileResponse(f"inputs/{file_name}")
+
+
+@secure_router.get(
+        path="/v1/engines/all-models",
+        response_model=AllModelNamesResponse,
+        description="Get all filenames of base model and lora",
+        tags=["Query"])
+def all_models():
+    """Refresh and return all models"""
+    from modules import config
+    config.update_files()
+    models = AllModelNamesResponse(
+        model_filenames=config.model_filenames,
+        lora_filenames=config.lora_filenames)
+    return models
+
+
+@secure_router.get(
+        path="/v1/engines/styles",
+        response_model=List[str],
+        description="Get all legal Fooocus styles",
+        tags=['Query'])
+def all_styles():
+    """Return all available styles"""
+    from modules.sdxl_styles import legal_style_names
+    return legal_style_names

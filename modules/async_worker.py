@@ -7,7 +7,7 @@ patch_all()
 
 
 class AsyncTask:
-    def __init__(self, args, task_id = uuid.uuid4().hex):
+    def __init__(self, args, task_id=uuid.uuid4().hex):
         self.task_id = task_id
         self.args = args
         self.yields = []

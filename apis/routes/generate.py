@@ -68,3 +68,9 @@ def describe_image(
     img = HWC3(read_input_image(image))
     result = interrogator(img)
     return DescribeImageResponse(describe=result)
+
+
+@secure_router.post("/v1/engine/stop", tags=["GenerateV1"])
+async def stop_engine():
+    """Stop engine"""
+    return {"message": "Engine stopped"}
