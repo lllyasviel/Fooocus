@@ -30,7 +30,7 @@ def params_to_params(req: CommonRequest):
     """
     uov_method = req.uov_method.value
     if req.uov_method == UpscaleOrVaryMethod.upscale_custom:
-        uov_method = f"Upscale ({req.upscale_rate}x)"
+        uov_method = f"Upscale ({req.upscale_multiple}x)"
     params = [
         req.generate_image_grid,
         req.prompt,

@@ -32,6 +32,7 @@ FastAPI 是一个现代、快速（高性能）的Web框架，用于构建APIs�
 - 持久化任务历史
 - 增强的任务历史管理
 - 任务查询功能
+- 自定义 upscale 倍数，受限于 Fooocus，最大为 2800px
 - preset 支持
 - WebHook 支持
 
@@ -255,6 +256,7 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - `metadata_scheme` (string): 默认 foocus，可选 fooocus, a111
   - `controlnet_image` (ImagePrompt): ImagePrompt
   - `generate_image_grid` (bool): 默认 false，在 API 中应该没有作用，建议保持默认
+  - `upscale_multiple` (float): 默认 1.0，范围 1.0-5.0，仅在 upscale method 为 `Upscale (Custom)` 时有效
   - `preset` (string): 预设名称，默认 initial
   - `stream_output` (bool): 是否流式输出，默认 false
   - `require_base64` (bool): 暂时无用
@@ -278,6 +280,7 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - "Upscale (1.5x)"
   - "Upscale (2x)"
   - "Upscale (Fast 2x)"
+  - "Upscale (Custom)"
 
 #### ImagePrompt
 
