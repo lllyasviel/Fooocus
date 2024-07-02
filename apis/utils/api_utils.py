@@ -4,6 +4,7 @@ API utils
 from fastapi import HTTPException, Security
 from fastapi.security import APIKeyHeader
 from apis.models.requests import CommonRequest
+from apis.models.base import UpscaleOrVaryMethod
 
 api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=False)
 APIKEY_AUTH = None
@@ -27,6 +28,9 @@ def params_to_params(req: CommonRequest):
     """
     Convert params to params string
     """
+    uov_method = req.uov_method.value
+    if req.uov_method == UpscaleOrVaryMethod.upscale_custom:
+        uov_method = f"Upscale ({req.upscale_rate}x)"
     params = [
         req.generate_image_grid,
         req.prompt,
@@ -48,7 +52,7 @@ def params_to_params(req: CommonRequest):
     params.extend([
         req.input_image_checkbox,
         req.current_tab,
-        req.uov_method.value,
+        uov_method,
         req.uov_input_image,
         req.outpaint_selections,
         req.inpaint_input_image,

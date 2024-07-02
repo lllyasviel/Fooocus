@@ -131,6 +131,7 @@ class CommonRequest(BaseModel):
 
     generate_image_grid: bool = Field(default=False, description="Generate Image Grid for Each Batch, (Experimental) This may cause performance problems on some computers and certain internet conditions.")
 
+    upscale_rate: float = Field(default=1.0, ge=1.0, le=5.0, description="Upscale Rate, use only when uov_method is 'Upscale (Custom)'")
     preset: str = Field(default='initial', description="Presets")
     stream_output: bool = Field(default=False, description="Stream output")
     require_base64: bool = Field(default=False, description="Return base64 data of generated image")

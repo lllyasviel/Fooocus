@@ -598,7 +598,17 @@ def worker():
             elif '2x' in uov_method:
                 f = 2.0
             else:
-                f = 1.0
+                # @freek99
+                pattern = r"([0-9]+(?:\.[0-9]+)?)x"
+                matches = re.findall(pattern, uov_method)
+                try:
+                    f = float(matches[0])
+                    if f < 1.0:
+                        f = 1.0
+                    if f > 5.0:
+                        f = 5.0
+                except Exception:
+                    f = 1.0
 
             shape_ceil = get_shape_ceil(H * f, W * f)
 
