@@ -120,11 +120,11 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
 - **摘要**: 获取所有任务
 - **描述**: 根据类型过滤任务，并支持分页和时间过滤。
 - **参数**:
-  - `query` (string, 默认值: "all"): 任务类型，可以是"all", "history", 或 "current"。
-  - `page` (integer, 默认值: 0): 返回的页码，用于历史和待办任务。
-  - `page_size` (integer, 默认值: 10): 每页返回的任务数量。
-  - `start_at` (string): 过滤任务的开始时间, 仅对 history 生效。
-  - `end_at` (string, 默认值为 ISO8601 格式的时间，比如: "2024-06-30T17:57:07.045812"): 过滤任务的结束时间, 仅对 history 生效
+  - `query` (string): 默认值: "all", 任务类型，可以是"all", "history", 或 "current"。
+  - `page` (integer): 默认值: 0, 返回的页码，用于历史和待办任务。
+  - `page_size` (integer): 默认值: 10, 每页返回的任务数量。
+  - `start_at` (string): 过滤任务的开始时间, 仅对 history 生效。ISO8601 格式的时间，比如: "2024-06-30T17:57:07.045812"
+  - `end_at` (string): 默认值为 ISO8601 格式的时间，比如: "2024-06-30T17:57:07.045812"，过滤任务的结束时间, 仅对 history 生效
   - `action` (string): 删除操作专用, 仅对 history 生效, 会删除数据库中记录以及生成的图片。
 - **响应**:
   - 200: 成功响应，返回任务列表。
@@ -159,7 +159,7 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
 - **标签**: Query
 - **摘要**: 通过ID获取特定输出
 - **参数**:
-  - `data` (string): 日期，生成的图片以天为单位创建的文件夹进行归类, 该部分即生成日期。
+  - `date` (string): 日期，生成的图片以天为单位创建的文件夹进行归类, 该部分即生成日期。
   - `file_name` (string): 文件的名称。
 - **响应**:
   - 200: 成功响应，返回特定输出的内容。
@@ -295,11 +295,11 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
 #### RecordResponse
 - 属性：
   - `id` (int): 数据库 ID，对于返回来说是无用的。
-  - `task_id` (str): 任务 ID，任务 ID，使用 uuid.uuid4().hex 生成。
+  - `task_id` (str): 任务 ID，任务 ID，使用 `uuid.uuid4().hex` 生成。
   - `req_params` (CommonRequest): 请求参数，对于图片，会转换为 URL。
-  - `in_queue_mills` (int): 记录进入队列的时间（毫秒）。
-  - `start_mills` (int): 记录开始处理的时间（毫秒）。
-  - `finish_mills` (int): 记录完成处理的时间（毫秒）。
+  - `in_queue_mills` (int): 任务进入队列的时间（毫秒）。
+  - `start_mills` (int): 任务开始处理的时间（毫秒）。
+  - `finish_mills` (int): 任务完成处理的时间（毫秒）。
   - `task_status` (str): 任务状态。
   - `progress` (float): 任务进度。
   - `preview` (str): 任务预览。
