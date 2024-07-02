@@ -34,6 +34,7 @@ advantage：
 - persistent task history
 - enhanced task history management
 - task query function
+- Custom upscale rate, Limit by Fooocus, max is 2800px
 - preset support
 - WebHook support
 
@@ -258,6 +259,7 @@ In addition, some API-specific parameters are also included:
   - `metadata_scheme` (string): default foocus, one of fooocus, a111
   - `controlnet_image` (ImagePrompt): ImagePrompt
   - `generate_image_grid` (bool): default false, suggested to false
+  - `upscale_multiple` (float): default 1.0, range 1.0-5.0, work only upscale method is `Upscale (Custom)`
   - `preset` (string): preset, default initial
   - `stream_output` (bool): stream output, default false
   - `require_base64` (bool): not used
@@ -281,6 +283,7 @@ In addition, some API-specific parameters are also included:
   - "Upscale (1.5x)"
   - "Upscale (2x)"
   - "Upscale (Fast 2x)"
+  - "Upscale (Custom)"
 
 #### ImagePrompt
 
