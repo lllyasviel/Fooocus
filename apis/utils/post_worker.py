@@ -36,11 +36,14 @@ async def post_worker(task: AsyncTask, started_at: int):
     :param started_at: The time the task started.
     :return: The task.
     """
+    task_status = "finished"
+    if task.last_stop in ['stop', 'skip']:
+        task_status = task.last_stop
     try:
         query = session.query(GenerateRecord).filter(GenerateRecord.task_id == task.task_id).first()
         query.start_mills = started_at
         query.finish_mills = int(datetime.datetime.now().timestamp() * 1000)
-        query.task_status = "finished"
+        query.task_status = task_status
         query.progress = 100
         query.result = url_path(task.results)
         finally_result = str(query)

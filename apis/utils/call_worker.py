@@ -63,6 +63,7 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
                     task_status="running",
                     progress=0
                 )
+                CurrentTask.task = task
             flag, product = task.yields.pop(0)
             if flag == 'preview':
                 if len(task.yields) > 0:
@@ -73,6 +74,7 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
                 CurrentTask.ct.preview = narray_to_base64img(image)
             if flag == 'finish':
                 finished = True
+                CurrentTask.task = None
                 await post_worker(task=task, started_at=started_at)
 
 
@@ -103,6 +105,7 @@ async def stream_output(request: CommonRequest):
         if len(task.yields) > 0:
             if not started:
                 started = True
+                CurrentTask.task = task
                 started_at = int(datetime.datetime.now().timestamp() * 1000)
                 CurrentTask.ct = RecordResponse(
                     task_id=task.task_id,
@@ -128,9 +131,6 @@ async def stream_output(request: CommonRequest):
                 CurrentTask.ct.progress = percentage
                 CurrentTask.ct.preview = narray_to_base64img(image)
                 yield f"{text}\n"
-            if flag == 'results':
-                print(task.results)
-                print(task.processing)
             if flag == 'finish':
                 # await post_worker(task=task, started_at=started_at)
                 await asyncio.create_task(post_worker(task=task, started_at=started_at))
@@ -142,6 +142,7 @@ async def stream_output(request: CommonRequest):
                 })
                 yield f"{text}\n"
                 finished = True
+                CurrentTask.task = None
 
 
 async def binary_output(request: CommonRequest):
@@ -172,6 +173,7 @@ async def binary_output(request: CommonRequest):
         if len(task.yields) > 0:
             if not started:
                 started = True
+                CurrentTask.task = task
                 started_at = int(datetime.datetime.now().timestamp() * 1000)
                 CurrentTask.ct = RecordResponse(
                     task_id=task.task_id,
@@ -192,11 +194,14 @@ async def binary_output(request: CommonRequest):
                 CurrentTask.ct.preview = narray_to_base64img(image)
             if flag == 'finish':
                 finished = True
+                CurrentTask.task = None
                 await post_worker(task=task, started_at=started_at)
-
-    with open(task.results[0], "rb") as f:
-        image = f.read()
-    return Response(image, media_type="image/png")
+    try:
+        with open(task.results[0], "rb") as f:
+            image = f.read()
+        return Response(image, media_type="image/png")
+    except IndexError:
+        return Response(status_code=204)
 
 
 async def async_worker(request: CommonRequest) -> dict:
