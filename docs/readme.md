@@ -1,19 +1,38 @@
 ## 概述
 
-FastAPI 是一个现代、快速（高性能）的Web框架，用于构建APIs。该项目基于 Fastapi 构建了 Fooocus 的 Rest 接口。
+FastAPI 是一个现代、快速（高性能）的Web框架，用于构建APIs。该项目基于 Fastapi 构建了 [Fooocus](https://github.com/lllyasviel/Fooocus) 的 Rest 接口。
+
+关于 Fooocus 的部分说明请参考 [Fooocus 文档](https://github.com/lllyasviel/Fooocus)，该文档主要介绍接口部分。
+
+和上一个 API 项目 [Fooocus-API](https://github.com/mrhan1993/Fooocus-API) 相比，主要有以改动：
+
+- 移除任务队列，不再单独维护一个队列
+- 完全使用 Fooocus 的生成代码
+- 可以和 WebUI 同时启动
+- 移除了表单提交的接口，只保留了 JSON 提交的接口
+- 主要功能合并到一个接口
+- 简化参数结构，和 Fooocus 的 WebUI 保持一致
+- 增加了流式输出功能
+- preset 支持
+- 更完整的任务历史记录功能
+
+优点：
+- 降低开发负载
+- 更完整的 Fooocus 支持
+- 更简单快捷的追踪 Fooocus 版本
 
 ## 功能特性
 
-- 完整保留了 Fooocus 的代码，也即 Fooocus 的所有功能以及使用不受影响
+- 完整的 Fooocus 支持
 - 可以同时启动 API 以及 WebUI，或者选择不启动 WebUI
 - 使用 X-API-KEY 进行接口认证
-- 完整的 Fooocus 支持
 - all-in-one 接口
 - 使用 URL 提供 INPUT 图像
 - 接口提供了流式输出、二进制图像以及异步任务三种方式
 - 持久化任务历史
 - 增强的任务历史管理
 - 任务查询功能
+- preset 支持
 - WebHook 支持
 
 ## 安装
@@ -84,6 +103,16 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
 
 > `stream_output` 的优先级高于 `async_process`, 即同时为 true 的时候, 返回流式输出。当全部为 false 时, 返回二进制图像, 并设置 image_number 为 1
 
+### 终止或跳过任务
+
+`POST /v1/engine/control/`
+- **标签**: GenerateV1
+- **摘要**: 终止或跳过任务
+- **描述**: 终止或跳过任务，仅对当前任务有效，终止会将当前 task 停止，并进行下一个任务。跳过是将当前生成跳过，任务仍继续。
+- **参数**:
+  - `action` (string): 操作类型，可以是"stop"或"skip"。
+- **响应**:
+  - `{"message": "{message}"}`
 
 ### 获取任务
 `GET /tasks`
@@ -111,8 +140,22 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - 200: 成功响应，返回特定任务的详情。
   - 422: 验证错误。
 
+### 获取所有模型
+`GET /v1/engines/all-models`
+- **标签**: Query
+- **摘要**: 获取所有模型
+- **响应**:
+  - 200: 成功响应，返回所有本地 checkpoint 和 lora 模型。
+
+### 获取所有风格
+`GET /v1/engines/styles`
+- **标签**: Query
+- **摘要**: 获取所有风格
+- **响应**:
+  - 200: 成功响应，返回所有风格列表。 
+
 ### 获取特定输出
-`GET /outputs/{data}/{file_name}`
+`GET /outputs/{date}/{file_name}`
 - **标签**: Query
 - **摘要**: 通过ID获取特定输出
 - **参数**:
@@ -120,15 +163,6 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - `file_name` (string): 文件的名称。
 - **响应**:
   - 200: 成功响应，返回特定输出的内容。
-  - 422: 验证错误。
-
-### 生成API路由
-`POST /v1/engine/generate/`
-- **标签**: GenerateV1
-- **摘要**: 生成API路由
-- **请求体**: 必须，JSON格式，基于`CommonRequest`模型。
-- **响应**:
-  - 200: 成功响应，返回生成结果。
   - 422: 验证错误。
 
 ### 描述图像
