@@ -256,6 +256,7 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - `metadata_scheme` (string): 默认 foocus，可选 fooocus, a111
   - `controlnet_image` (ImagePrompt): ImagePrompt
   - `generate_image_grid` (bool): 默认 false，在 API 中应该没有作用，建议保持默认
+  - `outpaint_distance` (List[int]): Outpaint 距离，默认 [0, 0, 0, 0]，左，上，右，下，该参数必须与 `outpaint_selections` 一起使用
   - `upscale_multiple` (float): 默认 1.0，范围 1.0-5.0，仅在 upscale method 为 `Upscale (Custom)` 时有效
   - `preset` (string): 预设名称，默认 initial
   - `stream_output` (bool): 是否流式输出，默认 false
@@ -308,3 +309,9 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - `preview` (str): 任务预览。
   - `webhook_url` (str): 任务 Webhook URL。
   - `result` (List): 任务结果。
+
+## 感谢
+
+该项目源自 [Fooocus-API](https://github.com/mrhan1993/Fooocus-API), 感谢所有参与该项目的开发者。
+
+[Contribute](https://github.com/mrhan1993/Fooocus-API/graphs/contributors)
