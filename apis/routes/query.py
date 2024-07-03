@@ -46,7 +46,10 @@ async def tasks_info(task_id: str = None):
         if query is None:
             return []
         result = json.loads(str(query))
-        result["req_params"] = json.loads(result["req_params"])
+        try:
+            result["req_params"] = json.loads(result["req_params"])
+        except TypeError:
+            pass
         return result
     return async_tasks
 
@@ -92,18 +95,24 @@ async def get_tasks(
         return
 
     historys, current, pending = [], [], []
+    pending_ids = [task.task_id for task in async_tasks]
+
     if query in ('all', 'history') and action != "delete":
         if start_at is not None:
-            query_history = session.query(GenerateRecord).filter(GenerateRecord.in_queue_mills >= start_at).filter(GenerateRecord.in_queue_mills <= end_at).all()
+            query_history = session.query(GenerateRecord).filter(GenerateRecord.task_id.not_in(pending_ids)).filter(GenerateRecord.in_queue_mills >= start_at).filter(GenerateRecord.in_queue_mills <= end_at).all()
         else:
-            query_history = session.query(GenerateRecord).order_by(GenerateRecord.id.desc()).limit(page_size).offset(page * page_size).all()
+            query_history = session.query(GenerateRecord).filter(GenerateRecord.task_id.not_in(pending_ids)).order_by(GenerateRecord.id.desc()).limit(page_size).offset(page * page_size).all()
         for q in query_history:
             result = json.loads(str(q))
             historys.append(result)
     if query in ('all', 'current'):
         current = await current_task()
     if query in ('all', 'pending'):
-        pending = [task.task_id for task in async_tasks]
+
+        query_pending = session.query(GenerateRecord).filter(GenerateRecord.task_id.in_(pending_ids)).all()
+        for q in query_pending:
+            result = json.loads(str(q))
+            pending.append(result)
         start_index = page * page_size
         end_index = (page + 1) * page_size
         max_page = len(pending) / page_size if len(pending) / page_size == len(pending) // page_size else len(pending) // page_size + 1

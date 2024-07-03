@@ -103,4 +103,5 @@ def params_to_params(req: CommonRequest):
         req.metadata_scheme.value,
     ])
     params.extend(req.controlnet_image)
+    params.append(req.outpaint_distance)
     return params

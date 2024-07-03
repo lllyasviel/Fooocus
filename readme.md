@@ -131,8 +131,9 @@ In addition, some API-specific parameters are also included:
   - `end_at` (string): default to current time format by ISO8601, example: "2024-06-30T17:57:07.045812", filter tasks end time, only valid for history.
   - `action` (string): used for delete operation, only valid for history, will delete database record and generated images.
 - **Response**:
-  - 200: success response, return task list.
-  - 422: validation error.
+  - 200: {"history": List[[RecordResponse](#recordresponse)], "current": List[[RecordResponse](#recordresponse)], "pending": List[[RecordResponse](#recordresponse)]}
+
+> Although all models are based on `RecordResponse`, the `current` one will have a preview field
 
 ### Get task by id
 `GET /tasks/{task_id}`
@@ -141,8 +142,7 @@ In addition, some API-specific parameters are also included:
 - **Params**:
   - `task_id` (string): task id
 - **Response**:
-  - 200: success response, return task detail.
-  - 422: validation error.
+  - 200: [RecordResponse](#recordresponse)
 
 ### Get all models
 `GET /v1/engines/all-models`
