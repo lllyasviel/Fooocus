@@ -85,8 +85,7 @@ Invalid parameters in the API, this part of the parameter contains:
 - `input_image_checkbox`, This parameter always set to True
 - `inpaint_mask_upload_checkbox`, This parameter always set to True
 - `invert_mask_checkbox`, This parameter always set to False
-- `current_tab`, This parameter checks the image information in the parameter and is automatically set. The check order is
- 'ip' -> 'uov' -> 'inpaint'
+- `current_tab`, This parameter checks the image information in the parameter and is automatically set. The check order is 'ip' -> 'uov' -> 'inpaint'
 
 Parameters that are not recommended:
 
@@ -259,6 +258,7 @@ In addition, some API-specific parameters are also included:
   - `metadata_scheme` (string): default foocus, one of fooocus, a111
   - `controlnet_image` (ImagePrompt): ImagePrompt
   - `generate_image_grid` (bool): default false, suggested to false
+  - `outpaint_distance` (List[int]): outpaint distance, default [0, 0, 0, 0], left, top, right, bottom, this params must with outpaint_selections at the same time
   - `upscale_multiple` (float): default 1.0, range 1.0-5.0, work only upscale method is `Upscale (Custom)`
   - `preset` (string): preset, default initial
   - `stream_output` (bool): stream output, default false
@@ -311,3 +311,9 @@ In addition, some API-specific parameters are also included:
   - `preview` (str): preview
   - `webhook_url` (str): Webhook URL.
   - `result` (List): result for generate
+
+## Thanks
+
+This project is based on [Fooocus-API](https://github.com/mrhan1993/Fooocus-API), thanks all the developers who participated in this project.
+
+[Contribute](https://github.com/mrhan1993/Fooocus-API/graphs/contributors)
