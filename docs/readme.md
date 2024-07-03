@@ -128,8 +128,9 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
   - `end_at` (string): 默认值为 ISO8601 格式的时间，比如: "2024-06-30T17:57:07.045812"，过滤任务的结束时间, 仅对 history 生效
   - `action` (string): 删除操作专用, 仅对 history 生效, 会删除数据库中记录以及生成的图片。
 - **响应**:
-  - 200: 成功响应，返回任务列表。
-  - 422: 验证错误。
+  - 200: {"history": List[[RecordResponse](#recordresponse)], "current": List[[RecordResponse](#recordresponse)], "pending": List[[RecordResponse](#recordresponse)]}
+
+> 尽管都是基于 RecordResponse 模型，但 current 会多一个 preview 字段
 
 ### 获取特定任务
 `GET /tasks/{task_id}`
@@ -138,8 +139,7 @@ python launch.py --listen 0.0.0.0 --port 7865 --nowebui
 - **参数**:
   - `task_id` (string): 任务的ID。
 - **响应**:
-  - 200: 成功响应，返回特定任务的详情。
-  - 422: 验证错误。
+  - 200: [RecordResponse](#recordresponse)
 
 ### 获取所有模型
 `GET /v1/engines/all-models`
