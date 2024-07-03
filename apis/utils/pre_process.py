@@ -5,6 +5,8 @@ import copy
 import os
 import random
 
+import numpy as np
+
 from modules.config import default_max_lora_number, try_get_preset_content
 from modules.flags import Performance, controlnet_image_count
 from modules import constants, config
@@ -143,6 +145,8 @@ async def pre_worker(request: CommonRequest):
 
     request.input_image_checkbox = True
     request.inpaint_mask_upload_checkbox = True
+    if request.inpaint_mask_image_upload is None or request.inpaint_mask_image_upload == 'None':
+        request.inpaint_mask_upload_checkbox = False
     request.invert_mask_checkbox = False
 
     request.uov_input_image = await read_input_image(request.uov_input_image)
@@ -160,7 +164,9 @@ async def pre_worker(request: CommonRequest):
         request.current_tab = 'inpaint'
 
     req_copy = copy.deepcopy(request)
-
+    if request.inpaint_mask_image_upload is None and request.inpaint_input_image is not None:
+        inpaint_image_size = request.inpaint_input_image.shape[:3]
+        request.inpaint_mask_image_upload = np.zeros(inpaint_image_size, dtype=np.uint8)
     request.inpaint_input_image = {
         "image": request.inpaint_input_image,
         "mask": request.inpaint_mask_image_upload
