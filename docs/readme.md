@@ -6,6 +6,8 @@ FastAPI 是一个现代、快速（高性能）的Web框架，用于构建APIs�
 
 和上一个 API 项目 [Fooocus-API](https://github.com/mrhan1993/Fooocus-API) 相比，主要有以改动：
 
+> 如果你从上一个项目而来，可以参考这个[迁移指南](./migration_zh.md)
+
 - 移除任务队列，不再单独维护一个队列
 - 完全使用 Fooocus 的生成代码
 - 可以和 WebUI 同时启动
