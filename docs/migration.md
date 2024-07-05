@@ -1,6 +1,6 @@
 # 参数对照表
 
-`AdvancedParams` 用 `adp` 代替，名称变动的原则是和 Fooocus 进行统一：
+In next table, `AdvancedParams` is replaced with `adp`, and the rule of name change is to unify with Fooocus.
 
 | Fooocus-API                              | FooocusAPI                           | 备注                  |
 |------------------------------------------|--------------------------------------|---------------------|
@@ -16,15 +16,15 @@
 | base_model_name                          | base_model_name                      |                     |
 | refiner_model_name                       | refiner_model_name                   |                     |
 | refiner_switch                           | refiner_switch                       |                     |
-| loras                                    | loras                                | 传入格式相同，都是 Lora 对象列表 |
-|                                          | input_image_checkbox                 | 可以忽略，它总是为 True      |
-|                                          | current_tab                          | 可以忽略，根据参数会自动判断      |
+| loras                                    | loras                                | same, a list of lora obj |
+|                                          | input_image_checkbox                 | this is always true      |
+|                                          | current_tab                          | need not care this      |
 | uov_method                               | uov_method                           |                     |
-| **input_image**                          | **uov_input_image**                  | 使用 Fooocus 的变量名称    |
+| **input_image**                          | **uov_input_image**                  | use variable name in Fooocus    |
 | outpaint_selections                      | outpaint_selections                  |                     |
-| **input_image**                          | **inpaint_input_image**              | 使用 Fooocus 的变量名称    |
+| **input_image**                          | **inpaint_input_image**              | use variable name in Fooocus    |
 | inpaint_additional_prompt                | inpaint_additional_prompt            |                     |
-| **input_mask**                           | **inpaint_mask_image_upload**        | 使用 Fooocus 的变量名称    |
+| **input_mask**                           | **inpaint_mask_image_upload**        | use variable name in Fooocus    |
 | adp.disable_preview                      | disable_preview                      |                     |
 | adp.disable_intermediate_results         | disable_intermediate_results         |                     |
 | adp.disable_seed_increment               | disable_seed_increment               |                     |
@@ -64,28 +64,28 @@
 | adp.inpaint_mask_upload_checkbox         | inpaint_mask_upload_checkbox         |                     |
 | adp.invert_mask_checkbox                 | invert_mask_checkbox                 |                     |
 | adp.inpaint_erode_or_dilate              | inpaint_erode_or_dilate              |                     |
-| **image_prompts**                        | **controlnet_image**                 | 只是属性名称变更            |
-|                                          | generate_image_grid                  | 新增，这是个测试选项，建议默认     |
-| outpaint_distance_left                   | outpaint_distance                    | 这四个属性合并为了一个属性       |
-| outpaint_distance_right                  |                                      | 可以通过一个列表传递这四个值      |
-| outpaint_distance_top                    |                                      | 例如：[100, 50, 0, 0]  |
-| outpaint_distance_bottom                 |                                      | 方向是：左, 上, 右, 下      |
-| **upscale_value**                        | **upscale_multiple**                 | 属性名变更               |
-|                                          | preset                               | 新增，可以通过该属性指定使用的预设   |
-|                                          | stream_output                        | 新增流式输出，类似 LLM 的流式输出 |
-| **save_meta**                            | **save_metadata_to_images**          |                     |
-| **meta_scheme**                          | **metadata_scheme**                  |                     |
-| **save_extension**                       | **output_format**                    |                     |
-| save_name                                |                                      | 移除，不支持自定义文件名        |
+| **image_prompts**                        | **controlnet_image**                 | just change name            |
+|                                          | generate_image_grid                  | new, default is better     |
+| outpaint_distance_left                   | outpaint_distance                    | merge these to one       |
+| outpaint_distance_right                  |                                      | use a list to pass these four      |
+| outpaint_distance_top                    |                                      | exp: [100, 50, 0, 0]  |
+| outpaint_distance_bottom                 |                                      | Directions are: left, up, right, down      |
+| **upscale_value**                        | **upscale_multiple**                 | name change only               |
+|                                          | preset                               | new, use this this specified preset  |
+|                                          | stream_output                        | new, similar to LLM streaming output |
+| **save_meta**                            | **save_metadata_to_images**          | name change only      |
+| **meta_scheme**                          | **metadata_scheme**                  | name change only      |
+| **save_extension**                       | **output_format**                    | name change only      |
+| save_name                                |                                      | remove        |
 | read_wildcards_in_order                  | read_wildcards_in_order              |                     |
-| require_base64                           | require_base64                       | 该参数后续可能会被移除         |
+| require_base64                           | require_base64                       | will be remove         |
 | async_process                            | async_process                        |                     |
 | webhook_url                              | webhook_url                          |                     |
 
-简单说来就是
+simple is:
 
-- 将所有 `AdvancedParams` 平移到上一级
-- 修改部分参数名
+- All `AdvancedParams` move to upper level
+- Modify some params name
     - `input_image` -> `inpaint_input_image`
     - `inpaint_mask` -> `inpaint_mask_image_upload`
     - `input_image` -> `uov_input_image`
@@ -94,22 +94,22 @@
     - `save_meta` -> `upscale_multiple`
     - `meta_scheme` -> `save_metadata_to_images`
     - `save_extension` -> `output_format`
-- 移除部分参数名
+- Remove some params
     - `save_name`
-- 增加部分参数
+- Add some params
     - `input_image_checkbox`
     - `current_tab`
     - `generate_image_grid`
     - `preset`
     - `stream_output`
-- 合并部分参数
+- Merge some params
     - `outpaint_distance_left,right,top,bottom` 四个参数合并为 `outpaint_distance`
 
-## 三种返回示例
+## Example for three types of return
 
-### 异步任务
+### async task
 
-在参数中指定 `async_process` 为 `True`
+specify `async_process` as `True`
 
 ```python
 import requests
@@ -134,18 +134,18 @@ res = requests.post(
 print(res.json())
 ```
 
-输出如下：
+output will be like this:
 
 ```python
 {'id': -1, 'task_id': '85c10c81e9e2482d90a64c3704137d3a', 'req_params': {}, 'in_queue_mills': -1, 'start_mills': -1, 'finish_mills': -1, 'task_status': 'pending', 'progress': -1, 'preview': '', 'webhook_url': '', 'result': []}
 ```
 
-你可以通过 `task_id` 访问 `http://127.0.0.1:7866/tasks/{task_id}` 获取任务信息，如果该任务正在执行，返回信息中会包含 `preview`
+use `task_id` request `http://127.0.0.1:7866/tasks/{task_id}` to get task info, if this task is currently running, return should be include `preview`
 
-返回数据示例：
+example for return
 
 ```python
-# 未开始
+# pending
 {
     "id": -1,
     "in_queue_mills": 1720085748199,
@@ -153,7 +153,7 @@ print(res.json())
     "progress": null,
     "result": null,
     "req_params": {
-        # 完整的请求参数
+        # full request params
         ...
     },
     "task_id": "85c10c81e9e2482d90a64c3704137d3a",
@@ -162,7 +162,7 @@ print(res.json())
     "webhook_url": ""
 }
 
-# 执行中
+# running
 {
     "id": -1,
     "task_id": "85c10c81e9e2482d90a64c3704137d3a",
@@ -179,7 +179,7 @@ print(res.json())
     "result": []
 }
 
-# 已完成
+# finished
 {
     "id": 71,
     "in_queue_mills": 1720085748199,
@@ -198,9 +198,9 @@ print(res.json())
 }
 ```
 
-### 流式输出
+### streaming output
 
-这是一个类似 LLM 流式输出的方式，你会持续收到来自服务器的信息，直到结束，参照上面的示例：
+this is like LLM streaming output, you will recieve from server until finish, refer to the above example:
 
 ```python
 import requests
@@ -228,7 +228,7 @@ for line in res.iter_lines():
         print(line.decode('utf-8'))
 ```
 
-你会获得类似下面的输出：
+you will get response like this:
 
 ```python
 data: {"progress": 2, "preview": null, "message": "Loading models ...", "images": []}
@@ -249,7 +249,7 @@ data: {"progress": 100, "preview": null, "message": "Finished", "images": ["http
 data:
 ```
 
-我们在稍微修改下：
+just modify our code:
 
 ```python
 import requests
@@ -284,7 +284,7 @@ for line in res.iter_lines(chunk_size=8192):
     print(json_data)
 ```
 
-然后你就得到了一系列类似这样的输出：
+you will get this:
 
 ```python
 {'progress': 13, 'preview': None, 'message': 'Preparing task 1/1 ...', 'images': []}
@@ -296,11 +296,11 @@ for line in res.iter_lines(chunk_size=8192):
 {'progress': 100, 'preview': None, 'message': 'Finished', 'images': ['http://10.0.0.245:7866/outputs/2024-07-05/2024-07-05_10-02-22_2536.png']}
 ```
 
-这还挺适合前端套壳用的（可惜我完全搞不懂前端，要不高低套一个），比如我用 AI 生成了一个 [example.html](./docs/example.html) ，服务启动后点击 `Generate` 按钮，你就会得到一个有预览、有进度的生成过程。
+it is better for frontend i think (but i am not good at this). with AI, i generate a [example.html](./docs/example.html), click `Generate` button, you will get a page with preview and progress.
 
-### 二进制输出
+### binary output
 
-这个就简单了，它就是返回一张图片，不过需要在请求时将 `async_process` 和 `stream_output` 同时指定为 `false`，此时 `image_number` 强制为 `1`
+this is simple, return is a image, pass `async_process` and `stream_output` both `false`, at this time, `image_number` force to `1`
 
 ```python
 import requests
@@ -333,45 +333,45 @@ plt.imshow(image)
 plt.show()
 ```
 
-# 任务查询
+# task query
 
-和 [Fooocus-API](https://github.com/mrhan1993/Fooocus-API) 不同的是历史记录的保存将是自动进行的，没有保留开关。数据库使用 `SQLite3` 并存放在 `outputs/db.sqlite3` 中。同时吸取了上次的教训，极大简化了表结构，将请求参数作为 JSON 存放在 `req_params` 字段。为了降低读写，仅在任务进入队列时和完成后进行数据库操作。其仅作为生成记录使用，任务状态的追踪会在内存中完成。
+Unlike [Fooocus-API](https://github.com/mrhan1993/Fooocus-API), the history saving will be automatic without a retention switch. The database is used with SQLite3 and stored in `outputs/db.sqlite3`. Taking lessons from the previous version, the table structure has been greatly simplified, and request parameters are stored as JSON in the `req_params` field. To reduce read and write operations, database operations are only performed when tasks enter and complete the queue. It is only used for generating records, and task status tracking is completed in memory.
 
-此外，该版本会保留输入图像，上传的图像会计算哈希值并保存在 `inputs` 目录，数据库中的 `req_params` 会将图片参数替换为 `url` 信息进行保存，这意味着更完整的历史记录保存，无论是文生图还是图生图又或者是其他
+In addition, this version will retain input images, uploaded images will calculate hash values and be saved in the `inputs` directory, and the image parameters in the database's `req_params` will be replaced with `url` information for saving, which means more complete historical record preservation, whether it is text-to-image or image-to-image or other types of images.
 
 ## /tasks
 
-这是个复合接口，但其返回格式是固定的，该接口总是会返回下面格式的 JSON 数据，无论参数如何指定
+This is a compound interface, but its return format is fixed. The interface will always return JSON data in the following format, regardless of how the parameters are specified.
 
 ```python
 {
     "history": [],
-    "current": [],  # 尽管是个列表，但其中不会超过一个元素。
+    "current": [],  # Although it is a list, there will be no more than one element in it.
     "pending": []
 }
 ```
 
-所有的元素其格式都是和数据库中的 scheme 匹配的，除了 `current` 会多一个 `preview` ，比如下图：
+All elements have a format that matches the scheme in the database, except for current which has an additional preview, as shown in the following figure:
 
 ![](./assets/tasks.png)
 
-该接口还支持更加精细的用法，参考下面的示例：
+more usage, see below:
 
-> 该接口返回格式总是固定的，不管参数如何调整
+> The return format of this interface is always fixed, regardless of how the parameters are adjusted.
 
 ```shell
 curl http://localhost:7866/tasks?query=current
-# 仅返回当前任务，query 参数还可以指定的值为 'all', 'pending', 'history'
+# only return current task, other value for query include 'all', 'pending', 'history'
 
 curl http://localhost:7866/tasks?query=history&page=3&page_size=5
-# history 和 pending 支持分页和页面大小
+# history and pending supports pagination and page size.
 
 curl http://localhost:7866/tasks?query=history&start_at=2024-07-03T12:22:30
-# 你可以指定一个时间范围进行查询，这会返回该时间段的所有记录。时间格式是 ISO8601，如果你不指定 end_at 则截止当前时间
+# You can specify a time range for the query, which will return all records within that time period. The time format is ISO8601, and if you do not specify end_at, it will be set to the current time.
 
 curl http://localhost:7866/tasks?query=history&start_at=2024-07-03T12:22:30&action=delete
-# 删除指定时间范围的任务，数据库记录和生成文件。目前仅支持这一种删除方法(不会删除 input 文件)。
+# Delete tasks within a specified time range, including database records and generated files. This is the only supported deletion method at present (input files will not be deleted).
 
 curl http://localhost:7866/tasks/38ba92b188a64233a7336218cd902865
-# 这会返回该任务的信息，但它只是一个字典。相当于从上面列表中取出指定 task_id 的任务，如果它刚好是当前任务，那它也会包含 preview
+# This will return the information of the task, but it is just a dictionary. It is equivalent to taking the task with the specified task_id from the list above. If it happens to be the current task, it will also include preview. (Although it may look similar, this is actually another interface.)
 ```
