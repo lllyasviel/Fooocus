@@ -41,6 +41,14 @@ async def tasks_info(task_id: str = None):
     :param task_id: The task ID to filter by.
     :return: The tasks.
     """
+    ct = await current_task()
+    try:
+        ct_task_id = ct[0]['task_id']
+    except IndexError:
+        ct_task_id = None
+
+    if ct_task_id is not None and ct_task_id == task_id:
+        return ct[0]
     if task_id:
         query = session.query(GenerateRecord).filter_by(task_id=task_id).first()
         if query is None:
