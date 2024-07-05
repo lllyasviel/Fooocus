@@ -8,6 +8,8 @@ For a partial description of Fooocus, please refer to the [Fooocus](https://gith
 
 Compared to the previous API project [Fooocus-API](https://github.com/mrhan1993/Fooocus-API), there are major changes:
 
+You can get a guide [here](./docs/migration.md) if you use the previous API project.
+
 - Remove the task queue and no longer maintain a separate queue
 - Full use of Fooocus' generated code
 - Can start at the same time as WebUI
