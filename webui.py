@@ -90,7 +90,7 @@ def generate_clicked(task: worker.AsyncTask):
     return
 
 
-def inpaint_mode_change(mode):
+def inpaint_mode_change(mode, inpaint_engine_version):
     assert mode in modules.flags.inpaint_options
 
     # inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
@@ -104,17 +104,20 @@ def inpaint_mode_change(mode):
             False, 'None', 0.5, 0.0
         ]
 
+    if inpaint_engine_version == 'empty':
+        inpaint_engine_version = modules.config.default_inpaint_engine_version
+
     if mode == modules.flags.inpaint_option_modify:
         return [
             gr.update(visible=True), gr.update(visible=False, value=[]),
             gr.Dataset.update(visible=False, samples=modules.config.example_inpaint_prompts),
-            True, modules.config.default_inpaint_engine_version, 1.0, 0.0
+            True, inpaint_engine_version, 1.0, 0.0
         ]
 
     return [
         gr.update(visible=False, value=''), gr.update(visible=True),
         gr.Dataset.update(visible=False, samples=modules.config.example_inpaint_prompts),
-        False, modules.config.default_inpaint_engine_version, 1.0, 0.618
+        False, inpaint_engine_version, 1.0, 0.618
     ]
 
 
@@ -129,6 +132,7 @@ shared.gradio_root = gr.Blocks(title=title).queue()
 
 with shared.gradio_root:
     currentTask = gr.State(worker.AsyncTask(args=[]))
+    inpaint_engine_state = gr.State('empty')
     with gr.Row():
         with gr.Column(scale=2):
             with gr.Row():
@@ -235,7 +239,7 @@ with shared.gradio_root:
                             with gr.Column():
                                 inpaint_input_image = grh.Image(label='Image', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas', show_label=False)
                                 inpaint_advanced_masking_checkbox = gr.Checkbox(label='Enable Advanced Masking Features', value=False)
-                                inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.flags.inpaint_option_default, label='Method')
+                                inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options, value=modules.config.default_inpaint_method, label='Method')
                                 inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                                 outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
                                 example_inpaint_prompts = gr.Dataset(samples=modules.config.example_inpaint_prompts,
@@ -377,6 +381,9 @@ with shared.gradio_root:
                                                                     queue=False, show_progress=False)
                                 gr.HTML('<a href="https://github.com/mashb1t/Fooocus/discussions/42" target="_blank">\U0001F4D4 Document</a>')
                     enhance_ctrls = []
+                    enhance_inpaint_mode_ctrls = []
+                    enhance_inpaint_engine_ctrls = []
+                    enhance_inpaint_update_ctrls = []
                     for index in range(modules.config.default_enhance_tabs):
                         with gr.TabItem(label=f'#{index + 1}') as enhance_tab_item:
                             enhance_enabled = gr.Checkbox(label='Enable', value=False, elem_classes='min_check',
@@ -435,7 +442,7 @@ with shared.gradio_root:
 
                             with gr.Accordion("Inpaint", visible=True, open=False):
                                 enhance_inpaint_mode = gr.Dropdown(choices=modules.flags.inpaint_options,
-                                                                   value=modules.flags.inpaint_option_default,
+                                                                   value=modules.config.default_inpaint_method,
                                                                    label='Method', interactive=True)
                                 enhance_inpaint_disable_initial_latent = gr.Checkbox(
                                     label='Disable initial latent in inpaint', value=False)
@@ -485,7 +492,15 @@ with shared.gradio_root:
                             enhance_mask_invert
                         ]
 
-                        enhance_inpaint_mode.input(inpaint_mode_change, inputs=enhance_inpaint_mode, outputs=[
+                        enhance_inpaint_mode_ctrls += [enhance_inpaint_mode]
+                        enhance_inpaint_engine_ctrls += [enhance_inpaint_engine]
+
+                        enhance_inpaint_update_ctrls += [[
+                            enhance_inpaint_mode, enhance_inpaint_disable_initial_latent, enhance_inpaint_engine,
+                            enhance_inpaint_strength, enhance_inpaint_respective_field
+                        ]]
+
+                        enhance_inpaint_mode.change(inpaint_mode_change, inputs=[enhance_inpaint_mode, inpaint_engine_state], outputs=[
                             inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
                             enhance_inpaint_disable_initial_latent, enhance_inpaint_engine,
                             enhance_inpaint_strength, enhance_inpaint_respective_field
@@ -874,10 +889,12 @@ with shared.gradio_root:
                              overwrite_width, overwrite_height, guidance_scale, sharpness, adm_scaler_positive,
                              adm_scaler_negative, adm_scaler_end, refiner_swap_method, adaptive_cfg, clip_skip,
                              base_model, refiner_model, refiner_switch, sampler_name, scheduler_name, vae_name,
-                             seed_random, image_seed, generate_button, load_parameter_button] + freeu_ctrls + lora_ctrls
+                             seed_random, image_seed, inpaint_engine, inpaint_engine_state,
+                             inpaint_mode] + enhance_inpaint_mode_ctrls + [generate_button,
+                             load_parameter_button] + freeu_ctrls + lora_ctrls
 
         if not args_manager.args.disable_preset_selection:
-            def preset_selection_change(preset, is_generating):
+            def preset_selection_change(preset, is_generating, inpaint_mode):
                 preset_content = modules.config.try_get_preset_content(preset) if preset != 'initial' else {}
                 preset_prepared = modules.meta_parser.parse_meta_from_preset(preset_content)
 
@@ -886,18 +903,35 @@ with shared.gradio_root:
                 checkpoint_downloads = preset_prepared.get('checkpoint_downloads', {})
                 embeddings_downloads = preset_prepared.get('embeddings_downloads', {})
                 lora_downloads = preset_prepared.get('lora_downloads', {})
+                vae_downloads = preset_prepared.get('vae_downloads', {})
 
-                preset_prepared['base_model'], preset_prepared['lora_downloads'] = launch.download_models(
-                    default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads)
+                preset_prepared['base_model'], preset_prepared['checkpoint_downloads'] = launch.download_models(
+                    default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads,
+                    vae_downloads)
 
                 if 'prompt' in preset_prepared and preset_prepared.get('prompt') == '':
                     del preset_prepared['prompt']
 
-                return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
+                return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating, inpaint_mode)
 
-            preset_selection.change(preset_selection_change, inputs=[preset_selection, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
+
+            def inpaint_engine_state_change(inpaint_engine_version, *args):
+                if inpaint_engine_version == 'empty':
+                    inpaint_engine_version = modules.config.default_inpaint_engine_version
+
+                result = []
+                for inpaint_mode in args:
+                    if inpaint_mode != modules.flags.inpaint_option_detail:
+                        result.append(gr.update(value=inpaint_engine_version))
+                    else:
+                        result.append(gr.update())
+
+                return result
+
+            preset_selection.change(preset_selection_change, inputs=[preset_selection, state_is_generating, inpaint_mode], outputs=load_data_outputs, queue=False, show_progress=True) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
-                .then(lambda: None, _js='()=>{refresh_style_localization();}')
+                .then(lambda: None, _js='()=>{refresh_style_localization();}') \
+                .then(inpaint_engine_state_change, inputs=[inpaint_engine_state] + enhance_inpaint_mode_ctrls, outputs=enhance_inpaint_engine_ctrls, queue=False, show_progress=False)
 
         performance_selection.change(lambda x: [gr.update(interactive=not flags.Performance.has_restricted_features(x))] * 11 +
                                                [gr.update(visible=not flags.Performance.has_restricted_features(x))] * 1 +
@@ -915,11 +949,19 @@ with shared.gradio_root:
                                  queue=False, show_progress=False) \
             .then(fn=lambda: None, _js='refresh_grid_delayed', queue=False, show_progress=False)
 
-        inpaint_mode.input(inpaint_mode_change, inputs=inpaint_mode, outputs=[
+        inpaint_mode.change(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state], outputs=[
             inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts,
             inpaint_disable_initial_latent, inpaint_engine,
             inpaint_strength, inpaint_respective_field
         ], show_progress=False, queue=False)
+
+        # load configured default_inpaint_method
+        default_inpaint_ctrls = [inpaint_mode, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field]
+        for mode, disable_initial_latent, engine, strength, respective_field in [default_inpaint_ctrls] + enhance_inpaint_update_ctrls:
+            shared.gradio_root.load(inpaint_mode_change, inputs=[mode, inpaint_engine_state], outputs=[
+                inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, disable_initial_latent,
+                engine, strength, respective_field
+            ], show_progress=False, queue=False)
 
         generate_mask_button.click(fn=generate_mask,
                                    inputs=[inpaint_input_image, inpaint_mask_model, inpaint_mask_cloth_category,
@@ -973,7 +1015,7 @@ with shared.gradio_root:
 
         prompt.input(parse_meta, inputs=[prompt, state_is_generating], outputs=[prompt, generate_button, load_parameter_button], queue=False, show_progress=False)
 
-        load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=[prompt, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=False)
+        load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=[prompt, state_is_generating, inpaint_mode], outputs=load_data_outputs, queue=False, show_progress=False)
 
         def trigger_metadata_import(filepath, state_is_generating):
             parameters, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
@@ -984,7 +1026,7 @@ with shared.gradio_root:
                 metadata_parser = modules.meta_parser.get_metadata_parser(metadata_scheme)
                 parsed_parameters = metadata_parser.to_json(parameters)
 
-            return modules.meta_parser.load_parameter_button_click(parsed_parameters, state_is_generating)
+            return modules.meta_parser.load_parameter_button_click(parsed_parameters, state_is_generating, inpaint_mode)
 
         metadata_import_button.click(trigger_metadata_import, inputs=[metadata_input_image, state_is_generating], outputs=load_data_outputs, queue=False, show_progress=True) \
             .then(style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False)

@@ -1,3 +1,17 @@
+# [2.6.0-rc1](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0-rc1)
+
+* Update default models to latest versions
+  * animaPencilXL_v400 => animaPencilXL_v500
+  * DreamShaperXL_Turbo_dpmppSdeKarras => DreamShaperXL_Turbo_v2_1
+  * SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4 => SDXL_FILM_PHOTOGRAPHY_STYLE_V1
+* Add preset for pony_v6 (using ponyDiffusionV6XL)
+* Add style `Fooocus Pony`
+* Add restart sampler ([paper](https://arxiv.org/abs/2306.14878))
+* Add config option for default_inpaint_engine_version, sets inpaint engine for pony_v6 and playground_v2.5 to None for improved results (incompatible with inpaint engine)
+* Add image editor functionality to mask upload (same as for inpaint, now correctly resizes and allows more detailed mask creation)
+* Add persistent model cache for metadata. Use `--rebuild-hash-cache` to manually rebuild the cache for all non-cached hashes
+* Rename `--enable-describe-uov-image` to `--enable-auto-describe-image` to better reflect its purpose (now also works for enhance image upload)
+
 # [2.5.2](https://github.com/mashb1t/Fooocus/releases/tag/v2.5.2)
 
 * Add missing prompt return values for `Upscale (Fast 2x)` in enhance
