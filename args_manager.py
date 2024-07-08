@@ -34,8 +34,8 @@ args_parser.parser.add_argument("--enable-auto-describe-image", action='store_tr
 args_parser.parser.add_argument("--always-download-new-model", action='store_true',
                                 help="Always download newer models", default=False)
 
-args_parser.parser.add_argument("--rebuild-hash-cache", action='store_true',
-                                help="Generates missing model and LoRA hashes.", default=False)
+args_parser.parser.add_argument("--rebuild-hash-cache", help="Generates missing model and LoRA hashes.",
+                                type=int, nargs="?", metavar="CPU_NUM_THREADS", const=-1)
 
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
