@@ -2,7 +2,7 @@
 Generate API routes
 """
 from fastapi import (
-    APIRouter, Depends, Query, UploadFile
+    APIRouter, Depends, Header, Query, UploadFile
 )
 from sse_starlette.sse import EventSourceResponse
 
@@ -31,10 +31,24 @@ secure_router = APIRouter(
         path="/v1/engine/generate/",
         summary="Generate endpoint all in one",
         tags=["GenerateV1"])
-async def generate_routes(common_request: CommonRequest):
+async def generate_routes(
+    common_request: CommonRequest,
+    accept: str = Header(None)):
     """
     Generate API routes
     """
+    try:
+        accept, ext = accept.lower().split("/")
+        if ext not in ["png", "jpg", "jpeg", "webp"]:
+            ext = 'png'
+    except ValueError:
+        pass
+
+    if accept == "image":
+        return await binary_output(
+            request=common_request,
+            ext=ext)
+
     if common_request.stream_output:
         return EventSourceResponse(
             stream_output(request=common_request)
@@ -43,7 +57,7 @@ async def generate_routes(common_request: CommonRequest):
     if common_request.async_process:
         return await async_worker(request=common_request)
 
-    return await binary_output(request=common_request)
+    return await async_worker(request=common_request, wait_for_result=True)
 
 
 @secure_router.post(

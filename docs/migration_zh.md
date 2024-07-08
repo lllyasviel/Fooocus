@@ -105,7 +105,7 @@
 - 合并部分参数
     - `outpaint_distance_left,right,top,bottom` 四个参数合并为 `outpaint_distance`
 
-## 三种返回示例
+## 四种返回示例
 
 ### 异步任务
 
@@ -300,7 +300,7 @@ for line in res.iter_lines(chunk_size=8192):
 
 ### 二进制输出
 
-这个就简单了，它就是返回一张图片，不过需要在请求时将 `async_process` 和 `stream_output` 同时指定为 `false`，此时 `image_number` 强制为 `1`
+这个就简单了，在 `header` 中指定 `Accept: image/xxx` 即可，此时 `image_number` 强制为 `1`, 其优先级高于参数中的 `stream_output` 和 `async_process`, 这种情况下会返回一个二进制图片，格式是 `Accept` 中指定的。目前支持的格式有 `image/png`, `image/jpeg`, `image/webp` 和 `image/jpg`。
 
 ```python
 import requests
@@ -311,18 +311,21 @@ import matplotlib.pyplot as plt
 
 endpoint = "http://127.0.0.1:7866/v1/engine/generate/"
 
+headers = {
+    "Accept": "image/png"
+}
+
 params = {
     "prompt": "",
     "negative_prompt": "",
     "performance_selection": "Lightning",
-    "async_process": False,
-    "stream_output": False,
     "webhook_url": ""
 }
 
 res = requests.post(
     url=endpoint,
     data=json.dumps(params),
+    headers=headers,
     timeout=60
 )
 
@@ -332,6 +335,34 @@ image = Image.open(image_stream)
 plt.imshow(image)
 plt.show()
 ```
+
+### 同步任务
+
+默认参数的情况下，该接口会是一个同步接口
+
+```python
+import requests
+import json
+
+endpoint = "http://127.0.0.1:7866/v1/engine/generate/"
+
+params = {
+    "prompt": "",
+    "negative_prompt": "",
+    "performance_selection": "Lightning",
+    "webhook_url": ""
+}
+
+res = requests.post(
+    url=endpoint,
+    data=json.dumps(params),
+    timeout=60
+)
+
+print(res.json())
+```
+
+返回结果和通过 ID 查询结果相同，你可以参照下面 tasks 接口返回格式
 
 # 任务查询
 

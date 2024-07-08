@@ -105,7 +105,7 @@ simple is:
 - Merge some params
     - `outpaint_distance_left,right,top,bottom` 四个参数合并为 `outpaint_distance`
 
-## Example for three types of return
+## Example for four types of return
 
 ### async task
 
@@ -300,7 +300,8 @@ it is better for frontend i think (but i am not good at this). with AI, i genera
 
 ### binary output
 
-this is simple, return is a image, pass `async_process` and `stream_output` both `false`, at this time, `image_number` force to `1`
+this is simple, just set `Accept: image/xxx` in headers, `image_number` force to `1`, higher priority than `stream_output` and `async_process`, you will get a binary image 
+output, format is what you set in headers. (jpg, jpeg, png, webp are supported)
 
 ```python
 import requests
@@ -311,12 +312,45 @@ import matplotlib.pyplot as plt
 
 endpoint = "http://127.0.0.1:7866/v1/engine/generate/"
 
+headers = {
+    "Accept": "image/png"
+}
+
 params = {
     "prompt": "",
     "negative_prompt": "",
     "performance_selection": "Lightning",
-    "async_process": False,
-    "stream_output": False,
+    "webhook_url": ""
+}
+
+res = requests.post(
+    url=endpoint,
+    data=json.dumps(params),
+    headers=headers,
+    timeout=60
+)
+
+image_stream = BytesIO(res.content)
+image = Image.open(image_stream)
+
+plt.imshow(image)
+plt.show()
+```
+
+### syncronous output
+
+use default params, endpoint will be a sync interface, the return format is the same as query by id.
+
+```python
+import requests
+import json
+
+endpoint = "http://127.0.0.1:7866/v1/engine/generate/"
+
+params = {
+    "prompt": "",
+    "negative_prompt": "",
+    "performance_selection": "Lightning",
     "webhook_url": ""
 }
 
@@ -326,11 +360,7 @@ res = requests.post(
     timeout=60
 )
 
-image_stream = BytesIO(res.content)
-image = Image.open(image_stream)
-
-plt.imshow(image)
-plt.show()
+print(res.json())
 ```
 
 # task query

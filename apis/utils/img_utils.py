@@ -16,6 +16,26 @@ import requests
 import numpy as np
 
 
+async def convert_image(image_path: str, image_format: str = 'png') -> BytesIO:
+    """
+    Convert image to another format
+    Args:
+        image_path (str): Image path
+        image_format (str): Image format
+    Returns:
+        BytesIO: Image bytes
+    """
+    try:
+        img = Image.open(image_path)
+        image_bytes = BytesIO()
+        img.save(image_bytes, format=image_format.upper())
+        image_bytes.seek(0)
+    except Exception as e:
+        print(e)
+        return
+    return image_bytes.getvalue()
+
+
 def upload_to_base64(image: UploadFile) -> str | None:
     """
     Convert UploadFile obj to base64 string

@@ -32,7 +32,7 @@ advantage：
 - Use X-API-KEY for authentication
 - all-in-one interface
 - use URL provide INPUT image
-- streaming output, binary image and asynchronous task
+- streaming output, binary image, asynchronous task and syncronous task support
 - persistent task history
 - enhanced task history management
 - task query function
@@ -101,12 +101,12 @@ The following parameters need to be set according to the usage scenario:
 In addition, some API-specific parameters are also included:
 
 - `preset`, You can use this parameter to specify a preset that takes precedence over the global default and below the passed parameter, but if the passed parameter is equal to the default value, the preset parameter is used
-- `stream_output`, true for streaming output
+- `stream_output`, true for streaming output, default false
 - `require_base64`, not used
-- `async_process`, async task
+- `async_process`, async task, default false, a syncronous task will be returned when `stream_output` is false at the same time
 - `webhook_url`, Webhook addr, if set, the task will be sent to the address after the task is completed.
 
-> `stream_output` has a higher priority than `async_process`, that is, when both are `true`, return streaming output. When all are false, return binary images and set image_number to 1
+> `stream_output` has a higher priority than `async_process`, that is, when both are `true`, return streaming output. When all are false, task will be syncronously returned. when you set Accepet: image/xxx in the request header, the response will be a binary image
 
 ### Stop or Skip
 
@@ -169,6 +169,8 @@ In addition, some API-specific parameters are also included:
 - **Response**:
   - 200: success response, return output content.
   - 422: validation error.
+
+> if you set `Accept: image/xxx` in the request header, server will convert the output to the specified format and return it. `image/png` `image/jpeg` `image/webp` `image/jpg` are supported.
 
 ### Describe image
 `POST /v1/tools/describe-image`
