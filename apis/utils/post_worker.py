@@ -49,7 +49,7 @@ async def post_worker(task: AsyncTask, started_at: int):
         finally_result = str(query)
         session.commit()
         await send_result_to_web_hook(query.webhook_url, finally_result)
+        return finally_result
     except Exception as e:
         print(e)
     CurrentTask.ct = None
-    return task

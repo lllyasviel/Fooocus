@@ -2,10 +2,13 @@
 Calls the worker with the given params.
 """
 import asyncio
+import io
 import os
 import json
 import uuid
 import datetime
+
+from PIL import Image
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -75,7 +78,7 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
             if flag == 'finish':
                 finished = True
                 CurrentTask.task = None
-                await post_worker(task=task, started_at=started_at)
+                return await post_worker(task=task, started_at=started_at)
 
 
 async def stream_output(request: CommonRequest):
@@ -145,7 +148,9 @@ async def stream_output(request: CommonRequest):
                 CurrentTask.task = None
 
 
-async def binary_output(request: CommonRequest):
+async def binary_output(
+        request: CommonRequest,
+        ext: str):
     """
     Calls the worker with the given params.
     :param request: The request object containing the params.
@@ -197,14 +202,16 @@ async def binary_output(request: CommonRequest):
                 CurrentTask.task = None
                 await post_worker(task=task, started_at=started_at)
     try:
-        with open(task.results[0], "rb") as f:
-            image = f.read()
-        return Response(image, media_type="image/png")
+        image = Image.open(task.results[0])
+        image_bytes = io.BytesIO()
+        image.save(image_bytes, format=ext.upper())
+        image_bytes.seek(0)
+        return Response(image_bytes.getvalue(), media_type=f"image/{ext}")
     except IndexError:
         return Response(status_code=204)
 
 
-async def async_worker(request: CommonRequest) -> dict:
+async def async_worker(request: CommonRequest, wait_for_result: bool = False) -> dict:
     """
     Calls the worker with the given params.
     :param request: The request object containing the params.
@@ -227,8 +234,11 @@ async def async_worker(request: CommonRequest) -> dict:
     ))
     session.commit()
 
-    asyncio.create_task(execute_in_background(task, raw_req, in_queue_mills))
+    if wait_for_result:
+        res = await execute_in_background(task, raw_req, in_queue_mills)
+        return json.loads(res)
 
+    asyncio.create_task(execute_in_background(task, raw_req, in_queue_mills))
     return RecordResponse(task_id=task_id, task_status="pending").model_dump()
 
 

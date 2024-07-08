@@ -7,14 +7,15 @@ import json
 from datetime import datetime
 from typing import List
 
-from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse, Response
+from fastapi import APIRouter, Depends, Header, Response
+from fastapi.responses import JSONResponse
 from starlette.responses import FileResponse
 
 from apis.models.response import AllModelNamesResponse
 from apis.utils.api_utils import api_key_auth
 from apis.utils.call_worker import current_task, session
 from apis.utils.file_utils import delete_tasks
+from apis.utils.img_utils import convert_image
 from apis.utils.sql_client import GenerateRecord
 from modules.async_worker import async_tasks
 
@@ -145,21 +146,50 @@ async def get_task(task_id: str):
 
 
 @secure_router.get("/outputs/{date}/{file_name}", tags=["Query"])
-async def get_output(date: str, file_name: str):
+async def get_output(date: str, file_name: str, accept: str = Header(None)):
     """
     Get a specific output by its ID.
     """
-    if not file_name.endswith(('.png', '.jpg', '.jpeg', '.webp')):
+    accept_formats = ('png', 'jpg', 'jpeg', 'webp')
+    try:
+        _, ext = accept.lower().split("/")
+        if ext not in accept_formats:
+            ext = None
+    except ValueError:
+        ext = None
+
+    if not file_name.endswith(accept_formats):
         return Response(status_code=404)
-    return FileResponse(f"outputs/{date}/{file_name}")
+
+    if ext is None:
+        try:
+            return FileResponse(f"outputs/{date}/{file_name}")
+        except FileNotFoundError:
+            return Response(status_code=404)
+    img = await convert_image(f"outputs/{date}/{file_name}", ext)
+    return Response(content=img, media_type=f"image/{ext}")
 
 
 @secure_router.get("/inputs/{file_name}", tags=["Query"])
-async def get_input(file_name: str):
+async def get_input(file_name: str, accept: str = Header(None)):
     """
     Get a specific input by its ID.
     """
-    return FileResponse(f"inputs/{file_name}")
+    accept_formats = ('png', 'jpg', 'jpeg', 'webp')
+    try:
+        _, ext = accept.lower().split("/")
+        if ext not in accept_formats:
+            ext = None
+    except ValueError:
+        ext = None
+    if ext is None:
+        try:
+            return FileResponse(f"inputs/{file_name}")
+        except FileNotFoundError:
+            return Response(status_code=404)
+
+    img = await convert_image(f"inputs/{file_name}", ext)
+    return Response(content=img, media_type=f"image/{ext}")
 
 
 @secure_router.get(
