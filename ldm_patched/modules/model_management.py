@@ -759,16 +759,15 @@ def should_use_fp16(device=None, model_params=0, prioritize_performance=True):
 
     return True
 
-def soft_empty_cache(force=False):
+def soft_empty_cache(_force_deprecated=False):
     global cpu_state
     if cpu_state == CPUState.MPS:
         torch.mps.empty_cache()
     elif is_intel_xpu():
         torch.xpu.empty_cache()
     elif torch.cuda.is_available():
-        if force or is_nvidia(): #This seems to make things worse on ROCm so I only do it for cuda
-            torch.cuda.empty_cache()
-            torch.cuda.ipc_collect()
+        torch.cuda.empty_cache()
+        torch.cuda.ipc_collect()
 
 def unload_all_models():
     free_memory(1e30, get_torch_device())
