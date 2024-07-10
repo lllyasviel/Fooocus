@@ -9,19 +9,19 @@ from sqlalchemy.orm import sessionmaker
 
 from apis.models.base import CurrentTask
 from apis.utils.file_utils import url_path
+from apis.utils import file_utils
 from apis.utils.sql_client import GenerateRecord
 from apis.utils.web_hook import send_result_to_web_hook
 from modules.async_worker import AsyncTask
+from modules.config import path_outputs
 
-from apis.utils import file_utils
 
 
 ROOT_DIR = file_utils.SCRIPT_PATH
 INPUT_PATH = os.path.join(ROOT_DIR, 'inputs')
-OUT_PATH = os.path.join(ROOT_DIR, 'outputs')
 
 engine = create_engine(
-    f"sqlite:///{OUT_PATH}/db.sqlite3",
+    f"sqlite:///{path_outputs}/db.sqlite3",
     connect_args={"check_same_thread": False},
     future=True
 )

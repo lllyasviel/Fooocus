@@ -7,11 +7,10 @@ import os
 
 from sqlalchemy import Integer, Float, VARCHAR, JSON, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, Mapped, mapped_column
+from modules.config import path_outputs
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT_PATH = os.path.join(ROOT_DIR, '..', 'outputs')
 
-DB_PATH = os.path.join(OUT_PATH, "db.sqlite3")
+DB_PATH = os.path.join(path_outputs, "db.sqlite3")
 Base = declarative_base()
 
 

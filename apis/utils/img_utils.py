@@ -106,7 +106,7 @@ async def read_input_image(input_image: UploadFile | str | None) -> np.ndarray |
             async with httpx.AsyncClient() as client:
                 response = await client.get(input_image, headers=headers, timeout=20)
                 input_image_bytes = response.content
-        except:
+        except Exception:
             return None
     else:
         input_image_bytes = base64.b64decode(input_image)

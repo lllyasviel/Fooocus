@@ -19,6 +19,8 @@ from apis.utils.img_utils import convert_image
 from apis.utils.sql_client import GenerateRecord
 from modules.async_worker import async_tasks
 
+from modules.config import path_outputs
+
 
 def date_to_timestamp(date: str) -> int | None:
     """
@@ -163,10 +165,10 @@ async def get_output(date: str, file_name: str, accept: str = Header(None)):
 
     if ext is None:
         try:
-            return FileResponse(f"outputs/{date}/{file_name}")
+            return FileResponse(f"{path_outputs}/{date}/{file_name}")
         except FileNotFoundError:
             return Response(status_code=404)
-    img = await convert_image(f"outputs/{date}/{file_name}", ext)
+    img = await convert_image(f"{path_outputs}/{date}/{file_name}", ext)
     return Response(content=img, media_type=f"image/{ext}")
 
 

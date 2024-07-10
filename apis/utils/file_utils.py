@@ -21,6 +21,8 @@ from PIL.PngImagePlugin import PngInfo
 
 from apis.utils.img_utils import narray_to_base64img
 
+from modules.config import path_outputs
+
 SCRIPT_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../..'))
 
@@ -65,7 +67,7 @@ def save_output_file(
     date_string = current_time.strftime("%Y-%m-%d")
 
     filename = os.path.join(date_string, image_name + '.' + extension)
-    file_path = os.path.join(output_dir, filename)
+    file_path = os.path.join(path_outputs, filename)
 
     if extension not in ['png', 'jpg', 'webp']:
         extension = 'png'
@@ -114,7 +116,7 @@ def output_file_to_base64img(filename: str | None) -> str | None:
     """
     if filename is None:
         return None
-    file_path = os.path.join(output_dir, filename)
+    file_path = os.path.join(path_outputs, filename)
     if not os.path.exists(file_path) or not os.path.isfile(file_path):
         return None
 
@@ -135,7 +137,7 @@ def output_file_to_bytesimg(filename: str | None) -> bytes | None:
     """
     if filename is None:
         return None
-    file_path = os.path.join(output_dir, filename)
+    file_path = os.path.join(path_outputs, filename)
     if not os.path.exists(file_path) or not os.path.isfile(file_path):
         return None
 
@@ -212,7 +214,7 @@ def url_path(result: list) -> list:
     if str.startswith(result[0], 'http'):
         for res in result:
             uri = '/'.join(res.split('/')[-2:])
-            url_or_path.append(os.path.join(output_dir, uri))
+            url_or_path.append(os.path.join(path_outputs, uri))
         return url_or_path
     for res in result:
         url_or_path.append(to_http(res, "outputs"))
