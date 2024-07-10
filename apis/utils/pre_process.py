@@ -19,7 +19,6 @@ from apis.models.base import Lora, ImagePrompt
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUT_PATH = os.path.join(ROOT_DIR, '..', 'inputs')
-OUT_PATH = os.path.join(ROOT_DIR, '..', 'outputs')
 
 
 def refresh_seed(seed_string: int | str | None) -> int:

@@ -27,14 +27,14 @@ from apis.utils.img_utils import (
 )
 from apis.models.requests import CommonRequest
 from modules.async_worker import AsyncTask, async_tasks
+from modules.config import path_outputs
 
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUT_PATH = os.path.join(ROOT_DIR, '..', 'inputs')
-OUT_PATH = os.path.join(ROOT_DIR, '..', 'outputs')
 
 engine = create_engine(
-    f"sqlite:///{OUT_PATH}/db.sqlite3",
+    f"sqlite:///{path_outputs}/db.sqlite3",
     connect_args={"check_same_thread": False},
     future=True
 )
