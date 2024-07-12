@@ -46,8 +46,12 @@ def run_server(arguments):
 
     os.environ["WEBHOOK_URL"] = arguments.webhook_url
     try:
-        api_port = int(arguments.port) + 1
-    except TypeError:
-        api_port = int(os.environ["GRADIO_SERVER_PORT"]) + 1
+        api_port = int(os.environ['API_PORT'])
+    except KeyError:
+        try:
+            api_port = int(arguments.port) + 1
+        except TypeError:
+            api_port = int(os.environ["GRADIO_SERVER_PORT"]) + 1
+
     file_utils.STATIC_SERVER_BASE = f"http://{arguments.base_url}:{api_port}"
     uvicorn.run(app, host=arguments.listen, port=api_port)
