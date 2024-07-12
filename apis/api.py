@@ -9,6 +9,7 @@ import uvicorn
 
 from apis.routes.generate import secure_router as generate
 from apis.routes.query import secure_router as query
+from apis.routes.query import router
 from apis.utils import file_utils
 from apis.utils import api_utils
 
@@ -25,6 +26,7 @@ app.add_middleware(
 
 app.include_router(query)
 app.include_router(generate)
+app.include_router(router)
 
 
 @app.get("/", tags=["Query"])
