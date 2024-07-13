@@ -1,3 +1,9 @@
+# [2.6.0-rc2](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0-rc2)
+
+* Add hash generation multi-threading support, change `--rebuild-hash-cache` from bool to int (number of CPU cores)
+* Fix inference tensor version counter tracking issue for GroundingDINO after using Enhance (see [discussion](https://github.com/lllyasviel/Fooocus/discussions/3213))
+
+
 # [2.6.0-rc1](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0-rc1)
 
 * Update default models to latest versions

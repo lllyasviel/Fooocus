@@ -7,7 +7,7 @@ import args_manager
 import tempfile
 import modules.flags
 import modules.sdxl_styles
-from modules.hash_cache import load_cache_from_file, save_cache_to_file
+from modules.hash_cache import init_cache
 
 from modules.model_loader import load_file_from_url
 from modules.extra_utils import makedirs_with_log, get_files_from_folder, try_eval_env_var
@@ -892,20 +892,4 @@ def downloading_sam_vit_h():
 
 
 update_files()
-load_cache_from_file()
-
-if args_manager.args.rebuild_hash_cache:
-    from modules.hash_cache import sha256_from_cache
-    from modules.util import get_file_from_folder_list
-
-    print('[Cache] Rebuilding hash cache')
-    for filename in model_filenames:
-        filepath = get_file_from_folder_list(filename, paths_checkpoints)
-        sha256_from_cache(filepath)
-    for filename in lora_filenames:
-        filepath = get_file_from_folder_list(filename, paths_loras)
-        sha256_from_cache(filepath)
-    print('[Cache] Done')
-
-# write cache to file again for sorting and cleanup of invalid cache entries
-save_cache_to_file()
+init_cache(model_filenames, paths_checkpoints, lora_filenames, paths_loras)
