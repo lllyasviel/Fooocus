@@ -19,6 +19,8 @@ class GroundingDinoModel(Model):
         self.load_device = torch.device('cpu')
         self.offload_device = torch.device('cpu')
 
+    @torch.no_grad()
+    @torch.inference_mode()
     def predict_with_caption(
             self,
             image: np.ndarray,
