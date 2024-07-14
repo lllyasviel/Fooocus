@@ -335,7 +335,7 @@ with shared.gradio_root:
                         with gr.Row():
                             with gr.Column():
                                 enhance_input_image = grh.Image(label='Use with Enhance, skips image generation', source='upload', type='numpy')
-                                gr.HTML('<a href="https://github.com/mashb1t/Fooocus/discussions/42" target="_blank">\U0001F4D4 Document</a>')
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/3281" target="_blank">\U0001F4D4 Document</a>')
 
                     with gr.TabItem(label='Metadata') as metadata_tab:
                         with gr.Column():
@@ -379,7 +379,7 @@ with shared.gradio_root:
                                                                     inputs=enhance_uov_processing_order,
                                                                     outputs=enhance_uov_prompt_type,
                                                                     queue=False, show_progress=False)
-                                gr.HTML('<a href="https://github.com/mashb1t/Fooocus/discussions/42" target="_blank">\U0001F4D4 Document</a>')
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/3281" target="_blank">\U0001F4D4 Document</a>')
                     enhance_ctrls = []
                     enhance_inpaint_mode_ctrls = []
                     enhance_inpaint_engine_ctrls = []
@@ -471,7 +471,7 @@ with shared.gradio_root:
                                                                                  '(default is 0, always processed before any mask invert)')
                                 enhance_mask_invert = gr.Checkbox(label='Invert Mask', value=False)
 
-                            gr.HTML('<a href="https://github.com/mashb1t/Fooocus/discussions/42" target="_blank">\U0001F4D4 Document</a>')
+                            gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/3281" target="_blank">\U0001F4D4 Document</a>')
 
                         enhance_ctrls += [
                             enhance_enabled,

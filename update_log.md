@@ -1,6 +1,6 @@
 # [2.5.0-rc1](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.0-rc1)
 
-* Add enhance feature, which offers easy image refinement steps (similar to adetailer, but based on dynamic image detection instead of specific mask detection models). See [documentation](https://github.com/mashb1t/Fooocus/discussions/42).
+* Add enhance feature, which offers easy image refinement steps (similar to adetailer, but based on dynamic image detection instead of specific mask detection models). See [documentation](https://github.com/lllyasviel/Fooocus/discussions/3281).
 * Rewrite async worker code, make code much more reusable to allow iterations and improve reusability
 * Improve GroundingDINO and SAM image masking
 * Fix inference tensor version counter tracking issue for GroundingDINO after using Enhance (see [discussion](https://github.com/lllyasviel/Fooocus/discussions/3213))
