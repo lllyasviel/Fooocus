@@ -542,10 +542,9 @@ with shared.gradio_root:
                                                    interactive=True)
 
                 performance_selection = gr.Radio(label='Performance',
-                                                 info='* = restricted feature set, intermediate results disabled',
-                                                 choices=modules.flags.performance_selections,
+                                                 choices=flags.Performance.values(),
                                                  value=modules.config.default_performance,
-                                                 elem_classes='performance_selections')
+                                                 elem_classes=['performance_selection'])
 
                 with gr.Accordion(label='Aspect Ratios', open=False, elem_id='aspect_ratios_accordion') as aspect_ratios_accordion:
                     aspect_ratios_selection = gr.Radio(label='Aspect Ratios', show_label=False,

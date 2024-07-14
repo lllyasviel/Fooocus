@@ -187,12 +187,3 @@ class Performance(Enum):
 
     def lora_filename(self) -> str | None:
         return PerformanceLoRA[self.name].value if self.name in PerformanceLoRA.__members__ else None
-
-
-performance_selections = []
-
-for name, value in Performance.list():
-    restricted_text = ''
-    if Performance.has_restricted_features(value):
-        restricted_text = '*'
-    performance_selections.append((f'{value} <span style="color: grey;"> \U00002223  {Steps[name].value} steps {restricted_text}</span>', Performance[name].value))
