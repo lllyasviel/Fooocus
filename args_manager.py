@@ -28,11 +28,14 @@ args_parser.parser.add_argument("--disable-metadata", action='store_true',
 args_parser.parser.add_argument("--disable-preset-download", action='store_true',
                                 help="Disables downloading models for presets", default=False)
 
-args_parser.parser.add_argument("--enable-describe-uov-image", action='store_true',
-                                help="Disables automatic description of uov images when prompt is empty", default=False)
+args_parser.parser.add_argument("--enable-auto-describe-image", action='store_true',
+                                help="Enables automatic description of uov and enhance image when prompt is empty", default=False)
 
 args_parser.parser.add_argument("--always-download-new-model", action='store_true',
-                                help="Always download newer models ", default=False)
+                                help="Always download newer models", default=False)
+
+args_parser.parser.add_argument("--rebuild-hash-cache", help="Generates missing model and LoRA hashes.",
+                                type=int, nargs="?", metavar="CPU_NUM_THREADS", const=-1)
 
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
