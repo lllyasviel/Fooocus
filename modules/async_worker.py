@@ -29,7 +29,6 @@ class AsyncTask:
         self.generate_image_grid = args.pop()
         self.prompt = args.pop()
         self.negative_prompt = args.pop()
-        self.translate_prompts = args.pop()
         self.style_selections = args.pop()
 
         self.performance_selection = Performance(args.pop())
@@ -944,12 +943,10 @@ def worker():
             modules.config.downloading_upscale_model()
         return uov_input_image, skip_prompt_processing, steps
 
-    def prepare_enhance_prompt(prompt: str, fallback_prompt: str, translate: bool, prompt_type: str):
+    def prepare_enhance_prompt(prompt: str, fallback_prompt: str):
         if safe_str(prompt) == '' or len(remove_empty_str([safe_str(p) for p in prompt.splitlines()], default='')) == 0:
             prompt = fallback_prompt
-        else:
-            if translate:
-                prompt = translate2en(prompt, prompt_type)
+
         return prompt
 
     def stop_processing(async_task, processing_start_time):
@@ -968,9 +965,8 @@ def worker():
         inpaint_parameterized = inpaint_engine != 'None'  # inpaint_engine = None, improve detail
         initial_latent = None
 
-        prompt = prepare_enhance_prompt(prompt, async_task.prompt, async_task.translate_prompts, 'prompt')
-        negative_prompt = prepare_enhance_prompt(negative_prompt, async_task.negative_prompt,
-                                                 async_task.translate_prompts, 'negative prompt')
+        prompt = prepare_enhance_prompt(prompt, async_task.prompt)
+        negative_prompt = prepare_enhance_prompt(negative_prompt, async_task.negative_prompt)
 
         if 'vary' in goals:
             img, denoising_strength, initial_latent, width, height, current_progress = apply_vary(
@@ -1091,10 +1087,6 @@ def worker():
             set_lightning_defaults(async_task, current_progress, advance_progress=True)
         elif async_task.performance_selection == Performance.HYPER_SD:
             set_hyper_sd_defaults(async_task, current_progress, advance_progress=True)
-
-        if async_task.translate_prompts:
-            async_task.prompt = translate2en(async_task.prompt, 'prompt')
-            async_task.negative_prompt = translate2en(async_task.negative_prompt, 'negative prompt')
 
         print(f'[Parameters] Adaptive CFG = {async_task.adaptive_cfg}')
         print(f'[Parameters] CLIP Skip = {async_task.clip_skip}')
