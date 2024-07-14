@@ -10,6 +10,7 @@
 * Rename `--enable-describe-uov-image` to `--enable-auto-describe-image`, now also works for enhance image upload
 * Rename checkbox `Enable Mask Upload` to `Enable Advanced Masking Features` to better hint to mask auto-generation feature
 * Get upscale model filepath by calling downloading_upscale_model() to ensure the model exists
+* Rename tab titles and translations from singular to plural
 * Update default models to latest versions
   * animaPencilXL_v400 => animaPencilXL_v500
   * DreamShaperXL_Turbo_dpmppSdeKarras => DreamShaperXL_Turbo_v2_1
