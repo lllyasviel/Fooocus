@@ -11,6 +11,7 @@
 * Rename checkbox `Enable Mask Upload` to `Enable Advanced Masking Features` to better hint to mask auto-generation feature
 * Get upscale model filepath by calling downloading_upscale_model() to ensure the model exists
 * Rename tab titles and translations from singular to plural
+* Rename document to documentation
 * Update default models to latest versions
   * animaPencilXL_v400 => animaPencilXL_v500
   * DreamShaperXL_Turbo_dpmppSdeKarras => DreamShaperXL_Turbo_v2_1
