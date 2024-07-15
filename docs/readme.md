@@ -46,7 +46,9 @@ FastAPI 是一个现代、快速（高性能）的Web框架，用于构建APIs�
 
 和 Fooocus 相同的启动方式，使用 `--nowebui` 参数可以启动 API 而不启动 WebUI。
 
-默认的 API 端口是 WebUI 端口加 1，即 7866，使用 `--port` 修改 WebUI 端口将同时修改 API 端口。
+默认的 API 端口是 WebUI 端口加 1，即 7866
+
+环境变量 API_PORT 用于指定 API 端口，优先级高于默认设置。
 
 同时启动 WebUI 和 API 示例：
 

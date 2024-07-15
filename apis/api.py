@@ -9,6 +9,7 @@ import uvicorn
 
 from apis.routes.generate import secure_router as generate
 from apis.routes.query import secure_router as query
+from apis.routes.query import router
 from apis.utils import file_utils
 from apis.utils import api_utils
 
@@ -25,6 +26,7 @@ app.add_middleware(
 
 app.include_router(query)
 app.include_router(generate)
+app.include_router(router)
 
 
 @app.get("/", tags=["Query"])
@@ -46,8 +48,12 @@ def run_server(arguments):
 
     os.environ["WEBHOOK_URL"] = arguments.webhook_url
     try:
-        api_port = int(arguments.port) + 1
-    except TypeError:
-        api_port = int(os.environ["GRADIO_SERVER_PORT"]) + 1
+        api_port = int(os.environ['API_PORT'])
+    except KeyError:
+        try:
+            api_port = int(arguments.port) + 1
+        except TypeError:
+            api_port = int(os.environ["GRADIO_SERVER_PORT"]) + 1
+
     file_utils.STATIC_SERVER_BASE = f"http://{arguments.base_url}:{api_port}"
     uvicorn.run(app, host=arguments.listen, port=api_port)

@@ -69,6 +69,8 @@ secure_router = APIRouter(
     dependencies=[Depends(api_key_auth)]
 )
 
+router = APIRouter()
+
 
 @secure_router.get("/tasks", tags=["Query"])
 async def get_tasks(
@@ -147,7 +149,7 @@ async def get_task(task_id: str):
     return JSONResponse(await tasks_info(task_id))
 
 
-@secure_router.get("/outputs/{date}/{file_name}", tags=["Query"])
+@router.get("/outputs/{date}/{file_name}", tags=["Query"])
 async def get_output(date: str, file_name: str, accept: str = Header(None)):
     """
     Get a specific output by its ID.
@@ -172,7 +174,7 @@ async def get_output(date: str, file_name: str, accept: str = Header(None)):
     return Response(content=img, media_type=f"image/{ext}")
 
 
-@secure_router.get("/inputs/{file_name}", tags=["Query"])
+@router.get("/inputs/{file_name}", tags=["Query"])
 async def get_input(file_name: str, accept: str = Header(None)):
     """
     Get a specific input by its ID.

@@ -32,7 +32,7 @@ advantage：
 - Use X-API-KEY for authentication
 - all-in-one interface
 - use URL provide INPUT image
-- streaming output, binary image, asynchronous task and syncronous task support
+- streaming output, binary image, asynchronous task and synchronous task support
 - persistent task history
 - enhanced task history management
 - task query function
@@ -48,7 +48,9 @@ Based on Fooocus, there are several dependencies, so you can install it in the s
 
 Same as Fooocus, use `--apikey` to specify the API authentication key.
 
-Default API port is WebUI port plus 1, that is 7866, use `--port` to modify WebUI port to modify API port at the same time.
+Default API port is WebUI port plus 1, that is 7866, use `--port` to modify WebUI port
+
+Environment variable API_PORT is used to specify the API port. It takes precedence over the default setting.
 
 example for WebUI and API:
 
@@ -103,10 +105,10 @@ In addition, some API-specific parameters are also included:
 - `preset`, You can use this parameter to specify a preset that takes precedence over the global default and below the passed parameter, but if the passed parameter is equal to the default value, the preset parameter is used
 - `stream_output`, true for streaming output, default false
 - `require_base64`, not used
-- `async_process`, async task, default false, a syncronous task will be returned when `stream_output` is false at the same time
+- `async_process`, async task, default false, a synchronous task will be returned when `stream_output` is false at the same time
 - `webhook_url`, Webhook addr, if set, the task will be sent to the address after the task is completed.
 
-> `stream_output` has a higher priority than `async_process`, that is, when both are `true`, return streaming output. When all are false, task will be syncronously returned. when you set Accepet: image/xxx in the request header, the response will be a binary image
+> `stream_output` has a higher priority than `async_process`, that is, when both are `true`, return streaming output. When all are false, task will be synchronously returned. when you set `Accept: image/xxx` in the request header, the response will be a binary image
 
 ### Stop or Skip
 
