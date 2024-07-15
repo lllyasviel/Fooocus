@@ -15,11 +15,14 @@ def try_load_sorted_styles(style_names, default_selected):
     try:
         if os.path.exists('sorted_styles.json'):
             with open('sorted_styles.json', 'rt', encoding='utf-8') as fp:
-                sorted_styles = json.load(fp)
-                if len(sorted_styles) == len(all_styles):
-                    if all(x in all_styles for x in sorted_styles):
-                        if all(x in sorted_styles for x in all_styles):
-                            all_styles = sorted_styles
+                sorted_styles = []
+                for x in json.load(fp):
+                    if x in all_styles:
+                        sorted_styles.append(x)
+                for x in all_styles:
+                    if x not in sorted_styles:
+                        sorted_styles.append(x)
+                all_styles = sorted_styles
     except Exception as e:
         print('Load style sorting failed.')
         print(e)

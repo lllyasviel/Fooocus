@@ -1,6 +1,169 @@
-**(2023 Nov 26) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid December. However, you may still see updates if other collaborators are fixing bugs or solving problems.**
+# [2.4.3](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.3)
+
+* Fix alphas_cumprod setter for TCD sampler
+* Add parser for env var strings to expected config value types to allow override of all non-path config keys 
+
+# [2.4.2](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.2)
+
+* Fix some small bugs (tcd scheduler when gamma is 0, chown in Dockerfile, update cmd args in readme, translation for aspect ratios, vae default after file reload)
+* Fix performance LoRA replacement when data is loaded from history log and inline prompt
+* Add support and preset for playground v2.5 (only works with performance Quality or Speed, use with scheduler edm_playground_v2)
+* Make textboxes (incl. positive prompt) resizable
+* Hide intermediate images when performance of Gradio would bottleneck the generation process (Extreme Speed, Lightning, Hyper-SD)
+
+# [2.4.1](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.1)
+
+* Fix some small bugs (e.g. adjust clip skip default value from 1 to 2, add type check to aspect ratios js update function)
+* Add automated docker build on push to main, tagged with `edge`. See [available docker images](https://github.com/lllyasviel/Fooocus/pkgs/container/fooocus).
+
+# [2.4.0](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.0)
+
+* Change settings tab elements to be more compact
+* Add clip skip slider
+* Add select for custom VAE
+* Add new style "Random Style"
+* Update default anime model to animaPencilXL_v310
+* Add button to reconnect the UI after Fooocus crashed without having to configure everything again (no page reload required)
+* Add performance "hyper-sd" (based on [Hyper-SDXL 4 step LoRA](https://huggingface.co/ByteDance/Hyper-SD/blob/main/Hyper-SDXL-4steps-lora.safetensors))
+* Add [AlignYourSteps](https://research.nvidia.com/labs/toronto-ai/AlignYourSteps/) scheduler by Nvidia, see 
+* Add [TCD](https://github.com/jabir-zheng/TCD) sampler and scheduler (based on sgm_uniform)
+* Add NSFW image censoring (disables intermediate image preview while generating). Set config value `default_black_out_nsfw` to True to always enable.
+* Add argument `--enable-describe-uov-image` to automatically describe uploaded images for upscaling
+* Add inline lora prompt references with subfolder support, example prompt: `colorful bird <lora:toucan:1.2>`
+* Add size and aspect ratio recommendation on image describe
+* Add inpaint brush color picker, helpful when image and mask brush have the same color
+* Add automated Docker image build using Github Actions on each release.
+* Add full raw prompts to history logs
+* Change code ownership from @lllyasviel to @mashb1t for automated issue / MR notification
+
+# [2.3.1](https://github.com/lllyasviel/Fooocus/releases/tag/2.3.1)
+
+* Remove positive prompt from anime prefix to not reset prompt after switching presets
+* Fix image number being reset to 1 when switching preset, now doesn't reset anymore
+* Fix outpainting dimension calculation when extending left/right
+* Fix LoRA compatibility for LoRAs in a1111 metadata scheme
+
+# [2.3.0](https://github.com/lllyasviel/Fooocus/releases/tag/2.3.0)
+
+* Add performance "lightning" (based on [SDXL-Lightning 4 step LoRA](https://huggingface.co/ByteDance/SDXL-Lightning/blob/main/sdxl_lightning_4step_lora.safetensors))
+* Add preset selection to UI, disable with argument `--disable-preset-selection`. Use `--always-download-new-model` to download missing models on preset switch.
+* Improve face swap consistency by switching later in the process to (synthetic) refiner
+* Add temp path cleanup on startup
+* Add support for wildcard subdirectories
+* Add scrollable 2 column layout for styles for better structure
+* Improve Colab resource needs for T4 instances (default), positively tested with all image prompt features
+* Improve anime preset, now uses style `Fooocus Semi Realistic` instead of `Fooocus Negative` (less wet look images)
+
+# [2.2.1](https://github.com/lllyasviel/Fooocus/releases/tag/2.2.1)
+
+* Fix some small bugs (e.g. image grid, upscale fast 2x, LoRA weight width in Firefox)
+* Allow prompt weights in array syntax
+* Add steps override and metadata scheme to history log
+
+# [2.2.0](https://github.com/lllyasviel/Fooocus/releases/tag/2.2.0)
+
+* Isolate every image generation to truly allow multi-user usage
+* Add array support, changes the main prompt when increasing the image number. Syntax: `[[red, green, blue]] flower` 
+* Add optional metadata to images, allowing you to regenerate and modify them later with the same parameters 
+* Now supports native PNG, JPG and WEBP image generation
+* Add Docker support
+
+# [2.1.865](https://github.com/lllyasviel/Fooocus/releases/tag/2.1.865)
+
+* Various bugfixes
+* Add authentication to --listen
+
+# 2.1.864
+
+* New model list. See also discussions.
+
+# 2.1.861 (requested update)
+
+(2023 Dec 21) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid or late Jan. However, you may still see updates if other collaborators are fixing bugs or solving problems.
+
+* Show image preview in Style when mouse hover.
+
+# 2.1.860 (requested update)
+
+* Allow upload inpaint mask in developer mode.
+
+# 2.1.857 (requested update)
+
+* Begin to support 8GB AMD GPU on Windows.
+
+# 2.1.854
+
+* Add a button to copy parameters to clipboard in log.
+* Allow users to load parameters directly by pasting parameters to prompt.
+
+# 2.1.853
+
+* Add Marc K3nt3L's styles. Thanks [Marc K3nt3L](https://github.com/K3nt3L)!
+
+# 2.1.852
+
+* New Log System: Log system now uses tables. If this is breaking some other browser extension or javascript developments, see also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
+
+# 2.1.846
+
+* Many users reported that image quality is different from 2.1.824. We reviewed all codes and fixed several precision problems in 2.1.846.
+
+# 2.1.843
+
+* Many improvements to Canvas. Thanks CanvasZoom author!
+
+# 2.1.841
+
+* Backend maintain.
+* Fix some potential frozen after model mismatch.
+* Fix crash when cfg=1 when using anime preset.
+* Added some guidelines for troubleshoot the "CUDA kernel errors asynchronously" problem.
+* Fix inpaint device problem in `--always-gpu` mode.
+
+# 2.1.839
+
+* Maintained some computation codes in backend for efficiency.
+* Added a note about Seed Breaking Change.
+
+**Seed Breaking Change**: Note that 2.1.825-2.1.839 is seed breaking change. The computation float point is changed and some seeds may give slightly different results. The minor change in 2.1.825-2.1.839 do not influence image quality. See also [use previous version](https://github.com/lllyasviel/Fooocus/discussions/1405).
+
+# 2.1.837
+
+* Fix some precision-related problems.
+
+# 2.1.836
+
+* Avoid blip tokenizer download from torch hub
+
+# 2.1.831
+
+* Input Image -> Describe (Midjourney Describe)
+
+# 2.1.830
+
+* SegmindVega support.
+
+# 2.1.829
+
+* Change SDE tree to CPU on AMD/DirectMl to avoid potential problems.
+
+# 2.1.828
+
+* Allow to disable gradio analytics.
+* Use html table in log.
+* fix some SSL problems.
+
+# 2.1.826
+
+* New backend.
+* FP8 support (see also the new cmd flag list in Readme, eg, --unet-in-fp8-e4m3fn and --unet-in-fp8-e5m2).
+* Fix some MPS problems.
+* GLoRA support.
+* Turbo scheduler.
 
 # 2.1.823
+
+(2023 Nov 26) Hi all, the feature updating of Fooocus will be paused for about two or three weeks because we have some other workloads. See you soon and we will come back in mid December. However, you may still see updates if other collaborators are fixing bugs or solving problems.
 
 * Fix some potential problem when LoRAs has clip keys and user want to load those LoRAs to refiners.
 

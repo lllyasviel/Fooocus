@@ -1,0 +1,3 @@
+# Ensure that shell scripts always use lf line endings, e.g. entrypoint.sh for docker
+* text=auto
+*.sh text eol=lf

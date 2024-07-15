@@ -1,0 +1,36 @@
+volumes:
+  fooocus-data:
+
+services:
+  app:
+    build: .
+    image: ghcr.io/lllyasviel/fooocus
+    ports:
+     - "7865:7865"
+    environment:
+      - CMDARGS=--listen    # Arguments for launch.py.
+      - DATADIR=/content/data   # Directory which stores models, outputs dir
+      - config_path=/content/data/config.txt
+      - config_example_path=/content/data/config_modification_tutorial.txt
+      - path_checkpoints=/content/data/models/checkpoints/
+      - path_loras=/content/data/models/loras/
+      - path_embeddings=/content/data/models/embeddings/
+      - path_vae_approx=/content/data/models/vae_approx/
+      - path_upscale_models=/content/data/models/upscale_models/
+      - path_inpaint=/content/data/models/inpaint/
+      - path_controlnet=/content/data/models/controlnet/
+      - path_clip_vision=/content/data/models/clip_vision/
+      - path_fooocus_expansion=/content/data/models/prompt_expansion/fooocus_expansion/
+      - path_outputs=/content/app/outputs/    # Warning: If it is not located under '/content/app', you can't see history log!
+    volumes:
+      - fooocus-data:/content/data
+      #- ./models:/import/models   # Once you import files, you don't need to mount again.
+      #- ./outputs:/import/outputs  # Once you import files, you don't need to mount again.
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [compute, utility]
