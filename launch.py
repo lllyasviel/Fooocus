@@ -21,6 +21,7 @@ import fooocus_version
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met, delete_folder_content
 from modules.model_loader import load_file_from_url
+from modules import config
 
 REINSTALL_ALL = False
 TRY_INSTALL_XFORMERS = False
@@ -85,6 +86,7 @@ if args.hf_mirror is not None :
     print("Set hf_mirror to:", args.hf_mirror)
 
 from modules import config
+os.environ["U2NET_HOME"] = config.path_inpaint
 
 os.environ['GRADIO_TEMP_DIR'] = config.temp_path
 
@@ -97,7 +99,7 @@ if config.temp_path_cleanup_on_launch:
         print(f"[Cleanup] Failed to delete content of temp dir.")
 
 
-def download_models(default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads):
+def download_models(default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads, vae_downloads):
     for file_name, url in vae_approx_filenames:
         load_file_from_url(url=url, model_dir=config.path_vae_approx, file_name=file_name)
 
@@ -129,12 +131,14 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
         load_file_from_url(url=url, model_dir=config.path_embeddings, file_name=file_name)
     for file_name, url in lora_downloads.items():
         load_file_from_url(url=url, model_dir=config.paths_loras[0], file_name=file_name)
+    for file_name, url in vae_downloads.items():
+        load_file_from_url(url=url, model_dir=config.path_vae, file_name=file_name)
 
     return default_model, checkpoint_downloads
 
 
 config.default_base_model_name, config.checkpoint_downloads = download_models(
     config.default_base_model_name, config.previous_default_models, config.checkpoint_downloads,
-    config.embeddings_downloads, config.lora_downloads)
+    config.embeddings_downloads, config.lora_downloads, config.vae_downloads)
 
 from webui import *

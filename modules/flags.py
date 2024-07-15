@@ -8,9 +8,15 @@ upscale_15 = 'Upscale (1.5x)'
 upscale_2 = 'Upscale (2x)'
 upscale_fast = 'Upscale (Fast 2x)'
 
-uov_list = [
-    disabled, subtle_variation, strong_variation, upscale_15, upscale_2, upscale_fast
-]
+uov_list = [disabled, subtle_variation, strong_variation, upscale_15, upscale_2, upscale_fast]
+
+enhancement_uov_before = "Before First Enhancement"
+enhancement_uov_after = "After Last Enhancement"
+enhancement_uov_processing_order = [enhancement_uov_before, enhancement_uov_after]
+
+enhancement_uov_prompt_type_original = 'Original Prompts'
+enhancement_uov_prompt_type_last_filled = 'Last Filled Enhancement Prompts'
+enhancement_uov_prompt_types = [enhancement_uov_prompt_type_original, enhancement_uov_prompt_type_last_filled]
 
 CIVITAI_NO_KARRAS = ["euler", "euler_ancestral", "heun", "dpm_fast", "dpm_adaptive", "ddim", "uni_pc"]
 
@@ -35,7 +41,8 @@ KSAMPLER = {
     "dpmpp_3m_sde_gpu": "",
     "ddpm": "",
     "lcm": "LCM",
-    "tcd": "TCD"
+    "tcd": "TCD",
+    "restart": "Restart"
 }
 
 SAMPLER_EXTRA = {
@@ -74,6 +81,10 @@ default_parameters = {
 
 output_formats = ['png', 'jpeg', 'webp']
 
+inpaint_mask_models = ['u2net', 'u2netp', 'u2net_human_seg', 'u2net_cloth_seg', 'silueta', 'isnet-general-use', 'isnet-anime', 'sam']
+inpaint_mask_cloth_category = ['full', 'upper', 'lower']
+inpaint_mask_sam_model = ['vit_b', 'vit_l', 'vit_h']
+
 inpaint_engine_versions = ['None', 'v1', 'v2.5', 'v2.6']
 inpaint_option_default = 'Inpaint or Outpaint (default)'
 inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
@@ -103,7 +114,6 @@ metadata_scheme = [
 ]
 
 controlnet_image_count = 4
-preparation_step_count = 13
 
 
 class OutputFormat(Enum):
@@ -153,7 +163,7 @@ class Performance(Enum):
 
     @classmethod
     def list(cls) -> list:
-        return list(map(lambda c: c.value, cls))
+        return list(map(lambda c: (c.name, c.value), cls))
 
     @classmethod
     def values(cls) -> list:
