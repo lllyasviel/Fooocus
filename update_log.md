@@ -1,3 +1,9 @@
+# [2.6.0-rc3](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0-rc3)
+
+* Update python dependencies
+* Rename tab titles and translations from singular to plural
+* Rename document to documentation
+
 # [2.6.0-rc2](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0-rc2)
 
 * Add hash generation multi-threading support, change `--rebuild-hash-cache` from bool to int (number of CPU cores)
