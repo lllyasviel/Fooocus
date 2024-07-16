@@ -197,7 +197,6 @@ def worker():
     from modules.upscaler import perform_upscale
     from modules.flags import Performance
     from modules.meta_parser import get_metadata_parser
-    from modules.translator import translate2en
 
     pid = os.getpid()
     print(f'Started worker with PID {pid}')
