@@ -3,6 +3,7 @@
 * Update python dependencies
 * Rename tab titles and translations from singular to plural
 * Rename document to documentation
+* Only import translator when needed
 
 # [2.6.0-rc2](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0-rc2)
 
