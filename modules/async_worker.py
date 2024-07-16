@@ -198,7 +198,6 @@ def worker():
     from modules.upscaler import perform_upscale
     from modules.flags import Performance
     from modules.meta_parser import get_metadata_parser
-    from modules.translator import translate2en
 
     pid = os.getpid()
     print(f'Started worker with PID {pid}')
@@ -949,6 +948,8 @@ def worker():
             prompt = fallback_prompt
         else:
             if translate:
+                # only initialize when needed, requires an internet connection
+                from modules.translator import translate2en
                 prompt = translate2en(prompt, prompt_type)
         return prompt
 
@@ -1093,6 +1094,8 @@ def worker():
             set_hyper_sd_defaults(async_task, current_progress, advance_progress=True)
 
         if async_task.translate_prompts:
+            # only initialize when needed, requires an internet connection
+            from modules.translator import translate2en
             async_task.prompt = translate2en(async_task.prompt, 'prompt')
             async_task.negative_prompt = translate2en(async_task.negative_prompt, 'negative prompt')
 
