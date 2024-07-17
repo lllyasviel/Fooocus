@@ -603,9 +603,8 @@ def get_metadata_parser(metadata_scheme: MetadataScheme) -> MetadataParser:
             raise NotImplementedError
 
 
-def read_info_from_image(filepath) -> tuple[str | None, MetadataScheme | None]:
-    with Image.open(filepath) as image:
-        items = (image.info or {}).copy()
+def read_info_from_image(file) -> tuple[str | None, MetadataScheme | None]:
+    items = (file.info or {}).copy()
 
     parameters = items.pop('parameters', None)
     metadata_scheme = items.pop('fooocus_scheme', None)
@@ -614,7 +613,7 @@ def read_info_from_image(filepath) -> tuple[str | None, MetadataScheme | None]:
     if parameters is not None and is_json(parameters):
         parameters = json.loads(parameters)
     elif exif is not None:
-        exif = image.getexif()
+        exif = file.getexif()
         # 0x9286 = UserComment
         parameters = exif.get(0x9286, None)
         # 0x927C = MakerNote
