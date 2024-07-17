@@ -3,13 +3,11 @@ import re
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-import gradio as gr
-from PIL import Image
-
 import fooocus_version
+import gradio as gr
 import modules.config
 import modules.sdxl_styles
-from modules import hash_cache
+from PIL import Image
 from modules.flags import MetadataScheme, Performance, Steps
 from modules.flags import SAMPLERS, CIVITAI_NO_KARRAS
 from modules.hash_cache import sha256_from_cache
