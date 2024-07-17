@@ -1,11 +1,18 @@
-# [2.6.0-rc2](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0-rc2)
+# [2.6.0](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0)
 
-* Add hash generation multi-threading support, change `--rebuild-hash-cache` from bool to int (number of CPU cores)
+* Update python dependencies
+* Add enhance feature, which offers easy image refinement steps (similar to adetailer, but based on dynamic image detection instead of specific mask detection models). See [documentation](https://github.com/lllyasviel/Fooocus/discussions/3281).
+* Rewrite async worker code, make code much more reusable to allow iterations and improve reusability
+* Improve GroundingDINO and SAM image masking
 * Fix inference tensor version counter tracking issue for GroundingDINO after using Enhance (see [discussion](https://github.com/lllyasviel/Fooocus/discussions/3213))
-
-
-# [2.6.0-rc1](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0-rc1)
-
+* Move checkboxes Enable Mask Upload and Invert Mask When Generating from Developer Debug Mode to Inpaint Or Outpaint
+* Add persistent model cache for metadata. Use `--rebuild-hash-cache X` (X = int, number of CPU cores, default all) to manually rebuild the cache for all non-cached hashes
+* Rename `--enable-describe-uov-image` to `--enable-auto-describe-image`, now also works for enhance image upload
+* Rename checkbox `Enable Mask Upload` to `Enable Advanced Masking Features` to better hint to mask auto-generation feature
+* Get upscale model filepath by calling downloading_upscale_model() to ensure the model exists
+* Rename tab titles and translations from singular to plural
+* Rename document to documentation
+* Only import translator when needed
 * Update default models to latest versions
   * animaPencilXL_v400 => animaPencilXL_v500
   * DreamShaperXL_Turbo_dpmppSdeKarras => DreamShaperXL_Turbo_v2_1
@@ -15,8 +22,6 @@
 * Add restart sampler ([paper](https://arxiv.org/abs/2306.14878))
 * Add config option for default_inpaint_engine_version, sets inpaint engine for pony_v6 and playground_v2.5 to None for improved results (incompatible with inpaint engine)
 * Add image editor functionality to mask upload (same as for inpaint, now correctly resizes and allows more detailed mask creation)
-* Add persistent model cache for metadata. Use `--rebuild-hash-cache` to manually rebuild the cache for all non-cached hashes
-* Rename `--enable-describe-uov-image` to `--enable-auto-describe-image` to better reflect its purpose (now also works for enhance image upload)
 
 # [2.5.2](https://github.com/mashb1t/Fooocus/releases/tag/v2.5.2)
 
