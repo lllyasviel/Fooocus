@@ -339,12 +339,12 @@ with shared.gradio_root:
 
                     with gr.TabItem(label='Metadata') as metadata_tab:
                         with gr.Column():
-                            metadata_input_image = grh.Image(label='For images created by Fooocus', source='upload', type='filepath')
+                            metadata_input_image = grh.Image(label='For images created by Fooocus', source='upload', type='pil')
                             metadata_json = gr.JSON(label='Metadata')
                             metadata_import_button = gr.Button(value='Apply Metadata')
 
-                        def trigger_metadata_preview(filepath):
-                            parameters, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
+                        def trigger_metadata_preview(file):
+                            parameters, metadata_scheme = modules.meta_parser.read_info_from_image(file)
 
                             results = {}
                             if parameters is not None:
@@ -995,8 +995,8 @@ with shared.gradio_root:
 
         load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=[prompt, state_is_generating, inpaint_mode], outputs=load_data_outputs, queue=False, show_progress=False)
 
-        def trigger_metadata_import(filepath, state_is_generating):
-            parameters, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
+        def trigger_metadata_import(file, state_is_generating):
+            parameters, metadata_scheme = modules.meta_parser.read_info_from_image(file)
             if parameters is None:
                 print('Could not find metadata in the image!')
                 parsed_parameters = {}
