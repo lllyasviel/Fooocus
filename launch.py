@@ -21,7 +21,6 @@ import fooocus_version
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met, delete_folder_content
 from modules.model_loader import load_file_from_url
-from modules import config
 
 REINSTALL_ALL = False
 TRY_INSTALL_XFORMERS = False
@@ -86,6 +85,7 @@ if args.hf_mirror is not None :
     print("Set hf_mirror to:", args.hf_mirror)
 
 from modules import config
+from modules.hash_cache import init_cache
 os.environ["U2NET_HOME"] = config.path_inpaint
 
 os.environ['GRADIO_TEMP_DIR'] = config.temp_path
@@ -140,5 +140,8 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
 config.default_base_model_name, config.checkpoint_downloads = download_models(
     config.default_base_model_name, config.previous_default_models, config.checkpoint_downloads,
     config.embeddings_downloads, config.lora_downloads, config.vae_downloads)
+
+config.update_files()
+init_cache(config.model_filenames, config.paths_checkpoints, config.lora_filenames, config.paths_loras)
 
 from webui import *

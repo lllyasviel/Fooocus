@@ -4,8 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
 
 import args_manager
-from modules.util import get_file_from_folder_list
-from modules.util import sha256, HASH_SHA256_LENGTH
+from modules.util import sha256, HASH_SHA256_LENGTH, get_file_from_folder_list
 
 hash_cache_filename = 'hash_cache.txt'
 hash_cache = {}
