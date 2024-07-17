@@ -9,7 +9,6 @@ from PIL import Image
 import fooocus_version
 import modules.config
 import modules.sdxl_styles
-from modules import hash_cache
 from modules.flags import MetadataScheme, Performance, Steps
 from modules.flags import SAMPLERS, CIVITAI_NO_KARRAS
 from modules.hash_cache import sha256_from_cache
