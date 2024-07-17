@@ -1,5 +1,13 @@
 # [2.5.0](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.0)
 
+This version includes various package updates. If the auto-update doesn't work you can do one of the following:
+1. Open a terminal in the Fooocus folder (location of config.txt) and run `git pull`
+2. Update packages
+   - Windows (installation through zip file): open a terminal in the Fooocus folder (location of config.txt) `..\python_embeded\python.exe -m pip install -r .\requirements_versions.txt` (Windows using embedded python, installation method zip file) or download Fooocus again (zip file attached to this release)
+   - other: manually update the packages using `python.exe -m pip install -r requirements_versions.txt` or use the docker image
+
+---
+
 * Update python dependencies, add segment_anything
 * Add enhance feature, which offers easy image refinement steps (similar to adetailer, but based on dynamic image detection instead of specific mask detection models). See [documentation](https://github.com/lllyasviel/Fooocus/discussions/3281).
 * Rewrite async worker code, make code much more reusable to allow iterations and improve reusability
