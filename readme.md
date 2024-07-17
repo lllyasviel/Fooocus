@@ -247,7 +247,7 @@ Fooocus also developed many "fooocus-only" features for advanced users to get pe
 
 You can directly download Fooocus with:
 
-**[>>> Click here to download <<<](https://github.com/mashb1t/Fooocus/releases/download/2.1.864/Fooocus_mashb1t_win64_2-1-864.7z)**
+**[>>> Click here to download <<<](https://github.com/mashb1t/Fooocus/releases/download/v2.6.0/Fooocus_win64_2-6-0.7z)**
 
 After you download the file, please uncompress it and then run the "run.bat".
 
