@@ -1,5 +1,13 @@
 # [2.6.0](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0)
 
+This version includes various package updates. If the auto-update doesn't work you can do one of the following:
+1. Open a terminal in the Fooocus folder (location of config.txt) and run `git pull`
+2. Update packages
+   - Windows (installation through zip file): open a terminal in the Fooocus folder (location of config.txt) `..\python_embeded\python.exe -m pip install -r .\requirements_versions.txt` (Windows using embedded python, installation method zip file) or download Fooocus again (zip file attached to this release)
+   - other: manually update the packages using `python.exe -m pip install -r requirements_versions.txt` or use the docker image
+
+---
+
 * Update python dependencies
 * Add persistent model cache for metadata. Use `--rebuild-hash-cache X` (X = int, number of CPU cores, default all) to manually rebuild the cache for all non-cached hashes
 * Rename tab titles and translations from singular to plural
