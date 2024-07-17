@@ -1,10 +1,10 @@
-# [2.5.0-rc1](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.0-rc1)
+# [2.5.0](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.0)
 
+* Update python dependencies, add segment_anything
 * Add enhance feature, which offers easy image refinement steps (similar to adetailer, but based on dynamic image detection instead of specific mask detection models). See [documentation](https://github.com/lllyasviel/Fooocus/discussions/3281).
 * Rewrite async worker code, make code much more reusable to allow iterations and improve reusability
 * Improve GroundingDINO and SAM image masking
 * Fix inference tensor version counter tracking issue for GroundingDINO after using Enhance (see [discussion](https://github.com/lllyasviel/Fooocus/discussions/3213))
-* Update python dependencies, add segment_anything
 * Move checkboxes Enable Mask Upload and Invert Mask When Generating from Developer Debug Mode to Inpaint Or Outpaint
 * Add persistent model cache for metadata. Use `--rebuild-hash-cache X` (X = int, number of CPU cores, default all) to manually rebuild the cache for all non-cached hashes
 * Rename `--enable-describe-uov-image` to `--enable-auto-describe-image`, now also works for enhance image upload
