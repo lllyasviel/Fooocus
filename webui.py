@@ -339,12 +339,13 @@ with shared.gradio_root:
 
                     with gr.TabItem(label='Metadata') as metadata_tab:
                         with gr.Column():
-                            metadata_input_image = grh.Image(label='For images created by Fooocus', source='upload', type='filepath')
+                            metadata_input_image = gr.File(label='For images created by Fooocus', source='upload', file_types=['image'])
+                            # metadata_input_image = grh.Image(label='For images created by Fooocus', source='upload', type='filepath')
                             metadata_json = gr.JSON(label='Metadata')
                             metadata_import_button = gr.Button(value='Apply Metadata')
 
-                        def trigger_metadata_preview(filepath):
-                            parameters, metadata_scheme = modules.meta_parser.read_info_from_image(filepath)
+                        def trigger_metadata_preview(file):
+                            parameters, metadata_scheme = modules.meta_parser.read_info_from_image(file.name)
 
                             results = {}
                             if parameters is not None:
