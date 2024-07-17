@@ -42,6 +42,7 @@
         "Fooocus Sharp"
     ],
     "default_aspect_ratio": "1152*896",
+    "default_overwrite_step": -1,
     "checkpoint_downloads": {
         "juggernautXL_v8Rundiffusion.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/juggernautXL_v8Rundiffusion.safetensors"
     },
