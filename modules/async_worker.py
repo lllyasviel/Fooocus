@@ -1,3 +1,4 @@
+import re
 import threading
 import uuid
 
@@ -155,7 +156,10 @@ class AsyncTask:
                     enhance_inpaint_erode_or_dilate,
                     enhance_mask_invert
                 ])
-        self.outpaint_distance = args.pop()
+        try:
+            self.outpaint_distance = args.pop()
+        except IndexError:
+            self.outpaint_distance = [0, 0, 0, 0]
 
 
 async_tasks = []
@@ -543,25 +547,45 @@ def worker():
         return denoising_strength, initial_latent, width, height, current_progress
 
     def apply_outpaint(async_task, inpaint_image, inpaint_mask):
+        try:
+            dt_left, dt_top, dt_right, dt_bottom = async_task.outpaint_distance[:4]
+        except Exception:
+            dt_left, dt_top, dt_right, dt_bottom = 0, 0, 0, 0
         if len(async_task.outpaint_selections) > 0:
             H, W, C = inpaint_image.shape
             if 'top' in async_task.outpaint_selections:
-                inpaint_image = np.pad(inpaint_image, [[int(H * 0.3), 0], [0, 0], [0, 0]], mode='edge')
-                inpaint_mask = np.pad(inpaint_mask, [[int(H * 0.3), 0], [0, 0]], mode='constant',
+                distance_top = int(H * 0.3)
+                if dt_top > 0:
+                    distance_top = dt_top
+
+                inpaint_image = np.pad(inpaint_image, [[distance_top, 0], [0, 0], [0, 0]], mode='edge')
+                inpaint_mask = np.pad(inpaint_mask, [[distance_top, 0], [0, 0]], mode='constant',
                                       constant_values=255)
             if 'bottom' in async_task.outpaint_selections:
-                inpaint_image = np.pad(inpaint_image, [[0, int(H * 0.3)], [0, 0], [0, 0]], mode='edge')
-                inpaint_mask = np.pad(inpaint_mask, [[0, int(H * 0.3)], [0, 0]], mode='constant',
+                distance_bottom = int(H * 0.3)
+                if dt_bottom > 0:
+                    distance_bottom = dt_bottom
+
+                inpaint_image = np.pad(inpaint_image, [[0, distance_bottom], [0, 0], [0, 0]], mode='edge')
+                inpaint_mask = np.pad(inpaint_mask, [[0, distance_bottom], [0, 0]], mode='constant',
                                       constant_values=255)
 
             H, W, C = inpaint_image.shape
             if 'left' in async_task.outpaint_selections:
-                inpaint_image = np.pad(inpaint_image, [[0, 0], [int(W * 0.3), 0], [0, 0]], mode='edge')
-                inpaint_mask = np.pad(inpaint_mask, [[0, 0], [int(W * 0.3), 0]], mode='constant',
+                distance_left = int(W * 0.3)
+                if dt_left > 0:
+                    distance_left = dt_left
+
+                inpaint_image = np.pad(inpaint_image, [[0, 0], [distance_left, 0], [0, 0]], mode='edge')
+                inpaint_mask = np.pad(inpaint_mask, [[0, 0], [distance_left, 0]], mode='constant',
                                       constant_values=255)
             if 'right' in async_task.outpaint_selections:
-                inpaint_image = np.pad(inpaint_image, [[0, 0], [0, int(W * 0.3)], [0, 0]], mode='edge')
-                inpaint_mask = np.pad(inpaint_mask, [[0, 0], [0, int(W * 0.3)]], mode='constant',
+                distance_right = int(W * 0.3)
+                if dt_right > 0:
+                    distance_right = dt_right
+
+                inpaint_image = np.pad(inpaint_image, [[0, 0], [0, distance_right], [0, 0]], mode='edge')
+                inpaint_mask = np.pad(inpaint_mask, [[0, 0], [0, distance_right]], mode='constant',
                                       constant_values=255)
 
             inpaint_image = np.ascontiguousarray(inpaint_image.copy())
@@ -582,7 +606,17 @@ def worker():
         elif '2x' in uov_method:
             f = 2.0
         else:
-            f = 1.0
+            # @freek99
+            pattern = r"([0-9]+(?:\.[0-9]+)?)x"
+            matches = re.findall(pattern, uov_method)
+            try:
+                f = float(matches[0])
+                if f < 1.0:
+                    f = 1.0
+                if f > 5.0:
+                    f = 5.0
+            except Exception:
+                f = 1.0
         shape_ceil = get_shape_ceil(H * f, W * f)
         if shape_ceil < 1024:
             print(f'[Upscale] Image is resized because it is too small.')

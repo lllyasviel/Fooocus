@@ -143,9 +143,9 @@ async def pre_worker(request: CommonRequest):
     request.image_seed = refresh_seed(request.image_seed)
 
     request.input_image_checkbox = True
-    request.inpaint_mask_upload_checkbox = True
+    request.inpaint_advanced_masking_checkbox = True
     if request.inpaint_mask_image_upload is None or request.inpaint_mask_image_upload == 'None':
-        request.inpaint_mask_upload_checkbox = False
+        request.inpaint_advanced_masking_checkbox = False
     request.invert_mask_checkbox = False
 
     request.uov_input_image = await read_input_image(request.uov_input_image)

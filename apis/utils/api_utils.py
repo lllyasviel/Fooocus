@@ -3,8 +3,7 @@ API utils
 """
 from fastapi import HTTPException, Security
 from fastapi.security import APIKeyHeader
-from apis.models.requests import CommonRequest
-from apis.models.base import UpscaleOrVaryMethod, EnhanceCtrlNets
+from apis.models.base import UpscaleOrVaryMethod
 
 api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=False)
 APIKEY_AUTH = None
