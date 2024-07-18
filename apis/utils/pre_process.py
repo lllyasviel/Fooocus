@@ -15,7 +15,7 @@ from modules.model_loader import load_file_from_url
 from apis.models.requests import CommonRequest
 from apis.utils.file_utils import save_base64, to_http
 from apis.utils.img_utils import read_input_image
-from apis.models.base import Lora, ImagePrompt
+from apis.models.base import EnhanceCtrlNets, Lora, ImagePrompt
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUT_PATH = os.path.join(ROOT_DIR, '..', 'inputs')
@@ -154,13 +154,19 @@ async def pre_worker(request: CommonRequest):
 
     request.loras = lora_parser(request.loras)
     request.controlnet_image = await control_net_parser(request.controlnet_image)
+    request.enhance_input_image = await read_input_image(request.enhance_input_image)
 
-    if request.controlnet_image[0] is not None:
+    if request.enhance_input_image is not None:
+        request.current_tab = 'enhance'
+    elif request.controlnet_image[0] is not None:
         request.current_tab = 'ip'
     elif request.uov_input_image is not None:
         request.current_tab = 'uov'
     elif request.inpaint_input_image is not None:
         request.current_tab = 'inpaint'
+
+    while len(request.enhance_ctrls) < 3:
+        request.enhance_ctrls.append(EnhanceCtrlNets())
 
     req_copy = copy.deepcopy(request)
     if request.inpaint_mask_image_upload is None and request.inpaint_input_image is not None:
@@ -174,6 +180,7 @@ async def pre_worker(request: CommonRequest):
     req_copy.uov_input_image = to_http(save_base64(req_copy.uov_input_image, INPUT_PATH), "inputs")
     req_copy.inpaint_input_image = to_http(save_base64(req_copy.inpaint_input_image, INPUT_PATH), "inputs")
     req_copy.inpaint_mask_image_upload = to_http(save_base64(req_copy.inpaint_mask_image_upload, INPUT_PATH), "inputs")
+    req_copy.enhance_input_image = to_http(save_base64(req_copy.enhance_input_image, INPUT_PATH), "inputs")
 
     cn_imgs = []
     controlnet_images = [list(group) for group in zip(*[iter(req_copy.controlnet_image)]*4)]

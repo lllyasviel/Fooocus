@@ -154,6 +154,7 @@ async def binary_output(
     """
     Calls the worker with the given params.
     :param request: The request object containing the params.
+    :param ext: The extension of the output image.
     """
     if request.webhook_url is None or request.webhook_url == "":
         request.webhook_url = os.environ.get("WEBHOOK_URL")

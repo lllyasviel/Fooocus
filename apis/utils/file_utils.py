@@ -71,7 +71,7 @@ def save_output_file(
 
     if extension not in ['png', 'jpg', 'webp']:
         extension = 'png'
-    image_format = Image.registered_extensions()['.'+extension]
+    image_format = Image.registered_extensions()['.' + extension]
 
     if image_meta is None:
         image_meta = {}
@@ -187,9 +187,10 @@ def save_base64(base64_str: str | np.ndarray, file_dir: str) -> str:
 
 def to_http(path: str, dir_name: str) -> str:
     """
-    Convert a file path to a HTTP URL.
+    Convert a file path to an HTTP URL.
     Args:
-        str: str of file path
+        path: str of file path
+        dir_name: str of directory name
     """
     if path == '':
         return ''
@@ -199,7 +200,6 @@ def to_http(path: str, dir_name: str) -> str:
     if dir_name == 'outputs':
         return f"{STATIC_SERVER_BASE}/outputs/{uri}"
     return f"{STATIC_SERVER_BASE}/inputs/{file_name}"
-
 
 
 def url_path(result: list) -> list:

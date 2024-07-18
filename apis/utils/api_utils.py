@@ -4,7 +4,7 @@ API utils
 from fastapi import HTTPException, Security
 from fastapi.security import APIKeyHeader
 from apis.models.requests import CommonRequest
-from apis.models.base import UpscaleOrVaryMethod
+from apis.models.base import UpscaleOrVaryMethod, EnhanceCtrlNets
 
 api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=False)
 APIKEY_AUTH = None
@@ -24,7 +24,7 @@ def api_key_auth(apikey: str = Security(api_key_header)):
         raise HTTPException(status_code=403, detail="Forbidden")
 
 
-def params_to_params(req: CommonRequest):
+def params_to_params(req: object) -> list:
     """
     Convert params to params string
     """
@@ -95,7 +95,7 @@ def params_to_params(req: CommonRequest):
         req.inpaint_engine,
         req.inpaint_strength,
         req.inpaint_respective_field,
-        req.inpaint_mask_upload_checkbox,
+        req.inpaint_advanced_masking_checkbox,
         req.invert_mask_checkbox,
         req.inpaint_erode_or_dilate,
 
@@ -103,5 +103,38 @@ def params_to_params(req: CommonRequest):
         req.metadata_scheme.value,
     ])
     params.extend(req.controlnet_image)
+    params.extend([
+        req.debugging_dino,
+        req.dino_erode_or_dilate,
+        req.debugging_enhance_masks_checkbox,
+        req.enhance_input_image,
+        req.enhance_checkbox,
+        req.enhance_uov_method.value,
+        req.enhance_uov_processing_order,
+        req.enhance_uov_prompt_type
+    ])
+
+    enhance_ctrls = []
+    for ec in req.enhance_ctrls:
+        enhance_ctrls.extend([
+            ec.enhance_enabled,
+            ec.enhance_mask_dino_prompt,
+            ec.enhance_prompt,
+            ec.enhance_negative_prompt,
+            ec.enhance_mask_model.value,
+            ec.enhance_mask_cloth_category,
+            ec.enhance_mask_sam_model,
+            ec.enhance_mask_text_threshold,
+            ec.enhance_mask_box_threshold,
+            ec.enhance_mask_sam_max_detections,
+            ec.enhance_inpaint_disable_initial_latent,
+            ec.enhance_inpaint_engine,
+            ec.enhance_inpaint_strength,
+            ec.enhance_inpaint_respective_field,
+            ec.enhance_inpaint_erode_or_dilate,
+            ec.enhance_mask_invert])
+    req.enhance_ctrls = enhance_ctrls
+
+    params.extend(req.enhance_ctrls)
     params.append(req.outpaint_distance)
     return params

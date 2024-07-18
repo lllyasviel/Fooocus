@@ -155,6 +155,7 @@ class AsyncTask:
                     enhance_inpaint_erode_or_dilate,
                     enhance_mask_invert
                 ])
+        self.outpaint_distance = args.pop()
 
 
 async_tasks = []

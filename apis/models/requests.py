@@ -6,7 +6,7 @@ from pydantic import (
     StrictStr
 )
 from apis.models.base import (
-    ImagePrompt,
+    EnhanceCtrlNets, ImagePrompt,
     Lora,
     UpscaleOrVaryMethod,
     OutpaintExpansion
@@ -122,12 +122,22 @@ class CommonRequest(BaseModel):
                                             Only used in inpaint, not used in outpaint.
                                             (Outpaint always use 1.0)
                                             """)
-    inpaint_mask_upload_checkbox: bool = Field(default=False, description="Inpaint Mask Upload Checkbox")
+    # inpaint_mask_upload_checkbox: bool = Field(default=False, description="Inpaint Mask Upload Checkbox")
+    inpaint_advanced_masking_checkbox: bool = Field(default=False, description="Inpaint Advanced Masking Checkbox")
     invert_mask_checkbox: bool = Field(default=False, description="Inpaint Invert Mask Checkbox")
     inpaint_erode_or_dilate: int = Field(default=0, ge=-64, le=64, description="Inpaint Erode or Dilate")
     save_metadata_to_images: bool = Field(default=True, description="Save meta data")
     metadata_scheme: MetadataScheme = Field(default=MetadataScheme.FOOOCUS, description="Meta data scheme, one of [fooocus, a111]")
     controlnet_image: List[ImagePrompt] = Field(default=[ImagePrompt()], description="ControlNet Image Prompt")
+    debugging_dino: bool = Field(default=False, description="Debugging DINO")
+    dino_erode_or_dilate: int = Field(default=0, ge=-64, le=64, description="DINO Erode or Dilate")
+    debugging_enhance_masks_checkbox: bool = Field(default=False, description="Debugging Enhance Masks")
+    enhance_input_image: str | None = Field(default="None", description="Enhance Input Image")
+    enhance_checkbox: bool = Field(default=False, description="Enhance Checkbox")
+    enhance_uov_method: UpscaleOrVaryMethod = Field(default=UpscaleOrVaryMethod.disable, description="Upscale or Vary Method")
+    enhance_uov_processing_order: str = Field(default='Before First Enhancement', description="Enhance UOV Processing Order, one of [Before First Enhancement, After Last Enhancement]")
+    enhance_uov_prompt_type: str = Field(default='Original Prompts', description="One of 'Last Filled Enhancement Prompts', 'Original Prompts', work with enhance_uov_processing_order='After Last Enhancement'")
+    enhance_ctrls: List[EnhanceCtrlNets] = Field(default=[], description="Enhance Control Nets")
 
     generate_image_grid: bool = Field(default=False, description="Generate Image Grid for Each Batch, (Experimental) This may cause performance problems on some computers and certain internet conditions.")
 
