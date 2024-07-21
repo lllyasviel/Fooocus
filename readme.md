@@ -365,81 +365,40 @@ A safer way is just to try "run_anime.bat" or "run_realistic.bat" - they should 
 ### All CMD Flags
 
 ```
-entry_with_update.py
-options:
-  -h, --help            show this help message and exit
-  --listen [IP]
-  --port PORT
-  --disable-header-check [ORIGIN]
-  --web-upload-size WEB_UPLOAD_SIZE
-  --hf-mirror HF_MIRROR
-  --external-working-path PATH [PATH ...]
-  --output-path OUTPUT_PATH
-  --temp-path TEMP_PATH
-  --cache-path CACHE_PATH
-  --in-browser
-  --disable-in-browser
-  --gpu-device-id DEVICE_ID
-  --async-cuda-allocation
-  --disable-async-cuda-allocation
-  --disable-attention-upcast
-  --all-in-fp32
-  --all-in-fp16
-  --unet-in-bf16
-  --unet-in-fp16
-  --unet-in-fp8-e4m3fn
-  --unet-in-fp8-e5m2
-  --vae-in-fp16
-  --vae-in-fp32
-  --vae-in-bf16
-  --vae-in-cpu
-  --clip-in-fp8-e4m3fn
-  --clip-in-fp8-e5m2
-  --clip-in-fp16
-  --clip-in-fp32
-  --directml [DIRECTML_DEVICE]
-  --disable-ipex-hijack
-  --preview-option [none,auto,fast,taesd]
-  --attention-split
-  --attention-quad
-  --attention-pytorch
-  --disable-xformers
-  --always-gpu
-  --always-high-vram
-  --always-normal-vram
-  --always-low-vram
-  --always-no-vram
-  --always-cpu [CPU_NUM_THREADS]
-  --always-offload-from-vram
-  --pytorch-deterministic
-  --disable-server-log
-  --debug-mode
-  --is-windows-embedded-python
-  --disable-server-info
-  --multi-user
-  --share               Set whether to share on Gradio.
-  --preset PRESET       Apply specified UI preset.
-  --disable-preset-selection
-                        Disables preset selection in Gradio.
-  --language LANGUAGE   Translate UI using json files in [language] folder.
-                        For example, [--language example] will use
-                        [language/example.json] for translation.
-  --disable-offload-from-vram
-                        Force loading models to vram when the unload can be
-                        avoided. Some Mac users may need this.
-  --theme THEME         launches the UI with light or dark theme
-  --disable-image-log   Prevent writing images and logs to hard drive.
-  --disable-analytics   Disables analytics for Gradio.
-  --disable-metadata    Disables saving metadata to images.
-  --disable-preset-download
-                        Disables downloading models for presets
-  --enable-auto-describe-image
-                        Enables automatic description of uov and enhance image
-                        when prompt is empty
-  --always-download-new-model
-                        Always download newer models
-  --rebuild-hash-cache [CPU_NUM_THREADS]
-                        Generates missing model and LoRA hashes.
+entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
+                      [--disable-header-check [ORIGIN]]
+                      [--web-upload-size WEB_UPLOAD_SIZE]
+                      [--hf-mirror HF_MIRROR]
+                      [--external-working-path PATH [PATH ...]]
+                      [--output-path OUTPUT_PATH]
+                      [--temp-path TEMP_PATH] [--cache-path CACHE_PATH]
+                      [--in-browser] [--disable-in-browser]
+                      [--gpu-device-id DEVICE_ID]
+                      [--async-cuda-allocation | --disable-async-cuda-allocation]
+                      [--disable-attention-upcast]
+                      [--all-in-fp32 | --all-in-fp16]
+                      [--unet-in-bf16 | --unet-in-fp16 | --unet-in-fp8-e4m3fn | --unet-in-fp8-e5m2]
+                      [--vae-in-fp16 | --vae-in-fp32 | --vae-in-bf16]
+                      [--vae-in-cpu]
+                      [--clip-in-fp8-e4m3fn | --clip-in-fp8-e5m2 | --clip-in-fp16 | --clip-in-fp32]
+                      [--directml [DIRECTML_DEVICE]]
+                      [--disable-ipex-hijack]
+                      [--preview-option [none,auto,fast,taesd]]
+                      [--attention-split | --attention-quad | --attention-pytorch]
+                      [--disable-xformers]
+                      [--always-gpu | --always-high-vram | --always-normal-vram | --always-low-vram | --always-no-vram | --always-cpu [CPU_NUM_THREADS]]
+                      [--always-offload-from-vram]
+                      [--pytorch-deterministic] [--disable-server-log]
+                      [--debug-mode] [--is-windows-embedded-python]
+                      [--disable-server-info] [--multi-user] [--share]
+                      [--preset PRESET] [--disable-preset-selection]
+                      [--language LANGUAGE]
+                      [--disable-offload-from-vram] [--theme THEME]
+                      [--disable-image-log] [--disable-analytics]
+                      [--disable-metadata] [--disable-preset-download]
+                      [--enable-auto-describe-image]
+                      [--always-download-new-model]
+                      [--rebuild-hash-cache [CPU_NUM_THREADS]]
 ```
 
 ## Inline Prompt Features
