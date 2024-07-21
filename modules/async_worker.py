@@ -159,7 +159,7 @@ class AsyncTask:
 async_tasks = []
 
 
-class EarlyReturnException:
+class EarlyReturnException(BaseException):
     pass
 
 
