@@ -365,52 +365,126 @@ A safer way is just to try "run_anime.bat" or "run_realistic.bat" - they should 
 ### All CMD Flags
 
 ```
-entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
-                      [--disable-header-check [ORIGIN]]
-                      [--web-upload-size WEB_UPLOAD_SIZE]
-                      [--hf-mirror HF_MIRROR]
-                      [--external-working-path PATH [PATH ...]]
-                      [--output-path OUTPUT_PATH]
-                      [--temp-path TEMP_PATH]
-                      [--cache-path CACHE_PATH] [--in-browser]
-                      [--disable-in-browser]
-                      [--gpu-device-id DEVICE_ID]
-                      [--async-cuda-allocation | --disable-async-cuda-allocation]
-                      [--disable-attention-upcast]
-                      [--all-in-fp32 | --all-in-fp16]
-                      [--unet-in-bf16 | --unet-in-fp16 | --unet-in-fp8-e4m3fn | --unet-in-fp8-e5m2]
-                      [--vae-in-fp16 | --vae-in-fp32 | --vae-in-bf16]   
-                      [--vae-in-cpu]
-                      [--clip-in-fp8-e4m3fn | --clip-in-fp8-e5m2 | --clip-in-fp16 | --clip-in-fp32]
-                      [--directml [DIRECTML_DEVICE]]
-                      [--disable-ipex-hijack]
-                      [--preview-option [none,auto,fast,taesd]]
-                      [--attention-split | --attention-quad | --attention-pytorch]
-                      [--disable-xformers]
-                      [--always-gpu | --always-high-vram | --always-normal-vram |
-                      --always-low-vram | --always-no-vram | --always-cpu [CPU_NUM_THREADS]]
-                      [--always-offload-from-vram]
-                      [--pytorch-deterministic] [--disable-server-log]  
-                      [--debug-mode] [--is-windows-embedded-python]     
-                      [--disable-server-info] [--multi-user] [--share]  
-                      [--preset PRESET] [--disable-preset-selection]    
-                      [--language LANGUAGE]
-                      [--disable-offload-from-vram] [--theme THEME]     
-                      [--disable-image-log] [--disable-analytics]       
-                      [--disable-metadata] [--disable-preset-download]  
-                      [--enable-describe-uov-image]
-                      [--always-download-new-model]
+entry_with_update.py
+options:
+  -h, --help            show this help message and exit
+  --listen [IP]
+  --port PORT
+  --disable-header-check [ORIGIN]
+  --web-upload-size WEB_UPLOAD_SIZE
+  --hf-mirror HF_MIRROR
+  --external-working-path PATH [PATH ...]
+  --output-path OUTPUT_PATH
+  --temp-path TEMP_PATH
+  --cache-path CACHE_PATH
+  --in-browser
+  --disable-in-browser
+  --gpu-device-id DEVICE_ID
+  --async-cuda-allocation
+  --disable-async-cuda-allocation
+  --disable-attention-upcast
+  --all-in-fp32
+  --all-in-fp16
+  --unet-in-bf16
+  --unet-in-fp16
+  --unet-in-fp8-e4m3fn
+  --unet-in-fp8-e5m2
+  --vae-in-fp16
+  --vae-in-fp32
+  --vae-in-bf16
+  --vae-in-cpu
+  --clip-in-fp8-e4m3fn
+  --clip-in-fp8-e5m2
+  --clip-in-fp16
+  --clip-in-fp32
+  --directml [DIRECTML_DEVICE]
+  --disable-ipex-hijack
+  --preview-option [none,auto,fast,taesd]
+  --attention-split
+  --attention-quad
+  --attention-pytorch
+  --disable-xformers
+  --always-gpu
+  --always-high-vram
+  --always-normal-vram
+  --always-low-vram
+  --always-no-vram
+  --always-cpu [CPU_NUM_THREADS]
+  --always-offload-from-vram
+  --pytorch-deterministic
+  --disable-server-log
+  --debug-mode
+  --is-windows-embedded-python
+  --disable-server-info
+  --multi-user
+  --share               Set whether to share on Gradio.
+  --preset PRESET       Apply specified UI preset.
+  --disable-preset-selection
+                        Disables preset selection in Gradio.
+  --language LANGUAGE   Translate UI using json files in [language] folder.
+                        For example, [--language example] will use
+                        [language/example.json] for translation.
+  --disable-offload-from-vram
+                        Force loading models to vram when the unload can be
+                        avoided. Some Mac users may need this.
+  --theme THEME         launches the UI with light or dark theme
+  --disable-image-log   Prevent writing images and logs to hard drive.
+  --disable-analytics   Disables analytics for Gradio.
+  --disable-metadata    Disables saving metadata to images.
+  --disable-preset-download
+                        Disables downloading models for presets
+  --enable-auto-describe-image
+                        Enables automatic description of uov and enhance image
+                        when prompt is empty
+  --always-download-new-model
+                        Always download newer models
+  --rebuild-hash-cache [CPU_NUM_THREADS]
+                        Generates missing model and LoRA hashes.
 ```
+
+## Inline Prompt Features
+
+### Wildcards
+Example prompt: `__color__ flower`
+
+Processed for positive and negative prompt.
+
+Selects a random wildcard from a predefined list of options, in this case the `wildcards/color.txt` file. 
+The wildcard will be replaced with a random color (randomness based on seed). 
+You can also disable randomness and process a wildcard file from top to bottom by enabling the checkbox `Read wildcards in order` in Developer Debug Mode.
+
+Wildcards can be nested and combined, and multiple wildcards can be used in the same prompt (example see `wildcards/color_flower.txt`).
+
+### Array Processing
+Example prompt: `[[red, green, blue]] flower`
+
+Processed only for positive prompt.
+
+Processes the array from left to right, generating a separate image for each element in the array. In this case 3 images would be generated, one for each color.
+Increase the image number to 3 to generate all 3 variants.
+
+Arrays can not be nested, but multiple arrays can be used in the same prompt.
+Does support inline LoRAs as array elements!
+
+### Inline LoRAs
+
+Example prompt: `flower <lora:sunflowers:1.2>`
+
+Processed only for positive prompt.
+
+Applies a LoRA to the prompt. The LoRA file must be located in the `models/loras` directory.
+
 
 ## Advanced Features
 
 [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
 
+## Forks
 Fooocus also has many community forks, just like SD-WebUI's [vladmandic/automatic](https://github.com/vladmandic/automatic) and [anapnoe/stable-diffusion-webui-ux](https://github.com/anapnoe/stable-diffusion-webui-ux), for enthusiastic users who want to try!
 
 | Fooocus' forks |
 | - |
-| [fenneishi/Fooocus-Control](https://github.com/fenneishi/Fooocus-Control) </br>[runew0lf/RuinedFooocus](https://github.com/runew0lf/RuinedFooocus) </br> [MoonRide303/Fooocus-MRE](https://github.com/MoonRide303/Fooocus-MRE) </br> [metercai/SimpleSDXL](https://github.com/metercai/SimpleSDXL) </br> and so on ... |
+| [fenneishi/Fooocus-Control](https://github.com/fenneishi/Fooocus-Control) </br>[runew0lf/RuinedFooocus](https://github.com/runew0lf/RuinedFooocus) </br> [MoonRide303/Fooocus-MRE](https://github.com/MoonRide303/Fooocus-MRE) </br> [metercai/SimpleSDXL](https://github.com/metercai/SimpleSDXL) </br> [mashb1t/Fooocus](https://github.com/mashb1t/Fooocus) </br> and so on ... |
 
 See also [About Forking and Promotion of Forks](https://github.com/lllyasviel/Fooocus/discussions/699).
 
