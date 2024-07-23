@@ -753,6 +753,10 @@ with shared.gradio_root:
                                               inputs=black_out_nsfw, outputs=disable_preview, queue=False,
                                               show_progress=False)
 
+                        if not args_manager.args.disable_image_log:
+                            save_final_enhanced_image_only = gr.Checkbox(label='Save only final enhanced image',
+                                                                         value=modules.config.default_save_only_final_enhanced_image)
+
                         if not args_manager.args.disable_metadata:
                             save_metadata_to_images = gr.Checkbox(label='Save Metadata to Images', value=modules.config.default_save_metadata_to_images,
                                                                   info='Adds parameters to generated images allowing manual regeneration.')
@@ -991,6 +995,9 @@ with shared.gradio_root:
         ctrls += [refiner_swap_method, controlnet_softness]
         ctrls += freeu_ctrls
         ctrls += inpaint_ctrls
+
+        if not args_manager.args.disable_image_log:
+            ctrls += [save_final_enhanced_image_only]
 
         if not args_manager.args.disable_metadata:
             ctrls += [save_metadata_to_images, metadata_scheme]
