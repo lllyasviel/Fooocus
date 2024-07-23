@@ -9,7 +9,7 @@ patch_all()
 
 class AsyncTask:
     def __init__(self, args):
-        from modules.flags import Performance, MetadataScheme, ip_list, controlnet_image_count
+        from modules.flags import Performance, MetadataScheme, ip_list, controlnet_image_count, disabled
         from modules.util import get_enabled_loras
         from modules.config import default_max_lora_number
         import args_manager
@@ -154,7 +154,9 @@ class AsyncTask:
                     enhance_inpaint_erode_or_dilate,
                     enhance_mask_invert
                 ])
-
+        self.should_enhance = self.enhance_checkbox and (self.enhance_uov_method != disabled.casefold() or len(self.enhance_ctrls) > 0)
+        self.images_to_enhance_count = 0
+        self.enhance_stats = {}
 
 async_tasks = []
 
@@ -1264,8 +1266,8 @@ def worker():
                 int(current_progress + async_task.callback_steps),
                 f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{total_count} ...', y)])
 
-        show_intermediate_results = len(tasks) > 1 or should_enhance
-        persist_image = not should_enhance or not async_task.save_final_enhanced_image_only
+        show_intermediate_results = len(tasks) > 1 or async_task.should_enhance
+        persist_image = not async_task.should_enhance or not async_task.save_final_enhanced_image_only
 
         for current_task_id, task in enumerate(tasks):
             progressbar(async_task, current_progress, f'Preparing task {current_task_id + 1}/{async_task.image_number} ...')
@@ -1297,7 +1299,7 @@ def worker():
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
-        if not should_enhance:
+        if not async_task.should_enhance:
             print(f'[Enhance] Skipping, preconditions aren\'t met')
             stop_processing(async_task, processing_start_time)
             return
@@ -1313,6 +1315,7 @@ def worker():
             enhance_uov_before = async_task.enhance_uov_processing_order == flags.enhancement_uov_before
             enhance_uov_after = async_task.enhance_uov_processing_order == flags.enhancement_uov_after
         total_count = len(images_to_enhance) * active_enhance_tabs
+        async_task.images_to_enhance_count = len(images_to_enhance)
 
         base_progress = current_progress
         current_task_id = -1
@@ -1320,7 +1323,8 @@ def worker():
         done_steps_inpainting = 0
         enhance_steps, _, _, _ = apply_overrides(async_task, async_task.original_steps, height, width)
         exception_result = None
-        for img in images_to_enhance:
+        for index, img in enumerate(images_to_enhance):
+            async_task.enhance_stats[index] = 0
             enhancement_image_start_time = time.perf_counter()
 
             last_enhance_prompt = async_task.prompt
@@ -1334,6 +1338,8 @@ def worker():
                     current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
                     async_task.prompt, async_task.negative_prompt, final_scheduler_name, height, img, preparation_steps,
                     switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner, width, persist_image)
+                async_task.enhance_stats[index] += 1
+
                 if exception_result == 'continue':
                     continue
                 elif exception_result == 'break':
@@ -1377,6 +1383,7 @@ def worker():
                     async_task.yields.append(['preview', (current_progress, 'Loading ...', mask)])
                     yield_result(async_task, mask, current_progress, async_task.black_out_nsfw, False,
                                  async_task.disable_intermediate_results)
+                    async_task.enhance_stats[index] += 1
 
                 print(f'[Enhance] {dino_detection_count} boxes detected')
                 print(f'[Enhance] {sam_detection_count} segments detected in boxes')
@@ -1396,6 +1403,7 @@ def worker():
                         enhance_prompt, enhance_negative_prompt, final_scheduler_name, goals_enhance, height, img, mask,
                         preparation_steps, enhance_steps, switch, tiled, total_count, use_expansion, use_style,
                         use_synthetic_refiner, width, persist_image=persist_image)
+                    async_task.enhance_stats[index] += 1
 
                     if (should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_after
                             and async_task.enhance_uov_prompt_type == flags.enhancement_uov_prompt_type_last_filled):
@@ -1432,6 +1440,8 @@ def worker():
                     last_enhance_prompt, last_enhance_negative_prompt, final_scheduler_name, height, img,
                     preparation_steps, switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner,
                     width, persist_image)
+                async_task.enhance_stats[index] += 1
+                
                 if exception_result == 'continue':
                     continue
                 elif exception_result == 'break':
