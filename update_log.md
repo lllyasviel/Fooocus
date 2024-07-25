@@ -1,3 +1,13 @@
+# [2.5.1](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.1)
+
+* Update download URL in readme
+* Increase speed of metadata loading
+* Fix reading of metadata from jpeg, jpg and webp (exif)
+* Fix debug preprocessor
+* Update attributes and add inline prompt features section to readme
+* Add checkbox, config and handling for saving only the final enhanced image. Use config `default_save_only_final_enhanced_image`, default False.
+* Add sorting of final images when enhanced is enabled. Use argument `--disable-enhance-output-sorting` to disable.
+
 # [2.5.0](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.0)
 
 This version includes various package updates. If the auto-update doesn't work you can do one of the following:
