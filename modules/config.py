@@ -562,6 +562,12 @@ default_black_out_nsfw = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, bool),
     expected_type=bool
 )
+default_save_only_final_enhanced_image = get_config_item_or_set_default(
+    key='default_save_only_final_enhanced_image',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
 default_save_metadata_to_images = get_config_item_or_set_default(
     key='default_save_metadata_to_images',
     default_value=False,

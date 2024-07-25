@@ -9,7 +9,7 @@ patch_all()
 
 class AsyncTask:
     def __init__(self, args):
-        from modules.flags import Performance, MetadataScheme, ip_list, controlnet_image_count
+        from modules.flags import Performance, MetadataScheme, ip_list, controlnet_image_count, disabled
         from modules.util import get_enabled_loras
         from modules.config import default_max_lora_number
         import args_manager
@@ -95,6 +95,7 @@ class AsyncTask:
         self.inpaint_advanced_masking_checkbox = args.pop()
         self.invert_mask_checkbox = args.pop()
         self.inpaint_erode_or_dilate = args.pop()
+        self.save_final_enhanced_image_only = args.pop() if not args_manager.args.disable_image_log else False
         self.save_metadata_to_images = args.pop() if not args_manager.args.disable_metadata else False
         self.metadata_scheme = MetadataScheme(
             args.pop()) if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS
@@ -153,7 +154,9 @@ class AsyncTask:
                     enhance_inpaint_erode_or_dilate,
                     enhance_mask_invert
                 ])
-
+        self.should_enhance = self.enhance_checkbox and (self.enhance_uov_method != disabled.casefold() or len(self.enhance_ctrls) > 0)
+        self.images_to_enhance_count = 0
+        self.enhance_stats = {}
 
 async_tasks = []
 
@@ -277,7 +280,7 @@ def worker():
     def process_task(all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path, current_task_id,
                      denoising_strength, final_scheduler_name, goals, initial_latent, steps, switch, positive_cond,
                      negative_cond, task, loras, tiled, use_expansion, width, height, base_progress, preparation_steps,
-                     total_count, show_intermediate_results):
+                     total_count, show_intermediate_results, persist_image=True):
         if async_task.last_stop is not False:
             ldm_patched.modules.model_management.interrupt_current_processing()
         if 'cn' in goals:
@@ -314,9 +317,8 @@ def worker():
         if modules.config.default_black_out_nsfw or async_task.black_out_nsfw:
             progressbar(async_task, current_progress, 'Checking for NSFW content ...')
             imgs = default_censor(imgs)
-        progressbar(async_task, current_progress,
-                    f'Saving image {current_task_id + 1}/{total_count} to system ...')
-        img_paths = save_and_log(async_task, height, imgs, task, use_expansion, width, loras)
+        progressbar(async_task, current_progress, f'Saving image {current_task_id + 1}/{total_count} to system ...')
+        img_paths = save_and_log(async_task, height, imgs, task, use_expansion, width, loras, persist_image)
         yield_result(async_task, img_paths, current_progress, async_task.black_out_nsfw, False,
                      do_not_show_finished_images=not show_intermediate_results or async_task.disable_intermediate_results)
 
@@ -332,7 +334,7 @@ def worker():
             async_task.adaptive_cfg
         )
 
-    def save_and_log(async_task, height, imgs, task, use_expansion, width, loras) -> list:
+    def save_and_log(async_task, height, imgs, task, use_expansion, width, loras, persist_image=True) -> list:
         img_paths = []
         for x in imgs:
             d = [('Prompt', 'prompt', task['log_positive_prompt']),
@@ -387,7 +389,7 @@ def worker():
             d.append(('Metadata Scheme', 'metadata_scheme',
                       async_task.metadata_scheme.value if async_task.save_metadata_to_images else async_task.save_metadata_to_images))
             d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
-            img_paths.append(log(x, d, metadata_parser, async_task.output_format, task))
+            img_paths.append(log(x, d, metadata_parser, async_task.output_format, task, persist_image))
 
         return img_paths
 
@@ -958,7 +960,7 @@ def worker():
                         inpaint_engine, inpaint_respective_field, inpaint_strength,
                         prompt, negative_prompt, final_scheduler_name, goals, height, img, mask,
                         preparation_steps, steps, switch, tiled, total_count, use_expansion, use_style,
-                        use_synthetic_refiner, width, show_intermediate_results=True):
+                        use_synthetic_refiner, width, show_intermediate_results=True, persist_image=True):
         base_model_additional_loras = []
         inpaint_head_model_path = None
         inpaint_parameterized = inpaint_engine != 'None'  # inpaint_engine = None, improve detail
@@ -979,7 +981,7 @@ def worker():
                     progressbar(async_task, current_progress, 'Checking for NSFW content ...')
                     img = default_censor(img)
                 progressbar(async_task, current_progress, f'Saving image {current_task_id + 1}/{total_count} to system ...')
-                uov_image_path = log(img, d, output_format=async_task.output_format)
+                uov_image_path = log(img, d, output_format=async_task.output_format, persist_image=persist_image)
                 yield_result(async_task, uov_image_path, current_progress, async_task.black_out_nsfw, False,
                              do_not_show_finished_images=not show_intermediate_results or async_task.disable_intermediate_results)
                 return current_progress, img, prompt, negative_prompt
@@ -1013,7 +1015,8 @@ def worker():
                                                          final_scheduler_name, goals, initial_latent, steps, switch,
                                                          task_enhance['c'], task_enhance['uc'], task_enhance, loras,
                                                          tiled, use_expansion, width, height, current_progress,
-                                                         preparation_steps, total_count, show_intermediate_results)
+                                                         preparation_steps, total_count, show_intermediate_results,
+                                                         persist_image)
 
         del task_enhance['c'], task_enhance['uc']  # Save memory
         return current_progress, imgs[0], prompt, negative_prompt
@@ -1021,7 +1024,7 @@ def worker():
     def enhance_upscale(all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
                         current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
                         prompt, negative_prompt, final_scheduler_name, height, img, preparation_steps, switch, tiled,
-                        total_count, use_expansion, use_style, use_synthetic_refiner, width):
+                        total_count, use_expansion, use_style, use_synthetic_refiner, width, persist_image=True):
         # reset inpaint worker to prevent tensor size issues and not mix upscale and inpainting
         inpaint_worker.current_task = None
 
@@ -1039,7 +1042,7 @@ def worker():
                     controlnet_cpds_path, current_progress, current_task_id, denoising_strength, False,
                     'None', 0.0, 0.0, prompt, negative_prompt, final_scheduler_name,
                     goals_enhance, height, img, None, preparation_steps, steps, switch, tiled, total_count,
-                    use_expansion, use_style, use_synthetic_refiner, width)
+                    use_expansion, use_style, use_synthetic_refiner, width, persist_image=persist_image)
 
             except ldm_patched.modules.model_management.InterruptProcessingException:
                 if async_task.last_stop == 'skip':
@@ -1156,6 +1159,8 @@ def worker():
             current_progress += 1
             progressbar(async_task, current_progress, 'Image processing ...')
 
+        should_enhance = async_task.enhance_checkbox and (async_task.enhance_uov_method != flags.disabled.casefold() or len(async_task.enhance_ctrls) > 0)
+
         if 'vary' in goals:
             async_task.uov_input_image, denoising_strength, initial_latent, width, height, current_progress = apply_vary(
                 async_task, async_task.uov_method, denoising_strength, async_task.uov_input_image, switch,
@@ -1261,8 +1266,8 @@ def worker():
                 int(current_progress + async_task.callback_steps),
                 f'Sampling step {step + 1}/{total_steps}, image {current_task_id + 1}/{total_count} ...', y)])
 
-        should_enhance = async_task.enhance_checkbox and (async_task.enhance_uov_method != flags.disabled.casefold() or len(async_task.enhance_ctrls) > 0)
-        show_intermediate_results = len(tasks) > 1 or should_enhance
+        show_intermediate_results = len(tasks) > 1 or async_task.should_enhance
+        persist_image = not async_task.should_enhance or not async_task.save_final_enhanced_image_only
 
         for current_task_id, task in enumerate(tasks):
             progressbar(async_task, current_progress, f'Preparing task {current_task_id + 1}/{async_task.image_number} ...')
@@ -1275,7 +1280,8 @@ def worker():
                                                                  initial_latent, async_task.steps, switch, task['c'],
                                                                  task['uc'], task, loras, tiled, use_expansion, width,
                                                                  height, current_progress, preparation_steps,
-                                                                 async_task.image_number, show_intermediate_results)
+                                                                 async_task.image_number, show_intermediate_results,
+                                                                 persist_image)
 
                 current_progress = int(preparation_steps + (100 - preparation_steps) / float(all_steps) * async_task.steps * (current_task_id + 1))
                 images_to_enhance += imgs
@@ -1293,7 +1299,7 @@ def worker():
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
-        if not should_enhance:
+        if not async_task.should_enhance:
             print(f'[Enhance] Skipping, preconditions aren\'t met')
             stop_processing(async_task, processing_start_time)
             return
@@ -1302,9 +1308,14 @@ def worker():
 
         active_enhance_tabs = len(async_task.enhance_ctrls)
         should_process_enhance_uov = async_task.enhance_uov_method != flags.disabled.casefold()
+        enhance_uov_before = False
+        enhance_uov_after = False
         if should_process_enhance_uov:
             active_enhance_tabs += 1
+            enhance_uov_before = async_task.enhance_uov_processing_order == flags.enhancement_uov_before
+            enhance_uov_after = async_task.enhance_uov_processing_order == flags.enhancement_uov_after
         total_count = len(images_to_enhance) * active_enhance_tabs
+        async_task.images_to_enhance_count = len(images_to_enhance)
 
         base_progress = current_progress
         current_task_id = -1
@@ -1312,19 +1323,23 @@ def worker():
         done_steps_inpainting = 0
         enhance_steps, _, _, _ = apply_overrides(async_task, async_task.original_steps, height, width)
         exception_result = None
-        for img in images_to_enhance:
+        for index, img in enumerate(images_to_enhance):
+            async_task.enhance_stats[index] = 0
             enhancement_image_start_time = time.perf_counter()
 
             last_enhance_prompt = async_task.prompt
             last_enhance_negative_prompt = async_task.negative_prompt
 
-            if should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_before:
+            if enhance_uov_before:
                 current_task_id += 1
+                persist_image = not async_task.save_final_enhanced_image_only or active_enhance_tabs == 0
                 current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
                     all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
                     current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
                     async_task.prompt, async_task.negative_prompt, final_scheduler_name, height, img, preparation_steps,
-                    switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner, width)
+                    switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner, width, persist_image)
+                async_task.enhance_stats[index] += 1
+
                 if exception_result == 'continue':
                     continue
                 elif exception_result == 'break':
@@ -1336,6 +1351,8 @@ def worker():
                 current_progress = int(base_progress + (100 - preparation_steps) / float(all_steps) * (done_steps_upscaling + done_steps_inpainting))
                 progressbar(async_task, current_progress, f'Preparing enhancement {current_task_id + 1}/{total_count} ...')
                 enhancement_task_start_time = time.perf_counter()
+                is_last_enhance_for_image = (current_task_id + 1) % active_enhance_tabs == 0 and not enhance_uov_after
+                persist_image = not async_task.save_final_enhanced_image_only or is_last_enhance_for_image
 
                 extras = {}
                 if enhance_mask_model == 'sam':
@@ -1366,13 +1383,13 @@ def worker():
                     async_task.yields.append(['preview', (current_progress, 'Loading ...', mask)])
                     yield_result(async_task, mask, current_progress, async_task.black_out_nsfw, False,
                                  async_task.disable_intermediate_results)
+                    async_task.enhance_stats[index] += 1
 
                 print(f'[Enhance] {dino_detection_count} boxes detected')
                 print(f'[Enhance] {sam_detection_count} segments detected in boxes')
                 print(f'[Enhance] {sam_detection_on_mask_count} segments applied to mask')
 
-                if enhance_mask_model == 'sam' and (
-                        dino_detection_count == 0 or not async_task.debugging_dino and sam_detection_on_mask_count == 0):
+                if enhance_mask_model == 'sam' and (dino_detection_count == 0 or not async_task.debugging_dino and sam_detection_on_mask_count == 0):
                     print(f'[Enhance] No "{enhance_mask_dino_prompt_text}" detected, skipping')
                     continue
 
@@ -1385,7 +1402,8 @@ def worker():
                         enhance_inpaint_engine, enhance_inpaint_respective_field, enhance_inpaint_strength,
                         enhance_prompt, enhance_negative_prompt, final_scheduler_name, goals_enhance, height, img, mask,
                         preparation_steps, enhance_steps, switch, tiled, total_count, use_expansion, use_style,
-                        use_synthetic_refiner, width)
+                        use_synthetic_refiner, width, persist_image=persist_image)
+                    async_task.enhance_stats[index] += 1
 
                     if (should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_after
                             and async_task.enhance_uov_prompt_type == flags.enhancement_uov_prompt_type_last_filled):
@@ -1412,14 +1430,18 @@ def worker():
             if exception_result == 'break':
                 break
 
-            if should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_after:
+            if enhance_uov_after:
                 current_task_id += 1
+                # last step in enhance, always save
+                persist_image = True
                 current_task_id, done_steps_inpainting, done_steps_upscaling, img, exception_result = enhance_upscale(
                     all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
                     current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
                     last_enhance_prompt, last_enhance_negative_prompt, final_scheduler_name, height, img,
                     preparation_steps, switch, tiled, total_count, use_expansion, use_style, use_synthetic_refiner,
-                    width)
+                    width, persist_image)
+                async_task.enhance_stats[index] += 1
+                
                 if exception_result == 'continue':
                     continue
                 elif exception_result == 'break':
