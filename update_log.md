@@ -1,12 +1,12 @@
-# [2.6.1-rc1](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.1-rc1)
+# [2.6.1](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.1)
 
 * Update download URL in readme
 * Increase speed of metadata loading
 * Fix reading of metadata from jpeg, jpg and webp (exif)
 * Fix debug preprocessor
 * Update attributes and add inline prompt features section to readme
-* Add checkbox, config and handling for saving only the final enhanced image
-* Add sorting of final images when enhanced is enabled. Use `--disable-enhance-output-sorting` to disable.
+* Add checkbox, config and handling for saving only the final enhanced image. Use config `default_save_only_final_enhanced_image`, default False.
+* Add sorting of final images when enhanced is enabled. Use argument `--disable-enhance-output-sorting` to disable.
 
 # [2.6.0](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.0)
 
