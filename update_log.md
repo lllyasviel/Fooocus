@@ -1,3 +1,8 @@
+# [2.6.2](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.2)
+
+* Fix not adding positive prompt when styles didn't have a {prompt} placeholder in the positive prompt
+* Extend config settings for input image, see list in [PR](https://github.com/lllyasviel/Fooocus/pull/3382)
+
 # [2.6.1](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.1)
 
 * Update download URL in readme
