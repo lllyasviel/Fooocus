@@ -273,7 +273,7 @@ with shared.gradio_root:
 
                             with gr.Column(visible=modules.config.default_inpaint_advanced_masking_checkbox) as inpaint_mask_generation_col:
                                 inpaint_mask_image = grh.Image(label='Mask Upload', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", mask_opacity=1, elem_id='inpaint_mask_canvas')
-                                invert_mask_checkbox = gr.Checkbox(label='Invert Mask When Generating', value=False)
+                                invert_mask_checkbox = gr.Checkbox(label='Invert Mask When Generating', value=modules.config.default_invert_mask_checkbox)
                                 inpaint_mask_model = gr.Dropdown(label='Mask generation model',
                                                                  choices=flags.inpaint_mask_models,
                                                                  value=modules.config.default_inpaint_mask_model)
