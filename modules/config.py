@@ -517,6 +517,7 @@ default_ip_weights = {}
 default_ip_types = {}
 
 for image_count in range(default_controlnet_image_count):
+    image_count += 1
     default_ip_images[image_count] = get_config_item_or_set_default(
         key=f'default_ip_image_{image_count}',
         default_value=None,

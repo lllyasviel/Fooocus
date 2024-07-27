@@ -221,6 +221,7 @@ with shared.gradio_root:
                             ip_ctrls = []
                             ip_ad_cols = []
                             for image_count in range(modules.config.default_controlnet_image_count):
+                                image_count += 1
                                 with gr.Column():
                                     ip_image = grh.Image(label='Image', source='upload', type='numpy', show_label=False, height=300, value=modules.config.default_ip_images[image_count])
                                     ip_images.append(ip_image)
