@@ -439,6 +439,12 @@ default_invert_mask_checkbox = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, bool),
     expected_type=bool
 )
+default_developer_debug_mode_checkbox = get_config_item_or_set_default(
+    key='default_developer_debug_mode_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
 default_max_image_number = get_config_item_or_set_default(
     key='default_max_image_number',
     default_value=32,
