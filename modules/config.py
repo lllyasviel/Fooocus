@@ -427,6 +427,12 @@ default_image_prompt_advanced_checkbox = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, bool),
     expected_type=bool
 )
+default_inpaint_advanced_masking_checkbox = get_config_item_or_set_default(
+    key='default_inpaint_advanced_masking_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
 default_max_image_number = get_config_item_or_set_default(
     key='default_max_image_number',
     default_value=32,
