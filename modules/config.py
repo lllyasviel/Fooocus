@@ -493,6 +493,12 @@ default_inpaint_engine_version = get_config_item_or_set_default(
     validator=lambda x: x in modules.flags.inpaint_engine_versions,
     expected_type=str
 )
+default_uov_method = get_config_item_or_set_default(
+    key='default_uov_method',
+    default_value=modules.flags.disabled,
+    validator=lambda x: x in modules.flags.uov_list,
+    expected_type=int
+)
 default_inpaint_advanced_masking_checkbox = get_config_item_or_set_default(
     key='default_inpaint_advanced_masking_checkbox',
     default_value=False,
