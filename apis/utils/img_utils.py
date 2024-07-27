@@ -16,7 +16,7 @@ import requests
 import numpy as np
 
 
-async def convert_image(image_path: str, image_format: str = 'png') -> BytesIO:
+async def convert_image(image_path: str, image_format: str = 'png') -> bytes | None:
     """
     Convert image to another format
     Args:
@@ -109,6 +109,8 @@ async def read_input_image(input_image: UploadFile | str | None) -> np.ndarray |
         except Exception:
             return None
     else:
+        if input_image.startswith('data:image'):
+            input_image = input_image.split(sep=',', maxsplit=1)[1]
         input_image_bytes = base64.b64decode(input_image)
     pil_image = Image.open(BytesIO(input_image_bytes))
     image = np.array(pil_image, dtype=np.uint8)

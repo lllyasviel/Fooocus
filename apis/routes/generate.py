@@ -9,18 +9,18 @@ from sse_starlette.sse import EventSourceResponse
 from apis.models.base import (
     DescribeImageResponse,
     DescribeImageType,
-    CurrentTask
+    CurrentTask, GenerateMaskRequest
 )
 from apis.utils.api_utils import api_key_auth
 from apis.utils.call_worker import (
     async_worker,
     stream_output,
-    binary_output
+    binary_output,
+    generate_mask as gm
 )
 from apis.models.requests import CommonRequest
 from apis.utils.img_utils import read_input_image
 from modules.util import HWC3
-
 
 secure_router = APIRouter(
     dependencies=[Depends(api_key_auth)]
@@ -28,12 +28,12 @@ secure_router = APIRouter(
 
 
 @secure_router.post(
-        path="/v1/engine/generate/",
-        summary="Generate endpoint all in one",
-        tags=["GenerateV1"])
+    path="/v1/engine/generate/",
+    summary="Generate endpoint all in one",
+    tags=["GenerateV1"])
 async def generate_routes(
-    common_request: CommonRequest,
-    accept: str = Header(None)):
+        common_request: CommonRequest,
+        accept: str = Header(None)):
     """
     Generate API routes
     """
@@ -42,6 +42,7 @@ async def generate_routes(
         if ext not in ["png", "jpg", "jpeg", "webp"]:
             ext = 'png'
     except ValueError:
+        ext = 'png'
         pass
 
     if accept == "image":
@@ -61,14 +62,25 @@ async def generate_routes(
 
 
 @secure_router.post(
-        path="/v1/tools/describe-image",
-        response_model=DescribeImageResponse,
-        tags=["GenerateV1"])
+    path="/v1/tools/generate_mask",
+    summary="Generate mask endpoint",
+    tags=["GenerateV1"])
+async def generate_mask(mask_options: GenerateMaskRequest) -> str:
+    """
+    Generate mask endpoint
+    """
+    return await gm(request=mask_options)
+
+
+@secure_router.post(
+    path="/v1/tools/describe-image",
+    response_model=DescribeImageResponse,
+    tags=["GenerateV1"])
 def describe_image(
-    image: UploadFile,
-    image_type: DescribeImageType = Query(
-        DescribeImageType.photo,
-        description="Image type, 'Photo' or 'Anime'")):
+        image: UploadFile,
+        image_type: DescribeImageType = Query(
+            DescribeImageType.photo,
+            description="Image type, 'Photo' or 'Anime'")):
     """\nDescribe image\n
     Describe image, Get tags from an image
     Arguments:

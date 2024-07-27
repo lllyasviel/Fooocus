@@ -16,7 +16,6 @@ from modules.async_worker import AsyncTask
 from modules.config import path_outputs
 
 
-
 ROOT_DIR = file_utils.SCRIPT_PATH
 INPUT_PATH = os.path.join(ROOT_DIR, 'inputs')
 
