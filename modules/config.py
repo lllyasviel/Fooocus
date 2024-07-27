@@ -403,6 +403,18 @@ default_performance = get_config_item_or_set_default(
     validator=lambda x: x in Performance.values(),
     expected_type=str
 )
+default_image_prompt_checkbox = get_config_item_or_set_default(
+    key='default_image_prompt_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+default_enhance_checkbox = get_config_item_or_set_default(
+    key='default_enhance_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
 default_advanced_checkbox = get_config_item_or_set_default(
     key='default_advanced_checkbox',
     default_value=False,
@@ -525,12 +537,6 @@ default_enhance_tabs = get_config_item_or_set_default(
     default_value=3,
     validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
     expected_type=int
-)
-default_enhance_checkbox = get_config_item_or_set_default(
-    key='default_enhance_checkbox',
-    default_value=False,
-    validator=lambda x: isinstance(x, bool),
-    expected_type=bool
 )
 default_enhance_uov_method = get_config_item_or_set_default(
     key='default_enhance_uov_method',
