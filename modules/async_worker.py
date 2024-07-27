@@ -689,13 +689,20 @@ def worker():
 
             task_styles = async_task.style_selections.copy()
             if use_style:
+                placeholder_replaced = False
+
                 for j, s in enumerate(task_styles):
                     if s == random_style_name:
                         s = get_random_style(task_rng)
                         task_styles[j] = s
-                    p, n = apply_style(s, positive=task_prompt)
+                    p, n, style_has_placeholder = apply_style(s, positive=task_prompt)
+                    if style_has_placeholder:
+                        placeholder_replaced = True
                     positive_basic_workloads = positive_basic_workloads + p
                     negative_basic_workloads = negative_basic_workloads + n
+
+                if not placeholder_replaced:
+                    positive_basic_workloads = [task_prompt] + positive_basic_workloads
             else:
                 positive_basic_workloads.append(task_prompt)
 
