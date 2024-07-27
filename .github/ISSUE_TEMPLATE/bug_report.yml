@@ -16,9 +16,9 @@ body:
       description: |
         Please perform basic debugging to see if your configuration is the cause of the issue.
         Basic debug procedure
-        　2. Update Fooocus - sometimes things just need to be updated
-        　3. Backup and remove your config.txt - check if the issue is caused by bad configuration
-        　5. Try a fresh installation of Fooocus in a different directory - see if a clean installation solves the issue
+        　1. Update Fooocus - sometimes things just need to be updated
+        　2. Backup and remove your config.txt - check if the issue is caused by bad configuration
+        　3. Try a fresh installation of Fooocus in a different directory - see if a clean installation solves the issue
         Before making a issue report please, check that the issue hasn't been reported recently.
       options:
         - label: The issue has not been resolved by following the [troubleshooting guide](https://github.com/lllyasviel/Fooocus/blob/main/troubleshoot.md)
