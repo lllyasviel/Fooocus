@@ -9,7 +9,7 @@ patch_all()
 
 class AsyncTask:
     def __init__(self, args):
-        from modules.flags import Performance, MetadataScheme, ip_list, controlnet_image_count, disabled
+        from modules.flags import Performance, MetadataScheme, ip_list, disabled
         from modules.util import get_enabled_loras
         from modules.config import default_max_lora_number
         import args_manager
@@ -102,7 +102,7 @@ class AsyncTask:
             args.pop()) if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS
 
         self.cn_tasks = {x: [] for x in ip_list}
-        for _ in range(controlnet_image_count):
+        for _ in range(modules.config.default_controlnet_image_count):
             cn_img = args.pop()
             cn_stop = args.pop()
             cn_weight = args.pop()
