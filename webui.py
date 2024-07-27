@@ -225,7 +225,7 @@ with shared.gradio_root:
                                     ip_image = grh.Image(label='Image', source='upload', type='numpy', show_label=False, height=300)
                                     ip_images.append(ip_image)
                                     ip_ctrls.append(ip_image)
-                                    with gr.Column(visible=False) as ad_col:
+                                    with gr.Column(visible=modules.config.default_image_prompt_advanced_checkbox) as ad_col:
                                         with gr.Row():
                                             default_end, default_weight = flags.default_parameters[flags.default_ip]
 
@@ -243,7 +243,7 @@ with shared.gradio_root:
 
                                         ip_type.change(lambda x: flags.default_parameters[x], inputs=[ip_type], outputs=[ip_stop, ip_weight], queue=False, show_progress=False)
                                     ip_ad_cols.append(ad_col)
-                        ip_advanced = gr.Checkbox(label='Advanced', value=False, container=False)
+                        ip_advanced = gr.Checkbox(label='Advanced', value=modules.config.default_image_prompt_advanced_checkbox, container=False)
                         gr.HTML('* \"Image Prompt\" is powered by Fooocus Image Mixture Engine (v1.0.1). <a href="https://github.com/lllyasviel/Fooocus/discussions/557" target="_blank">\U0001F4D4 Documentation</a>')
 
                         def ip_advance_checked(x):
