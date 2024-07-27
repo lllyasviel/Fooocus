@@ -421,26 +421,14 @@ default_advanced_checkbox = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, bool),
     expected_type=bool
 )
-default_image_prompt_advanced_checkbox = get_config_item_or_set_default(
-    key='default_image_prompt_advanced_checkbox',
-    default_value=False,
-    validator=lambda x: isinstance(x, bool),
-    expected_type=bool
-)
-default_inpaint_advanced_masking_checkbox = get_config_item_or_set_default(
-    key='default_inpaint_advanced_masking_checkbox',
-    default_value=False,
-    validator=lambda x: isinstance(x, bool),
-    expected_type=bool
-)
-default_invert_mask_checkbox = get_config_item_or_set_default(
-    key='default_invert_mask_checkbox',
-    default_value=False,
-    validator=lambda x: isinstance(x, bool),
-    expected_type=bool
-)
 default_developer_debug_mode_checkbox = get_config_item_or_set_default(
     key='default_developer_debug_mode_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+default_image_prompt_advanced_checkbox = get_config_item_or_set_default(
+    key='default_image_prompt_advanced_checkbox',
     default_value=False,
     validator=lambda x: isinstance(x, bool),
     expected_type=bool
@@ -504,6 +492,12 @@ default_inpaint_engine_version = get_config_item_or_set_default(
     default_value='v2.6',
     validator=lambda x: x in modules.flags.inpaint_engine_versions,
     expected_type=str
+)
+default_inpaint_advanced_masking_checkbox = get_config_item_or_set_default(
+    key='default_inpaint_advanced_masking_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
 )
 default_inpaint_method = get_config_item_or_set_default(
     key='default_inpaint_method',
@@ -619,6 +613,13 @@ metadata_created_by = get_config_item_or_set_default(
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 example_enhance_detection_prompts = [[x] for x in example_enhance_detection_prompts]
+
+default_invert_mask_checkbox = get_config_item_or_set_default(
+    key='default_invert_mask_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
 
 default_inpaint_mask_model = get_config_item_or_set_default(
     key='default_inpaint_mask_model',
