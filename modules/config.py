@@ -493,16 +493,22 @@ default_inpaint_engine_version = get_config_item_or_set_default(
     validator=lambda x: x in modules.flags.inpaint_engine_versions,
     expected_type=str
 )
+default_selected_image_input_tab_id = get_config_item_or_set_default(
+    key='default_selected_image_input_tab_id',
+    default_value=modules.flags.default_input_image_tab,
+    validator=lambda x: x in modules.flags.input_image_tab_ids,
+    expected_type=str
+)
 default_uov_method = get_config_item_or_set_default(
     key='default_uov_method',
     default_value=modules.flags.disabled,
     validator=lambda x: x in modules.flags.uov_list,
-    expected_type=int
+    expected_type=str
 )
 default_controlnet_image_count = get_config_item_or_set_default(
     key='default_controlnet_image_count',
     default_value=4,
-    validator=lambda x: x > 0,
+    validator=lambda x: isinstance(x, int) and x > 0,
     expected_type=int
 )
 default_ip_images = {}
@@ -529,13 +535,13 @@ for image_count in range(default_controlnet_image_count):
     default_ip_stop_ats[image_count] = get_config_item_or_set_default(
         key=f'default_ip_stop_at_{image_count}',
         default_value=default_end,
-        validator=lambda x: x is None or isinstance(x, str) and os.path.exists(x),
+        validator=lambda x: isinstance(x, float) and 0 <= x <= 1,
         expected_type=float
     )
     default_ip_weights[image_count] = get_config_item_or_set_default(
         key=f'default_ip_weight_{image_count}',
         default_value=default_weight,
-        validator=lambda x: x is None or isinstance(x, str) and os.path.exists(x),
+        validator=lambda x: isinstance(x, float) and 0 <= x <= 2,
         expected_type=float
     )
 
