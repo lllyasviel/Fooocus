@@ -115,16 +115,20 @@ def parse_preset(request: CommonRequest) -> CommonRequest:
         request.scheduler_name = preset_content.get("default_scheduler") if request.scheduler_name == default_params.scheduler_name else request.scheduler_name
         request.performance_selection = Performance(preset_content.get("default_performance")) if request.performance_selection == default_params.performance_selection else request.performance_selection
         request.aspect_ratios_selection = preset_content.get("default_aspect_ratio") if request.aspect_ratios_selection == default_params.aspect_ratios_selection else request.aspect_ratios_selection
+        request.vae_name = preset_content.get("default_vae", "Default (model)") if request.vae_name == default_params.vae_name else request.vae_name
 
         checkpoint_downloads = preset_content.get("checkpoint_downloads", {})
         embeddings_downloads = preset_content.get("embeddings_downloads", {})
         lora_downloads = preset_content.get("lora_downloads", {})
+        vae_downloads = preset_content.get("vae_downloads", {})
         for file_name, url in checkpoint_downloads.items():
             load_file_from_url(url=url, model_dir=config.paths_checkpoints[0], file_name=file_name)
         for file_name, url in embeddings_downloads.items():
             load_file_from_url(url=url, model_dir=config.path_embeddings, file_name=file_name)
         for file_name, url in lora_downloads.items():
             load_file_from_url(url=url, model_dir=config.paths_loras[0], file_name=file_name)
+        for file_name, url in vae_downloads.items():
+            load_file_from_url(url=url, model_dir=config.path_vae, file_name=file_name)
     return request
 
 

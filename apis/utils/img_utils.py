@@ -114,6 +114,8 @@ async def read_input_image(input_image: UploadFile | str | None) -> np.ndarray |
         input_image_bytes = base64.b64decode(input_image)
     pil_image = Image.open(BytesIO(input_image_bytes))
     image = np.array(pil_image, dtype=np.uint8)
+    if image.ndim == 2:
+        image = np.stack((image, image, image), axis=-1)
     return image
 
 
