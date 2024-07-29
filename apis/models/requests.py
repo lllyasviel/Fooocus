@@ -6,7 +6,7 @@ from pydantic import (
     StrictStr
 )
 from apis.models.base import (
-    EnhanceCtrlNets, ImagePrompt,
+    DescribeImageType, EnhanceCtrlNets, ImagePrompt,
     Lora,
     UpscaleOrVaryMethod,
     OutpaintExpansion
@@ -149,3 +149,8 @@ class CommonRequest(BaseModel):
     async_process: bool = Field(default=False, description="Set to true will run async and return job info for retrieve generation result later")
     webhook_url: str | None = Field(default='', description="Optional URL for a webhook callback. If provided, the system will send a POST request to this URL upon task completion or failure."
                                                             " This allows for asynchronous notification of task status.")
+
+
+class DescribeImageRequest(BaseModel):
+    image: str = Field(description="Image url or base64")
+    image_type: DescribeImageType = Field(default=DescribeImageType.photo, description="Image type, 'Photo' or 'Anime'")

@@ -18,7 +18,7 @@ from apis.utils.call_worker import (
     binary_output,
     generate_mask as gm
 )
-from apis.models.requests import CommonRequest
+from apis.models.requests import CommonRequest, DescribeImageRequest
 from apis.utils.img_utils import read_input_image
 from modules.util import HWC3
 
@@ -76,26 +76,24 @@ async def generate_mask(mask_options: GenerateMaskRequest) -> str:
     path="/v1/tools/describe-image",
     response_model=DescribeImageResponse,
     tags=["GenerateV1"])
-def describe_image(
-        image: UploadFile,
-        image_type: DescribeImageType = Query(
-            DescribeImageType.photo,
-            description="Image type, 'Photo' or 'Anime'")):
+async def describe_image(
+        request: DescribeImageRequest):
     """\nDescribe image\n
     Describe image, Get tags from an image
     Arguments:
-        image {UploadFile} -- Image to get tags
-        image_type {DescribeImageType} -- Image type, 'Photo' or 'Anime'
+        request {DescribeImageRequest} -- Describe image request
     Returns:
         DescribeImageResponse -- Describe image response, a string
     """
+    image = request.image
+    image_type = request.image_type
     if image_type == DescribeImageType.photo:
         from extras.interrogate import default_interrogator as default_interrogator_photo
         interrogator = default_interrogator_photo
     else:
         from extras.wd14tagger import default_interrogator as default_interrogator_anime
         interrogator = default_interrogator_anime
-    img = HWC3(read_input_image(image))
+    img = HWC3(await read_input_image(image))
     result = interrogator(img)
     return DescribeImageResponse(describe=result)
 
