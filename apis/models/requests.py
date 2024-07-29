@@ -141,6 +141,7 @@ class CommonRequest(BaseModel):
 
     generate_image_grid: bool = Field(default=False, description="Generate Image Grid for Each Batch, (Experimental) This may cause performance problems on some computers and certain internet conditions.")
 
+    save_name: str = Field(default=None, description="You can diy output image name, the name finally '{save_name}-seq.{output_format}', example: 'image_name-0.png'")
     outpaint_distance: List[int] = Field(default=[0, 0, 0, 0], description="Outpaint Distance, number in list means [left, top, right, bottom]")
     upscale_multiple: float = Field(default=1.0, ge=1.0, le=5.0, description="Upscale Rate, use only when uov_method is 'Upscale (Custom)'")
     preset: str = Field(default='initial', description="Presets")

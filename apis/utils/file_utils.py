@@ -15,6 +15,8 @@ from io import BytesIO
 import os
 import json
 from pathlib import Path
+from typing import List
+
 import numpy as np
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
@@ -219,3 +221,28 @@ def url_path(result: list) -> list:
     for res in result:
         url_or_path.append(to_http(res, "outputs"))
     return url_or_path
+
+
+def change_filename(source: List[str], target: str, ext: str) -> list:
+    """
+    Change file name
+    :param source:
+    :param target:
+    :param ext:
+    return
+    """
+    if target in (None, '', 'none', 'None'):
+        return source
+    results = []
+    images = len(source)
+    for index in range(images):
+        target_name = f"{target}-{str(index)}.{ext}"
+        source_path = Path(source[index]).as_posix()
+        source_dir = os.path.dirname(source_path)
+        target_path = Path(os.path.join(source_dir, target_name)).as_posix()
+        try:
+            os.rename(source_path, target_path)
+            results.append(target_path)
+        except:
+            results.append(source_path)
+    return results

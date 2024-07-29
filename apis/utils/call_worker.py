@@ -54,6 +54,8 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
     """
     finished = False
     started = False
+    save_name = raw_req.save_name
+    ext = raw_req.output_format
     while not finished:
         await asyncio.sleep(0.2)
         if len(task.yields) > 0:
@@ -80,7 +82,7 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
             if flag == 'finish':
                 finished = True
                 CurrentTask.task = None
-                return await post_worker(task=task, started_at=started_at)
+                return await post_worker(task=task, started_at=started_at, target_name=save_name, ext=ext)
 
 
 async def process_params(request: CommonRequest):
@@ -114,6 +116,9 @@ async def stream_output(request: CommonRequest):
     :param request: The request object containing the params.
     """
     task, in_queue_mills, raw_req, task_id = await process_params(request)
+
+    save_name = raw_req.save_name
+    ext = raw_req.output_format
     started = False
     finished = False
     while not finished:
@@ -149,7 +154,7 @@ async def stream_output(request: CommonRequest):
                 yield f"{text}\n"
             if flag == 'finish':
                 # await post_worker(task=task, started_at=started_at)
-                await asyncio.create_task(post_worker(task=task, started_at=started_at))
+                await asyncio.create_task(post_worker(task=task, started_at=started_at, target_name=save_name, ext=ext))
                 text = json.dumps({
                     "progress": 100,
                     "preview": None,
@@ -173,6 +178,7 @@ async def binary_output(
 
     task, in_queue_mills, raw_req, task_id = await process_params(request)
 
+    save_name = raw_req.save_name
     started = False
     finished = False
     while not finished:
@@ -202,7 +208,7 @@ async def binary_output(
             if flag == 'finish':
                 finished = True
                 CurrentTask.task = None
-                await post_worker(task=task, started_at=started_at)
+                await post_worker(task=task, started_at=started_at, target_name=save_name, ext=ext)
     try:
         image = Image.open(task.results[0])
         image_bytes = io.BytesIO()
