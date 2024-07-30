@@ -239,8 +239,11 @@ def change_filename(source: List[str], target: str, ext: str) -> list:
         target_name = f"{target}-{str(index)}.{ext}"
         source_path = Path(source[index]).as_posix()
         source_dir = os.path.dirname(source_path)
-        target_path = Path(os.path.join(source_dir, target_name)).as_posix()
+        target_path = os.path.normpath(
+            Path(os.path.join(source_dir, target_name)).as_posix()
+        )
         try:
+            os.makedirs(os.path.dirname(target_path), exist_ok=True)
             os.rename(source_path, target_path)
             results.append(target_path)
         except:
