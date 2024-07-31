@@ -6,7 +6,7 @@ from pydantic import (
     StrictStr
 )
 from apis.models.base import (
-    ImagePrompt,
+    DescribeImageType, EnhanceCtrlNets, ImagePrompt,
     Lora,
     UpscaleOrVaryMethod,
     OutpaintExpansion
@@ -122,15 +122,26 @@ class CommonRequest(BaseModel):
                                             Only used in inpaint, not used in outpaint.
                                             (Outpaint always use 1.0)
                                             """)
-    inpaint_mask_upload_checkbox: bool = Field(default=False, description="Inpaint Mask Upload Checkbox")
+    # inpaint_mask_upload_checkbox: bool = Field(default=False, description="Inpaint Mask Upload Checkbox")
+    inpaint_advanced_masking_checkbox: bool = Field(default=False, description="Inpaint Advanced Masking Checkbox")
     invert_mask_checkbox: bool = Field(default=False, description="Inpaint Invert Mask Checkbox")
     inpaint_erode_or_dilate: int = Field(default=0, ge=-64, le=64, description="Inpaint Erode or Dilate")
     save_metadata_to_images: bool = Field(default=True, description="Save meta data")
     metadata_scheme: MetadataScheme = Field(default=MetadataScheme.FOOOCUS, description="Meta data scheme, one of [fooocus, a111]")
     controlnet_image: List[ImagePrompt] = Field(default=[ImagePrompt()], description="ControlNet Image Prompt")
+    debugging_dino: bool = Field(default=False, description="Debugging DINO")
+    dino_erode_or_dilate: int = Field(default=0, ge=-64, le=64, description="DINO Erode or Dilate")
+    debugging_enhance_masks_checkbox: bool = Field(default=False, description="Debugging Enhance Masks")
+    enhance_input_image: str | None = Field(default="None", description="Enhance Input Image")
+    enhance_checkbox: bool = Field(default=False, description="Enhance Checkbox")
+    enhance_uov_method: UpscaleOrVaryMethod = Field(default=UpscaleOrVaryMethod.disable, description="Upscale or Vary Method")
+    enhance_uov_processing_order: str = Field(default='Before First Enhancement', description="Enhance UOV Processing Order, one of [Before First Enhancement, After Last Enhancement]")
+    enhance_uov_prompt_type: str = Field(default='Original Prompts', description="One of 'Last Filled Enhancement Prompts', 'Original Prompts', work with enhance_uov_processing_order='After Last Enhancement'")
+    enhance_ctrls: List[EnhanceCtrlNets] = Field(default=[], description="Enhance Control Nets")
 
     generate_image_grid: bool = Field(default=False, description="Generate Image Grid for Each Batch, (Experimental) This may cause performance problems on some computers and certain internet conditions.")
 
+    save_name: str = Field(default=None, description="You can diy output image name, the name finally '{save_name}-seq.{output_format}', example: 'image_name-0.png'")
     outpaint_distance: List[int] = Field(default=[0, 0, 0, 0], description="Outpaint Distance, number in list means [left, top, right, bottom]")
     upscale_multiple: float = Field(default=1.0, ge=1.0, le=5.0, description="Upscale Rate, use only when uov_method is 'Upscale (Custom)'")
     preset: str = Field(default='initial', description="Presets")
@@ -139,3 +150,8 @@ class CommonRequest(BaseModel):
     async_process: bool = Field(default=False, description="Set to true will run async and return job info for retrieve generation result later")
     webhook_url: str | None = Field(default='', description="Optional URL for a webhook callback. If provided, the system will send a POST request to this URL upon task completion or failure."
                                                             " This allows for asynchronous notification of task status.")
+
+
+class DescribeImageRequest(BaseModel):
+    image: str = Field(description="Image url or base64")
+    image_type: DescribeImageType = Field(default=DescribeImageType.photo, description="Image type, 'Photo' or 'Anime'")

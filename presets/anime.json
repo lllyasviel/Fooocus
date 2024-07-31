@@ -1,5 +1,5 @@
 {
-    "default_model": "animaPencilXL_v310.safetensors",
+    "default_model": "animaPencilXL_v500.safetensors",
     "default_refiner": "None",
     "default_refiner_switch": 0.5,
     "default_loras": [
@@ -42,12 +42,15 @@
         "Fooocus Masterpiece"
     ],
     "default_aspect_ratio": "896*1152",
+    "default_overwrite_step": -1,
     "checkpoint_downloads": {
-        "animaPencilXL_v310.safetensors": "https://huggingface.co/mashb1t/fav_models/resolve/main/fav/animaPencilXL_v310.safetensors"
+        "animaPencilXL_v500.safetensors": "https://huggingface.co/mashb1t/fav_models/resolve/main/fav/animaPencilXL_v500.safetensors"
     },
     "embeddings_downloads": {},
     "lora_downloads": {},
     "previous_default_models": [
+        "animaPencilXL_v400.safetensors",
+        "animaPencilXL_v310.safetensors",
         "animaPencilXL_v300.safetensors",
         "animaPencilXL_v260.safetensors",
         "animaPencilXL_v210.safetensors",

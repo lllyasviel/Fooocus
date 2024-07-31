@@ -15,6 +15,8 @@ from io import BytesIO
 import os
 import json
 from pathlib import Path
+from typing import List
+
 import numpy as np
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
@@ -71,7 +73,7 @@ def save_output_file(
 
     if extension not in ['png', 'jpg', 'webp']:
         extension = 'png'
-    image_format = Image.registered_extensions()['.'+extension]
+    image_format = Image.registered_extensions()['.' + extension]
 
     if image_meta is None:
         image_meta = {}
@@ -187,9 +189,10 @@ def save_base64(base64_str: str | np.ndarray, file_dir: str) -> str:
 
 def to_http(path: str, dir_name: str) -> str:
     """
-    Convert a file path to a HTTP URL.
+    Convert a file path to an HTTP URL.
     Args:
-        str: str of file path
+        path: str of file path
+        dir_name: str of directory name
     """
     if path == '':
         return ''
@@ -199,7 +202,6 @@ def to_http(path: str, dir_name: str) -> str:
     if dir_name == 'outputs':
         return f"{STATIC_SERVER_BASE}/outputs/{uri}"
     return f"{STATIC_SERVER_BASE}/inputs/{file_name}"
-
 
 
 def url_path(result: list) -> list:
@@ -219,3 +221,31 @@ def url_path(result: list) -> list:
     for res in result:
         url_or_path.append(to_http(res, "outputs"))
     return url_or_path
+
+
+def change_filename(source: List[str], target: str, ext: str) -> list:
+    """
+    Change file name
+    :param source:
+    :param target:
+    :param ext:
+    return
+    """
+    if target in (None, '', 'none', 'None'):
+        return source
+    results = []
+    images = len(source)
+    for index in range(images):
+        target_name = f"{target}-{str(index)}.{ext}"
+        source_path = Path(source[index]).as_posix()
+        source_dir = os.path.dirname(source_path)
+        target_path = os.path.normpath(
+            Path(os.path.join(source_dir, target_name)).as_posix()
+        )
+        try:
+            os.makedirs(os.path.dirname(target_path), exist_ok=True)
+            os.rename(source_path, target_path)
+            results.append(target_path)
+        except:
+            results.append(source_path)
+    return results

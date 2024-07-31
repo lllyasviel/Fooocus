@@ -11,16 +11,15 @@ import modules.config
 import modules.sdxl_styles
 from modules.flags import MetadataScheme, Performance, Steps
 from modules.flags import SAMPLERS, CIVITAI_NO_KARRAS
-from modules.util import quote, unquote, extract_styles_from_prompt, is_json, get_file_from_folder_list, sha256
+from modules.hash_cache import sha256_from_cache
+from modules.util import quote, unquote, extract_styles_from_prompt, is_json, get_file_from_folder_list
 
 re_param_code = r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)'
 re_param = re.compile(re_param_code)
 re_imagesize = re.compile(r"^(\d+)x(\d+)$")
 
-hash_cache = {}
 
-
-def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
+def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool, inpaint_mode: str):
     loaded_parameter_dict = raw_metadata
     if isinstance(raw_metadata, str):
         loaded_parameter_dict = json.loads(raw_metadata)
@@ -49,6 +48,8 @@ def load_parameter_button_click(raw_metadata: dict | str, is_generating: bool):
     get_str('scheduler', 'Scheduler', loaded_parameter_dict, results)
     get_str('vae', 'VAE', loaded_parameter_dict, results)
     get_seed('seed', 'Seed', loaded_parameter_dict, results)
+    get_inpaint_engine_version('inpaint_engine_version', 'Inpaint Engine Version', loaded_parameter_dict, results, inpaint_mode)
+    get_inpaint_method('inpaint_method', 'Inpaint Mode', loaded_parameter_dict, results)
 
     if is_generating:
         results.append(gr.update())
@@ -160,6 +161,36 @@ def get_seed(key: str, fallback: str | None, source_dict: dict, results: list, d
         results.append(gr.update())
 
 
+def get_inpaint_engine_version(key: str, fallback: str | None, source_dict: dict, results: list, inpaint_mode: str, default=None) -> str | None:
+    try:
+        h = source_dict.get(key, source_dict.get(fallback, default))
+        assert isinstance(h, str) and h in modules.flags.inpaint_engine_versions
+        if inpaint_mode != modules.flags.inpaint_option_detail:
+            results.append(h)
+        else:
+            results.append(gr.update())
+        results.append(h)
+        return h
+    except:
+        results.append(gr.update())
+        results.append('empty')
+        return None
+
+
+def get_inpaint_method(key: str, fallback: str | None, source_dict: dict, results: list, default=None) -> str | None:
+    try:
+        h = source_dict.get(key, source_dict.get(fallback, default))
+        assert isinstance(h, str) and h in modules.flags.inpaint_options
+        results.append(h)
+        for i in range(modules.config.default_enhance_tabs):
+            results.append(h)
+        return h
+    except:
+        results.append(gr.update())
+        for i in range(modules.config.default_enhance_tabs):
+            results.append(gr.update())
+
+
 def get_adm_guidance(key: str, fallback: str | None, source_dict: dict, results: list, default=None):
     try:
         h = source_dict.get(key, source_dict.get(fallback, default))
@@ -215,14 +246,6 @@ def get_lora(key: str, fallback: str | None, source_dict: dict, results: list, p
         results.append(1)
 
 
-def get_sha256(filepath):
-    global hash_cache
-    if filepath not in hash_cache:
-        hash_cache[filepath] = sha256(filepath)
-
-    return hash_cache[filepath]
-
-
 def parse_meta_from_preset(preset_content):
     assert isinstance(preset_content, dict)
     preset_prepared = {}
@@ -245,8 +268,7 @@ def parse_meta_from_preset(preset_content):
                 height = height[:height.index(" ")]
             preset_prepared[meta_key] = (width, height)
         else:
-            preset_prepared[meta_key] = items[settings_key] if settings_key in items and items[
-                settings_key] is not None else getattr(modules.config, settings_key)
+            preset_prepared[meta_key] = items[settings_key] if settings_key in items and items[settings_key] is not None else getattr(modules.config, settings_key)
 
         if settings_key == "default_styles" or settings_key == "default_aspect_ratio":
             preset_prepared[meta_key] = str(preset_prepared[meta_key])
@@ -290,18 +312,18 @@ class MetadataParser(ABC):
         self.base_model_name = Path(base_model_name).stem
 
         base_model_path = get_file_from_folder_list(base_model_name, modules.config.paths_checkpoints)
-        self.base_model_hash = get_sha256(base_model_path)
+        self.base_model_hash = sha256_from_cache(base_model_path)
 
         if refiner_model_name not in ['', 'None']:
             self.refiner_model_name = Path(refiner_model_name).stem
             refiner_model_path = get_file_from_folder_list(refiner_model_name, modules.config.paths_checkpoints)
-            self.refiner_model_hash = get_sha256(refiner_model_path)
+            self.refiner_model_hash = sha256_from_cache(refiner_model_path)
 
         self.loras = []
         for (lora_name, lora_weight) in loras:
             if lora_name != 'None':
                 lora_path = get_file_from_folder_list(lora_name, modules.config.paths_loras)
-                lora_hash = get_sha256(lora_path)
+                lora_hash = sha256_from_cache(lora_path)
                 self.loras.append((Path(lora_name).stem, lora_weight, lora_hash))
         self.vae_name = Path(vae_name).stem
 
@@ -582,9 +604,8 @@ def get_metadata_parser(metadata_scheme: MetadataScheme) -> MetadataParser:
             raise NotImplementedError
 
 
-def read_info_from_image(filepath) -> tuple[str | None, MetadataScheme | None]:
-    with Image.open(filepath) as image:
-        items = (image.info or {}).copy()
+def read_info_from_image(file) -> tuple[str | None, MetadataScheme | None]:
+    items = (file.info or {}).copy()
 
     parameters = items.pop('parameters', None)
     metadata_scheme = items.pop('fooocus_scheme', None)
@@ -593,7 +614,7 @@ def read_info_from_image(filepath) -> tuple[str | None, MetadataScheme | None]:
     if parameters is not None and is_json(parameters):
         parameters = json.loads(parameters)
     elif exif is not None:
-        exif = image.getexif()
+        exif = file.getexif()
         # 0x9286 = UserComment
         parameters = exif.get(0x9286, None)
         # 0x927C = MakerNote

@@ -14,7 +14,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi import Response
 
-from apis.models.base import CurrentTask
+from apis.models.base import CurrentTask, GenerateMaskRequest
 from apis.models.response import RecordResponse
 from apis.utils.api_utils import params_to_params
 from apis.utils.pre_process import pre_worker
@@ -23,9 +23,11 @@ from apis.utils.post_worker import post_worker
 from apis.utils.file_utils import url_path
 
 from apis.utils.img_utils import (
-    narray_to_base64img
+    narray_to_base64img, read_input_image
 )
 from apis.models.requests import CommonRequest
+
+from extras.inpaint_mask import generate_mask_from_image, SAMOptions
 from modules.async_worker import AsyncTask, async_tasks
 from modules.config import path_outputs
 
@@ -52,6 +54,8 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
     """
     finished = False
     started = False
+    save_name = raw_req.save_name
+    ext = raw_req.output_format
     while not finished:
         await asyncio.sleep(0.2)
         if len(task.yields) > 0:
@@ -78,19 +82,21 @@ async def execute_in_background(task: AsyncTask, raw_req: CommonRequest, in_queu
             if flag == 'finish':
                 finished = True
                 CurrentTask.task = None
-                return await post_worker(task=task, started_at=started_at)
+                return await post_worker(task=task, started_at=started_at, target_name=save_name, ext=ext)
 
 
-async def stream_output(request: CommonRequest):
+async def process_params(request: CommonRequest):
     """
-    Calls the worker with the given params.
-    :param request: The request object containing the params.
+    Processes the params for the worker.
+    :param request: The params to be processed.
+    :return: The processed params.
     """
     if request.webhook_url is None or request.webhook_url == "":
         request.webhook_url = os.environ.get("WEBHOOK_URL")
     raw_req, request = await pre_worker(request)
     params = params_to_params(request)
-    task = AsyncTask(args=params, task_id=uuid.uuid4().hex)
+    task_id = uuid.uuid4().hex
+    task = AsyncTask(args=params, task_id=task_id)
     async_tasks.append(task)
     in_queue_mills = int(datetime.datetime.now().timestamp() * 1000)
     session.add(GenerateRecord(
@@ -101,6 +107,18 @@ async def stream_output(request: CommonRequest):
     ))
     session.commit()
 
+    return task, in_queue_mills, raw_req, task_id
+
+
+async def stream_output(request: CommonRequest):
+    """
+    Calls the worker with the given params.
+    :param request: The request object containing the params.
+    """
+    task, in_queue_mills, raw_req, task_id = await process_params(request)
+
+    save_name = raw_req.save_name
+    ext = raw_req.output_format
     started = False
     finished = False
     while not finished:
@@ -136,7 +154,7 @@ async def stream_output(request: CommonRequest):
                 yield f"{text}\n"
             if flag == 'finish':
                 # await post_worker(task=task, started_at=started_at)
-                await asyncio.create_task(post_worker(task=task, started_at=started_at))
+                await asyncio.create_task(post_worker(task=task, started_at=started_at, target_name=save_name, ext=ext))
                 text = json.dumps({
                     "progress": 100,
                     "preview": None,
@@ -154,23 +172,13 @@ async def binary_output(
     """
     Calls the worker with the given params.
     :param request: The request object containing the params.
+    :param ext: The extension of the output image.
     """
-    if request.webhook_url is None or request.webhook_url == "":
-        request.webhook_url = os.environ.get("WEBHOOK_URL")
     request.image_number = 1
-    raw_req, request = await pre_worker(request)
-    params = params_to_params(request)
-    task = AsyncTask(args=params, task_id=uuid.uuid4().hex)
-    async_tasks.append(task)
-    in_queue_mills = int(datetime.datetime.now().timestamp() * 1000)
-    session.add(GenerateRecord(
-        task_id=task.task_id,
-        req_params=json.loads(raw_req.model_dump_json()),
-        webhook_url=raw_req.webhook_url,
-        in_queue_mills=in_queue_mills
-    ))
-    session.commit()
 
+    task, in_queue_mills, raw_req, task_id = await process_params(request)
+
+    save_name = raw_req.save_name
     started = False
     finished = False
     while not finished:
@@ -200,7 +208,7 @@ async def binary_output(
             if flag == 'finish':
                 finished = True
                 CurrentTask.task = None
-                await post_worker(task=task, started_at=started_at)
+                await post_worker(task=task, started_at=started_at, target_name=save_name, ext=ext)
     try:
         image = Image.open(task.results[0])
         image_bytes = io.BytesIO()
@@ -215,24 +223,10 @@ async def async_worker(request: CommonRequest, wait_for_result: bool = False) ->
     """
     Calls the worker with the given params.
     :param request: The request object containing the params.
+    :param wait_for_result: If True, the function will wait for the result.
+    :return: The result of the task.
     """
-    if request.webhook_url is None or request.webhook_url == "":
-        request.webhook_url = os.environ.get("WEBHOOK_URL")
-    raw_req, request = await pre_worker(request)
-    task_id = uuid.uuid4().hex
-    task = AsyncTask(
-        task_id=task_id,
-        args=params_to_params(request)
-    )
-    async_tasks.append(task)
-    in_queue_mills = int(datetime.datetime.now().timestamp() * 1000)
-    session.add(GenerateRecord(
-        task_id=task.task_id,
-        req_params=json.loads(raw_req.model_dump_json()),
-        webhook_url=raw_req.webhook_url,
-        in_queue_mills=in_queue_mills
-    ))
-    session.commit()
+    task, in_queue_mills, raw_req, task_id = await process_params(request)
 
     if wait_for_result:
         res = await execute_in_background(task, raw_req, in_queue_mills)
@@ -240,6 +234,33 @@ async def async_worker(request: CommonRequest, wait_for_result: bool = False) ->
 
     asyncio.create_task(execute_in_background(task, raw_req, in_queue_mills))
     return RecordResponse(task_id=task_id, task_status="pending").model_dump()
+
+
+# This function copy from webui.py
+async def generate_mask(request: GenerateMaskRequest):
+    """
+    Calls the worker with the given params.
+    :param request: The request object containing the params.
+    :return: The result of the task.
+    """
+    extras = {}
+    sam_options = None
+    image = await read_input_image(request.image)
+    if request.mask_model == 'u2net_cloth_seg':
+        extras['cloth_category'] = request.cloth_category
+    elif request.mask_model == 'sam':
+        sam_options = SAMOptions(
+            dino_prompt=request.dino_prompt_text,
+            dino_box_threshold=request.box_threshold,
+            dino_text_threshold=request.text_threshold,
+            dino_erode_or_dilate=request.dino_erode_or_dilate,
+            dino_debug=request.dino_debug,
+            max_detections=request.sam_max_detections,
+            model_type=request.sam_model
+        )
+
+    mask, _, _, _ = generate_mask_from_image(image, request.mask_model, extras, sam_options)
+    return narray_to_base64img(mask)
 
 
 async def current_task():

@@ -15,7 +15,7 @@ from modules.model_loader import load_file_from_url
 from apis.models.requests import CommonRequest
 from apis.utils.file_utils import save_base64, to_http
 from apis.utils.img_utils import read_input_image
-from apis.models.base import Lora, ImagePrompt
+from apis.models.base import EnhanceCtrlNets, Lora, ImagePrompt
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUT_PATH = os.path.join(ROOT_DIR, '..', 'inputs')
@@ -115,16 +115,20 @@ def parse_preset(request: CommonRequest) -> CommonRequest:
         request.scheduler_name = preset_content.get("default_scheduler") if request.scheduler_name == default_params.scheduler_name else request.scheduler_name
         request.performance_selection = Performance(preset_content.get("default_performance")) if request.performance_selection == default_params.performance_selection else request.performance_selection
         request.aspect_ratios_selection = preset_content.get("default_aspect_ratio") if request.aspect_ratios_selection == default_params.aspect_ratios_selection else request.aspect_ratios_selection
+        request.vae_name = preset_content.get("default_vae", "Default (model)") if request.vae_name == default_params.vae_name else request.vae_name
 
         checkpoint_downloads = preset_content.get("checkpoint_downloads", {})
         embeddings_downloads = preset_content.get("embeddings_downloads", {})
         lora_downloads = preset_content.get("lora_downloads", {})
+        vae_downloads = preset_content.get("vae_downloads", {})
         for file_name, url in checkpoint_downloads.items():
             load_file_from_url(url=url, model_dir=config.paths_checkpoints[0], file_name=file_name)
         for file_name, url in embeddings_downloads.items():
             load_file_from_url(url=url, model_dir=config.path_embeddings, file_name=file_name)
         for file_name, url in lora_downloads.items():
             load_file_from_url(url=url, model_dir=config.paths_loras[0], file_name=file_name)
+        for file_name, url in vae_downloads.items():
+            load_file_from_url(url=url, model_dir=config.path_vae, file_name=file_name)
     return request
 
 
@@ -143,9 +147,9 @@ async def pre_worker(request: CommonRequest):
     request.image_seed = refresh_seed(request.image_seed)
 
     request.input_image_checkbox = True
-    request.inpaint_mask_upload_checkbox = True
+    request.inpaint_advanced_masking_checkbox = True
     if request.inpaint_mask_image_upload is None or request.inpaint_mask_image_upload == 'None':
-        request.inpaint_mask_upload_checkbox = False
+        request.inpaint_advanced_masking_checkbox = False
     request.invert_mask_checkbox = False
 
     request.uov_input_image = await read_input_image(request.uov_input_image)
@@ -154,13 +158,19 @@ async def pre_worker(request: CommonRequest):
 
     request.loras = lora_parser(request.loras)
     request.controlnet_image = await control_net_parser(request.controlnet_image)
+    request.enhance_input_image = await read_input_image(request.enhance_input_image)
 
-    if request.controlnet_image[0] is not None:
+    if request.enhance_input_image is not None:
+        request.current_tab = 'enhance'
+    elif request.controlnet_image[0] is not None:
         request.current_tab = 'ip'
     elif request.uov_input_image is not None:
         request.current_tab = 'uov'
     elif request.inpaint_input_image is not None:
         request.current_tab = 'inpaint'
+
+    while len(request.enhance_ctrls) < 3:
+        request.enhance_ctrls.append(EnhanceCtrlNets())
 
     req_copy = copy.deepcopy(request)
     if request.inpaint_mask_image_upload is None and request.inpaint_input_image is not None:
@@ -174,6 +184,7 @@ async def pre_worker(request: CommonRequest):
     req_copy.uov_input_image = to_http(save_base64(req_copy.uov_input_image, INPUT_PATH), "inputs")
     req_copy.inpaint_input_image = to_http(save_base64(req_copy.inpaint_input_image, INPUT_PATH), "inputs")
     req_copy.inpaint_mask_image_upload = to_http(save_base64(req_copy.inpaint_mask_image_upload, INPUT_PATH), "inputs")
+    req_copy.enhance_input_image = to_http(save_base64(req_copy.enhance_input_image, INPUT_PATH), "inputs")
 
     cn_imgs = []
     controlnet_images = [list(group) for group in zip(*[iter(req_copy.controlnet_image)]*4)]

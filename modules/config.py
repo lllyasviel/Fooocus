@@ -98,7 +98,6 @@ def try_load_deprecated_user_path_config():
 
 try_load_deprecated_user_path_config()
 
-
 def get_presets():
     preset_folder = 'presets'
     presets = ['initial']
@@ -106,8 +105,11 @@ def get_presets():
         print('No presets found.')
         return presets
 
-    return presets + [f[:f.index('.json')] for f in os.listdir(preset_folder) if f.endswith('.json')]
+    return presets + [f[:f.index(".json")] for f in os.listdir(preset_folder) if f.endswith('.json')]
 
+def update_presets():
+    global available_presets
+    available_presets = get_presets()
 
 def try_get_preset_content(preset):
     if isinstance(preset, str):
@@ -198,6 +200,7 @@ path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vi
 path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
 path_wildcards = get_dir_or_set_default('path_wildcards', '../wildcards/')
 path_safety_checker = get_dir_or_set_default('path_safety_checker', '../models/safety_checker/')
+path_sam = get_dir_or_set_default('path_sam', '../models/sam/')
 path_outputs = get_path_output()
 
 
@@ -397,7 +400,7 @@ default_prompt = get_config_item_or_set_default(
 default_performance = get_config_item_or_set_default(
     key='default_performance',
     default_value=Performance.SPEED.value,
-    validator=lambda x: x in Performance.list(),
+    validator=lambda x: x in Performance.values(),
     expected_type=str
 )
 default_advanced_checkbox = get_config_item_or_set_default(
@@ -442,6 +445,12 @@ embeddings_downloads = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
     expected_type=dict
 )
+vae_downloads = get_config_item_or_set_default(
+    key='vae_downloads',
+    default_value={},
+    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
+    expected_type=dict
+)
 available_aspect_ratios = get_config_item_or_set_default(
     key='available_aspect_ratios',
     default_value=modules.flags.sdxl_aspect_ratios,
@@ -458,6 +467,12 @@ default_inpaint_engine_version = get_config_item_or_set_default(
     key='default_inpaint_engine_version',
     default_value='v2.6',
     validator=lambda x: x in modules.flags.inpaint_engine_versions,
+    expected_type=str
+)
+default_inpaint_method = get_config_item_or_set_default(
+    key='default_inpaint_method',
+    default_value=modules.flags.inpaint_option_default,
+    validator=lambda x: x in modules.flags.inpaint_options,
     expected_type=str
 )
 default_cfg_tsnr = get_config_item_or_set_default(
@@ -484,6 +499,11 @@ default_overwrite_switch = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, int),
     expected_type=int
 )
+default_overwrite_upscale = get_config_item_or_set_default(
+    key='default_overwrite_upscale',
+    default_value=-1,
+    validator=lambda x: isinstance(x, numbers.Number)
+)
 example_inpaint_prompts = get_config_item_or_set_default(
     key='example_inpaint_prompts',
     default_value=[
@@ -491,6 +511,50 @@ example_inpaint_prompts = get_config_item_or_set_default(
     ],
     validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
     expected_type=list
+)
+example_enhance_detection_prompts = get_config_item_or_set_default(
+    key='example_enhance_detection_prompts',
+    default_value=[
+        'face', 'eye', 'mouth', 'hair', 'hand', 'body'
+    ],
+    validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
+    expected_type=list
+)
+default_enhance_tabs = get_config_item_or_set_default(
+    key='default_enhance_tabs',
+    default_value=3,
+    validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
+    expected_type=int
+)
+default_enhance_checkbox = get_config_item_or_set_default(
+    key='default_enhance_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+default_enhance_uov_method = get_config_item_or_set_default(
+    key='default_enhance_uov_method',
+    default_value=modules.flags.disabled,
+    validator=lambda x: x in modules.flags.uov_list,
+    expected_type=int
+)
+default_enhance_uov_processing_order = get_config_item_or_set_default(
+    key='default_enhance_uov_processing_order',
+    default_value=modules.flags.enhancement_uov_before,
+    validator=lambda x: x in modules.flags.enhancement_uov_processing_order,
+    expected_type=int
+)
+default_enhance_uov_prompt_type = get_config_item_or_set_default(
+    key='default_enhance_uov_prompt_type',
+    default_value=modules.flags.enhancement_uov_prompt_type_original,
+    validator=lambda x: x in modules.flags.enhancement_uov_prompt_types,
+    expected_type=int
+)
+default_sam_max_detections = get_config_item_or_set_default(
+    key='default_sam_max_detections',
+    default_value=0,
+    validator=lambda x: isinstance(x, int) and 0 <= x <= 10,
+    expected_type=int
 )
 default_black_out_nsfw = get_config_item_or_set_default(
     key='default_black_out_nsfw',
@@ -518,10 +582,39 @@ metadata_created_by = get_config_item_or_set_default(
 )
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
+example_enhance_detection_prompts = [[x] for x in example_enhance_detection_prompts]
+
+default_inpaint_mask_model = get_config_item_or_set_default(
+    key='default_inpaint_mask_model',
+    default_value='isnet-general-use',
+    validator=lambda x: x in modules.flags.inpaint_mask_models,
+    expected_type=str
+)
+
+default_enhance_inpaint_mask_model = get_config_item_or_set_default(
+    key='default_enhance_inpaint_mask_model',
+    default_value='sam',
+    validator=lambda x: x in modules.flags.inpaint_mask_models,
+    expected_type=str
+)
+
+default_inpaint_mask_cloth_category = get_config_item_or_set_default(
+    key='default_inpaint_mask_cloth_category',
+    default_value='full',
+    validator=lambda x: x in modules.flags.inpaint_mask_cloth_category,
+    expected_type=str
+)
+
+default_inpaint_mask_sam_model = get_config_item_or_set_default(
+    key='default_inpaint_mask_sam_model',
+    default_value='vit_b',
+    validator=lambda x: x in [y[1] for y in modules.flags.inpaint_mask_sam_model if y[1] == x],
+    expected_type=str
+)
 
 config_dict["default_loras"] = default_loras = default_loras[:default_max_lora_number] + [[True, 'None', 1.0] for _ in range(default_max_lora_number - len(default_loras))]
 
-# mapping config to meta parameter 
+# mapping config to meta parameter
 possible_preset_keys = {
     "default_model": "base_model",
     "default_refiner": "refiner_model",
@@ -537,6 +630,7 @@ possible_preset_keys = {
     "default_sampler": "sampler",
     "default_scheduler": "scheduler",
     "default_overwrite_step": "steps",
+    "default_overwrite_switch": "overwrite_switch",
     "default_performance": "performance",
     "default_image_number": "image_number",
     "default_prompt": "prompt",
@@ -547,7 +641,10 @@ possible_preset_keys = {
     "checkpoint_downloads": "checkpoint_downloads",
     "embeddings_downloads": "embeddings_downloads",
     "lora_downloads": "lora_downloads",
-    "default_vae": "vae"
+    "vae_downloads": "vae_downloads",
+    "default_vae": "vae",
+    # "default_inpaint_method": "inpaint_method", # disabled so inpaint mode doesn't refresh after every preset change
+    "default_inpaint_engine_version": "inpaint_engine_version",
 }
 
 REWRITE_PRESET = False
@@ -754,4 +851,40 @@ def downloading_safety_checker_model():
     return os.path.join(path_safety_checker, 'stable-diffusion-safety-checker.bin')
 
 
-update_files()
+def download_sam_model(sam_model: str) -> str:
+    match sam_model:
+        case 'vit_b':
+            return downloading_sam_vit_b()
+        case 'vit_l':
+            return downloading_sam_vit_l()
+        case 'vit_h':
+            return downloading_sam_vit_h()
+        case _:
+            raise ValueError(f"sam model {sam_model} does not exist.")
+
+
+def downloading_sam_vit_b():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sam_vit_b_01ec64.pth',
+        model_dir=path_sam,
+        file_name='sam_vit_b_01ec64.pth'
+    )
+    return os.path.join(path_sam, 'sam_vit_b_01ec64.pth')
+
+
+def downloading_sam_vit_l():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sam_vit_l_0b3195.pth',
+        model_dir=path_sam,
+        file_name='sam_vit_l_0b3195.pth'
+    )
+    return os.path.join(path_sam, 'sam_vit_l_0b3195.pth')
+
+
+def downloading_sam_vit_h():
+    load_file_from_url(
+        url='https://huggingface.co/mashb1t/misc/resolve/main/sam_vit_h_4b8939.pth',
+        model_dir=path_sam,
+        file_name='sam_vit_h_4b8939.pth'
+    )
+    return os.path.join(path_sam, 'sam_vit_h_4b8939.pth')

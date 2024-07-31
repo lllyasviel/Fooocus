@@ -149,8 +149,8 @@ async def get_task(task_id: str):
     return JSONResponse(await tasks_info(task_id))
 
 
-@router.get("/outputs/{date}/{file_name}", tags=["Query"])
-async def get_output(date: str, file_name: str, accept: str = Header(None)):
+@router.get("/outputs/{dir_name}/{file_name}", tags=["Query"])
+async def get_output(dir_name: str, file_name: str, accept: str = Header(None)):
     """
     Get a specific output by its ID.
     """
@@ -167,10 +167,10 @@ async def get_output(date: str, file_name: str, accept: str = Header(None)):
 
     if ext is None:
         try:
-            return FileResponse(f"{path_outputs}/{date}/{file_name}")
+            return FileResponse(f"{path_outputs}/{dir_name}/{file_name}")
         except FileNotFoundError:
             return Response(status_code=404)
-    img = await convert_image(f"{path_outputs}/{date}/{file_name}", ext)
+    img = await convert_image(f"{path_outputs}/{dir_name}/{file_name}", ext)
     return Response(content=img, media_type=f"image/{ext}")
 
 
