@@ -126,6 +126,7 @@ class CommonRequest(BaseModel):
     inpaint_advanced_masking_checkbox: bool = Field(default=False, description="Inpaint Advanced Masking Checkbox")
     invert_mask_checkbox: bool = Field(default=False, description="Inpaint Invert Mask Checkbox")
     inpaint_erode_or_dilate: int = Field(default=0, ge=-64, le=64, description="Inpaint Erode or Dilate")
+    save_final_enhanced_image_only: bool = Field(default=False, description="Save final enhanced image only")
     save_metadata_to_images: bool = Field(default=True, description="Save meta data")
     metadata_scheme: MetadataScheme = Field(default=MetadataScheme.FOOOCUS, description="Meta data scheme, one of [fooocus, a111]")
     controlnet_image: List[ImagePrompt] = Field(default=[ImagePrompt()], description="ControlNet Image Prompt")

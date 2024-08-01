@@ -13,7 +13,7 @@ from apis.utils import file_utils
 from apis.utils.sql_client import GenerateRecord
 from apis.utils.web_hook import send_result_to_web_hook
 from modules.async_worker import AsyncTask
-from modules.config import path_outputs
+from modules.config import path_outputs, temp_path
 
 
 ROOT_DIR = file_utils.SCRIPT_PATH
@@ -37,7 +37,14 @@ async def post_worker(task: AsyncTask, started_at: int, target_name: str, ext: s
     :param ext:
     :return: The task.
     """
+    final_enhanced = []
     task_status = "finished"
+    if task.save_final_enhanced_image_only:
+        for item in task.results:
+            if temp_path not in item:
+                final_enhanced.append(item)
+        task.results = final_enhanced
+
     if task.last_stop in ['stop', 'skip']:
         task_status = task.last_stop
     try:

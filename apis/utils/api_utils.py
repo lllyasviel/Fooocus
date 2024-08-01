@@ -97,6 +97,7 @@ def params_to_params(req: object) -> list:
         req.inpaint_advanced_masking_checkbox,
         req.invert_mask_checkbox,
         req.inpaint_erode_or_dilate,
+        req.save_final_enhanced_image_only,
 
         req.save_metadata_to_images,
         req.metadata_scheme.value,

@@ -7,8 +7,12 @@ import random
 
 import numpy as np
 
-from modules.config import default_max_lora_number, try_get_preset_content
-from modules.flags import Performance, controlnet_image_count
+from modules.config import (
+    default_max_lora_number,
+    try_get_preset_content,
+    default_controlnet_image_count
+)
+from modules.flags import Performance
 from modules import constants, config
 from modules.model_loader import load_file_from_url
 
@@ -78,10 +82,10 @@ async def control_net_parser(control_net: list) -> list:
         "cn_weight": 0.6,
         "cn_type": "ImagePrompt"
     }
-    while len(control_net) < controlnet_image_count:
+    while len(control_net) < default_controlnet_image_count:
         control_net.append(ImagePrompt(**default_cn_image))
 
-    control_net = control_net[:controlnet_image_count]
+    control_net = control_net[:default_controlnet_image_count]
     cn_list = []
     for cn in control_net:
         cn_list.extend([

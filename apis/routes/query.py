@@ -1,6 +1,7 @@
 """
 Query routes.
 """
+import os
 import re
 import json
 
@@ -154,6 +155,9 @@ async def get_output(dir_name: str, file_name: str, accept: str = Header(None)):
     """
     Get a specific output by its ID.
     """
+    if not os.path.exists(f"{path_outputs}/{dir_name}/{file_name}"):
+        return Response(status_code=404)
+
     accept_formats = ('png', 'jpg', 'jpeg', 'webp')
     try:
         _, ext = accept.lower().split("/")
@@ -179,6 +183,9 @@ async def get_input(file_name: str, accept: str = Header(None)):
     """
     Get a specific input by its ID.
     """
+    if not os.path.exists(f"inputs/{file_name}"):
+        return Response(status_code=404)
+
     accept_formats = ('png', 'jpg', 'jpeg', 'webp')
     try:
         _, ext = accept.lower().split("/")
