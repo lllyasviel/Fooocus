@@ -59,7 +59,7 @@ def get_random_style(rng: Random) -> str:
 
 def apply_style(style, positive):
     p, n = styles[style]
-    return p.replace('{prompt}', positive).splitlines(), n.splitlines()
+    return p.replace('{prompt}', positive).splitlines(), n.splitlines(), '{prompt}' in p
 
 
 def get_words(arrays, total_mult, index):
