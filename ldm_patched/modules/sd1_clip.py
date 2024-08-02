@@ -326,7 +326,7 @@ def load_embed(embedding_name, embedding_directory, embedding_size, embed_key=No
                 except:
                     embed_out = safe_load_embed_zip(embed_path)
             else:
-                embed = torch.load(embed_path, map_location="cpu")
+                embed = torch.load(embed_path, map_location="cpu", weights_only=True)
     except Exception as e:
         print(traceback.format_exc())
         print()
