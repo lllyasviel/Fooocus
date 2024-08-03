@@ -17,7 +17,7 @@ def perform_upscale(img):
 
     if model is None:
         model_filename = downloading_upscale_model()
-        sd = torch.load(model_filename)
+        sd = torch.load(model_filename, weights_only=True)
         sdo = OrderedDict()
         for k, v in sd.items():
             sdo[k.replace('residual_block_', 'RDB')] = v
