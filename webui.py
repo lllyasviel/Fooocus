@@ -341,6 +341,7 @@ with shared.gradio_root:
                                     label='Content Type',
                                     choices=[flags.describe_type_photo, flags.describe_type_anime],
                                     value=flags.describe_type_photo)
+                                describe_apply_styles = gr.Checkbox(label='Appy styles', value=modules.config.default_describe_apply_prompts_checkbox)
                                 describe_btn = gr.Button(value='Describe this Image into Prompt')
                                 describe_image_size = gr.Textbox(label='Image Size and Recommended Size', elem_id='describe_image_size', visible=False)
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Documentation</a>')
@@ -1060,30 +1061,39 @@ with shared.gradio_root:
                 gr.Audio(interactive=False, value=notification_file, elem_id='audio_notification', visible=False)
                 break
 
-        def trigger_describe(mode, img):
+        def trigger_describe(mode, img, apply_styles):
+            describe_prompt = mode
+            styles = ["Fooocus V2"]
+
             if mode == flags.describe_type_photo:
                 from extras.interrogate import default_interrogator as default_interrogator_photo
-                return default_interrogator_photo(img), ["Fooocus V2", "Fooocus Enhance", "Fooocus Sharp"]
-            if mode == flags.describe_type_anime:
+                describe_prompt = default_interrogator_photo(img)
+                styles = ["Fooocus V2", "Fooocus Enhance", "Fooocus Sharp"]
+            elif mode == flags.describe_type_anime:
                 from extras.wd14tagger import default_interrogator as default_interrogator_anime
-                return default_interrogator_anime(img), ["Fooocus V2", "Fooocus Masterpiece"]
-            return mode, ["Fooocus V2"]
+                describe_prompt = default_interrogator_anime(img)
+                styles = ["Fooocus V2", "Fooocus Masterpiece"]
+            if not apply_styles:
+                styles = gr.update()
 
-        describe_btn.click(trigger_describe, inputs=[describe_method, describe_input_image],
+            return describe_prompt, styles
+
+        describe_btn.click(trigger_describe, inputs=[describe_method, describe_input_image, describe_apply_styles],
                            outputs=[prompt, style_selections], show_progress=True, queue=True)
 
         if args_manager.args.enable_auto_describe_image:
-            def trigger_auto_describe(mode, img, prompt):
+            def trigger_auto_describe(mode, img, prompt, apply_styles):
                 # keep prompt if not empty
                 if prompt == '':
-                    return trigger_describe(mode, img)
+                    return trigger_describe(mode, img, apply_styles)
                 return gr.update(), gr.update()
 
-            uov_input_image.upload(trigger_auto_describe, inputs=[describe_method, uov_input_image, prompt],
+            uov_input_image.upload(trigger_auto_describe, inputs=[describe_method, uov_input_image, prompt, describe_apply_styles],
                                    outputs=[prompt, style_selections], show_progress=True, queue=True)
 
             enhance_input_image.upload(lambda: gr.update(value=True), outputs=enhance_checkbox, queue=False, show_progress=False) \
-                .then(trigger_auto_describe, inputs=[describe_method, enhance_input_image, prompt], outputs=[prompt, style_selections], show_progress=True, queue=True)
+                .then(trigger_auto_describe, inputs=[describe_method, enhance_input_image, prompt, describe_apply_styles],
+                      outputs=[prompt, style_selections], show_progress=True, queue=True)
 
 def dump_default_english_config():
     from modules.localization import dump_english_config

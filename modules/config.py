@@ -702,6 +702,13 @@ default_inpaint_mask_sam_model = get_config_item_or_set_default(
     expected_type=str
 )
 
+default_describe_apply_prompts_checkbox = get_config_item_or_set_default(
+    key='default_describe_apply_prompts_checkbox',
+    default_value=True,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+
 config_dict["default_loras"] = default_loras = default_loras[:default_max_lora_number] + [[True, 'None', 1.0] for _ in range(default_max_lora_number - len(default_loras))]
 
 # mapping config to meta parameter
