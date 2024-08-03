@@ -1077,6 +1077,8 @@ with shared.gradio_root:
 
             if len(styles) == 0 or not apply_styles:
                 styles = gr.update()
+            else:
+                styles = list(styles)
 
             if len(describe_prompts) == 0:
                 describe_prompt = gr.update()
