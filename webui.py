@@ -341,7 +341,7 @@ with shared.gradio_root:
                                     label='Content Type',
                                     choices=flags.describe_types,
                                     value=modules.config.default_describe_content_type)
-                                describe_apply_styles = gr.Checkbox(label='Appy Styles', value=modules.config.default_describe_apply_prompts_checkbox)
+                                describe_apply_styles = gr.Checkbox(label='Apply Styles', value=modules.config.default_describe_apply_prompts_checkbox)
                                 describe_btn = gr.Button(value='Describe this Image into Prompt')
                                 describe_image_size = gr.Textbox(label='Image Size and Recommended Size', elem_id='describe_image_size', visible=False)
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Documentation</a>')
