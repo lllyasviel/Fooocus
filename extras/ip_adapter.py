@@ -104,7 +104,7 @@ def load_ip_adapter(clip_vision_path, ip_negative_path, ip_adapter_path):
     offload_device = torch.device('cpu')
 
     use_fp16 = model_management.should_use_fp16(device=load_device)
-    ip_state_dict = torch.load(ip_adapter_path, map_location="cpu")
+    ip_state_dict = torch.load(ip_adapter_path, map_location="cpu", weights_only=True)
     plus = "latents" in ip_state_dict["image_proj"]
     cross_attention_dim = ip_state_dict["ip_adapter"]["1.to_k_ip.weight"].shape[1]
     sdxl = cross_attention_dim == 2048
