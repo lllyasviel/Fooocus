@@ -96,6 +96,7 @@ inpaint_options = [inpaint_option_default, inpaint_option_detail, inpaint_option
 
 describe_type_photo = 'Photograph'
 describe_type_anime = 'Art/Anime'
+describe_types = [describe_type_photo, describe_type_anime]
 
 sdxl_aspect_ratios = [
     '704*1408', '704*1344', '768*1344', '768*1280', '832*1216', '832*1152',
