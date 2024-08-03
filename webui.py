@@ -337,10 +337,10 @@ with shared.gradio_root:
                             with gr.Column():
                                 describe_input_image = grh.Image(label='Image', source='upload', type='numpy', show_label=False)
                             with gr.Column():
-                                describe_method = gr.Radio(
+                                describe_methods = gr.CheckboxGroup(
                                     label='Content Type',
-                                    choices=[flags.describe_type_photo, flags.describe_type_anime],
-                                    value=flags.describe_type_photo)
+                                    choices=flags.describe_types,
+                                    value=modules.config.default_describe_content_type)
                                 describe_apply_styles = gr.Checkbox(label='Appy Styles', value=modules.config.default_describe_apply_prompts_checkbox)
                                 describe_btn = gr.Button(value='Describe this Image into Prompt')
                                 describe_image_size = gr.Textbox(label='Image Size and Recommended Size', elem_id='describe_image_size', visible=False)
@@ -1061,24 +1061,31 @@ with shared.gradio_root:
                 gr.Audio(interactive=False, value=notification_file, elem_id='audio_notification', visible=False)
                 break
 
-        def trigger_describe(mode, img, apply_styles):
-            describe_prompt = mode
-            styles = ["Fooocus V2"]
+        def trigger_describe(modes, img, apply_styles):
+            describe_prompts = []
+            styles = set()
 
-            if mode == flags.describe_type_photo:
+            if flags.describe_type_photo in modes:
                 from extras.interrogate import default_interrogator as default_interrogator_photo
-                describe_prompt = default_interrogator_photo(img)
-                styles = ["Fooocus V2", "Fooocus Enhance", "Fooocus Sharp"]
-            elif mode == flags.describe_type_anime:
+                describe_prompts.append(default_interrogator_photo(img))
+                styles.update(["Fooocus V2", "Fooocus Enhance", "Fooocus Sharp"])
+
+            if flags.describe_type_anime in modes:
                 from extras.wd14tagger import default_interrogator as default_interrogator_anime
-                describe_prompt = default_interrogator_anime(img)
-                styles = ["Fooocus V2", "Fooocus Masterpiece"]
-            if not apply_styles:
+                describe_prompts.append(default_interrogator_anime(img))
+                styles.update(["Fooocus V2", "Fooocus Masterpiece"])
+
+            if len(styles) == 0 or not apply_styles:
                 styles = gr.update()
+
+            if len(describe_prompts) == 0:
+                describe_prompt = gr.update()
+            else:
+                describe_prompt = ', '.join(describe_prompts)
 
             return describe_prompt, styles
 
-        describe_btn.click(trigger_describe, inputs=[describe_method, describe_input_image, describe_apply_styles],
+        describe_btn.click(trigger_describe, inputs=[describe_methods, describe_input_image, describe_apply_styles],
                            outputs=[prompt, style_selections], show_progress=True, queue=True)
 
         if args_manager.args.enable_auto_describe_image:
@@ -1088,11 +1095,11 @@ with shared.gradio_root:
                     return trigger_describe(mode, img, apply_styles)
                 return gr.update(), gr.update()
 
-            uov_input_image.upload(trigger_auto_describe, inputs=[describe_method, uov_input_image, prompt, describe_apply_styles],
+            uov_input_image.upload(trigger_auto_describe, inputs=[describe_methods, uov_input_image, prompt, describe_apply_styles],
                                    outputs=[prompt, style_selections], show_progress=True, queue=True)
 
             enhance_input_image.upload(lambda: gr.update(value=True), outputs=enhance_checkbox, queue=False, show_progress=False) \
-                .then(trigger_auto_describe, inputs=[describe_method, enhance_input_image, prompt, describe_apply_styles],
+                .then(trigger_auto_describe, inputs=[describe_methods, enhance_input_image, prompt, describe_apply_styles],
                       outputs=[prompt, style_selections], show_progress=True, queue=True)
 
 def dump_default_english_config():
