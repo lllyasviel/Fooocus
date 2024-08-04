@@ -1,3 +1,8 @@
+# [2.5.3](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.3)
+
+* Only load weights from non-safetensors files, preventing harmful code injection
+* Add checkbox for applying/resetting styles when describing images, also allowing multiple describe content types
+
 # [2.5.2](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.2)
 
 * Fix not adding positive prompt when styles didn't have a {prompt} placeholder in the positive prompt
