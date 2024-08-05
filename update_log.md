@@ -1,3 +1,68 @@
+# [2.5.3](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.3)
+
+* Only load weights from non-safetensors files, preventing harmful code injection
+* Add checkbox for applying/resetting styles when describing images, also allowing multiple describe content types
+
+# [2.5.2](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.2)
+
+* Fix not adding positive prompt when styles didn't have a {prompt} placeholder in the positive prompt
+* Extend config settings for input image, see list in [PR](https://github.com/lllyasviel/Fooocus/pull/3382)
+
+# [2.5.1](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.1)
+
+* Update download URL in readme
+* Increase speed of metadata loading
+* Fix reading of metadata from jpeg, jpg and webp (exif)
+* Fix debug preprocessor
+* Update attributes and add inline prompt features section to readme
+* Add checkbox, config and handling for saving only the final enhanced image. Use config `default_save_only_final_enhanced_image`, default False.
+* Add sorting of final images when enhanced is enabled. Use argument `--disable-enhance-output-sorting` to disable.
+
+# [2.5.0](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.0)
+
+This version includes various package updates. If the auto-update doesn't work you can do one of the following:
+1. Open a terminal in the Fooocus folder (location of config.txt) and run `git pull`
+2. Update packages
+   - Windows (installation through zip file): open a terminal in the Fooocus folder (location of config.txt) `..\python_embeded\python.exe -m pip install -r .\requirements_versions.txt` (Windows using embedded python, installation method zip file) or download Fooocus again (zip file attached to this release)
+   - other: manually update the packages using `python.exe -m pip install -r requirements_versions.txt` or use the docker image
+
+---
+
+* Update python dependencies, add segment_anything
+* Add enhance feature, which offers easy image refinement steps (similar to adetailer, but based on dynamic image detection instead of specific mask detection models). See [documentation](https://github.com/lllyasviel/Fooocus/discussions/3281).
+* Rewrite async worker code, make code much more reusable to allow iterations and improve reusability
+* Improve GroundingDINO and SAM image masking
+* Fix inference tensor version counter tracking issue for GroundingDINO after using Enhance (see [discussion](https://github.com/lllyasviel/Fooocus/discussions/3213))
+* Move checkboxes Enable Mask Upload and Invert Mask When Generating from Developer Debug Mode to Inpaint Or Outpaint
+* Add persistent model cache for metadata. Use `--rebuild-hash-cache X` (X = int, number of CPU cores, default all) to manually rebuild the cache for all non-cached hashes
+* Rename `--enable-describe-uov-image` to `--enable-auto-describe-image`, now also works for enhance image upload
+* Rename checkbox `Enable Mask Upload` to `Enable Advanced Masking Features` to better hint to mask auto-generation feature
+* Get upscale model filepath by calling downloading_upscale_model() to ensure the model exists
+* Rename tab titles and translations from singular to plural
+* Rename document to documentation
+* Update default models to latest versions
+  * animaPencilXL_v400 => animaPencilXL_v500
+  * DreamShaperXL_Turbo_dpmppSdeKarras => DreamShaperXL_Turbo_v2_1
+  * SDXL_FILM_PHOTOGRAPHY_STYLE_BetaV0.4 => SDXL_FILM_PHOTOGRAPHY_STYLE_V1
+* Add preset for pony_v6 (using ponyDiffusionV6XL)
+* Add style `Fooocus Pony`
+* Add restart sampler ([paper](https://arxiv.org/abs/2306.14878))
+* Add config option for default_inpaint_engine_version, sets inpaint engine for pony_v6 and playground_v2.5 to None for improved results (incompatible with inpaint engine)
+* Add image editor functionality to mask upload (same as for inpaint, now correctly resizes and allows more detailed mask creation)
+
+# [2.4.3](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.3)
+
+* Fix alphas_cumprod setter for TCD sampler
+* Add parser for env var strings to expected config value types to allow override of all non-path config keys 
+
+# [2.4.2](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.2)
+
+* Fix some small bugs (tcd scheduler when gamma is 0, chown in Dockerfile, update cmd args in readme, translation for aspect ratios, vae default after file reload)
+* Fix performance LoRA replacement when data is loaded from history log and inline prompt
+* Add support and preset for playground v2.5 (only works with performance Quality or Speed, use with scheduler edm_playground_v2)
+* Make textboxes (incl. positive prompt) resizable
+* Hide intermediate images when performance of Gradio would bottleneck the generation process (Extreme Speed, Lightning, Hyper-SD)
+
 # [2.4.1](https://github.com/lllyasviel/Fooocus/releases/tag/v2.4.1)
 
 * Fix some small bugs (e.g. adjust clip skip default value from 1 to 2, add type check to aspect ratios js update function)

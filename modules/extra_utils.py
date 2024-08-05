@@ -1,4 +1,6 @@
 import os
+from ast import literal_eval
+
 
 def makedirs_with_log(path):
     try:
@@ -24,3 +26,16 @@ def get_files_from_folder(folder_path, extensions=None, name_filter=None):
                 filenames.append(path)
 
     return filenames
+
+
+def try_eval_env_var(value: str, expected_type=None):
+    try:
+        value_eval = value
+        if expected_type is bool:
+            value_eval = value.title()
+        value_eval = literal_eval(value_eval)
+        if expected_type is not None and not isinstance(value_eval, expected_type):
+            return value
+        return value_eval
+    except:
+        return value

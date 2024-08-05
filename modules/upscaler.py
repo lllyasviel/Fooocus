@@ -1,13 +1,11 @@
-import os
-import torch
-import modules.core as core
-
-from ldm_patched.pfn.architecture.RRDB import RRDBNet as ESRGAN
-from ldm_patched.contrib.external_upscale_model import ImageUpscaleWithModel
 from collections import OrderedDict
-from modules.config import path_upscale_models
 
-model_filename = os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
+import modules.core as core
+import torch
+from ldm_patched.contrib.external_upscale_model import ImageUpscaleWithModel
+from ldm_patched.pfn.architecture.RRDB import RRDBNet as ESRGAN
+from modules.config import downloading_upscale_model
+
 opImageUpscaleWithModel = ImageUpscaleWithModel()
 model = None
 
@@ -18,7 +16,8 @@ def perform_upscale(img):
     print(f'Upscaling image with shape {str(img.shape)} ...')
 
     if model is None:
-        sd = torch.load(model_filename)
+        model_filename = downloading_upscale_model()
+        sd = torch.load(model_filename, weights_only=True)
         sdo = OrderedDict()
         for k, v in sd.items():
             sdo[k.replace('residual_block_', 'RDB')] = v

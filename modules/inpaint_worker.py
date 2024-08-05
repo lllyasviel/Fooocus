@@ -196,7 +196,7 @@ class InpaintWorker:
 
         if inpaint_head_model is None:
             inpaint_head_model = InpaintHead()
-            sd = torch.load(inpaint_head_model_path, map_location='cpu')
+            sd = torch.load(inpaint_head_model_path, map_location='cpu', weights_only=True)
             inpaint_head_model.load_state_dict(sd)
 
         feed = torch.cat([

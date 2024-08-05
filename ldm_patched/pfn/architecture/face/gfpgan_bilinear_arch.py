@@ -273,8 +273,8 @@ class GFPGANBilinear(nn.Module):
         if decoder_load_path:
             self.stylegan_decoder.load_state_dict(
                 torch.load(
-                    decoder_load_path, map_location=lambda storage, loc: storage
-                )["params_ema"]
+                    decoder_load_path, map_location=lambda storage, loc: storage, 
+                weights_only=True)["params_ema"]
             )
         # fix decoder without updating params
         if fix_decoder:

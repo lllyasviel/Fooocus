@@ -41,7 +41,7 @@ class Censor:
         model_management.load_model_gpu(self.safety_checker_model)
 
         single = False
-        if not isinstance(images, list) or isinstance(images, np.ndarray):
+        if not isinstance(images, (list, np.ndarray)):
             images = [images]
             single = True
 

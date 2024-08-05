@@ -20,8 +20,7 @@ from modules.lora import match_lora
 from modules.util import get_file_from_folder_list
 from ldm_patched.modules.lora import model_lora_keys_unet, model_lora_keys_clip
 from modules.config import path_embeddings
-from ldm_patched.contrib.external_model_advanced import ModelSamplingDiscrete
-
+from ldm_patched.contrib.external_model_advanced import ModelSamplingDiscrete, ModelSamplingContinuousEDM
 
 opEmptyLatentImage = EmptyLatentImage()
 opVAEDecode = VAEDecode()
@@ -31,6 +30,7 @@ opVAEEncodeTiled = VAEEncodeTiled()
 opControlNetApplyAdvanced = ControlNetApplyAdvanced()
 opFreeU = FreeU_V2()
 opModelSamplingDiscrete = ModelSamplingDiscrete()
+opModelSamplingContinuousEDM = ModelSamplingContinuousEDM()
 
 
 class StableDiffusionModel:
@@ -230,7 +230,7 @@ def get_previewer(model):
     if vae_approx_filename in VAE_approx_models:
         VAE_approx_model = VAE_approx_models[vae_approx_filename]
     else:
-        sd = torch.load(vae_approx_filename, map_location='cpu')
+        sd = torch.load(vae_approx_filename, map_location='cpu', weights_only=True)
         VAE_approx_model = VAEApprox()
         VAE_approx_model.load_state_dict(sd)
         del sd

@@ -17,7 +17,7 @@ def init_parsing_model(model_name='bisenet', half=False, device='cuda', model_ro
 
     model_path = load_file_from_url(
         url=model_url, model_dir='facexlib/weights', progress=True, file_name=None, save_dir=model_rootpath)
-    load_net = torch.load(model_path, map_location=lambda storage, loc: storage)
+    load_net = torch.load(model_path, map_location=lambda storage, loc: storage, weights_only=True)
     model.load_state_dict(load_net, strict=True)
     model.eval()
     model = model.to(device)

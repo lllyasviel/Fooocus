@@ -71,7 +71,7 @@ Fooocus also developed many "fooocus-only" features for advanced users to get pe
 
 You can directly download Fooocus with:
 
-**[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/release/Fooocus_win64_2-1-831.7z)**
+**[>>> Click here to download <<<](https://github.com/lllyasviel/Fooocus/releases/download/v2.5.0/Fooocus_win64_2-5-0.7z)**
 
 After you download the file, please uncompress it and then run the "run.bat".
 
@@ -285,11 +285,11 @@ See the common problems [here](troubleshoot.md).
 
 Given different goals, the default models and configs of Fooocus are different:
 
-| Task | Windows | Linux args | Main Model | Refiner | Config                                                                         |
-| --- | --- | --- | --- | --- |--------------------------------------------------------------------------------|
-| General | run.bat |  | juggernautXL_v8Rundiffusion | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/default.json)   |
-| Realistic | run_realistic.bat | --preset realistic | realisticStockPhoto_v20 | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/realistic.json) |
-| Anime | run_anime.bat | --preset anime | animaPencilXL_v100 | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/anime.json)     |
+| Task      | Windows | Linux args | Main Model                  | Refiner | Config                                                                         |
+|-----------| --- | --- |-----------------------------| --- |--------------------------------------------------------------------------------|
+| General   | run.bat |  | juggernautXL_v8Rundiffusion | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/default.json)   |
+| Realistic | run_realistic.bat | --preset realistic | realisticStockPhoto_v20     | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/realistic.json) |
+| Anime     | run_anime.bat | --preset anime | animaPencilXL_v500          | not used | [here](https://github.com/lllyasviel/Fooocus/blob/main/presets/anime.json)     |
 
 Note that the download is **automatic** - you do not need to do anything if the internet connection is okay. However, you can download them manually if you (or move them from somewhere else) have your own preparation.
 
@@ -371,15 +371,14 @@ entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
                       [--hf-mirror HF_MIRROR]
                       [--external-working-path PATH [PATH ...]]
                       [--output-path OUTPUT_PATH]
-                      [--temp-path TEMP_PATH]
-                      [--cache-path CACHE_PATH] [--in-browser]
-                      [--disable-in-browser]
+                      [--temp-path TEMP_PATH] [--cache-path CACHE_PATH]
+                      [--in-browser] [--disable-in-browser]
                       [--gpu-device-id DEVICE_ID]
                       [--async-cuda-allocation | --disable-async-cuda-allocation]
                       [--disable-attention-upcast]
                       [--all-in-fp32 | --all-in-fp16]
                       [--unet-in-bf16 | --unet-in-fp16 | --unet-in-fp8-e4m3fn | --unet-in-fp8-e5m2]
-                      [--vae-in-fp16 | --vae-in-fp32 | --vae-in-bf16]   
+                      [--vae-in-fp16 | --vae-in-fp32 | --vae-in-bf16]
                       [--vae-in-cpu]
                       [--clip-in-fp8-e4m3fn | --clip-in-fp8-e5m2 | --clip-in-fp16 | --clip-in-fp32]
                       [--directml [DIRECTML_DEVICE]]
@@ -387,30 +386,65 @@ entry_with_update.py  [-h] [--listen [IP]] [--port PORT]
                       [--preview-option [none,auto,fast,taesd]]
                       [--attention-split | --attention-quad | --attention-pytorch]
                       [--disable-xformers]
-                      [--always-gpu | --always-high-vram | --always-normal-vram |
-                      --always-low-vram | --always-no-vram | --always-cpu [CPU_NUM_THREADS]]
+                      [--always-gpu | --always-high-vram | --always-normal-vram | --always-low-vram | --always-no-vram | --always-cpu [CPU_NUM_THREADS]]
                       [--always-offload-from-vram]
-                      [--pytorch-deterministic] [--disable-server-log]  
-                      [--debug-mode] [--is-windows-embedded-python]     
-                      [--disable-server-info] [--multi-user] [--share]  
-                      [--preset PRESET] [--disable-preset-selection]    
+                      [--pytorch-deterministic] [--disable-server-log]
+                      [--debug-mode] [--is-windows-embedded-python]
+                      [--disable-server-info] [--multi-user] [--share]
+                      [--preset PRESET] [--disable-preset-selection]
                       [--language LANGUAGE]
-                      [--disable-offload-from-vram] [--theme THEME]     
-                      [--disable-image-log] [--disable-analytics]       
-                      [--disable-metadata] [--disable-preset-download]  
-                      [--enable-describe-uov-image]
+                      [--disable-offload-from-vram] [--theme THEME]
+                      [--disable-image-log] [--disable-analytics]
+                      [--disable-metadata] [--disable-preset-download]
+                      [--disable-enhance-output-sorting]
+                      [--enable-auto-describe-image]
                       [--always-download-new-model]
+                      [--rebuild-hash-cache [CPU_NUM_THREADS]]
 ```
+
+## Inline Prompt Features
+
+### Wildcards
+Example prompt: `__color__ flower`
+
+Processed for positive and negative prompt.
+
+Selects a random wildcard from a predefined list of options, in this case the `wildcards/color.txt` file. 
+The wildcard will be replaced with a random color (randomness based on seed). 
+You can also disable randomness and process a wildcard file from top to bottom by enabling the checkbox `Read wildcards in order` in Developer Debug Mode.
+
+Wildcards can be nested and combined, and multiple wildcards can be used in the same prompt (example see `wildcards/color_flower.txt`).
+
+### Array Processing
+Example prompt: `[[red, green, blue]] flower`
+
+Processed only for positive prompt.
+
+Processes the array from left to right, generating a separate image for each element in the array. In this case 3 images would be generated, one for each color.
+Increase the image number to 3 to generate all 3 variants.
+
+Arrays can not be nested, but multiple arrays can be used in the same prompt.
+Does support inline LoRAs as array elements!
+
+### Inline LoRAs
+
+Example prompt: `flower <lora:sunflowers:1.2>`
+
+Processed only for positive prompt.
+
+Applies a LoRA to the prompt. The LoRA file must be located in the `models/loras` directory.
+
 
 ## Advanced Features
 
 [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)
 
+## Forks
 Fooocus also has many community forks, just like SD-WebUI's [vladmandic/automatic](https://github.com/vladmandic/automatic) and [anapnoe/stable-diffusion-webui-ux](https://github.com/anapnoe/stable-diffusion-webui-ux), for enthusiastic users who want to try!
 
 | Fooocus' forks |
 | - |
-| [fenneishi/Fooocus-Control](https://github.com/fenneishi/Fooocus-Control) </br>[runew0lf/RuinedFooocus](https://github.com/runew0lf/RuinedFooocus) </br> [MoonRide303/Fooocus-MRE](https://github.com/MoonRide303/Fooocus-MRE) </br> [metercai/SimpleSDXL](https://github.com/metercai/SimpleSDXL) </br> and so on ... |
+| [fenneishi/Fooocus-Control](https://github.com/fenneishi/Fooocus-Control) </br>[runew0lf/RuinedFooocus](https://github.com/runew0lf/RuinedFooocus) </br> [MoonRide303/Fooocus-MRE](https://github.com/MoonRide303/Fooocus-MRE) </br> [metercai/SimpleSDXL](https://github.com/metercai/SimpleSDXL) </br> [mashb1t/Fooocus](https://github.com/mashb1t/Fooocus) </br> and so on ... |
 
 See also [About Forking and Promotion of Forks](https://github.com/lllyasviel/Fooocus/discussions/699).
 
