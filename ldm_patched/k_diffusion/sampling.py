@@ -826,6 +826,7 @@ def sample_heunpp2(model, x, sigmas, extra_args=None, callback=None, disable=Non
             x = x + d_prime * dt
     return x
 
+# used-by-Fooocus
 @torch.no_grad()
 def sample_tcd(model, x, sigmas, extra_args=None, callback=None, disable=None, noise_sampler=None, eta=0.3):
     extra_args = {} if extra_args is None else extra_args
@@ -854,7 +855,7 @@ def sample_tcd(model, x, sigmas, extra_args=None, callback=None, disable=None, n
 
     return x
 
-
+# used-by-Fooocus
 @torch.no_grad()
 def sample_restart(model, x, sigmas, extra_args=None, callback=None, disable=None, s_noise=1., restart_list=None):
     """Implements restart sampling in Restart Sampling for Improving Generative Processes (2023)

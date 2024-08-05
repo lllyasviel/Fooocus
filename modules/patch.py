@@ -491,6 +491,8 @@ def build_loaded(module, loader_name):
 
 
 def patch_all():
+    # Fooocus-specific additions over ComfyUI ldm.
+    # ALSO: marked with 'used-by-Fooocus'
     if ldm_patched.modules.model_management.directml_enabled:
         ldm_patched.modules.model_management.lowvram_available = True
         ldm_patched.modules.model_management.OOM_EXCEPTION = Exception

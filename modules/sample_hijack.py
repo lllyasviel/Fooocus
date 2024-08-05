@@ -250,5 +250,6 @@ def calculate_sigmas_scheduler_hacked(model, scheduler_name, steps):
         raise TypeError("error invalid scheduler")
     return sigmas
 
+# used-by-Fooocus
 ldm_patched.modules.samplers.calculate_sigmas = calculate_sigmas_scheduler_hacked
 ldm_patched.modules.samplers.sample = sample_hacked
