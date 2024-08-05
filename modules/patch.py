@@ -228,7 +228,7 @@ def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, mode
 
     if math.isclose(cond_scale, 1.0) and not model_options.get("disable_cfg1_optimization", False):
         calc_cond_uncond_batch = tuple(calc_cond_batch(model, [cond, None], x, timestep, model_options))
-        final_x0 = calc_cond_uncond_batch()[0]
+        final_x0 = calc_cond_uncond_batch[0]
 
         if patch_settings[pid].eps_record is not None:
             patch_settings[pid].eps_record = ((x - final_x0) / timestep).cpu()
