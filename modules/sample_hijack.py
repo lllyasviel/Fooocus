@@ -13,7 +13,8 @@ from ldm_patched.modules.sampler_helpers import get_additional_models, get_model
 from ldm_patched.modules.samplers import resolve_areas_and_cond_masks, calculate_start_end_timesteps, \
     create_cond_with_same_area_if_none, pre_run_control, apply_empty_x_to_equal_area, encode_model_conds, CFGGuider, \
     process_conds
-
+from ldm_patched.modules.model_patcher import ModelPatcher
+from modules.util import sys_dump_pythonobj
 
 current_refiner = None
 refiner_switch_step = -1
@@ -84,6 +85,38 @@ def clip_separate_after_preparation(cond, target_model=None, target_clip=None):
 
     return results
 
+@torch.no_grad()
+@torch.inference_mode()
+def sample_unipc(model, noise, sigmas, extra_args=None, callback=None, disable=False, variant='bh1'):
+        timesteps = sigmas.clone()
+        if sigmas[-1] == 0:
+            timesteps = sigmas[:]
+            timesteps[-1] = 0.001
+        else:
+            timesteps = sigmas.clone()
+        ns = SigmaConvert()
+
+        noise = noise / torch.sqrt(1.0 + timesteps[0] ** 2.0)
+        model_type = "noise"
+
+        model_fn = model_wrapper(
+            lambda input, sigma, **kwargs: predict_eps_sigma(model, input, sigma, **kwargs),
+            ns,
+            model_type=model_type,
+            guidance_type="uncond",
+            model_kwargs=extra_args,
+        )
+
+        order = min(3, len(timesteps) - 2)
+        uni_pc = UniPC(model_fn, ns, predict_x0=True, thresholding=False, variant=variant)
+        x = uni_pc.sample(noise, timesteps=timesteps, skip_type="time_uniform", method="multistep", order=order, lower_order_final=True, callback=callback, disable_pbar=disable)
+        x /= ns.marginal_alpha(timesteps[-1])
+        return x
+
+@torch.no_grad()
+@torch.inference_mode()
+def sample_unipc_bh2(model, noise, sigmas, extra_args=None, callback=None, disable=False):
+    return sample_unipc(model, noise, sigmas, extra_args, callback, disable, variant='bh2')
 
 # @torch.no_grad()
 # @torch.inference_mode()
@@ -224,18 +257,23 @@ class CFGGuiderHacked(CFGGuider):
 @torch.no_grad()
 @torch.inference_mode()
 def calculate_sigmas_scheduler_hacked(model, scheduler_name, steps):
+    # sys_dump_pythonobj(model, False, "- calculate_sigmas_scheduler_hacked model")
+    if isinstance(model, ModelPatcher):
+        model_sampling = model.get_model_object("model_sampling")
+    else:
+        model_sampling = model.model_sampling
     if scheduler_name == "karras":
-        sigmas = k_diffusion_sampling.get_sigmas_karras(n=steps, sigma_min=float(model.model_sampling.sigma_min), sigma_max=float(model.model_sampling.sigma_max))
+        sigmas = k_diffusion_sampling.get_sigmas_karras(n=steps, sigma_min=float(model_sampling.sigma_min), sigma_max=float(model_sampling.sigma_max))
     elif scheduler_name == "exponential":
-        sigmas = k_diffusion_sampling.get_sigmas_exponential(n=steps, sigma_min=float(model.model_sampling.sigma_min), sigma_max=float(model.model_sampling.sigma_max))
+        sigmas = k_diffusion_sampling.get_sigmas_exponential(n=steps, sigma_min=float(model_sampling.sigma_min), sigma_max=float(model_sampling.sigma_max))
     elif scheduler_name == "normal":
-        sigmas = normal_scheduler(model.model_sampling, steps)
+        sigmas = normal_scheduler(model_sampling, steps)
     elif scheduler_name == "simple":
-        sigmas = simple_scheduler(model.model_sampling, steps)
+        sigmas = simple_scheduler(model_sampling, steps)
     elif scheduler_name == "ddim_uniform":
-        sigmas = ddim_scheduler(model.model_sampling, steps)
+        sigmas = ddim_scheduler(model_sampling, steps)
     elif scheduler_name == "sgm_uniform":
-        sigmas = normal_scheduler(model.model_sampling, steps, sgm=True)
+        sigmas = normal_scheduler(model_sampling, steps, sgm=True)
     elif scheduler_name == "turbo":
         sigmas = SDTurboScheduler().get_sigmas(model=model, steps=steps, denoise=1.0)[0]
     elif scheduler_name == "align_your_steps":
@@ -244,7 +282,6 @@ def calculate_sigmas_scheduler_hacked(model, scheduler_name, steps):
     else:
         raise TypeError("error invalid scheduler")
     return sigmas
-
 
 ldm_patched.modules.samplers.calculate_sigmas = calculate_sigmas_scheduler_hacked
 ldm_patched.modules.samplers.sample = sample_hacked
