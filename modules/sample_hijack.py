@@ -85,39 +85,6 @@ def clip_separate_after_preparation(cond, target_model=None, target_clip=None):
 
     return results
 
-@torch.no_grad()
-@torch.inference_mode()
-def sample_unipc(model, noise, sigmas, extra_args=None, callback=None, disable=False, variant='bh1'):
-        timesteps = sigmas.clone()
-        if sigmas[-1] == 0:
-            timesteps = sigmas[:]
-            timesteps[-1] = 0.001
-        else:
-            timesteps = sigmas.clone()
-        ns = SigmaConvert()
-
-        noise = noise / torch.sqrt(1.0 + timesteps[0] ** 2.0)
-        model_type = "noise"
-
-        model_fn = model_wrapper(
-            lambda input, sigma, **kwargs: predict_eps_sigma(model, input, sigma, **kwargs),
-            ns,
-            model_type=model_type,
-            guidance_type="uncond",
-            model_kwargs=extra_args,
-        )
-
-        order = min(3, len(timesteps) - 2)
-        uni_pc = UniPC(model_fn, ns, predict_x0=True, thresholding=False, variant=variant)
-        x = uni_pc.sample(noise, timesteps=timesteps, skip_type="time_uniform", method="multistep", order=order, lower_order_final=True, callback=callback, disable_pbar=disable)
-        x /= ns.marginal_alpha(timesteps[-1])
-        return x
-
-@torch.no_grad()
-@torch.inference_mode()
-def sample_unipc_bh2(model, noise, sigmas, extra_args=None, callback=None, disable=False):
-    return sample_unipc(model, noise, sigmas, extra_args, callback, disable, variant='bh2')
-
 # @torch.no_grad()
 # @torch.inference_mode()
 # def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas, model_options={}, latent_image=None, denoise_mask=None, callback=None, disable_pbar=False, seed=None):
