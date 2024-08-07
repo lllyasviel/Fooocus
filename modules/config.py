@@ -520,10 +520,14 @@ for image_count in range(default_controlnet_image_count):
     image_count += 1
     default_ip_images[image_count] = get_config_item_or_set_default(
         key=f'default_ip_image_{image_count}',
-        default_value=None,
-        validator=lambda x: x is None or isinstance(x, str) and os.path.exists(x),
+        default_value='None',
+        validator=lambda x: x == 'None' or isinstance(x, str) and os.path.exists(x),
         expected_type=str
     )
+
+    if default_ip_images[image_count] == 'None':
+        default_ip_images[image_count] = None
+
     default_ip_types[image_count] = get_config_item_or_set_default(
         key=f'default_ip_type_{image_count}',
         default_value=modules.flags.default_ip,
