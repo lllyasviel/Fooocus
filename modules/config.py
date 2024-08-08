@@ -702,7 +702,7 @@ default_inpaint_mask_cloth_category = get_config_item_or_set_default(
 default_inpaint_mask_sam_model = get_config_item_or_set_default(
     key='default_inpaint_mask_sam_model',
     default_value='vit_b',
-    validator=lambda x: x in [y[1] for y in modules.flags.inpaint_mask_sam_model if y[1] == x],
+    validator=lambda x: x in modules.flags.inpaint_mask_sam_model,
     expected_type=str
 )
 
