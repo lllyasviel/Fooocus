@@ -227,6 +227,59 @@ AMD is not intensively tested, however. The AMD support is in beta.
 
 For AMD, use `.\python_embeded\python.exe entry_with_update.py --directml --preset anime` or `.\python_embeded\python.exe entry_with_update.py --directml --preset realistic` for Fooocus Anime/Realistic Edition.
 
+### Windows(Intel GPUs)
+
+Same with Windows. Download the software.
+Create `install.bat` as:
+<details> 
+  <summary>installer.bat</summary>
+
+```
+.\python_embeded\python.exe -m pip uninstall torch torchvision torchaudio torchtext functorch xformers -y
+.\python_embeded\python.exe -m pip install "https://github.com/Nuullll/intel-extension-for-pytorch/releases/download/v2.1.10+xpu/torch-2.1.0a0+cxx11.abi-cp310-cp310-win_amd64.whl"  "https://github.com/Nuullll/intel-extension-for-pytorch/releases/download/v2.1.10+xpu/torchaudio-2.1.0a0+cxx11.abi-cp310-cp310-win_amd64.whl"  "https://github.com/Nuullll/intel-extension-for-pytorch/releases/download/v2.1.10+xpu/torchvision-0.16.0a0+cxx11.abi-cp310-cp310-win_amd64.whl"  "https://github.com/Nuullll/intel-extension-for-pytorch/releases/download/v2.1.10+xpu/intel_extension_for_pytorch-2.1.10+xpu-cp310-cp310-win_amd64.whl"
+```
+
+</details>
+
+Then run the `install.bat` for first time to install dependencies.
+
+Edit the content of `run.bat`, `run_anime.bat`, `run_realistic.bat` by adding `--unet-in-bf16 --vae-in-bf16 --clip-in-fp16` after `-s Fooocus\entry_with_update.py`. Example of `run.bat`:
+<details> 
+  <summary>run.bat</summary>
+
+```
+.\python_embeded\python.exe -s Fooocus\entry_with_update.py --unet-in-bf16 --vae-in-bf16 --clip-in-fp16
+pause
+```
+
+</details>
+
+Then run the `run.bat`, `run_anime.bat` or `run_realistic.bat`.
+
+Intel GPUs is not intensively tested, however. The Intel GPUs support is in beta.
+
+<details> 
+  <summary>Using native Python 3.10 and venv</summary>
+
+Create new file with name `install.bat` for installation or run commands manually in cmd:
+    
+```
+python -m venv venv
+.\venv\Scripts\activate.bat
+python -m pip install "https://github.com/Nuullll/intel-extension-for-pytorch/releases/download/v2.1.10+xpu/torch-2.1.0a0+cxx11.abi-cp310-cp310-win_amd64.whl" "https://github.com/Nuullll/intel-extension-for-pytorch/releases/download/v2.1.10+xpu/torchaudio-2.1.0a+cxx11.          abi-cp310-cp310-win_amd64.whl" "https://github.com/Nuullll/intel-extension-for-pytorch/releases/download/v2.1.10+xpu/torchvision-0.16.0a0+cxx11.abi-cp310-cp310-win_amd64.whl" "https://github.com/Nuullll/intel-extension-for-pytorch/releases/downloadv2.1.10+xpu/          intel_extension_for_pytorch-2.1.10+xpu-cp310-cp310-win_amd64.whl"
+python -m pip install -r requirements_versions.txt
+python entry_with_update.py --unet-in-bf16 --vae-in-bf16 --clip-in-fp16
+```
+
+For further run create file `start.bat` or use commands manually in cmd:
+    
+```
+.\venv\Scripts\activate.bat
+python entry_with_update.py --unet-in-bf16 --vae-in-bf16 --clip-in-fp16
+```
+
+</details>
+
 ### Mac
 
 Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
