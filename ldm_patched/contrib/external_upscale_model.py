@@ -1,16 +1,23 @@
-# https://github.com/comfyanonymous/ComfyUI/blob/master/nodes.py 
-
 import os
-from ldm_patched.pfn import model_loading
+import logging
+from spandrel import ModelLoader, ImageModelDescriptor
 from ldm_patched.modules import model_management
 import torch
 import ldm_patched.modules.utils
-import ldm_patched.utils.path_utils
+import ldm_patched.utils.path_utils as folder_paths
+
+try:
+    from spandrel_extra_arches import EXTRA_REGISTRY
+    from spandrel import MAIN_REGISTRY
+    MAIN_REGISTRY.add(*EXTRA_REGISTRY)
+    logging.info("Successfully imported spandrel_extra_arches: support for non commercial upscale models.")
+except:
+    pass
 
 class UpscaleModelLoader:
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": { "model_name": (ldm_patched.utils.path_utils.get_filename_list("upscale_models"), ),
+        return {"required": { "model_name": (folder_paths.get_filename_list("upscale_models"), ),
                              }}
     RETURN_TYPES = ("UPSCALE_MODEL",)
     FUNCTION = "load_model"
@@ -18,11 +25,15 @@ class UpscaleModelLoader:
     CATEGORY = "loaders"
 
     def load_model(self, model_name):
-        model_path = ldm_patched.utils.path_utils.get_full_path("upscale_models", model_name)
+        model_path = folder_paths.get_full_path("upscale_models", model_name)
         sd = ldm_patched.modules.utils.load_torch_file(model_path, safe_load=True)
         if "module.layers.0.residual_group.blocks.0.norm1.weight" in sd:
             sd = ldm_patched.modules.utils.state_dict_prefix_replace(sd, {"module.":""})
-        out = model_loading.load_state_dict(sd).eval()
+        out = ModelLoader().load_from_state_dict(sd).eval()
+
+        if not isinstance(out, ImageModelDescriptor):
+            raise Exception("Upscale model must be a single-image model.")
+
         return (out, )
 
 
@@ -39,9 +50,14 @@ class ImageUpscaleWithModel:
 
     def upscale(self, upscale_model, image):
         device = model_management.get_torch_device()
+
+        memory_required = model_management.module_size(upscale_model.model)
+        memory_required += (512 * 512 * 3) * image.element_size() * max(upscale_model.scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
+        memory_required += image.nelement() * image.element_size()
+        model_management.free_memory(memory_required, device)
+
         upscale_model.to(device)
         in_img = image.movedim(-1,-3).to(device)
-        free_memory = model_management.get_free_memory(device)
 
         tile = 512
         overlap = 32
@@ -58,7 +74,7 @@ class ImageUpscaleWithModel:
                 if tile < 128:
                     raise e
 
-        upscale_model.cpu()
+        upscale_model.to("cpu")
         s = torch.clamp(s.movedim(-3,-1), min=0, max=1.0)
         return (s,)
 

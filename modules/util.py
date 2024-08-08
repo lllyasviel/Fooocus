@@ -513,3 +513,14 @@ def get_image_size_info(image: np.ndarray, aspect_ratios: list) -> str:
         return size_info
     except Exception as e:
         return f'Error reading image: {e}'
+
+def sys_dump_pythonobj(obj, withValue, hintStr = None):
+    if hintStr is None:
+        hintStr = "- object Dump:"
+    print(hintStr, type(obj))
+    for attr in dir(obj):
+        if hasattr( obj, attr ):
+            if withValue:
+                print( "...%s = %s" % (attr, getattr(obj, attr)))
+            else:
+                print( "...%s = ???" % (attr))

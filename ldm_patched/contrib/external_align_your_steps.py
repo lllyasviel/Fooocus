@@ -1,5 +1,3 @@
-# https://github.com/comfyanonymous/ComfyUI/blob/master/nodes.py
-
 #from: https://research.nvidia.com/labs/toronto-ai/AlignYourSteps/howto.html
 import numpy as np
 import torch

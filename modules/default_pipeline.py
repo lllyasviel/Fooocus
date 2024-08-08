@@ -288,14 +288,14 @@ def vae_parse(latent):
 @torch.no_grad()
 @torch.inference_mode()
 def calculate_sigmas_all(sampler, model, scheduler, steps):
-    from ldm_patched.modules.samplers import calculate_sigmas_scheduler
+    from ldm_patched.modules.samplers import calculate_sigmas
 
     discard_penultimate_sigma = False
     if sampler in ['dpm_2', 'dpm_2_ancestral']:
         steps += 1
         discard_penultimate_sigma = True
 
-    sigmas = calculate_sigmas_scheduler(model, scheduler, steps)
+    sigmas = calculate_sigmas(model, scheduler, steps)
 
     if discard_penultimate_sigma:
         sigmas = torch.cat([sigmas[:-2], sigmas[-1:]])

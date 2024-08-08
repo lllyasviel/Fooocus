@@ -1,5 +1,3 @@
-# https://github.com/comfyanonymous/ComfyUI/blob/master/nodes.py 
-
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -7,6 +5,7 @@ from PIL import Image
 import math
 
 import ldm_patched.modules.utils
+import ldm_patched.modules.model_management
 
 
 class Blend:
@@ -104,6 +103,7 @@ class Blur:
         if blur_radius == 0:
             return (image,)
 
+        image = image.to(ldm_patched.modules.model_management.get_torch_device())
         batch_size, height, width, channels = image.shape
 
         kernel_size = blur_radius * 2 + 1
@@ -114,7 +114,7 @@ class Blur:
         blurred = F.conv2d(padded_image, kernel, padding=kernel_size // 2, groups=channels)[:,:,blur_radius:-blur_radius, blur_radius:-blur_radius]
         blurred = blurred.permute(0, 2, 3, 1)
 
-        return (blurred,)
+        return (blurred.to(ldm_patched.modules.model_management.intermediate_device()),)
 
 class Quantize:
     def __init__(self):
@@ -206,13 +206,13 @@ class Sharpen:
                     "default": 1.0,
                     "min": 0.1,
                     "max": 10.0,
-                    "step": 0.1
+                    "step": 0.01
                 }),
                 "alpha": ("FLOAT", {
                     "default": 1.0,
                     "min": 0.0,
                     "max": 5.0,
-                    "step": 0.1
+                    "step": 0.01
                 }),
             },
         }
@@ -227,6 +227,7 @@ class Sharpen:
             return (image,)
 
         batch_size, height, width, channels = image.shape
+        image = image.to(ldm_patched.modules.model_management.get_torch_device())
 
         kernel_size = sharpen_radius * 2 + 1
         kernel = gaussian_kernel(kernel_size, sigma, device=image.device) * -(alpha*10)
@@ -241,7 +242,7 @@ class Sharpen:
 
         result = torch.clamp(sharpened, 0, 1)
 
-        return (result,)
+        return (result.to(ldm_patched.modules.model_management.intermediate_device()),)
 
 class ImageScaleToTotalPixels:
     upscale_methods = ["nearest-exact", "bilinear", "area", "bicubic", "lanczos"]

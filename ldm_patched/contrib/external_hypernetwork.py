@@ -1,8 +1,7 @@
-# https://github.com/comfyanonymous/ComfyUI/blob/master/nodes.py 
-
 import ldm_patched.modules.utils
-import ldm_patched.utils.path_utils
+import ldm_patched.utils.path_utils as folder_paths
 import torch
+import logging
 
 def load_hypernetwork_patch(path, strength):
     sd = ldm_patched.modules.utils.load_torch_file(path, safe_load=True)
@@ -25,7 +24,7 @@ def load_hypernetwork_patch(path, strength):
     }
 
     if activation_func not in valid_activation:
-        print("Unsupported Hypernetwork format, if you report it I might implement it.", path, " ", activation_func, is_layer_norm, use_dropout, activate_output, last_layer_dropout)
+        logging.error("Unsupported Hypernetwork format, if you report it I might implement it. {}   {} {} {} {} {}".format(path, activation_func, is_layer_norm, use_dropout, activate_output, last_layer_dropout))
         return None
 
     out = {}
@@ -99,7 +98,7 @@ class HypernetworkLoader:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "model": ("MODEL",),
-                              "hypernetwork_name": (ldm_patched.utils.path_utils.get_filename_list("hypernetworks"), ),
+                              "hypernetwork_name": (folder_paths.get_filename_list("hypernetworks"), ),
                               "strength": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
                               }}
     RETURN_TYPES = ("MODEL",)
@@ -108,7 +107,7 @@ class HypernetworkLoader:
     CATEGORY = "loaders"
 
     def load_hypernetwork(self, model, hypernetwork_name, strength):
-        hypernetwork_path = ldm_patched.utils.path_utils.get_full_path("hypernetworks", hypernetwork_name)
+        hypernetwork_path = folder_paths.get_full_path("hypernetworks", hypernetwork_name)
         model_hypernetwork = model.clone()
         patch = load_hypernetwork_patch(hypernetwork_path, strength)
         if patch is not None:

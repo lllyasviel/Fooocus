@@ -21,7 +21,7 @@ import warnings
 import safetensors.torch
 import modules.constants as constants
 
-from ldm_patched.modules.samplers import calc_cond_uncond_batch
+from ldm_patched.modules.samplers import calc_cond_batch
 from ldm_patched.k_diffusion.sampling import BatchedBrownianTree
 from ldm_patched.ldm.modules.diffusionmodules.openaimodel import forward_timestep_embed, apply_control
 from modules.patch_precision import patch_all_precision
@@ -227,14 +227,16 @@ def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, mode
     pid = os.getpid()
 
     if math.isclose(cond_scale, 1.0) and not model_options.get("disable_cfg1_optimization", False):
-        final_x0 = calc_cond_uncond_batch(model, cond, None, x, timestep, model_options)[0]
+        calc_cond_uncond_batch = tuple(calc_cond_batch(model, [cond, None], x, timestep, model_options))
+        final_x0 = calc_cond_uncond_batch[0]
 
         if patch_settings[pid].eps_record is not None:
             patch_settings[pid].eps_record = ((x - final_x0) / timestep).cpu()
 
         return final_x0
 
-    positive_x0, negative_x0 = calc_cond_uncond_batch(model, cond, uncond, x, timestep, model_options)
+    calc_cond_uncond_batch = tuple(calc_cond_batch(model, [cond, uncond], x, timestep, model_options))
+    positive_x0, negative_x0 = calc_cond_uncond_batch
 
     positive_eps = x - positive_x0
     negative_eps = x - negative_x0
@@ -384,7 +386,10 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     transformer_patches = transformer_options.get("patches", {})
 
     num_video_frames = kwargs.get("num_video_frames", self.default_num_video_frames)
-    image_only_indicator = kwargs.get("image_only_indicator", self.default_image_only_indicator)
+
+    image_only_indicator = None
+    if hasattr(self, "default_image_only_indicator"):
+        image_only_indicator = kwargs.get("image_only_indicator", self.default_image_only_indicator)
     time_context = kwargs.get("time_context", None)
 
     assert (y is not None) == (
@@ -486,6 +491,8 @@ def build_loaded(module, loader_name):
 
 
 def patch_all():
+    # Fooocus-specific additions over ComfyUI ldm.
+    # ALSO: marked with 'used-by-Fooocus'
     if ldm_patched.modules.model_management.directml_enabled:
         ldm_patched.modules.model_management.lowvram_available = True
         ldm_patched.modules.model_management.OOM_EXCEPTION = Exception

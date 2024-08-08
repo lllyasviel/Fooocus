@@ -1,8 +1,6 @@
-# https://github.com/comfyanonymous/ComfyUI/blob/master/nodes.py 
-
 import torch
 import torch.nn as nn
-import ldm_patched.utils.path_utils
+import ldm_patched.utils.path_utils as folder_paths
 import ldm_patched.modules.clip_model
 import ldm_patched.modules.clip_vision
 import ldm_patched.modules.ops
@@ -120,7 +118,7 @@ class PhotoMakerIDEncoder(ldm_patched.modules.clip_model.CLIPVisionModelProjecti
 class PhotoMakerLoader:
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": { "photomaker_model_name": (ldm_patched.utils.path_utils.get_filename_list("photomaker"), )}}
+        return {"required": { "photomaker_model_name": (folder_paths.get_filename_list("photomaker"), )}}
 
     RETURN_TYPES = ("PHOTOMAKER",)
     FUNCTION = "load_photomaker_model"
@@ -128,7 +126,7 @@ class PhotoMakerLoader:
     CATEGORY = "_for_testing/photomaker"
 
     def load_photomaker_model(self, photomaker_model_name):
-        photomaker_model_path = ldm_patched.utils.path_utils.get_full_path("photomaker", photomaker_model_name)
+        photomaker_model_path = folder_paths.get_full_path("photomaker", photomaker_model_name)
         photomaker_model = PhotoMakerIDEncoder()
         data = ldm_patched.modules.utils.load_torch_file(photomaker_model_path, safe_load=True)
         if "id_encoder" in data:
@@ -143,7 +141,7 @@ class PhotoMakerEncode:
         return {"required": { "photomaker": ("PHOTOMAKER",),
                               "image": ("IMAGE",),
                               "clip": ("CLIP", ),
-                              "text": ("STRING", {"multiline": True, "default": "photograph of photomaker"}),
+                              "text": ("STRING", {"multiline": True, "dynamicPrompts": True, "default": "photograph of photomaker"}),
                              }}
 
     RETURN_TYPES = ("CONDITIONING",)

@@ -22,3 +22,5 @@ packaging==24.1
 rembg==2.0.57
 groundingdino-py==0.4.0
 segment_anything==1.0
+kornia==0.7.2
+spandrel==0.3.4
