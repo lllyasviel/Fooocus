@@ -215,7 +215,28 @@ Use `python entry_with_update.py --preset anime` or `python entry_with_update.py
 Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
 
 Same with Windows. Download the software and edit the content of `run.bat` as:
+AMD is not intensively tested, however. The AMD support is in beta.
 
+Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
+
+### Windows (AMD GPUs)
+
+Note that the [minimal requirement](#minimal-requirement) for different platforms is different.
+
+Same with Windows. Download the software and edit the content of `run.bat` as:
+
+    .\python_embeded\python.exe -m pip uninstall torch torchvision torchaudio torchtext functorch xformers -y
+    .\python_embeded\python.exe -m pip install torch-directml
+    .\python_embeded\python.exe -m Fooocus\entry_with_update.py --directml
+    pause
+
+Then run the `run.bat`.
+
+AMD is not intensively tested, however. The AMD support is in beta.
+
+For AMD, use `.\python_embeded\python.exe -m Fooocus\entry_with_update.py --directml --preset anime` or `.\python_embeded\python.exe -m Fooocus\entry_with_update.py --directml --preset realistic` for Fooocus Anime/Realistic Edition.
+
+### Mac
     .\python_embeded\python.exe -m pip uninstall torch torchvision torchaudio torchtext functorch xformers -y
     .\python_embeded\python.exe -m pip install torch-directml
     .\python_embeded\python.exe -s Fooocus\entry_with_update.py --directml
