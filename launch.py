@@ -114,9 +114,9 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
         return default_model, checkpoint_downloads
 
     if not args.always_download_new_model:
-        if not os.path.exists(os.path.join(config.paths_checkpoints[0], default_model)):
+        if not any([os.path.isfile(os.path.join(d, default_model)) for d in config.paths_checkpoints]):
             for alternative_model_name in previous_default_models:
-                if os.path.exists(os.path.join(config.paths_checkpoints[0], alternative_model_name)):
+                if any([os.path.isfile(os.path.join(d, alternative_model_name)) for d in config.paths_checkpoints]):
                     print(f'You do not have [{default_model}] but you have [{alternative_model_name}].')
                     print(f'Fooocus will use [{alternative_model_name}] to avoid downloading new models, '
                           f'but you are not using the latest models.')
