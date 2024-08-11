@@ -1223,6 +1223,8 @@ def worker():
             height, width, _ = async_task.enhance_input_image.shape
             # input image already provided, processing is skipped
             steps = 0
+            yield_result(async_task, async_task.enhance_input_image, current_progress, async_task.black_out_nsfw, False,
+                         async_task.disable_intermediate_results)
 
         all_steps = steps * async_task.image_number
 
