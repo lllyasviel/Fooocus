@@ -37,6 +37,9 @@ args_parser.parser.add_argument("--always-download-new-model", action='store_tru
 args_parser.parser.add_argument("--rebuild-hash-cache", help="Generates missing model and LoRA hashes.",
                                 type=int, nargs="?", metavar="CPU_NUM_THREADS", const=-1)
 
+args_parser.parser.add_argument("--favicon-path", type=str, default=None, help="Set the favicon filepath.")
+args_parser.parser.add_argument("--auth-message", type=str, default=None, help="Message to show for auth.")
+
 args_parser.parser.set_defaults(
     in_browser=True,
     port=None
