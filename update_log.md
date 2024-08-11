@@ -1,3 +1,9 @@
+# [2.6.4](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.4)
+
+* Fix validation for default_ip_image_* and default_inpaint_mask_sam_model
+* Fix enhance mask debugging in combination with image sorting
+* Fix loading of checkpoints and LoRAs when using multiple directories in config and then switching presets
+
 # [2.6.3](https://github.com/mashb1t/Fooocus/releases/tag/v2.6.3)
 
 * Only load weights from non-safetensors files, preventing harmful code injection
