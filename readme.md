@@ -321,7 +321,7 @@ Windows: download the [7z file](#download), extract it and run `run.bat`. You ma
 
 ### Colab
 
-(Last tested - 2024 Mar 18 by [mashb1t](https://github.com/mashb1t))
+(Last tested - 2024 Aug 12 by [mashb1t](https://github.com/mashb1t))
 
 | Colab | Info
 | --- | --- |

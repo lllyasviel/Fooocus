@@ -21,7 +21,6 @@ import fooocus_version
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met, delete_folder_content
 from modules.model_loader import load_file_from_url
-from modules.util import get_file_from_folder_list
 
 REINSTALL_ALL = False
 TRY_INSTALL_XFORMERS = False
@@ -102,6 +101,8 @@ if config.temp_path_cleanup_on_launch:
 
 
 def download_models(default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads, vae_downloads):
+    from modules.util import get_file_from_folder_list
+
     for file_name, url in vae_approx_filenames:
         load_file_from_url(url=url, model_dir=config.path_vae_approx, file_name=file_name)
 
