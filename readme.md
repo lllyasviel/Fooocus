@@ -119,7 +119,7 @@ See also the common problems and troubleshoots [here](troubleshoot.md).
 
 ### Colab
 
-(Last tested - 2024 Mar 18 by [mashb1t](https://github.com/mashb1t))
+(Last tested - 2024 Aug 12 by [mashb1t](https://github.com/mashb1t))
 
 | Colab | Info
 | --- | --- |
