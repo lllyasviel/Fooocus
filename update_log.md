@@ -1,3 +1,7 @@
+# [2.5.5](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.5)
+
+* Fix colab inpaint issue by moving an import statement
+
 # [2.5.4](https://github.com/lllyasviel/Fooocus/releases/tag/v2.5.4)
 
 * Fix validation for default_ip_image_* and default_inpaint_mask_sam_model
