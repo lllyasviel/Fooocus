@@ -80,12 +80,13 @@ if args.gpu_device_id is not None:
     os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_device_id)
     print("Set device to:", args.gpu_device_id)
 
-if args.hf_mirror is not None : 
+if args.hf_mirror is not None:
     os.environ['HF_MIRROR'] = str(args.hf_mirror)
     print("Set hf_mirror to:", args.hf_mirror)
 
 from modules import config
 from modules.hash_cache import init_cache
+
 os.environ["U2NET_HOME"] = config.path_inpaint
 
 os.environ['GRADIO_TEMP_DIR'] = config.temp_path
@@ -100,6 +101,8 @@ if config.temp_path_cleanup_on_launch:
 
 
 def download_models(default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads, vae_downloads):
+    from modules.util import get_file_from_folder_list
+
     for file_name, url in vae_approx_filenames:
         load_file_from_url(url=url, model_dir=config.path_vae_approx, file_name=file_name)
 
@@ -114,9 +117,9 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
         return default_model, checkpoint_downloads
 
     if not args.always_download_new_model:
-        if not os.path.exists(os.path.join(config.paths_checkpoints[0], default_model)):
+        if not os.path.isfile(get_file_from_folder_list(default_model, config.paths_checkpoints)):
             for alternative_model_name in previous_default_models:
-                if os.path.exists(os.path.join(config.paths_checkpoints[0], alternative_model_name)):
+                if os.path.isfile(get_file_from_folder_list(alternative_model_name, config.paths_checkpoints)):
                     print(f'You do not have [{default_model}] but you have [{alternative_model_name}].')
                     print(f'Fooocus will use [{alternative_model_name}] to avoid downloading new models, '
                           f'but you are not using the latest models.')
@@ -126,11 +129,13 @@ def download_models(default_model, previous_default_models, checkpoint_downloads
                     break
 
     for file_name, url in checkpoint_downloads.items():
-        load_file_from_url(url=url, model_dir=config.paths_checkpoints[0], file_name=file_name)
+        model_dir = os.path.dirname(get_file_from_folder_list(file_name, config.paths_checkpoints))
+        load_file_from_url(url=url, model_dir=model_dir, file_name=file_name)
     for file_name, url in embeddings_downloads.items():
         load_file_from_url(url=url, model_dir=config.path_embeddings, file_name=file_name)
     for file_name, url in lora_downloads.items():
-        load_file_from_url(url=url, model_dir=config.paths_loras[0], file_name=file_name)
+        model_dir = os.path.dirname(get_file_from_folder_list(file_name, config.paths_loras))
+        load_file_from_url(url=url, model_dir=model_dir, file_name=file_name)
     for file_name, url in vae_downloads.items():
         load_file_from_url(url=url, model_dir=config.path_vae, file_name=file_name)
 
