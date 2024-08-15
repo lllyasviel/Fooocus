@@ -19,7 +19,7 @@ def init_detection_model(model_name, half=False, device='cuda', model_rootpath=N
         url=model_url, model_dir='facexlib/weights', progress=True, file_name=None, save_dir=model_rootpath)
 
     # TODO: clean pretrained model
-    load_net = torch.load(model_path, map_location=lambda storage, loc: storage)
+    load_net = torch.load(model_path, map_location=lambda storage, loc: storage, weights_only=True)
     # remove unnecessary 'module.'
     for k, v in deepcopy(load_net).items():
         if k.startswith('module.'):

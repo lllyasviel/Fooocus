@@ -231,7 +231,7 @@ def get_previewer(model):
     if vae_approx_filename in VAE_approx_models:
         VAE_approx_model = VAE_approx_models[vae_approx_filename]
     else:
-        sd = torch.load(vae_approx_filename, map_location='cpu')
+        sd = torch.load(vae_approx_filename, map_location='cpu', weights_only=True)
         VAE_approx_model = VAEApprox()
         VAE_approx_model.load_state_dict(sd)
         del sd

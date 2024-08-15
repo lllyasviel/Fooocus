@@ -520,10 +520,14 @@ for image_count in range(default_controlnet_image_count):
     image_count += 1
     default_ip_images[image_count] = get_config_item_or_set_default(
         key=f'default_ip_image_{image_count}',
-        default_value=None,
-        validator=lambda x: x is None or isinstance(x, str) and os.path.exists(x),
+        default_value='None',
+        validator=lambda x: x == 'None' or isinstance(x, str) and os.path.exists(x),
         expected_type=str
     )
+
+    if default_ip_images[image_count] == 'None':
+        default_ip_images[image_count] = None
+
     default_ip_types[image_count] = get_config_item_or_set_default(
         key=f'default_ip_type_{image_count}',
         default_value=modules.flags.default_ip,
@@ -698,8 +702,21 @@ default_inpaint_mask_cloth_category = get_config_item_or_set_default(
 default_inpaint_mask_sam_model = get_config_item_or_set_default(
     key='default_inpaint_mask_sam_model',
     default_value='vit_b',
-    validator=lambda x: x in [y[1] for y in modules.flags.inpaint_mask_sam_model if y[1] == x],
+    validator=lambda x: x in modules.flags.inpaint_mask_sam_model,
     expected_type=str
+)
+
+default_describe_apply_prompts_checkbox = get_config_item_or_set_default(
+    key='default_describe_apply_prompts_checkbox',
+    default_value=True,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+default_describe_content_type = get_config_item_or_set_default(
+    key='default_describe_content_type',
+    default_value=[modules.flags.describe_type_photo],
+    validator=lambda x: all(k in modules.flags.describe_types for k in x),
+    expected_type=list
 )
 
 config_dict["default_loras"] = default_loras = default_loras[:default_max_lora_number] + [[True, 'None', 1.0] for _ in range(default_max_lora_number - len(default_loras))]
