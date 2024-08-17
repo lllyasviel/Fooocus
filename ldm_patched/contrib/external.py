@@ -1476,10 +1476,10 @@ class LoadImage:
             if i.mode == 'I':
                 i = i.point(lambda i: i * (1 / 255))
             image = i.convert("RGB")
-            image = np.array(image).astype(np.float32) / 255.0
+            image = np.asarray(image).astype(np.float32) / 255.0
             image = torch.from_numpy(image)[None,]
             if 'A' in i.getbands():
-                mask = np.array(i.getchannel('A')).astype(np.float32) / 255.0
+                mask = np.asarray(i.getchannel('A')).astype(np.float32) / 255.0
                 mask = 1. - torch.from_numpy(mask)
             else:
                 mask = torch.zeros((64,64), dtype=torch.float32, device="cpu")
@@ -1536,7 +1536,7 @@ class LoadImageMask:
         mask = None
         c = channel[0].upper()
         if c in i.getbands():
-            mask = np.array(i.getchannel(c)).astype(np.float32) / 255.0
+            mask = np.asarray(i.getchannel(c)).astype(np.float32) / 255.0
             mask = torch.from_numpy(mask)
             if c == 'A':
                 mask = 1. - mask

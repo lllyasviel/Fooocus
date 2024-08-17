@@ -104,7 +104,7 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
             draw = ImageDraw.Draw(debug_dino_image)
             for box in boxes.numpy():
                 draw.rectangle(box.tolist(), fill="white")
-            return np.array(debug_dino_image), dino_detection_count, sam_detection_count, sam_detection_on_mask_count
+            return np.asarray(debug_dino_image), dino_detection_count, sam_detection_count, sam_detection_on_mask_count
 
         transformed_boxes = sam_predictor.transform.apply_boxes_torch(boxes, image.shape[:2])
         masks, _, _ = sam_predictor.predict_torch(
@@ -126,5 +126,5 @@ def generate_mask_from_image(image: np.ndarray, mask_model: str = 'sam', extras=
 
     final_mask_tensor = (final_mask_tensor > 0).to('cpu').numpy()
     mask_image = np.dstack((final_mask_tensor, final_mask_tensor, final_mask_tensor)) * 255
-    mask_image = np.array(mask_image, dtype=np.uint8)
+    mask_image = np.asarray(mask_image, dtype=np.uint8)
     return mask_image, dino_detection_count, sam_detection_count, sam_detection_on_mask_count

@@ -57,7 +57,7 @@ def default_interrogator(image_rgb, threshold=0.35, character_threshold=0.85, ex
     square = Image.new("RGB", (height, height), (255, 255, 255))
     square.paste(image, ((height-new_size[0])//2, (height-new_size[1])//2))
 
-    image = np.array(square).astype(np.float32)
+    image = np.asarray(square).astype(np.float32)
     image = image[:, :, ::-1]  # RGB -> BGR
     image = np.expand_dims(image, 0)
 

@@ -18,14 +18,14 @@ def tformfwd(trans, uv):
 
     Parameters:
     ----------
-        @trans: 3x3 np.array
+        @trans: 3x3 np.asarray
             transform matrix
-        @uv: Kx2 np.array
+        @uv: Kx2 np.asarray
             each row is a pair of coordinates (x, y)
 
     Returns:
     ----------
-        @xy: Kx2 np.array
+        @xy: Kx2 np.asarray
             each row is a pair of transformed coordinates (x, y)
     """
     uv = np.hstack((uv, np.ones((uv.shape[0], 1))))
@@ -42,14 +42,14 @@ def tforminv(trans, uv):
 
     Parameters:
     ----------
-        @trans: 3x3 np.array
+        @trans: 3x3 np.asarray
             transform matrix
-        @uv: Kx2 np.array
+        @uv: Kx2 np.asarray
             each row is a pair of coordinates (x, y)
 
     Returns:
     ----------
-        @xy: Kx2 np.array
+        @xy: Kx2 np.asarray
             each row is a pair of inverse-transformed coordinates (x, y)
     """
     Tinv = inv(trans)
@@ -84,9 +84,9 @@ def findNonreflectiveSimilarity(uv, xy, options=None):
     tx = r[2]
     ty = r[3]
 
-    Tinv = np.array([[sc, -ss, 0], [ss, sc, 0], [tx, ty, 1]])
+    Tinv = np.asarray([[sc, -ss, 0], [ss, sc, 0], [tx, ty, 1]])
     T = inv(Tinv)
-    T[:, 2] = np.array([0, 0, 1])
+    T[:, 2] = np.asarray([0, 0, 1])
 
     return T, Tinv
 
@@ -94,8 +94,8 @@ def findNonreflectiveSimilarity(uv, xy, options=None):
 def findSimilarity(uv, xy, options=None):
     options = {'K': 2}
 
-    #    uv = np.array(uv)
-    #    xy = np.array(xy)
+    #    uv = np.asarray(uv)
+    #    xy = np.asarray(xy)
 
     # Solve for trans1
     trans1, trans1_inv = findNonreflectiveSimilarity(uv, xy, options)
@@ -109,7 +109,7 @@ def findSimilarity(uv, xy, options=None):
     trans2r, trans2r_inv = findNonreflectiveSimilarity(uv, xyR, options)
 
     # manually reflect the tform to undo the reflection done on xyR
-    TreflectY = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, 1]])
+    TreflectY = np.asarray([[-1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
     trans2 = np.dot(trans2r, TreflectY)
 
@@ -140,9 +140,9 @@ def get_similarity_transform(src_pts, dst_pts, reflective=True):
 
     Parameters:
     ----------
-        @src_pts: Kx2 np.array
+        @src_pts: Kx2 np.asarray
             source points, each row is a pair of coordinates (x, y)
-        @dst_pts: Kx2 np.array
+        @dst_pts: Kx2 np.asarray
             destination points, each row is a pair of transformed
             coordinates (x, y)
         @reflective: True or False
@@ -153,9 +153,9 @@ def get_similarity_transform(src_pts, dst_pts, reflective=True):
 
     Returns:
     ----------
-       @trans: 3x3 np.array
+       @trans: 3x3 np.asarray
             transform matrix from uv to xy
-        trans_inv: 3x3 np.array
+        trans_inv: 3x3 np.asarray
             inverse of trans, transform matrix from xy to uv
     """
 
@@ -181,12 +181,12 @@ def cvt_tform_mat_for_cv2(trans):
 
     Parameters:
     ----------
-        @trans: 3x3 np.array
+        @trans: 3x3 np.asarray
             transform matrix from uv to xy
 
     Returns:
     ----------
-        @cv2_trans: 2x3 np.array
+        @cv2_trans: 2x3 np.asarray
             transform matrix from src_pts to dst_pts, could be directly used
             for cv2.warpAffine()
     """
@@ -209,9 +209,9 @@ def get_similarity_transform_for_cv2(src_pts, dst_pts, reflective=True):
 
     Parameters:
     ----------
-        @src_pts: Kx2 np.array
+        @src_pts: Kx2 np.asarray
             source points, each row is a pair of coordinates (x, y)
-        @dst_pts: Kx2 np.array
+        @dst_pts: Kx2 np.asarray
             destination points, each row is a pair of transformed
             coordinates (x, y)
         reflective: True or False
@@ -222,7 +222,7 @@ def get_similarity_transform_for_cv2(src_pts, dst_pts, reflective=True):
 
     Returns:
     ----------
-        @cv2_trans: 2x3 np.array
+        @cv2_trans: 2x3 np.asarray
             transform matrix from src_pts to dst_pts, could be directly used
             for cv2.warpAffine()
     """
@@ -276,8 +276,8 @@ if __name__ == '__main__':
     x = [-1, 0, 4]
     y = [-1, -10, 4]
 
-    uv = np.array((u, v)).T
-    xy = np.array((x, y)).T
+    uv = np.asarray((u, v)).T
+    xy = np.asarray((x, y)).T
 
     print('\n--->uv:')
     print(uv)

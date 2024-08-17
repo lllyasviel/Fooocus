@@ -242,7 +242,7 @@ class Image(
         if self.type == "pil":
             return im
         elif self.type == "numpy":
-            return np.array(im)
+            return np.asarray(im)
         elif self.type == "filepath":
             path = self.pil_to_temp_file(
                 im, dir=self.DEFAULT_TEMP_DIR, format=fmt or "png"
@@ -349,7 +349,7 @@ class Image(
         x = processing_utils.decode_base64_to_image(x)
         if self.shape is not None:
             x = processing_utils.resize_and_crop(x, self.shape)
-        resized_and_cropped_image = np.array(x)
+        resized_and_cropped_image = np.asarray(x)
         try:
             from skimage.segmentation import slic
         except (ImportError, ModuleNotFoundError) as err:
@@ -418,7 +418,7 @@ class Image(
         x = processing_utils.decode_base64_to_image(x)
         if self.shape is not None:
             x = processing_utils.resize_and_crop(x, self.shape)
-        x = np.array(x)
+        x = np.asarray(x)
         output_scores = np.zeros((x.shape[0], x.shape[1]))
 
         for score, mask in zip(scores, masks):

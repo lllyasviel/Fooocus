@@ -6,7 +6,7 @@ from PIL import Image
 from extras.inpaint_mask import SAMOptions, generate_mask_from_image
 
 original_image = Image.open('cat.webp')
-image = np.array(original_image, dtype=np.uint8)
+image = np.asarray(original_image, dtype=np.uint8)
 
 sam_options = SAMOptions(
     dino_prompt='eye',

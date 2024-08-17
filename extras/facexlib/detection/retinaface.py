@@ -245,7 +245,7 @@ class RetinaFace(nn.Module):
         for landmark in landmarks:
             facial5points = [[landmark[2 * j], landmark[2 * j + 1]] for j in range(5)]
 
-            warped_face = warp_and_crop_face(np.array(image), facial5points, self.reference, crop_size=(112, 112))
+            warped_face = warp_and_crop_face(np.asarray(image), facial5points, self.reference, crop_size=(112, 112))
             faces.append(warped_face)
 
         return np.concatenate((boxes, landmarks), axis=1), faces
@@ -304,15 +304,15 @@ class RetinaFace(nn.Module):
     def batched_detect_faces(self, frames, conf_threshold=0.8, nms_threshold=0.4, use_origin_size=True):
         """
         Arguments:
-            frames: a list of PIL.Image, or np.array(shape=[n, h, w, c],
+            frames: a list of PIL.Image, or np.asarray(shape=[n, h, w, c],
                 type=np.uint8, BGR format).
             conf_threshold: confidence threshold.
             nms_threshold: nms threshold.
             use_origin_size: whether to use origin size.
         Returns:
-            final_bounding_boxes: list of np.array ([n_boxes, 5],
+            final_bounding_boxes: list of np.asarray ([n_boxes, 5],
                 type=np.float32).
-            final_landmarks: list of np.array ([n_boxes, 10], type=np.float32).
+            final_landmarks: list of np.asarray ([n_boxes, 10], type=np.float32).
         """
         # self.t['forward_pass'].tic()
         frames, self.resize = self.batched_transform(frames, use_origin_size)
@@ -340,8 +340,8 @@ class RetinaFace(nn.Module):
             # ignore low scores
             pred, landm = pred[inds, :], landm[inds, :]
             if pred.shape[0] == 0:
-                final_bounding_boxes.append(np.array([], dtype=np.float32))
-                final_landmarks.append(np.array([], dtype=np.float32))
+                final_bounding_boxes.append(np.asarray([], dtype=np.float32))
+                final_landmarks.append(np.asarray([], dtype=np.float32))
                 continue
 
             # sort
