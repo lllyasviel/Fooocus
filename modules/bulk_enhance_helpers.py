@@ -76,12 +76,24 @@ def on_file_change(files, data_type):
 
 
 def on_input_change(input_path, file_explorer):
-    if os.path.isdir(input_path):
-        # Return an empty list if input_path is a directory or empty
-        return None, gr.update(visible=True), gr.update(value=True)
+    def sanitize_path(path):
+        # Normalize the path to remove any '..' or redundant slashes
+        safe_path = os.path.normpath(path)
+        # Check for common malicious patterns
+        if ".." in safe_path or safe_path.startswith(("/", "\\")):
+            raise ValueError(
+                "Invalid path provided. Path traversal is not allowed.")
+        return safe_path
 
-    if not input_path:
-        # Return an empty list if input_path is a directory or empty
+    if input_path:
+        # Sanitize the input path
+        input_path = sanitize_path(input_path)
+
+        if os.path.isdir(input_path):
+            # Return an empty list if input_path is a directory
+            return None, gr.update(visible=True), gr.update(value=True)
+    else:
+        # Return an empty list if input_path is empty
         return None, gr.update(visible=False), gr.update(value=False)
 
     # Initialize a dictionary to track unique file names and their paths
@@ -93,16 +105,18 @@ def on_input_change(input_path, file_explorer):
         file_paths_list = input_path.strip("()").replace("'", "").split(", ")
         # Extract file names and ensure uniqueness
         for path in file_paths_list:
-            file_name = os.path.basename(path)
-            unique_file_paths[file_name] = path
+            sanitized_path = sanitize_path(path)
+            file_name = os.path.basename(sanitized_path)
+            unique_file_paths[file_name] = sanitized_path
 
     # Process file_explorer items if provided
     if file_explorer:
         # Extract 'orig_name' from each file_explorer object and ensure uniqueness
         for item in file_explorer:
-            file_name = os.path.basename(item.orig_name)
+            sanitized_path = sanitize_path(item.orig_name)
+            file_name = os.path.basename(sanitized_path)
             # Store the path, replacing any existing path with the same file name
-            unique_file_paths[file_name] = item.orig_name
+            unique_file_paths[file_name] = sanitized_path
 
     # Convert the dictionary values back to a list of unique file paths
     if len(unique_file_paths.values()) > 0:
