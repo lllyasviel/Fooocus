@@ -3,7 +3,7 @@ import gradio as gr
 from extras.inpaint_mask import generate_mask_from_image, SAMOptions
 from modules.patch import PatchSettings, patch_settings, patch_all
 import modules.config
-from PIL import Image, ImageOps
+from PIL import Image
 import modules.gradio_hijack as grh
 patch_all()
 

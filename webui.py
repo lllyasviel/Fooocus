@@ -23,7 +23,6 @@ from modules.private_logger import get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 from modules.util import is_json
-from tkinter import Tk, filedialog
 from modules.bulk_enhance_helpers import *
 
 
