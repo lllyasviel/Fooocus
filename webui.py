@@ -199,6 +199,9 @@ with shared.gradio_root:
                     def stop_clicked(currentTask):
                         import ldm_patched.modules.model_management as model_management
                         currentTask.last_stop = 'stop'
+                        currentTask.should_run = False
+                        print(
+                            "\n\n⚠️ Stopping. Please wait ... ⚠️\n\n")
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
                         return currentTask
@@ -206,6 +209,9 @@ with shared.gradio_root:
                     def skip_clicked(currentTask):
                         import ldm_patched.modules.model_management as model_management
                         currentTask.last_stop = 'skip'
+                        currentTask.should_skip = True
+                        print(
+                            "\n\n⚠️ Skipping. Please wait ... ⚠️\n\n")
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
                         return currentTask
