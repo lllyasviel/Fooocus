@@ -78,7 +78,7 @@ def on_file_change(files, data_type):
 def on_input_change(input_path, file_explorer):
     if input_path:
         # Verify with normalised version of path
-        input_path = os.path.normpath(input_path)
+        input_path = os.path.normpath(os.path.realpath(input_path))
 
         if os.path.isdir(input_path):
             # Return an empty list if input_path is a directory
