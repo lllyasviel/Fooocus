@@ -171,8 +171,6 @@ class AsyncTask:
         self.all_steps = None
         self.total_count = None
         self.current_async_task = None
-        self.should_run = True
-        self.should_skip = False
 
 
 async_tasks = []
@@ -1136,16 +1134,13 @@ def worker():
     def print_user_skipped(async_task):
         print('User skipped')
         async_task.last_stop = False
-        async_task.should_skip = True
         progressbar(async_task, 0,
                     'Image skipped')
         print(
             "\n\n⚠️ Image skipped ... ⚠️\n\n")
-        time.sleep(0.1)
 
     def print_user_stopped(async_task):
         print('User stopped')
-        async_task.should_run = False
 
         print(
             "\n\n 💥 Processing was interrupted by the user. Please try again. 💥\n\n ")
@@ -1211,14 +1206,6 @@ def worker():
         current_task_number,
         persist_image=True
     ):
-        if not async_task.should_run:
-
-            stop_processing(async_task, async_task.processing_start_time)
-            return
-
-        if async_task.should_skip:
-
-            return
 
         index = current_task_id
         progressbar(async_task, current_progress,
@@ -1335,32 +1322,23 @@ def worker():
 
                 goals_enhance = ['inpaint']
 
-                try:
-                    current_progress, img, enhance_prompt_processed, enhance_negative_prompt_processed = process_enhance(
-                        all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
-                        current_progress, current_task_id, denoising_strength, enhance_inpaint_disable_initial_latent,
-                        enhance_inpaint_engine, enhance_inpaint_respective_field, enhance_inpaint_strength,
-                        enhance_prompt, enhance_negative_prompt, final_scheduler_name, goals_enhance, height, img, mask,
-                        preparation_steps, enhance_steps, switch, tiled, total_count, use_expansion, use_style,
-                        use_synthetic_refiner, width, persist_image=persist_image)
-                    async_task.enhance_stats[index] += 1
+                current_progress, img, enhance_prompt_processed, enhance_negative_prompt_processed = process_enhance(
+                    all_steps, async_task, callback, controlnet_canny_path, controlnet_cpds_path,
+                    current_progress, current_task_id, denoising_strength, enhance_inpaint_disable_initial_latent,
+                    enhance_inpaint_engine, enhance_inpaint_respective_field, enhance_inpaint_strength,
+                    enhance_prompt, enhance_negative_prompt, final_scheduler_name, goals_enhance, height, img, mask,
+                    preparation_steps, enhance_steps, switch, tiled, total_count, use_expansion, use_style,
+                    use_synthetic_refiner, width, persist_image=persist_image)
+                async_task.enhance_stats[index] += 1
 
-                    if (should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_after
-                            and async_task.enhance_uov_prompt_type == flags.enhancement_uov_prompt_type_last_filled):
-                        if enhance_prompt_processed != '':
-                            last_enhance_prompt = enhance_prompt_processed
-                        if enhance_negative_prompt_processed != '':
-                            last_enhance_negative_prompt = enhance_negative_prompt_processed
-                except ldm_patched.modules.model_management.InterruptProcessingException:
-                    if async_task.last_stop == 'skip':
-                        print_user_skipped(async_task)
-                        continue
-                    else:
-                        print_user_stopped(async_task)
-                        break
+                if (should_process_enhance_uov and async_task.enhance_uov_processing_order == flags.enhancement_uov_after
+                        and async_task.enhance_uov_prompt_type == flags.enhancement_uov_prompt_type_last_filled):
+                    if enhance_prompt_processed != '':
+                        last_enhance_prompt = enhance_prompt_processed
+                    if enhance_negative_prompt_processed != '':
+                        last_enhance_negative_prompt = enhance_negative_prompt_processed
 
-                finally:
-                    done_steps_inpainting += enhance_steps
+                done_steps_inpainting += enhance_steps
 
                 enhancement_task_time = time.perf_counter() - enhancement_task_start_time
                 print(
@@ -1409,52 +1387,51 @@ def worker():
                          use_synthetic_refiner
                          ):
         for index, file_name in enumerate(files):
-            async_task.current_task_id = index
+            try:
+                async_task.current_task_id = index
 
-            if not async_task.should_run:
-                print_user_stopped(async_task)
-                progressbar(async_task, 0,
-                            'Stopping ...')
-                break
+                # Build full path to the file
+                image = grh.Image(type='numpy')._format_image(Image.open(
+                    file_name))
+                image = HWC3(image)
 
-            if async_task.should_skip:
-                print_user_skipped(async_task)
-                async_task.should_skip = False
-                continue
+                # Add the image to the list
+                images_to_enhance = [image]
 
-            # Build full path to the file
-            image = grh.Image(type='numpy')._format_image(Image.open(
-                file_name))
-            image = HWC3(image)
+                _, height, width = image.shape  # Unpack the shape into C, H, W
 
-            # Add the image to the list
-            images_to_enhance = [image]
-
-            _, height, width = image.shape  # Unpack the shape into C, H, W
-
-            yield_result(async_task, image, current_progress, async_task.black_out_nsfw, False,
-                         async_task.disable_intermediate_results)
-            enhance_images(
-                images_to_enhance,
-                async_task,
-                0,
-                current_progress,
-                all_steps,
-                height,
-                width,
-                bulk_enhance_callback,
-                controlnet_canny_path,
-                controlnet_cpds_path,
-                denoising_strength,
-                final_scheduler_name,
-                preparation_steps,
-                switch,
-                tiled,
-                use_expansion,
-                use_style,
-                use_synthetic_refiner,
-                0
-            )
+                yield_result(async_task, image, current_progress, async_task.black_out_nsfw, False,
+                             async_task.disable_intermediate_results)
+                enhance_images(
+                    images_to_enhance,
+                    async_task,
+                    0,
+                    current_progress,
+                    all_steps,
+                    height,
+                    width,
+                    bulk_enhance_callback,
+                    controlnet_canny_path,
+                    controlnet_cpds_path,
+                    denoising_strength,
+                    final_scheduler_name,
+                    preparation_steps,
+                    switch,
+                    tiled,
+                    use_expansion,
+                    use_style,
+                    use_synthetic_refiner,
+                    0
+                )
+            except ldm_patched.modules.model_management.InterruptProcessingException:
+                if async_task.last_stop == 'skip':
+                    print_user_skipped(async_task)
+                    continue
+                else:
+                    print_user_stopped(async_task)
+                    stop_processing(
+                        async_task, async_task.processing_start_time)
+                    break
 
     @torch.no_grad()
     @torch.inference_mode()
@@ -1694,34 +1671,40 @@ def worker():
 
         images_to_enhance = []
         if 'enhance' in goals:
-            async_task.image_number = 1
-            images_to_enhance = [async_task.enhance_input_image]
-            height, width, _ = async_task.enhance_input_image.shape
-            # input image already provided, processing is skipped
-            steps = 0
-            yield_result(async_task, async_task.enhance_input_image, current_progress, async_task.black_out_nsfw, False,
-                         async_task.disable_intermediate_results)
-            enhance_images(
-                images_to_enhance,
-                async_task,
-                0,
-                current_progress,
-                all_steps,
-                height,
-                width,
-                bulk_enhance_callback,
-                controlnet_canny_path,
-                controlnet_cpds_path,
-                denoising_strength,
-                final_scheduler_name,
-                preparation_steps,
-                switch,
-                tiled,
-                use_expansion,
-                use_style,
-                use_synthetic_refiner,
-                0
-            )
+            try:
+                async_task.image_number = 1
+                images_to_enhance = [async_task.enhance_input_image]
+                height, width, _ = async_task.enhance_input_image.shape
+                # input image already provided, processing is skipped
+                steps = 0
+                yield_result(async_task, async_task.enhance_input_image, current_progress, async_task.black_out_nsfw, False,
+                             async_task.disable_intermediate_results)
+                enhance_images(
+                    images_to_enhance,
+                    async_task,
+                    0,
+                    current_progress,
+                    all_steps,
+                    height,
+                    width,
+                    bulk_enhance_callback,
+                    controlnet_canny_path,
+                    controlnet_cpds_path,
+                    denoising_strength,
+                    final_scheduler_name,
+                    preparation_steps,
+                    switch,
+                    tiled,
+                    use_expansion,
+                    use_style,
+                    use_synthetic_refiner,
+                    0
+                )
+            except ldm_patched.modules.model_management.InterruptProcessingException:
+                if async_task.last_stop == 'skip':
+                    print_user_skipped(async_task)
+                else:
+                    print_user_stopped(async_task)
 
         if 'bulk_enhance_files' in goals:
             files = []
@@ -1797,7 +1780,7 @@ def worker():
             progressbar(async_task, current_progress,
                         f'Preparing task {current_task_id + 1}/{async_task.image_number} ...')
             current_task_number = current_task_id + 1
-            inpaint_worker.current_task = None
+            setup(async_task, current_task_number)
             patch_samplers(async_task)
             execution_start_time = time.perf_counter()
             try:
@@ -1854,6 +1837,38 @@ def worker():
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
         stop_processing(async_task, processing_start_time)
+        return
+
+    def setup(async_task: AsyncTask, current_task_number):
+        base_model_additional_loras = []
+        current_progress = 0
+        tasks = []
+        use_synthetic_refiner = False
+        if fooocus_expansion in async_task.style_selections:
+            use_expansion = True
+            async_task.style_selections.remove(fooocus_expansion)
+        else:
+            use_expansion = False
+        controlnet_canny_path = None
+        controlnet_cpds_path = None
+        clip_vision_path, ip_negative_path, ip_adapter_path, ip_adapter_face_path = None, None, None, None
+        use_style = len(async_task.style_selections) > 0
+        # Load or unload CNs
+        progressbar(async_task, current_progress, 'Loading control models ...')
+        pipeline.refresh_controlnets(
+            [controlnet_canny_path, controlnet_cpds_path])
+        ip_adapter.load_ip_adapter(
+            clip_vision_path, ip_negative_path, ip_adapter_path)
+        ip_adapter.load_ip_adapter(
+            clip_vision_path, ip_negative_path, ip_adapter_face_path)
+        inpaint_worker.current_task = None
+
+        loras = async_task.loras
+        tasks, use_expansion, loras, current_progress = process_prompt(async_task, async_task.prompt, async_task.negative_prompt,
+                                                                       base_model_additional_loras, 1,
+                                                                       async_task.disable_seed_increment, use_expansion, use_style,
+                                                                       use_synthetic_refiner, current_progress, advance_progress=True)
+        apply_patch_settings(async_task)
         return
 
     while True:
