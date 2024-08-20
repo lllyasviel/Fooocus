@@ -1726,7 +1726,7 @@ def worker():
         if 'bulk_enhance_files' in goals:
             files = []
 
-            for file, index in async_task.bulk_enhance_file_explorer:
+            for file in async_task.bulk_enhance_file_explorer:
                 files.append(file.orig_name)
             total_count = len(files)
             loop_image_files(files, bulk_enhance_callback,
