@@ -80,7 +80,7 @@ def on_input_change(input_path, file_explorer):
         # Verify with normalised version of path
         input_path = os.path.normpath(os.path.realpath(input_path))
 
-        if os.path.isdir(input_path):
+        if os.path.isdir(os.path.realpath(input_path)):
             # Return an empty list if input_path is a directory
             return None, gr.update(visible=True), gr.update(value=True)
     else:
