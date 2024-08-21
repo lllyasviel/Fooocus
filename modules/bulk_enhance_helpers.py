@@ -75,10 +75,10 @@ def on_file_change(files, data_type):
     return gr.update(visible=False), gr.update(), gr.update(value=False)
 
 
-def on_input_change(input_path, file_explorer):
-    if input_path:
+def on_input_change(input, file_explorer):
+    if input:
         # Verify with normalised version of path
-        input_path = os.path.normpath(os.path.realpath(input_path))
+        input_path = os.path.normpath(os.path.realpath(input))
 
         if os.path.isdir(os.path.realpath(input_path)):
             # Return an empty list if input_path is a directory
