@@ -1780,7 +1780,7 @@ def worker():
             progressbar(async_task, current_progress,
                         f'Preparing task {current_task_id + 1}/{async_task.image_number} ...')
             current_task_number = current_task_id + 1
-            setup(async_task, current_task_number)
+            setup(async_task)
             patch_samplers(async_task)
             execution_start_time = time.perf_counter()
             try:
