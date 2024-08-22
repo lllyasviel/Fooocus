@@ -55,7 +55,7 @@ def copy_tkinter_files(version_str):
     shutil.copytree(src_folder, python_dir, dirs_exist_ok=True)
 
     print("Tkinter files copied successfully.")
-    shutil.rmtree(src_folder, ignore_errors=True)
+    shutil.rmtree("tkinter-standalone", ignore_errors=True)
 
 
 def install_tkinter():
