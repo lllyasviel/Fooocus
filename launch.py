@@ -72,7 +72,6 @@ def ini_args():
     return args
 
 
-install_tkinter()
 prepare_environment()
 build_launcher()
 args = ini_args()
