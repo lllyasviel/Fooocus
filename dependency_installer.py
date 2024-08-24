@@ -4,7 +4,8 @@ import shutil
 import zipfile
 import importlib
 import urllib.request
-
+from modules.launch_util import  run_pip
+import torch
 
 def detect_python_version():
     version = sys.version_info
@@ -14,12 +15,40 @@ def detect_python_version():
 
 
 def check_tkinter_installed():
+    version_str, is_embedded = detect_python_version()
+    print(f"Detected Python version: {version_str}")
+    print(f"Is Embedded Python: {is_embedded}")
     try:
         import tkinter
-        print("Success - Tkinter is installed.")
+        tkinter_installed = True
+    except ImportError:
+        tkinter_installed = False
+    if not tkinter_installed or (is_embedded and not tkinter_installed):
+        install_tkinter(version_str)
+
+    
+def check_GPUtil_installed():
+    if not torch.cuda.is_available():
+        return False
+
+    try:
+        import GPUtil
         return True
     except ImportError:
-        print("Tkinter is not installed.")
+        import_GPUtil()
+        return False
+    
+
+        
+def check_flask_installed():
+    if not torch.cuda.is_available():
+        return False
+
+    try:
+        import flask
+        return True
+    except ImportError:
+        import_flask()
         return False
 
 
@@ -58,27 +87,41 @@ def copy_tkinter_files(version_str):
     shutil.rmtree("tkinter-standalone", ignore_errors=True)
 
 
-def install_tkinter():
-    version_str, is_embedded = detect_python_version()
-    print(f"Detected Python version: {version_str}")
-    print(f"Is Embedded Python: {is_embedded}")
-
-    tkinter_installed = check_tkinter_installed()
-
-    if tkinter_installed:
-        return
-
-    if not tkinter_installed or is_embedded:
-        download_and_unzip_tkinter()
-        copy_tkinter_files(version_str)
+def install_tkinter(version_str):
+    download_and_unzip_tkinter()
+    copy_tkinter_files(version_str)
     import_tkinter()
-
-
+    
 def import_tkinter():
     try:
         tkinter = importlib.import_module("tkinter")
-        print("Success - Tkinter is installed.")
         return tkinter
     except ImportError:
         print("Failed to import Tkinter after installation.")
         return None
+    
+    
+def import_GPUtil():
+    run_pip(f"install GPUtil")
+
+    try:
+        GPUtil = importlib.import_module("GPUtil", desc="GPU Performance Monitor" )
+        return GPUtil
+    except ImportError:
+        print("Failed to import GPUtil after installation.")
+        return None
+    
+def import_flask():
+    run_pip(f"install flask flask-restx flask-cors", desc="Flask Rest API")
+
+    try:
+        flask = importlib.import_module("flask")
+        restx = importlib.import_module("flask-restx")
+        return restx
+    except ImportError:
+        print("Failed to import flask after installation.")
+        return None
+
+check_tkinter_installed()
+check_GPUtil_installed()
+check_flask_installed()

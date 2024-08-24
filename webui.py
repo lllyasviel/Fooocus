@@ -6,6 +6,7 @@ import time
 import shared
 import modules.config
 import fooocus_version
+import api.http_server
 import modules.html
 import modules.async_worker as worker
 import modules.constants as constants
@@ -199,8 +200,6 @@ with shared.gradio_root:
                     def stop_clicked(currentTask):
                         import ldm_patched.modules.model_management as model_management
                         currentTask.last_stop = 'stop'
-                        print(
-                            "\n\n⚠️ Stopping. Please wait ... ⚠️\n\n")
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
                         return currentTask
@@ -208,8 +207,6 @@ with shared.gradio_root:
                     def skip_clicked(currentTask):
                         import ldm_patched.modules.model_management as model_management
                         currentTask.last_stop = 'skip'
-                        print(
-                            "\n\n⚠️ Skipping. Please wait ... ⚠️\n\n")
                         if (currentTask.processing):
                             model_management.interrupt_current_processing()
                         return currentTask
@@ -225,8 +222,6 @@ with shared.gradio_root:
                     label='Enhance', value=modules.config.default_enhance_checkbox, container=False, elem_classes='min_check')
                 advanced_checkbox = gr.Checkbox(
                     label='Advanced', value=modules.config.default_advanced_checkbox, container=False, elem_classes='min_check')
-# TABS
-
             with gr.Row(visible=modules.config.default_image_prompt_checkbox) as image_input_panel:
                 with gr.Tabs(selected=modules.config.default_selected_image_input_tab_id):
                     with gr.Tab(label='Upscale or Variation', id='uov_tab') as uov_tab:
@@ -440,15 +435,12 @@ with shared.gradio_root:
 
                         metadata_input_image.upload(trigger_metadata_preview, inputs=metadata_input_image,
                                                     outputs=metadata_json, queue=False, show_progress=True)
-
-#  BULK ENHANCE  #
             bulk_enhance_ctrls = []
             with gr.Row(visible=modules.config.default_enhance_checkbox) as enhance_input_panel:
                 with gr.Tabs():
                     with gr.Tab(label='Bulk Enhance'):
                         bulk_enhance_enabled = gr.Checkbox(label='Enable', value=False, elem_classes='min_check',
                                                            container=False, visible=False)
-                        # Create a FileExplorer component
                         with gr.Row():
                             bulk_enhance_data_type = gr.Radio(
                                 choices=["Files", "Folder"], value="Files", label="Select Files or Folder:")
@@ -456,8 +448,8 @@ with shared.gradio_root:
                         with gr.Row(elem_id="file_row", visible=False) as bulk_enhance_file_row:
                             bulk_enhance_file_explorer = gr.File(
                                 label="Selected Files",
-                                file_count="multiple",  # or "single" for single file selection
-                                root_dir=".",  # Specify root directory if needed
+                                file_count="multiple",  
+                                root_dir=".",  
                                 show_label=True,
                                 elem_id="file_explorer",
                                 name="file_explorer"
@@ -665,9 +657,6 @@ with shared.gradio_root:
 
             switch_js = "(x) => {if(x){viewer_to_bottom(100);viewer_to_bottom(500);}else{viewer_to_top();} return x;}"
             down_js = "() => {viewer_to_bottom();}"
-
-
-# EVENT HANDLERS
             input_image_checkbox.change(lambda x: gr.update(visible=x), inputs=input_image_checkbox,
                                         outputs=image_input_panel, queue=False, show_progress=False, _js=switch_js)
 
@@ -1310,6 +1299,8 @@ with shared.gradio_root:
                       outputs=[prompt, style_selections], show_progress=True, queue=True) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
+    with gr.Row():
+        perf_monitor = gr.HTML(load_page('templates/perf-monitor/index.html'))
 
 
 def dump_default_english_config():

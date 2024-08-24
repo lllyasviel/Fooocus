@@ -1137,13 +1137,13 @@ def worker():
         progressbar(async_task, 0,
                     'Image skipped')
         print(
-            "\n\n⚠️ Image skipped ... ⚠️\n\n")
+            "Image skipped ...")
 
     def print_user_stopped(async_task):
         print('User stopped')
 
         print(
-            "\n\n 💥 Processing was interrupted by the user. Please try again. 💥\n\n ")
+            "Processing was interrupted by the user. Please try again.")
 
     def enhance_upscale(all_steps, async_task, base_progress, callback, controlnet_canny_path, controlnet_cpds_path,
                         current_task_id, denoising_strength, done_steps_inpainting, done_steps_upscaling, enhance_steps,
@@ -1622,7 +1622,7 @@ def worker():
 
         if image_enhance and len(async_task.enhance_ctrls) == 0 and async_task.enhance_uov_method == flags.disabled.casefold():
             print(
-                f"\n\n⚠️ Warning - Enhancements will be skipped. ⚠️ \n\nNo Enhancements were selected. \n\n Please check the input values. \n\n")
+                f"Warning - Enhancements will be skipped.\nNo Enhancements were selected. \n Please check the input values. \n\n")
 
         all_steps = max(all_steps, 1)
 
@@ -1650,7 +1650,7 @@ def worker():
         preparation_steps = current_progress
         total_count = async_task.image_number
         async_task.current_task_id = 0
-# BULK ENHANCEMENTS #
+
 
         def bulk_enhance_callback(step, x0, x, total_steps, y):
             if step == 0:
@@ -1731,18 +1731,13 @@ def worker():
                              )
 
         if 'bulk_enhance_folder' in goals:
-            # Walk through the directory tree
-
             valid_extensions = (".jpg", ".jpeg", ".png",
                                 ".bmp", ".tiff", ".webp")
             files = []
 
-            # Walk through the directory tree
             for root, dirs, files_in_dir in os.walk(async_task.bulk_enhance_input_path):
                 for file_name in files_in_dir:
-                    # Build full path to the file
                     full_file_path = os.path.join(root, file_name)
-                    # Check if the file has a valid extension
                     if file_name.lower().endswith(valid_extensions):
                         files.append(full_file_path)
             total_count = len(files)
