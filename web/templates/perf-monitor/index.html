@@ -1,0 +1,56 @@
+<div id="perf-monitor-container"></div>
+<img
+  src="/file=web/assets/img/clearfix.png"
+  onload="{ 
+        var footer = document.querySelector('footer');
+        var link = document.createElement('a');
+
+        // Add multiple classes correctly using the spread operator
+        link.classList.add('built-with', 'svelte-1ax1toq');
+        link.id = 'show_resource_monitor';
+        link.text = 'Resource Monitor';
+        link.onclick = function() { showPerfMonitor(); }; // Use function reference instead of string
+
+        var linkImg = document.createElement('img')
+        linkImg.src =  '/file=web/assets/img/monitor.svg';
+        linkImg.classList.add('svelte-1ax1toq')
+        link.appendChild(linkImg);
+        footer.appendChild(link);
+
+        var script = document.createElement('script');
+        script.src = '/file=web/assets/js/jquery-3.7.1.min.js';
+        document.body.appendChild(script); 
+
+        var script = document.createElement('script');
+        script.src = '/file=web/assets/js/chart.js';
+        document.body.appendChild(script); 
+        
+     async function loadHtmlContent() {
+        const response = await fetch('/file=web/templates/perf-monitor/perf-monitor.html');
+        document.getElementById('perf-monitor-container').innerHTML = await response.text();
+
+        var styles = document.createElement('link');
+        styles.href = '/file=web/assets/css/styles.css';
+        styles.property = 'stylesheet'
+        styles.rel = 'stylesheet'
+        document.body.appendChild(styles); 
+
+        var fa = document.createElement('link');
+        fa.href = '/file=web/assets/css/material-icon.css';
+        fa.property = 'stylesheet'
+        fa.rel = 'stylesheet'
+        document.body.appendChild(fa); 
+
+    
+
+        var script = document.createElement('script');
+        script.src = '/file=web/assets/js/chartjs-plugin-datalabels.js';
+        document.body.appendChild(script); 
+
+        var script = document.createElement('script');
+        script.src = '/file=web/assets/js/perf-monitor.js';
+        document.body.appendChild(script); 
+    }
+    loadHtmlContent();
+    }"
+/>

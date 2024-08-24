@@ -1,0 +1,56 @@
+<div id="chart-button">
+  <div class="chart-row">
+    <div class="left-col">
+      <i class="material-icons" id="popupTrigger">settings</i>
+      <div id="settingsMenu" class="settings-menu">
+        <div class="left-col text">
+          Layout : <a onclick="initializeBarChart()"> 1</a> |
+          <a onclick="initializeLineChart()"> 2</a>
+        </div>
+        <hr id="settings-hr" class="settings-hr" />
+        <span>Position:</span>
+        <div id="positionMenu" class="position-menu">
+          <button class="position-btn" id="top-left">
+            <i class="material-icons">north_west</i>
+          </button>
+          <button class="position-btn" id="top-center">
+            <i class="material-icons">north</i>
+          </button>
+          <button class="position-btn" id="top-right">
+            <i class="material-icons">north_east</i>
+          </button>
+          <button class="position-btn" id="left-center">
+            <i class="material-icons">west</i>
+          </button>
+          <button class="position-btn" id="center">
+            <i class="material-icons">radio_button_checked</i>
+          </button>
+          <button class="position-btn" id="right-center">
+            <i class="material-icons">east</i>
+          </button>
+          <button class="position-btn" id="bottom-left">
+            <i class="material-icons">south_west</i>
+          </button>
+          <button class="position-btn" id="bottom-center">
+            <i class="material-icons">south</i>
+          </button>
+          <button class="position-btn" id="bottom-right">
+            <i class="material-icons">south_east</i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-col">
+      <i class="material-icons" id="close-button" onclick="showPerfMonitor()"
+        >close</i
+      >
+    </div>
+  </div>
+  <div>
+    <div id="chart-container">
+      <canvas id="usage-chart" style="width: 100%; height: 100%"></canvas>
+    </div>
+    <div id="custom-legend"></div>
+  </div>
+</div>

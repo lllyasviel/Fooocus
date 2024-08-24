@@ -54,4 +54,3 @@ user_path_config-deprecated.txt
 /auth.json
 .DS_Store
 /.venv
-web/
