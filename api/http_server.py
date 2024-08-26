@@ -1,22 +1,13 @@
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, send_from_directory, jsonify, render_template
 from flask_restx import Api
 import threading
 import logging
 from flask_cors import CORS
-
-# Adjusted import for fooocus_version and shared
-from api.controllers import register_blueprints
-import fooocus_version
-import shared
 import args_manager
+from .controllers import register_blueprints
 import os
 import gradio as gr
-import dependency_installer
-
-
-dependency_installer.check_flask_installed()
-dependency_installer.check_GPUtil_installed()
-dependency_installer.check_tkinter_installed()
+import shared
 
 def load_page(filename):
     """Load an HTML file as a string and return it"""
@@ -32,30 +23,14 @@ def addResourceMonitor():
 
     return ceq
 
-
-# Cache for system usage data
-cache = {
-    'timestamp': 0,
-    'data': {
-        'cpu': 0,
-        'memory': 0,
-        'gpu': 0,
-        'vram': 0,
-        'hdd': 0
-    }
-}
-CACHE_DURATION = 1  # Cache duration in seconds
-
-
-
 # Suppress the Flask development server warning
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)  # Set level to ERROR to suppress warnings
 
-title = f"Fooocus version: {fooocus_version.version}"
-app = Flask(title, static_folder='web', template_folder='web')
+title = f"Elegant Resource Monitor"
+app = Flask(title, static_folder='web/assets', template_folder='web/templates')
 app.config['CORS_HEADERS'] = 'Content-Type'
-api = Api(app, version='1.0', title=title, description='Fooocus REST API')
+api = Api(app, version='1.0', title=title, description='Elegant Resource Monitor REST API')
 
 # Register blueprints (API endpoints)
 register_blueprints(app, api)
@@ -64,7 +39,6 @@ register_blueprints(app, api)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 gradio_app = shared.gradio_root
-# Serve static files from the 'web' folder
 
 @app.route('/<path:filename>')
 def serve_static(filename):
@@ -76,7 +50,6 @@ def config():
         'base_url': f"http://{str(args_manager.args.listen)}:5000"
     })
 
-
 def run_app():
     app.run(port=5000)
 
@@ -84,8 +57,3 @@ def run_app():
 # Start Flask app in a separate thread
 thread = threading.Thread(target=run_app)
 thread.start()
-
-print(
-    f" * REST API Server Running at http://{str(args_manager.args.listen)}:5000 or {str(args_manager.args.listen)}:5000")
-print(
-    f" * Open http://{str(args_manager.args.listen)}:5000 or {str(args_manager.args.listen)}:5000 in a browser to view REST endpoints")

@@ -1,101 +1,87 @@
 #chart-button {
   position: fixed !important;
-  transition: bottom 0.6s ease-in-out, bottom 0.6s ease-in-out,
-    right 0.6s ease-in-out;
+  transition: bottom 0.6s ease-in-out, right 0.6s ease-in-out, height 0.4s ease,
+    width 0.4s ease;
   background-color: #00000096 !important;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2) !important;
   color: white !important;
   border-radius: 10px !important;
-  width: 225px !important;
-  height: 0px !important;
   z-index: 9998;
-}
-
-#chart-button.show {
-  height: 185px !important;
+  bottom: 100px;
+  height: 0px !important;
 }
 
 #chart-button.bottom-right {
-  bottom: 10px !important;
-  right: -450px !important;
+  margin: 0px;
 }
 
 #chart-button.bottom-left {
-  bottom: 10px !important;
-  right: calc(100vw + 30px + 225px) !important;
+  margin: 0px;
 }
 
 #chart-button.bottom-center {
-  bottom: -450px !important;
-  right: calc(50vw - 85px) !important;
+  margin: 0px;
 }
 
 #chart-button.top-right {
-  bottom: calc(100vh - 10px - 185px) !important;
-  right: -450px !important;
+  margin: 0px;
 }
 
 #chart-button.top-left {
-  bottom: calc(100vh - 10px - 185px) !important;
-  right: calc(100vw + 30px + 225px) !important;
+  margin: 0px;
 }
 
 #chart-button.top-center {
-  bottom: calc(100vh + 10px + 185px) !important;
-  right: calc(50vw - 85px) !important;
+  margin: 0px;
 }
 
 #chart-button.left-center {
-  right: calc(100vw + 30px + 225px) !important;
-  bottom: calc(50vh - 85px) !important;
+  margin: 0px;
 }
 
 #chart-button.right-center {
-  right: -450px !important;
-  bottom: calc(50vh - 85px) !important;
+  margin: 0px;
 }
 
+#chart-button.center {
+  margin: 0px;
+}
 #chart-button.bottom-right.active {
-  right: 10px !important;
+  margin: 0px;
 }
-
 #chart-button.bottom-left.active {
-  right: calc(100vw - 30px - 225px) !important;
+  margin: 0px;
 }
-
 #chart-button.bottom-center.active {
-  bottom: calc(0vh + 10px) !important;
+  margin: 0px;
 }
-
 #chart-button.top-right.active {
-  right: 10px !important;
+  margin: 0px;
 }
-
 #chart-button.top-left.active {
-  right: calc(100vw - 30px - 225px) !important;
+  margin: 0px;
 }
-
 #chart-button.top-center.active {
-  bottom: calc(100vh - 10px - 185px) !important;
+  margin: 0px;
 }
-
 #chart-button.left-center.active {
-  right: calc(100vw - 30px - 225px) !important;
+  margin: 0px;
 }
-
 #chart-button.right-center.active {
-  right: 10px !important;
+  margin: 0px;
 }
-
+#chart-button.center.active {
+  margin: 0px;
+}
 .chart-row {
   padding: 5px 5px 0px 5px !important;
   text-align: right !important;
-  margin-bottom: -10px !important;
   display: flex !important;
   justify-content: space-evenly !important;
   z-index: 9999 !important;
   position: relative !important;
   align-items: center;
+  margin-bottom: -10px;
 }
 
 .chart-col {
@@ -117,24 +103,34 @@
   color: #000 !important;
 }
 
-#chart-container {
-  width: 225px;
-  height: 145px;
+#chart-container.bar.small {
   padding: 5px !important;
+  height: 120px !important;
 }
 
-#chart-container.line {
-  width: 225px;
+#chart-container.bar.medium {
   padding: 5px !important;
+  height: 200px !important;
 }
 
-canvas.bar {
-  height: 160px !important;
-  min-width: 200px !important;
+#chart-container.bar.large {
+  padding: 5px !important;
+  height: 420px !important;
 }
-canvas.line {
-  height: 145px !important;
-  min-width: 200px !important;
+
+#chart-container.line.small {
+  padding: 5px !important;
+  height: 107px !important;
+}
+
+#chart-container.line.medium {
+  padding: 5px !important;
+  height: 220px !important;
+}
+
+#chart-container.line.large {
+  padding: 5px !important;
+  height: 400px !important;
 }
 
 i {
@@ -147,22 +143,21 @@ i {
 }
 
 #settingsMenu {
-  display: none; /* Hidden by default */
   position: absolute !important;
   transform: translateX(-50%) !important; /* Center alignment */
   background: #000000 !important;
   border: 0px solid #ddd !important;
-  padding: 0px !important;
   border-radius: 6px !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
   z-index: 1000 !important;
   opacity: 0 !important;
   transform: scale(0.8) translateY(-20px) !important; /* Initial hidden state */
-  transition: opacity 1s ease, transform 0.3s ease !important;
+  transition: opacity 0.5s ease, transform 0.3s ease !important;
+  text-align: center;
 }
 
 #settingsMenu.show {
-  display: block !important; /* Show the menu */
+  display: grid !important; /* Show the menu */
   opacity: 1 !important;
   transform: scale(1) translateY(0) !important; /* Animate to visible state */
 }
@@ -209,11 +204,20 @@ i {
 .left-col.text {
   margin-bottom: 5px !important;
 }
+.settings-row {
+  display: inline-block;
+  text-align: center !important;
+  margin: 5px !important;
+}
 
+.settings-col {
+  text-align: center;
+  font-size: 10px;
+}
 .settings-hr {
   width: 0px;
   margin-top: 0px !important;
-  margin-bottom: 0px !important;
+  margin-bottom: 4px !important;
   transition: width 1s ease;
 }
 
@@ -247,4 +251,14 @@ i {
 
 #show_resource_monitor {
   cursor: pointer !important;
+  z-index: 9991;
+  margin: 5px;
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+}
+
+.resource-monitor-icon {
+  margin: 5px;
+  height: 14px;
 }

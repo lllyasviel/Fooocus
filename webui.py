@@ -6,6 +6,7 @@ import time
 import shared
 import modules.config
 import fooocus_version
+from dependency_installer import *
 import api.http_server
 import modules.html
 import modules.async_worker as worker
