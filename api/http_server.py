@@ -1,13 +1,13 @@
+
+from .dependency_installer import *
 from flask import Flask, send_from_directory, jsonify, render_template
 from flask_restx import Api
 import threading
 import logging
 from flask_cors import CORS
-import args_manager
 from .controllers import register_blueprints
 import os
-import gradio as gr
-import shared
+
 
 def load_page(filename):
     """Load an HTML file as a string and return it"""
@@ -16,12 +16,6 @@ def load_page(filename):
         content = file.read()
     return content
 
-def addResourceMonitor():
-    ceq = None
-    with gr.Row():
-        ceq = gr.HTML(load_page('templates/perf-monitor/index.html'))
-
-    return ceq
 
 # Suppress the Flask development server warning
 log = logging.getLogger('werkzeug')
@@ -30,7 +24,8 @@ log.setLevel(logging.ERROR)  # Set level to ERROR to suppress warnings
 title = f"Elegant Resource Monitor"
 app = Flask(title, static_folder='web/assets', template_folder='web/templates')
 app.config['CORS_HEADERS'] = 'Content-Type'
-api = Api(app, version='1.0', title=title, description='Elegant Resource Monitor REST API')
+api = Api(app, version='1.0', title=title,
+          description='Elegant Resource Monitor REST API')
 
 # Register blueprints (API endpoints)
 register_blueprints(app, api)
@@ -38,17 +33,11 @@ register_blueprints(app, api)
 # Enable CORS for all origins
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-gradio_app = shared.gradio_root
 
 @app.route('/<path:filename>')
 def serve_static(filename):
     return send_from_directory('web', filename)
 
-@app.route('/config')
-def config():
-    return jsonify({
-        'base_url': f"http://{str(args_manager.args.listen)}:5000"
-    })
 
 def run_app():
     app.run(port=5000)

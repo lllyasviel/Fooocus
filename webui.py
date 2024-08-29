@@ -6,8 +6,7 @@ import time
 import shared
 import modules.config
 import fooocus_version
-from dependency_installer import *
-import api.http_server
+from api.gradio_helper import *
 import modules.html
 import modules.async_worker as worker
 import modules.constants as constants
@@ -1300,7 +1299,7 @@ with shared.gradio_root:
                       outputs=[prompt, style_selections], show_progress=True, queue=True) \
                 .then(fn=style_sorter.sort_styles, inputs=style_selections, outputs=style_selections, queue=False, show_progress=False) \
                 .then(lambda: None, _js='()=>{refresh_style_localization();}')
-    api.http_server.addResourceMonitor()
+    addResourceMonitor()
 
 
 def dump_default_english_config():

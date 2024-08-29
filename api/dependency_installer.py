@@ -6,7 +6,6 @@ import zipfile
 import importlib
 import urllib.request
 import re
-import torch
 
 
 re_requirement = re.compile(r"\s*([-\w]+)\s*(?:==\s*([-+.\w]+))?\s*")
@@ -41,8 +40,6 @@ def check_tkinter_installed():
 
 
 def check_GPUtil_installed():
-    if not torch.cuda.is_available():
-        return False
 
     try:
         import GPUtil
@@ -53,8 +50,6 @@ def check_GPUtil_installed():
 
 
 def check_flask_installed():
-    if not torch.cuda.is_available():
-        return False
 
     try:
         import flask
@@ -137,12 +132,12 @@ def import_tkinter():
         print(f"An error occurred: {e}")
     except Exception as e:
         print(f"An error occurred: {e}")
- 
+
     return None
 
 
 def import_GPUtil():
-    run_pip(f"install GPUtil",desc="GPU Utility for NVIDIA GPUs")
+    run_pip(f"install GPUtil", desc="GPU Utility for NVIDIA GPUs")
 
     try:
         GPUtil = importlib.import_module(
@@ -208,6 +203,6 @@ def run_pip(command, desc=None, live=default_command_live):
         return None
 
 
-check_tkinter_installed()
+# check_tkinter_installed()
 check_GPUtil_installed()
 check_flask_installed()
