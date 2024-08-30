@@ -314,10 +314,6 @@ button {
   margin: 5px;
   height: 14px;
 }
-body {
-  margin: 0px;
-  overflow: hidden;
-}
 
 /* Example CSS transition for smooth resizing */
 .window {
