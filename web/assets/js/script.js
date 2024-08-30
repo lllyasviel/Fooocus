@@ -675,6 +675,8 @@ window.showPerfMonitor = async function () {
   const chartButtonContainer = document.getElementById('chart-button-container')
 
   if (shouldShowPerfMonitor === true) {
+    $(chartButtonContainer).toggleClass('active')
+
     localStorage.setItem('hasUpdates', 'true')
     startInterval()
     await updateChartSize()
@@ -682,13 +684,13 @@ window.showPerfMonitor = async function () {
   } else {
     setTimeout(() => {
       stopInterval()
+      $(chartButtonContainer).toggleClass('active')
     }, 500)
     chartButton.classList.remove('small', 'medium', 'large')
     $(chartWrapper).fadeOut()
   }
 
   $(chartButton).toggleClass('active')
-  $(chartButtonContainer).toggleClass('active')
 }
 
 // when the close button is clicked
