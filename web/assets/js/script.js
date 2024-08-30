@@ -672,6 +672,7 @@ window.showPerfMonitor = async function () {
   localStorage.setItem('shouldShowPerfMonitor', shouldShowPerfMonitor)
   const chartButton = document.getElementById('chart-button')
   const chartWrapper = document.getElementById('chart-wrapper')
+  const chartButtonContainer = document.getElementById('chart-button-container')
 
   if (shouldShowPerfMonitor === true) {
     localStorage.setItem('hasUpdates', 'true')
@@ -687,6 +688,7 @@ window.showPerfMonitor = async function () {
   }
 
   $(chartButton).toggleClass('active')
+  $(chartButtonContainer).toggleClass('active')
 }
 
 // when the close button is clicked

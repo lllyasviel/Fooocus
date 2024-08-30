@@ -26,6 +26,11 @@
   will-change: transform;
   text-align: center;
   transition: width 0.8s ease, height 0.8s ease, transform 0.3s ease;
+  transform: scale(0);
+}
+
+#chart-button-container.active {
+  transform: scale(1);
 }
 
 #mydivheader {
