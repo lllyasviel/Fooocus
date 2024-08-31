@@ -1,0 +1,9 @@
+!pip install pygit2==1.12.2
+%cd /content
+!git clone https://github.com/lllyasviel/Fooocus...
+
+%cd /content/Fooocus/models/upscale_models/
+!wget -O fooocus_upscaler_s409985e5.bin https://huggingface.co/lllyasviel/mis...
+
+%cd /content/Fooocus
+!python entry_with_update.py --share
