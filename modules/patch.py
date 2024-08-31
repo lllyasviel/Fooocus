@@ -296,7 +296,10 @@ def sdxl_encode_adm_patched(self, **kwargs):
     return final_adm
 
 
-def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, denoise_mask, model_options={}, seed=None):
+def patched_KSamplerX0Inpaint_forward(self, x, sigma, denoise_mask, model_options={}, seed=None):
+    # uncond = self.inner_model.conds.get("negative", None)
+    # cond = self.inner_model.conds.get("positive", None)
+    # cond_scale = self.inner_model.cfg
     if inpaint_worker.current_task is not None:
         latent_processor = self.inner_model.inner_model.process_latent_in
         inpaint_latent = latent_processor(inpaint_worker.current_task.latent).to(x)
@@ -312,18 +315,18 @@ def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, 
         x = x * inpaint_mask + (inpaint_latent + current_energy) * (1.0 - inpaint_mask)
 
         out = self.inner_model(x, sigma,
-                               cond=cond,
-                               uncond=uncond,
-                               cond_scale=cond_scale,
+                            #    cond=cond,
+                            #    uncond=uncond,
+                            #    cond_scale=cond_scale,
                                model_options=model_options,
                                seed=seed)
 
         out = out * inpaint_mask + inpaint_latent * (1.0 - inpaint_mask)
     else:
         out = self.inner_model(x, sigma,
-                               cond=cond,
-                               uncond=uncond,
-                               cond_scale=cond_scale,
+                            #    cond=cond,
+                            #    uncond=uncond,
+                            #    cond_scale=cond_scale,
                                model_options=model_options,
                                seed=seed)
     return out
@@ -508,7 +511,7 @@ def patch_all():
     ldm_patched.controlnet.cldm.ControlNet.forward = patched_cldm_forward
     ldm_patched.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
     ldm_patched.modules.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
-    ldm_patched.modules.samplers.KSamplerX0Inpaint.forward = patched_KSamplerX0Inpaint_forward
+    ldm_patched.modules.samplers.KSamplerX0Inpaint.__call__ = patched_KSamplerX0Inpaint_forward
     ldm_patched.k_diffusion.sampling.BrownianTreeNoiseSampler = BrownianTreeNoiseSamplerPatched
     ldm_patched.modules.samplers.sampling_function = patched_sampling_function
 

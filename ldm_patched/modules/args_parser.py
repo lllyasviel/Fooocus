@@ -130,7 +130,7 @@ if args.disable_in_browser:
     args.in_browser = False
 
 import logging
-logging_level = logging.INFO
+logging_level = logging.WARNING
 if args.verbose:
     logging_level = logging.DEBUG
 

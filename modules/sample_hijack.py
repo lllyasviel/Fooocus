@@ -85,80 +85,6 @@ def clip_separate_after_preparation(cond, target_model=None, target_clip=None):
 
     return results
 
-# @torch.no_grad()
-# @torch.inference_mode()
-# def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas, model_options={}, latent_image=None, denoise_mask=None, callback=None, disable_pbar=False, seed=None):
-#     global current_refiner
-#
-#     positive = positive[:]
-#     negative = negative[:]
-#
-#     resolve_areas_and_cond_masks(positive, noise.shape[2], noise.shape[3], device)
-#     resolve_areas_and_cond_masks(negative, noise.shape[2], noise.shape[3], device)
-#
-#     model_wrap = wrap_model(model)
-#
-#     calculate_start_end_timesteps(model, negative)
-#     calculate_start_end_timesteps(model, positive)
-#
-#     if latent_image is not None:
-#         latent_image = model.process_latent_in(latent_image)
-#
-#     if hasattr(model, 'extra_conds'):
-#         positive = encode_model_conds(model.extra_conds, positive, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask)
-#         negative = encode_model_conds(model.extra_conds, negative, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask)
-#
-#     #make sure each cond area has an opposite one with the same area
-#     for c in positive:
-#         create_cond_with_same_area_if_none(negative, c)
-#     for c in negative:
-#         create_cond_with_same_area_if_none(positive, c)
-#
-#     # pre_run_control(model, negative + positive)
-#     pre_run_control(model, positive)  # negative is not necessary in Fooocus, 0.5s faster.
-#
-#     apply_empty_x_to_equal_area(list(filter(lambda c: c.get('control_apply_to_uncond', False) == True, positive)), negative, 'control', lambda cond_cnets, x: cond_cnets[x])
-#     apply_empty_x_to_equal_area(positive, negative, 'gligen', lambda cond_cnets, x: cond_cnets[x])
-#
-#     extra_args = {"cond":positive, "uncond":negative, "cond_scale": cfg, "model_options": model_options, "seed":seed}
-#
-#     if current_refiner is not None and hasattr(current_refiner.model, 'extra_conds'):
-#         positive_refiner = clip_separate_after_preparation(positive, target_model=current_refiner.model)
-#         negative_refiner = clip_separate_after_preparation(negative, target_model=current_refiner.model)
-#
-#         positive_refiner = encode_model_conds(current_refiner.model.extra_conds, positive_refiner, noise, device, "positive", latent_image=latent_image, denoise_mask=denoise_mask)
-#         negative_refiner = encode_model_conds(current_refiner.model.extra_conds, negative_refiner, noise, device, "negative", latent_image=latent_image, denoise_mask=denoise_mask)
-#
-#     def refiner_switch():
-#         cleanup_additional_models(set(get_models_from_cond(positive, "control") + get_models_from_cond(negative, "control")))
-#
-#         extra_args["cond"] = positive_refiner
-#         extra_args["uncond"] = negative_refiner
-#
-#         # clear ip-adapter for refiner
-#         extra_args['model_options'] = {k: {} if k == 'transformer_options' else v for k, v in extra_args['model_options'].items()}
-#
-#         models, inference_memory = get_additional_models(positive_refiner, negative_refiner, current_refiner.model_dtype())
-#         ldm_patched.modules.model_management.load_models_gpu(
-#             [current_refiner] + models,
-#             model.memory_required([noise.shape[0] * 2] + list(noise.shape[1:])) + inference_memory)
-#
-#         model_wrap.inner_model = current_refiner.model
-#         print('Refiner Swapped')
-#         return
-#
-#     def callback_wrap(step, x0, x, total_steps):
-#         if step == refiner_switch_step and current_refiner is not None:
-#             refiner_switch()
-#         if callback is not None:
-#             # residual_noise_preview = x - x0
-#             # residual_noise_preview /= residual_noise_preview.std()
-#             # residual_noise_preview *= x0.std()
-#             callback(step, x0, x, total_steps)
-#
-#     samples = sampler.sample(model_wrap, sigmas, extra_args, callback_wrap, noise, latent_image, denoise_mask, disable_pbar)
-#     return model.process_latent_out(samples.to(torch.float32))
-
 def sample_hacked(model, noise, positive, negative, cfg, device, sampler, sigmas, model_options={}, latent_image=None, denoise_mask=None, callback=None, disable_pbar=False, seed=None):
     cfg_guider = CFGGuiderHacked(model)
     cfg_guider.set_conds(positive, negative)
@@ -191,20 +117,29 @@ class CFGGuiderHacked(CFGGuider):
             cleanup_additional_models(
                 set(get_models_from_cond(self.conds['positive'], "control") + get_models_from_cond(self.conds['negative'], "control")))
 
-            extra_args["cond"] = positive_refiner
-            extra_args["uncond"] = negative_refiner
+            # extra_args["cond"] = positive_refiner
+            # extra_args["uncond"] = negative_refiner
+            self.set_conds( [[None, positive_refiner[0]]], [[None, negative_refiner[0]]] )
 
             # clear ip-adapter for refiner
             extra_args['model_options'] = {k: {} if k == 'transformer_options' else v for k, v in
                                            extra_args['model_options'].items()}
 
-            models, inference_memory = get_additional_models(positive_refiner, negative_refiner,
-                                                             current_refiner.model_dtype())
+            # current_refiner = SDXL object || ModelPatcher
+            model_dtype = None
+            if isinstance(current_refiner, ModelPatcher):
+                model_dtype = current_refiner.model_dtype()
+            else:
+                model_dtype = current_refiner.get_dtype()
+            # models, inference_memory = get_additional_models(positive_refiner, negative_refiner)
+            models, inference_memory = get_additional_models(self.conds, model_dtype)
             ldm_patched.modules.model_management.load_models_gpu(
                 [current_refiner] + models,
                 self.model_patcher.memory_required([noise.shape[0] * 2] + list(noise.shape[1:])) + inference_memory)
 
             self.inner_model = current_refiner.model
+            # rerun with new inner_model needed
+            self.conds = process_conds(self.inner_model, noise, self.conds, device, latent_image, denoise_mask, seed)
             print('Refiner Swapped')
             return
 
@@ -224,6 +159,7 @@ class CFGGuiderHacked(CFGGuider):
 @torch.no_grad()
 @torch.inference_mode()
 def calculate_sigmas_scheduler_hacked(model, scheduler_name, steps):
+    # model = SDXL object || ModelPatcher
     # sys_dump_pythonobj(model, False, "- calculate_sigmas_scheduler_hacked model")
     if isinstance(model, ModelPatcher):
         model_sampling = model.get_model_object("model_sampling")

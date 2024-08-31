@@ -38,7 +38,10 @@ def refresh_controlnets(model_paths):
             if p in loaded_ControlNets:
                 cache[p] = loaded_ControlNets[p]
             else:
-                cache[p] = core.load_controlnet(p)
+                p_m = core.load_controlnet(p)
+                if p_m is None:
+                    print(f'WARNING: Failed to load ControlNet model: {p}')
+                cache[p] = p_m
     loaded_ControlNets = cache
     return
 
@@ -242,7 +245,7 @@ def refresh_everything(refiner_model_name, base_model_name, loras,
     final_refiner_vae = None
 
     if use_synthetic_refiner and refiner_model_name == 'None':
-        print('Synthetic Refiner Activated')
+        print('Using Synthetic Refiner')
         refresh_base_model(base_model_name, vae_name)
         synthesize_refiner_model()
     else:
