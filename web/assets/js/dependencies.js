@@ -20,6 +20,14 @@ script.src = '/file=web/assets/js/jquery-3.7.1.min.js'
 document.body.appendChild(script)
 
 var script = document.createElement('script')
+script.src = '/file=web/assets/js/elegant-resource-monitor.js'
+document.body.appendChild(script)
+
+var script = document.createElement('script')
+script.src = '/file=web/assets/js/socket.io.min.js'
+document.body.appendChild(script)
+
+var script = document.createElement('script')
 script.src = '/file=web/assets/js/chart.js'
 document.body.appendChild(script)
 

@@ -43,6 +43,7 @@ def check_GPUtil_installed():
 
     try:
         import GPUtil
+        import psutil
         return True
     except ImportError:
         import_GPUtil()
@@ -55,6 +56,8 @@ def check_flask_installed():
         import flask
         import flask_restx
         import flask_cors
+
+        import flask_socketio
         return True
     except ImportError:
         import_flask()
@@ -137,11 +140,13 @@ def import_tkinter():
 
 
 def import_GPUtil():
-    run_pip(f"install GPUtil", desc="GPU Utility for NVIDIA GPUs")
+    run_pip(f"install GPUtil psutil", desc="GPU Utility for NVIDIA GPUs")
 
     try:
         GPUtil = importlib.import_module(
             "GPUtil")
+        psutil = importlib.import_module(
+            "psutil")
         return GPUtil
     except ImportError:
         print("Failed to import GPUtil after installation.")
@@ -149,11 +154,12 @@ def import_GPUtil():
 
 
 def import_flask():
-    run_pip(f"install flask flask-restx flask-cors", desc="Flask Rest API")
+    run_pip(f"install flask flask-restx flask-cors flask_socketio", desc="Flask Rest API")
 
     try:
         flask = importlib.import_module("flask")
         restx = importlib.import_module("flask-restx")
+        flask_socketio = importlib.import_module("flask_socketio")
         return restx
     except ImportError:
         print("Failed to import flask after installation.")
@@ -203,6 +209,6 @@ def run_pip(command, desc=None, live=default_command_live):
         return None
 
 
-# check_tkinter_installed()
+check_tkinter_installed()
 check_GPUtil_installed()
 check_flask_installed()

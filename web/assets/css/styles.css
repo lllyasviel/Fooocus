@@ -21,16 +21,16 @@
   left: 0px;
   height: 0% !important;
   width: 0% !important;
+  transform: scale(0);
   position: fixed;
-  z-index: 9;
+  z-index: 9991;
   will-change: transform;
   text-align: center;
   transition: width 0.8s ease, height 0.8s ease, transform 0.3s ease;
-  display: none;
 }
 
 #chart-button-container.active {
-  display: block;
+  transform: scale(1);
 }
 
 #mydivheader {
@@ -214,6 +214,7 @@ button {
 }
 
 #settingsMenu.show {
+  min-width: 110px;
   opacity: 1 !important;
   z-index: 1000 !important;
   transform: scale(0.8) translateY(-30px) translateX(-10px) !important; /* Animate to visible state */
@@ -323,4 +324,75 @@ button {
 /* Example CSS transition for smooth resizing */
 .window {
   transition: width 0.3s ease, height 0.3s ease;
+}
+
+#show_resource_monitor_link {
+  cursor: pointer !important;
+  position: fixed;
+  top: 20px;
+  left: 10px;
+  z-index: 9991;
+  margin: 5px;
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+}
+
+.resource-monitor-icon {
+  margin: 5px;
+  height: 14px;
+}
+#item-table {
+  width: -webkit-fill-available;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  border-collapse: separate; /* Ensures that border-radius works */
+  border-spacing: 0; /* Removes spacing between cells */
+  border: 0px solid #ddd; /* Adds border to the table */
+  border-radius: 8px; /* Adjust the value for desired corner radius */
+  overflow: hidden; /* Ensures rounded corners are visible */
+}
+
+#item-table th,
+#item-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+  line-height: 10px;
+}
+
+#item-table thead {
+  background-color: #333;
+  color: #fff;
+}
+
+#item-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#item-table tbody tr:nth-child(odd) {
+  background-color: transparent;
+}
+
+#item-table tbody td {
+  color: #fff;
+}
+
+#progress-bar-container {
+  width: -webkit-fill-available;
+
+  height: 20px; /* Height of the progress bar */
+  background-color: #e0e0e0; /* Light gray background */
+  border-radius: 10px; /* Rounded corners for the progress bar container */
+  margin: 0px 5px; /* Space between the progress bar and the table */
+  display: none;
+}
+
+#progress-bar {
+  height: 100%;
+  width: 0%; /* Start with 0% width */
+  background-color: #76c7c0; /* Fill color of the progress bar */
+  border-radius: 10px; /* Rounded corners for the progress bar */
+  transition: width 0.5s ease; /* Smooth transition effect */
 }

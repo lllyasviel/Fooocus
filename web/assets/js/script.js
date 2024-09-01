@@ -1,4 +1,5 @@
 dragElement(document.getElementById('chart-button-container'))
+
 var wasDragged = false
 function dragElement(elmnt) {
   var isDragging = false
@@ -52,13 +53,7 @@ function dragElement(elmnt) {
 }
 
 function moveButtonToCenter(duration = 300) {
-  const widget = document.getElementById('chart-button-container')
-  const size = localStorage.getItem('chart-size') ?? 'medium'
-  const sizes = getSizes()
-  const sizeStyles = sizes[size]
-  const buttonHeight = +sizeStyles.height + 25
-  const buttonWidth = +sizeStyles.width + 25
-
+  const { buttonHeight, buttonWidth } = getButtonSize()
   // Get button dimensions and viewport dimensions
   const widgetWidth = buttonWidth
   const widgetHeight = buttonHeight
@@ -84,13 +79,6 @@ function moveButtonToCenter(duration = 300) {
 
 // HELPER FUNCTIONS //
 
-if (localStorage.getItem('lastClass') && localStorage.getItem('lastInactiveClass')) {
-  var lastClass = JSON.parse(localStorage.getItem('lastClass'))
-  var lastInactiveClass = JSON.parse(localStorage.getItem('lastInactiveClass'))
-  addCSS(lastInactiveClass.key, lastInactiveClass.values[0])
-  addCSS(lastClass.key, lastClass.values[0])
-}
-
 function getCSSRule(ruleName) {
   ruleName = ruleName.toLowerCase()
   var result = null
@@ -110,22 +98,6 @@ function getCSSRule(ruleName) {
     return result != null
   })
   return result
-}
-
-function addCSS(selector, styles) {
-  var rule = getCSSRule(selector)
-
-  for (var property in styles) {
-    if (styles.hasOwnProperty(property)) {
-      rule.style.setProperty(property, styles[property], 'important')
-    }
-  }
-}
-
-function updateCSS(selector, styles) {
-  var button = getCSSRule(selector)
-  button.style.setProperty('bottom', styles.bottom, 'important')
-  button.style.setProperty('right', styles.right, 'important')
 }
 
 window.barChart = async function () {
@@ -151,9 +123,9 @@ window.mediumChart = async function () {
 window.largeChart = async function () {
   setTimeout(async () => {
     checkForUpdates('perf-monitor-position', 'center')
+    checkForUpdates('chart-size', 'large')
     await updateChartSize()
   }, 50)
-  checkForUpdates('chart-size', 'large')
 }
 
 function moveToCenter() {
@@ -169,14 +141,10 @@ function checkForUpdates(key, value) {
 }
 
 function isWindowOutsideWorkingArea() {
-  const size = localStorage.getItem('chart-size') ?? 'medium'
-  const sizes = getSizes()
-  const sizeStyles = sizes[size]
-  const buttonHeight = +sizeStyles.height + 25
-  const buttonWidth = +sizeStyles.width + 25
+  const { buttonHeight, buttonWidth } = getButtonSize()
 
   // Get display bounds
-  const { displayBounds, windowBounds } = getDisplayAndWindowBounds()
+  const { displayBounds } = getDisplayAndWindowBounds()
 
   const widget = document.getElementById('chart-button-container')
   const rect = widget.getBoundingClientRect()
@@ -327,8 +295,6 @@ function goToPosition(pos) {
   const currentLeft = +widget.style.left.replace('px', '')
 
   // Target position
-  const targetTop = pos.y
-  const targetLeft = pos.x
 
   const offsetX = pos.x - currentLeft
   const offsetY = pos.y - currentTop
@@ -342,8 +308,6 @@ function goToPosition(pos) {
 // MAIN METHODS //
 
 function getDisplayAndWindowBounds() {
-  const screenWidth = window.screen.width
-  const screenHeight = window.screen.height
   const availWidth = window.screen.availWidth
   const availHeight = window.screen.availHeight
 
@@ -373,11 +337,7 @@ function getDisplayAndWindowBounds() {
 }
 
 function getPositions() {
-  const size = localStorage.getItem('chart-size') ?? 'medium'
-  const sizes = getSizes()
-  const sizeStyles = sizes[size]
-  const buttonHeight = +sizeStyles.height + 25
-  const buttonWidth = +sizeStyles.width + 25
+  const { buttonHeight, buttonWidth } = getButtonSize()
 
   // Get button dimensions and viewport dimensions
   const widgetWidth = buttonWidth
@@ -394,8 +354,6 @@ function getPositions() {
   const buttonCenterY = widgetHeight / 2
 
   // Calculate the translation offsets needed to center the button
-  const offsetX = windowCenterX - buttonCenterX
-  const offsetY = windowCenterY - buttonCenterY
 
   // Define positions based on work area
   const positions = {
@@ -437,7 +395,7 @@ function getPositions() {
 }
 
 function getCoordinates(isOutside) {
-  var position = localStorage.getItem('perf-monitor-position') ?? 'bottom-right'
+  var position = localStorage.getItem('perf-monitor-position')
 
   if (isOutside) {
     var outsidePosition = getNearestPosition()
@@ -450,24 +408,18 @@ function getCoordinates(isOutside) {
 }
 
 function getNearestPosition() {
-  const size = localStorage.getItem('chart-size') ?? 'medium'
-  const sizes = getSizes()
-  const sizeStyles = sizes[size]
-  const buttonHeight = +sizeStyles.height + 25
-  const buttonWidth = +sizeStyles.width + 25
+  const { buttonHeight, buttonWidth } = getButtonSize()
   const widget = document.getElementById('chart-button-container')
   const viewportWidth = window.innerWidth
   const viewportHeight = window.innerHeight
   // Get display bounds
-  const { displayBounds, windowBounds } = getDisplayAndWindowBounds()
+  const { displayBounds } = getDisplayAndWindowBounds()
   // Define positions based on work area
   const positions = getPositions()
 
   // Get current window position
   const currentX = $(widget).offset().left
   let currentY = $(widget).offset().top
-  const buttonCenterX = buttonWidth / 2
-  const buttonCenterY = buttonHeight / 2
   const windowCenter = {
     x: $(widget).offset().left,
     y: $(widget).offset().top,
@@ -481,6 +433,7 @@ function getNearestPosition() {
     y: Math.abs(workAreaCenter.y - windowCenter.y),
   }
   var threshold = 100 // Define a threshold to determine proximity
+  const size = localStorage.getItem('chart-size') ?? 'medium'
   switch (size) {
     case 'small':
       threshold = 250
@@ -493,6 +446,8 @@ function getNearestPosition() {
 
       break
   }
+
+  var nearestPosition = ''
 
   if (distanceToCenter.x < threshold && distanceToCenter.y < threshold) {
     nearestPosition = 'center'
@@ -532,8 +487,25 @@ function getNearestPosition() {
 
   return pos
 }
+function getButtonSize() {
+  const size = localStorage.getItem('chart-size') ?? 'medium'
+  const sizes = getSizes()
+  const sizeStyles = sizes[size]
+  var buttonHeight = +sizeStyles.height + 25
+  const buttonWidth = +sizeStyles.width + 25
+  var table = document.getElementById('item-table')
+  var totalRowCount = table.rows.length // 5
+  var tableHeight = totalRowCount * 30
+  if (size == 'large') {
+    buttonHeight = +buttonHeight + tableHeight
+  }
 
+  return { buttonHeight, buttonWidth }
+}
 async function updateChartSize() {
+  var table = document.getElementById('item-table')
+  table.style.display = 'none'
+
   const settingsMenu = document.getElementById('settingsMenu')
   settingsMenu.classList.remove('show') // Hide the menu if visible
   $('#chart-wrapper').fadeOut()
@@ -555,15 +527,18 @@ async function updateChartSize() {
   chartContainer.classList.add(size)
   chartContainer.classList.add(savedChart)
 
-  const sizes = getSizes()
-  const sizeStyles = sizes[size]
-  const buttonHeight = +sizeStyles.height
-  const buttonWidth = +sizeStyles.width
+  const { buttonHeight, buttonWidth } = getButtonSize()
   const chartButtonContainer = document.getElementById('chart-button-container')
 
+  var actulaButtonHeight = 0
+  var actualButtonWidth = 0
+
+  var viewportHeight = +buttonHeight
+  var viewportWidth = +buttonWidth
+
   $(chartButtonContainer).each(function () {
-    this.style.setProperty('height', `${+buttonHeight + 25}px`, 'important')
-    this.style.setProperty('width', `${+buttonWidth + 25}px`, 'important')
+    this.style.setProperty('height', `${viewportHeight}px`, 'important')
+    this.style.setProperty('width', `${viewportWidth}px`, 'important')
   })
 
   var position = localStorage.getItem('perf-monitor-position')
@@ -593,11 +568,6 @@ async function updateChartSize() {
     }
   })
 
-  var actulaButtonHeight = 0
-
-  viewportHeight = +buttonHeight + 25
-  viewportWidth = +buttonWidth + 25
-
   switch (size) {
     case 'small':
       actulaButtonHeight = viewportHeight * 0.83
@@ -626,18 +596,24 @@ async function updateChartSize() {
       this.style.setProperty('background-color', ` #00000096`, 'important')
     }
   })
+  var totalRowCount = table.rows.length // 5
+  var tableHeight = totalRowCount * 30
+  var workArea = actulaButtonHeight
+  if (size == 'large') {
+    workArea = viewportHeight - tableHeight
+  }
 
   const hasUpdates = localStorage.getItem('hasUpdates') ?? 'false'
   if (hasUpdates === 'true') {
     if (savedChart == 'bar') {
       $(chartContainer).each(function () {
-        this.style.setProperty('height', `${actulaButtonHeight * 0.95}px`, 'important')
+        this.style.setProperty('height', `${workArea * 0.95}px`, 'important')
       })
 
       initializeBarChart()
     } else {
       $(chartContainer).each(function () {
-        this.style.setProperty('height', `${actulaButtonHeight * 0.87}px`, 'important')
+        this.style.setProperty('height', `${workArea * 0.87}px`, 'important')
       })
       setTimeout(() => {
         initializeLineChart()
@@ -646,10 +622,11 @@ async function updateChartSize() {
   } else {
     $('#chart-wrapper').fadeIn()
   }
+
   localStorage.setItem('hasUpdates', 'false')
 
   const active = `#chart-button.top-left.active`
-  positionStyles = {
+  var positionStyles = {
     bottom: bottom,
     right: right,
   }
@@ -663,9 +640,13 @@ async function updateChartSize() {
 
 const pos = getCoordinates(false)
 goToPosition(pos)
-
-var shouldShowPerfMonitor = false
 var appIsLoaded = false
+var shouldShowPerfMonitor = false
+if (JSON.parse(localStorage.getItem('shouldShowPerfMonitor')) ?? false) {
+  setTimeout(() => {
+    // showPerfMonitor()
+  }, 1500)
+}
 
 window.showPerfMonitor = async function () {
   shouldShowPerfMonitor = !shouldShowPerfMonitor
@@ -673,21 +654,25 @@ window.showPerfMonitor = async function () {
   const chartButton = document.getElementById('chart-button')
   const chartWrapper = document.getElementById('chart-wrapper')
   const chartButtonContainer = document.getElementById('chart-button-container')
+  const resourceMonitorLink = document.getElementById('show_resource_monitor')
 
   if (shouldShowPerfMonitor === true) {
     $(chartButtonContainer).toggleClass('active')
 
     localStorage.setItem('hasUpdates', 'true')
-    startInterval()
     await updateChartSize()
+    $(resourceMonitorLink).fadeOut(500)
     appIsLoaded = true
   } else {
     setTimeout(() => {
-      stopInterval()
       $(chartButtonContainer).toggleClass('active')
+      $(chartButtonContainer).each(function () {
+        this.style.setProperty('height', `0px`, 'important')
+      })
     }, 500)
     chartButton.classList.remove('small', 'medium', 'large')
     $(chartWrapper).fadeOut()
+    $(resourceMonitorLink).fadeIn(500)
   }
 
   $(chartButton).toggleClass('active')
@@ -701,7 +686,4 @@ document.getElementById('close-button').addEventListener('click', function () {
     row.classList.add('drag')
   })
   showPerfMonitor()
-  setTimeout(() => {
-    window.electron.ipcRenderer.send('close-window')
-  }, 500)
 })

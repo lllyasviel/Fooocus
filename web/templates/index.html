@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>System Monitor</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .data-container {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .data-item {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Real-Time System Monitor</h1>
+    <div class="data-container" id="data-container">
+      <div class="data-item" id="cpu">CPU: Loading...</div>
+      <div class="data-item" id="ram">RAM: Loading...</div>
+      <div class="data-item" id="gpu">GPU: Loading...</div>
+      <div class="data-item" id="vram">VRAM: Loading...</div>
+      <div class="data-item" id="hdd">HDD: Loading...</div>
+      <div class="data-item" id="temp">Temperature: Loading...</div>
+    </div>
+
+    <script>
+      const socket = io('http://localhost:5000')
+
+      // Listen for 'data_update' event and update the data on the page
+      socket.on('data_update', (data) => {
+        document.getElementById('cpu').textContent = `CPU: ${data.cpu.toFixed(2)}%`
+        document.getElementById('ram').textContent = `RAM: ${data.ram.toFixed(2)}%`
+        document.getElementById('gpu').textContent = `GPU: ${data.gpu.toFixed(2)}%`
+        document.getElementById('vram').textContent = `VRAM: ${data.vram.toFixed(2)}%`
+        document.getElementById('hdd').textContent = `HDD: ${data.hdd.toFixed(2)}%`
+        document.getElementById('temp').textContent = `Temperature: ${data.temp.toFixed(2)}°C`
+      })
+
+      socket.on('connect', () => {
+        console.log('Connected to the server')
+      })
+
+      socket.on('disconnect', () => {
+        console.log('Disconnected from the server')
+      })
+    </script>
+  </body>
+</html>
