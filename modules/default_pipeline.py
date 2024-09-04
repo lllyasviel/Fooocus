@@ -38,7 +38,10 @@ def refresh_controlnets(model_paths):
             if p in loaded_ControlNets:
                 cache[p] = loaded_ControlNets[p]
             else:
-                cache[p] = core.load_controlnet(p)
+                p_m = core.load_controlnet(p)
+                if p_m is None:
+                    print(f'WARNING: Failed to load ControlNet model: {p}')
+                cache[p] = p_m
     loaded_ControlNets = cache
     return
 
@@ -242,7 +245,7 @@ def refresh_everything(refiner_model_name, base_model_name, loras,
     final_refiner_vae = None
 
     if use_synthetic_refiner and refiner_model_name == 'None':
-        print('Synthetic Refiner Activated')
+        print('Using Synthetic Refiner')
         refresh_base_model(base_model_name, vae_name)
         synthesize_refiner_model()
     else:
@@ -288,14 +291,14 @@ def vae_parse(latent):
 @torch.no_grad()
 @torch.inference_mode()
 def calculate_sigmas_all(sampler, model, scheduler, steps):
-    from ldm_patched.modules.samplers import calculate_sigmas_scheduler
+    from ldm_patched.modules.samplers import calculate_sigmas
 
     discard_penultimate_sigma = False
     if sampler in ['dpm_2', 'dpm_2_ancestral']:
         steps += 1
         discard_penultimate_sigma = True
 
-    sigmas = calculate_sigmas_scheduler(model, scheduler, steps)
+    sigmas = calculate_sigmas(model, scheduler, steps)
 
     if discard_penultimate_sigma:
         sigmas = torch.cat([sigmas[:-2], sigmas[-1:]])

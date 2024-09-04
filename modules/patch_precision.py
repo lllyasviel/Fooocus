@@ -49,10 +49,8 @@ def patched_register_schedule(self, given_betas=None, beta_schedule="linear", ti
     self.num_timesteps = int(timesteps)
     self.linear_start = linear_start
     self.linear_end = linear_end
-    sigmas = torch.tensor(((1 - alphas_cumprod) / alphas_cumprod) ** 0.5, dtype=torch.float32)
+    sigmas = (((1 - alphas_cumprod) / alphas_cumprod) ** 0.5).clone().detach().type(torch.float32)
     self.set_sigmas(sigmas)
-    alphas_cumprod = torch.tensor(alphas_cumprod, dtype=torch.float32)
-    self.set_alphas_cumprod(alphas_cumprod)
     return
 
 

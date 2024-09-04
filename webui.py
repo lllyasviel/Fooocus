@@ -1116,13 +1116,19 @@ def dump_default_english_config():
 
 
 # dump_default_english_config()
-
 shared.gradio_root.launch(
     inbrowser=args_manager.args.in_browser,
     server_name=args_manager.args.listen,
     server_port=args_manager.args.port,
     share=args_manager.args.share,
     auth=check_auth if (args_manager.args.share or args_manager.args.listen) and auth_enabled else None,
+    auth_message=args_manager.args.auth_message if (args_manager.args.share or args_manager.args.listen) and auth_enabled else None,
     allowed_paths=[modules.config.path_outputs],
-    blocked_paths=[constants.AUTH_FILENAME]
+    blocked_paths=[constants.AUTH_FILENAME],
+    debug=args_manager.args.verbose,
+    ssl_keyfile=args_manager.args.tls_keyfile,
+    ssl_keyfile_password=args_manager.args.tls_keyfile_password,
+    ssl_certfile=args_manager.args.tls_certfile,
+    ssl_verify=args_manager.args.tls_verify,
+    favicon_path=args_manager.args.favicon_path
 )

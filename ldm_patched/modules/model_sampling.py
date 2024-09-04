@@ -72,7 +72,6 @@ class ModelSamplingDiscrete(torch.nn.Module):
         sigmas = ((1 - alphas_cumprod) / alphas_cumprod) ** 0.5
         alphas_cumprod = torch.tensor(np.cumprod(alphas, axis=0), dtype=torch.float32)
         self.set_sigmas(sigmas)
-        self.set_alphas_cumprod(alphas_cumprod.float())
 
     def set_sigmas(self, sigmas):
         self.register_buffer('sigmas', sigmas.float())

@@ -14,8 +14,16 @@ def match_lora(lora, to_load):
             alpha = lora[alpha_name].item()
             loaded_keys.add(alpha_name)
 
+        dora_scale_name = "{}.dora_scale".format(x)
+        dora_scale = None
+        if dora_scale_name in lora.keys():
+            dora_scale = lora[dora_scale_name]
+            loaded_keys.add(dora_scale_name)
+
         regular_lora = "{}.lora_up.weight".format(x)
         diffusers_lora = "{}_lora.up.weight".format(x)
+        diffusers2_lora = "{}.lora_B.weight".format(x)
+        diffusers3_lora = "{}.lora.up.weight".format(x)
         transformers_lora = "{}.lora_linear_layer.up.weight".format(x)
         A_name = None
 
@@ -27,6 +35,14 @@ def match_lora(lora, to_load):
             A_name = diffusers_lora
             B_name = "{}_lora.down.weight".format(x)
             mid_name = None
+        elif diffusers2_lora in lora.keys():
+            A_name = diffusers2_lora
+            B_name = "{}.lora_A.weight".format(x)
+            mid_name = None
+        elif diffusers3_lora in lora.keys():
+            A_name = diffusers3_lora
+            B_name = "{}.lora.down.weight".format(x)
+            mid_name = None
         elif transformers_lora in lora.keys():
             A_name = transformers_lora
             B_name ="{}.lora_linear_layer.down.weight".format(x)
@@ -37,7 +53,7 @@ def match_lora(lora, to_load):
             if mid_name is not None and mid_name in lora.keys():
                 mid = lora[mid_name]
                 loaded_keys.add(mid_name)
-            patch_dict[to_load[x]] = ("lora", (lora[A_name], lora[B_name], alpha, mid))
+            patch_dict[to_load[x]] = ("lora", (lora[A_name], lora[B_name], alpha, mid, dora_scale))
             loaded_keys.add(A_name)
             loaded_keys.add(B_name)
 
@@ -58,7 +74,7 @@ def match_lora(lora, to_load):
                 loaded_keys.add(hada_t1_name)
                 loaded_keys.add(hada_t2_name)
 
-            patch_dict[to_load[x]] = ("loha", (lora[hada_w1_a_name], lora[hada_w1_b_name], alpha, lora[hada_w2_a_name], lora[hada_w2_b_name], hada_t1, hada_t2))
+            patch_dict[to_load[x]] = ("loha", (lora[hada_w1_a_name], lora[hada_w1_b_name], alpha, lora[hada_w2_a_name], lora[hada_w2_b_name], hada_t1, hada_t2, dora_scale))
             loaded_keys.add(hada_w1_a_name)
             loaded_keys.add(hada_w1_b_name)
             loaded_keys.add(hada_w2_a_name)
@@ -110,7 +126,7 @@ def match_lora(lora, to_load):
             loaded_keys.add(lokr_t2_name)
 
         if (lokr_w1 is not None) or (lokr_w2 is not None) or (lokr_w1_a is not None) or (lokr_w2_a is not None):
-            patch_dict[to_load[x]] = ("lokr", (lokr_w1, lokr_w2, alpha, lokr_w1_a, lokr_w1_b, lokr_w2_a, lokr_w2_b, lokr_t2))
+            patch_dict[to_load[x]] = ("lokr", (lokr_w1, lokr_w2, alpha, lokr_w1_a, lokr_w1_b, lokr_w2_a, lokr_w2_b, lokr_t2, dora_scale))
 
         #glora
         a1_name = "{}.a1.weight".format(x)
@@ -118,7 +134,7 @@ def match_lora(lora, to_load):
         b1_name = "{}.b1.weight".format(x)
         b2_name = "{}.b2.weight".format(x)
         if a1_name in lora:
-            patch_dict[to_load[x]] = ("glora", (lora[a1_name], lora[a2_name], lora[b1_name], lora[b2_name], alpha))
+            patch_dict[to_load[x]] = ("glora", (lora[a1_name], lora[a2_name], lora[b1_name], lora[b2_name], alpha, dora_scale))
             loaded_keys.add(a1_name)
             loaded_keys.add(a2_name)
             loaded_keys.add(b1_name)

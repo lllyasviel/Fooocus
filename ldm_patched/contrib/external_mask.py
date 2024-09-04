@@ -1,11 +1,9 @@
-# https://github.com/comfyanonymous/ComfyUI/blob/master/nodes.py 
-
 import numpy as np
 import scipy.ndimage
 import torch
 import ldm_patched.modules.utils
 
-from ldm_patched.contrib.external import MAX_RESOLUTION
+from external import MAX_RESOLUTION
 
 def composite(destination, source, x, y, mask = None, multiplier = 8, resize_source = False):
     source = source.to(destination.device)
@@ -343,6 +341,24 @@ class GrowMask:
             out.append(output)
         return (torch.stack(out, dim=0),)
 
+class ThresholdMask:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+                "required": {
+                    "mask": ("MASK",),
+                    "value": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
+                }
+        }
+
+    CATEGORY = "mask"
+
+    RETURN_TYPES = ("MASK",)
+    FUNCTION = "image_to_mask"
+
+    def image_to_mask(self, mask, value):
+        mask = (mask > value).float()
+        return (mask,)
 
 
 NODE_CLASS_MAPPINGS = {
@@ -357,6 +373,7 @@ NODE_CLASS_MAPPINGS = {
     "MaskComposite": MaskComposite,
     "FeatherMask": FeatherMask,
     "GrowMask": GrowMask,
+    "ThresholdMask": ThresholdMask,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {

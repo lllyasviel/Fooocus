@@ -21,7 +21,7 @@ import warnings
 import safetensors.torch
 import modules.constants as constants
 
-from ldm_patched.modules.samplers import calc_cond_uncond_batch
+from ldm_patched.modules.samplers import calc_cond_batch
 from ldm_patched.k_diffusion.sampling import BatchedBrownianTree
 from ldm_patched.ldm.modules.diffusionmodules.openaimodel import forward_timestep_embed, apply_control
 from modules.patch_precision import patch_all_precision
@@ -227,14 +227,16 @@ def patched_sampling_function(model, x, timestep, uncond, cond, cond_scale, mode
     pid = os.getpid()
 
     if math.isclose(cond_scale, 1.0) and not model_options.get("disable_cfg1_optimization", False):
-        final_x0 = calc_cond_uncond_batch(model, cond, None, x, timestep, model_options)[0]
+        calc_cond_uncond_batch = tuple(calc_cond_batch(model, [cond, None], x, timestep, model_options))
+        final_x0 = calc_cond_uncond_batch[0]
 
         if patch_settings[pid].eps_record is not None:
             patch_settings[pid].eps_record = ((x - final_x0) / timestep).cpu()
 
         return final_x0
 
-    positive_x0, negative_x0 = calc_cond_uncond_batch(model, cond, uncond, x, timestep, model_options)
+    calc_cond_uncond_batch = tuple(calc_cond_batch(model, [cond, uncond], x, timestep, model_options))
+    positive_x0, negative_x0 = calc_cond_uncond_batch
 
     positive_eps = x - positive_x0
     negative_eps = x - negative_x0
@@ -294,7 +296,10 @@ def sdxl_encode_adm_patched(self, **kwargs):
     return final_adm
 
 
-def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, denoise_mask, model_options={}, seed=None):
+def patched_KSamplerX0Inpaint_forward(self, x, sigma, denoise_mask, model_options={}, seed=None):
+    # uncond = self.inner_model.conds.get("negative", None)
+    # cond = self.inner_model.conds.get("positive", None)
+    # cond_scale = self.inner_model.cfg
     if inpaint_worker.current_task is not None:
         latent_processor = self.inner_model.inner_model.process_latent_in
         inpaint_latent = latent_processor(inpaint_worker.current_task.latent).to(x)
@@ -310,18 +315,18 @@ def patched_KSamplerX0Inpaint_forward(self, x, sigma, uncond, cond, cond_scale, 
         x = x * inpaint_mask + (inpaint_latent + current_energy) * (1.0 - inpaint_mask)
 
         out = self.inner_model(x, sigma,
-                               cond=cond,
-                               uncond=uncond,
-                               cond_scale=cond_scale,
+                            #    cond=cond,
+                            #    uncond=uncond,
+                            #    cond_scale=cond_scale,
                                model_options=model_options,
                                seed=seed)
 
         out = out * inpaint_mask + inpaint_latent * (1.0 - inpaint_mask)
     else:
         out = self.inner_model(x, sigma,
-                               cond=cond,
-                               uncond=uncond,
-                               cond_scale=cond_scale,
+                            #    cond=cond,
+                            #    uncond=uncond,
+                            #    cond_scale=cond_scale,
                                model_options=model_options,
                                seed=seed)
     return out
@@ -384,7 +389,10 @@ def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=
     transformer_patches = transformer_options.get("patches", {})
 
     num_video_frames = kwargs.get("num_video_frames", self.default_num_video_frames)
-    image_only_indicator = kwargs.get("image_only_indicator", self.default_image_only_indicator)
+
+    image_only_indicator = None
+    if hasattr(self, "default_image_only_indicator"):
+        image_only_indicator = kwargs.get("image_only_indicator", self.default_image_only_indicator)
     time_context = kwargs.get("time_context", None)
 
     assert (y is not None) == (
@@ -486,6 +494,8 @@ def build_loaded(module, loader_name):
 
 
 def patch_all():
+    # Fooocus-specific additions over ComfyUI ldm.
+    # ALSO: marked with 'used-by-Fooocus'
     if ldm_patched.modules.model_management.directml_enabled:
         ldm_patched.modules.model_management.lowvram_available = True
         ldm_patched.modules.model_management.OOM_EXCEPTION = Exception
@@ -501,7 +511,7 @@ def patch_all():
     ldm_patched.controlnet.cldm.ControlNet.forward = patched_cldm_forward
     ldm_patched.ldm.modules.diffusionmodules.openaimodel.UNetModel.forward = patched_unet_forward
     ldm_patched.modules.model_base.SDXL.encode_adm = sdxl_encode_adm_patched
-    ldm_patched.modules.samplers.KSamplerX0Inpaint.forward = patched_KSamplerX0Inpaint_forward
+    ldm_patched.modules.samplers.KSamplerX0Inpaint.__call__ = patched_KSamplerX0Inpaint_forward
     ldm_patched.k_diffusion.sampling.BrownianTreeNoiseSampler = BrownianTreeNoiseSamplerPatched
     ldm_patched.modules.samplers.sampling_function = patched_sampling_function
 
