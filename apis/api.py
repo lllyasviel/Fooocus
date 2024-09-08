@@ -5,6 +5,8 @@ import os
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+from urllib.parse import urlparse
+
 import uvicorn
 
 from apis.routes.generate import secure_router as generate
@@ -55,5 +57,12 @@ def run_server(arguments):
         except TypeError:
             api_port = int(os.environ["GRADIO_SERVER_PORT"]) + 1
 
-    file_utils.STATIC_SERVER_BASE = f"http://{arguments.base_url}:{api_port}"
+    # Parse the base_url to handle cases where it includes a scheme
+    parsed_url = urlparse(arguments.base_url)
+
+    if parsed_url.scheme:
+        # If a scheme is provided, use the full URL
+        file_utils.STATIC_SERVER_BASE = f"{arguments.base_url}"
+    else:
+        file_utils.STATIC_SERVER_BASE = f"http://{arguments.base_url}:{api_port}"
     uvicorn.run(app, host=arguments.listen, port=api_port)
