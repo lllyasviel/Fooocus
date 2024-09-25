@@ -35,3 +35,7 @@ Realistic
 Anime + Realistic
 
 1. https://civitai.com/models/125907/realcartoon-xl?modelVersionId=686204 (Multi variants by same maker)
+
+Semi-Realistic
+
+1. https://civitai.com/models/502370/rev-engine-ponyxl?modelVersionId=558377
