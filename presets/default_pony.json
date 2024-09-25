@@ -4,8 +4,8 @@
   "default_refiner_switch": 0.5,
   "default_vae": "ponyDiffusionV6XL_vae.safetensors",
   "default_loras": [
-    [true, "None", 1.0],
-    [true, "None", 1.0],
+    [true, "Styles_for_Pony_Diffusion_V6_XL.safetensors", 1.0],
+    [true, "ExpressiveH.safetensors", 0.5],
     [true, "None", 1.0],
     [true, "None", 1.0],
     [true, "None", 1.0]
@@ -30,7 +30,10 @@
     "ponyDiffusionV6XL.safetensors": "https://huggingface.co/mashb1t/fav_models/resolve/main/fav/ponyDiffusionV6XL.safetensors"
   },
   "embeddings_downloads": {},
-  "lora_downloads": {},
+  "lora_downloads": {
+    "Styles_for_Pony_Diffusion_V6_XL.safetensors": "https://civitai.com/api/download/models/446346?type=Model&format=SafeTensor",
+    "ExpressiveH.safetensors": "https://civitai.com/api/download/models/382152?type=Model&format=SafeTensor"
+  },
   "vae_downloads": {
     "ponyDiffusionV6XL_vae.safetensors": "https://huggingface.co/mashb1t/fav_models/resolve/main/fav/ponyDiffusionV6XL_vae.safetensors"
   }
