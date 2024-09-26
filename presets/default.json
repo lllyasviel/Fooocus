@@ -26,7 +26,6 @@
   "embeddings_downloads": {},
   "lora_downloads": {
     "Styles_for_Pony_Diffusion_V6_XL.safetensors": "https://civitai.com/api/download/models/446346?type=Model&format=SafeTensor",
-    "3D_rendering_style.safetensors": "https://civitai.com/api/download/models/703107?type=Model&format=SafeTensor",
     "ExpressiveH.safetensors": "https://civitai.com/api/download/models/382152?type=Model&format=SafeTensor"
   },
   "vae_downloads": {
