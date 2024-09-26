@@ -5,7 +5,6 @@
   "default_vae": "ponyDiffusionV6XL_vae.safetensors",
   "default_loras": [
     [true, "Styles_for_Pony_Diffusion_V6_XL.safetensors", 1.0],
-    [true, "3D_rendering_style.safetensors", 1.0],
     [true, "ExpressiveH.safetensors", 0.8],
     [true, "None", 1.0],
     [true, "None", 1.0]
