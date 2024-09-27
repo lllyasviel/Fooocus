@@ -17,7 +17,7 @@
   "default_performance": "Speed",
   "default_prompt": "",
   "default_prompt_negative": "",
-  "default_styles": ["Fooocus Pony", "Fooocus Negative"],
+  "default_styles": ["Fooocus V2", "Fooocus Pony", "Fooocus Negative"],
   "default_aspect_ratio": "768*1280",
   "default_overwrite_step": -1,
   "default_inpaint_engine_version": "None",

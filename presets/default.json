@@ -1,5 +1,5 @@
 {
-  "default_model": "RevEnginePonyXL.safetensors",
+  "default_model": "ponyDiffusionV6XL.safetensors",
   "default_refiner": "None",
   "default_refiner_switch": 0.5,
   "default_vae": "ponyDiffusionV6XL_vae.safetensors",
@@ -10,7 +10,7 @@
     [true, "ExpressiveH.safetensors", 0.8],
     [true, "None", 1.0]
   ],
-  "default_cfg_scale": 6.5,
+  "default_cfg_scale": 7.0,
   "default_sample_sharpness": 2.0,
   "default_sampler": "dpmpp_2m_sde_gpu",
   "default_scheduler": "karras",
@@ -20,18 +20,18 @@
   "default_styles": ["Fooocus V2", "Fooocus Pony", "Fooocus Negative"],
   "default_aspect_ratio": "768*1280",
   "default_overwrite_step": -1,
+  "default_inpaint_engine_version": "None",
   "checkpoint_downloads": {
-    "Rev_Engine_PonyXL.safetensors": "https://civitai.com/api/download/models/558377?type=Model&format=SafeTensor&size=pruned&fp=fp16"
+    "ponyDiffusionV6XL.safetensors": "https://huggingface.co/mashb1t/fav_models/resolve/main/fav/ponyDiffusionV6XL.safetensors"
   },
   "embeddings_downloads": {},
   "lora_downloads": {
     "Styles_for_Pony_Diffusion_V6_XL.safetensors": "https://civitai.com/api/download/models/446346?type=Model&format=SafeTensor",
     "Detail_Tweaker_XL.safetensors": "https://civitai.com/api/download/models/135867?type=Model&format=SafeTensor",
-    "Sinfully_Stylish": "https://civitai.com/api/download/models/449162?type=Model&format=SafeTensor",
+    "Sinfully_Stylish.safetensors": "https://civitai.com/api/download/models/449162?type=Model&format=SafeTensor",
     "ExpressiveH.safetensors": "https://civitai.com/api/download/models/382152?type=Model&format=SafeTensor"
   },
   "vae_downloads": {
     "ponyDiffusionV6XL_vae.safetensors": "https://huggingface.co/mashb1t/fav_models/resolve/main/fav/ponyDiffusionV6XL_vae.safetensors"
-  },
-  "previous_default_models": []
+  }
 }
