@@ -18,29 +18,48 @@ try:
     remote_name = 'origin'
     remote = repo.remotes[remote_name]
 
-    remote.fetch()
+    diff = False
 
-    local_branch_ref = f'refs/heads/{branch_name}'
-    local_branch = repo.lookup_reference(local_branch_ref)
+    # Check if the remote branch is ahead of the local branch
+    remote_to_check = 'main'
+    local_to_check = 'main'
+    remote_ref = f'refs/remotes/{remote_name}/{remote_to_check}'
+    local_ref = f'refs/heads/{local_to_check}'
+    remote_commit = repo.revparse_single(remote_ref)
+    local_commit = repo.revparse_single(local_ref)
+    if remote_commit.id != local_commit.id:
+        diff = True
 
-    remote_reference = f'refs/remotes/{remote_name}/{branch_name}'
-    remote_commit = repo.revparse_single(remote_reference)
+    user_wants_to_update = False
+    if diff:
+        if input("The remote branch is ahead of the local branch. Do you want to update? (y/n): ") != 'y':
+            user_wants_to_update = True
+            remote.fetch()
 
-    merge_result, _ = repo.merge_analysis(remote_commit.id)
+    if user_wants_to_update:
+        local_branch_ref = f'refs/heads/{branch_name}'
+        local_branch = repo.lookup_reference(local_branch_ref)
 
-    if merge_result & pygit2.GIT_MERGE_ANALYSIS_UP_TO_DATE:
-        print("Already up-to-date")
-    elif merge_result & pygit2.GIT_MERGE_ANALYSIS_FASTFORWARD:
-        local_branch.set_target(remote_commit.id)
-        repo.head.set_target(remote_commit.id)
-        repo.checkout_tree(repo.get(remote_commit.id))
-        repo.reset(local_branch.target, pygit2.GIT_RESET_HARD)
-        print("Fast-forward merge")
-    elif merge_result & pygit2.GIT_MERGE_ANALYSIS_NORMAL:
-        print("Update failed - Did you modify any file?")
+        remote_reference = f'refs/remotes/{remote_name}/{branch_name}'
+        remote_commit = repo.revparse_single(remote_reference)
+
+        merge_result, _ = repo.merge_analysis(remote_commit.id)
+
+        if merge_result & pygit2.GIT_MERGE_ANALYSIS_UP_TO_DATE:
+            print("Already up-to-date")
+        elif merge_result & pygit2.GIT_MERGE_ANALYSIS_FASTFORWARD:
+            local_branch.set_target(remote_commit.id)
+            repo.head.set_target(remote_commit.id)
+            repo.checkout_tree(repo.get(remote_commit.id))
+            repo.reset(local_branch.target, pygit2.GIT_RESET_HARD)
+            print("Fast-forward merge")
+        elif merge_result & pygit2.GIT_MERGE_ANALYSIS_NORMAL:
+            print("Update failed - Did you modify any file?")
+
+        print('Update succeeded.')
 except Exception as e:
     print('Update failed.')
     print(str(e))
 
-print('Update succeeded.')
+print("Launching the application...")
 from launch import *
