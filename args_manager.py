@@ -37,10 +37,13 @@ args_parser.parser.add_argument("--always-download-new-model", action='store_tru
 args_parser.parser.add_argument("--rebuild-hash-cache", help="Generates missing model and LoRA hashes.",
                                 type=int, nargs="?", metavar="CPU_NUM_THREADS", const=-1)
 
+args_parser.parser.add_argument("--headless", action="store_true", default=True)
+
 args_parser.parser.set_defaults(
     disable_cuda_malloc=True,
     in_browser=True,
-    port=None
+    port=None,
+    hedless=True
 )
 
 args_parser.args = args_parser.parser.parse_args()
