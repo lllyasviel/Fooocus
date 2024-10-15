@@ -100,7 +100,7 @@ class AsyncTask:
             args.pop()) if not args_manager.args.disable_metadata else MetadataScheme.FOOOCUS
 
         self.cn_tasks = {x: [] for x in ip_list}
-        for _ in range(controlnet_image_count):
+        for _ in range(modules.config.default_controlnet_image_count):
             cn_img = args.pop()
             cn_stop = args.pop()
             cn_weight = args.pop()
