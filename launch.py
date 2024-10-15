@@ -1,12 +1,15 @@
 import os
 import ssl
 import sys
-
 print('[System ARGV] ' + str(sys.argv))
+from modules import config
+from modules.hash_cache import init_cache, load_cache_from_file
 
 root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(root)
 os.chdir(root)
+
+hash_cache = load_cache_from_file()
 
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
@@ -84,8 +87,6 @@ if args.hf_mirror is not None:
     os.environ['HF_MIRROR'] = str(args.hf_mirror)
     print("Set hf_mirror to:", args.hf_mirror)
 
-from modules import config
-from modules.hash_cache import init_cache
 
 os.environ["U2NET_HOME"] = config.path_inpaint
 
@@ -147,6 +148,18 @@ config.default_base_model_name, config.checkpoint_downloads = download_models(
     config.embeddings_downloads, config.lora_downloads, config.vae_downloads)
 
 config.update_files()
-init_cache(config.model_filenames, config.paths_checkpoints, config.lora_filenames, config.paths_loras)
+
+if len(hash_cache) == 0 and (len(config.model_filenames) > 0 or len(config.lora_filenames) > 0):
+    hash_cache = init_cache(config.model_filenames, config.paths_checkpoints, config.lora_filenames, config.paths_loras)
+    if len(hash_cache) > 0:
+        print(f'[Cache] Initialized with {len(hash_cache)} entries.')
+    else:
+        print('[Cache] Initialization failed.')
+    
+    
+
+if args.rebuild_hash_cache:
+    init_cache(config.model_filenames, config.paths_checkpoints, config.lora_filenames, config.paths_loras)
+
 
 from webui import *
