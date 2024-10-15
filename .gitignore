@@ -55,3 +55,4 @@ user_path_config-deprecated.txt
 .DS_Store
 venvi
 .timetracker
+.env
