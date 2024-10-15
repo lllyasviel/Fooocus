@@ -505,6 +505,52 @@ default_uov_method = get_config_item_or_set_default(
     validator=lambda x: x in modules.flags.uov_list,
     expected_type=str
 )
+# TODO⬇
+default_controlnet_image_count = get_config_item_or_set_default(
+    key='default_controlnet_image_count',
+    default_value=4,
+    validator=lambda x: isinstance(x, int) and x > 0,
+    expected_type=int
+)
+default_ip_images = {}
+default_ip_stop_ats = {}
+default_ip_weights = {}
+default_ip_types = {}
+
+for image_count in range(default_controlnet_image_count):
+    image_count += 1
+    default_ip_images[image_count] = get_config_item_or_set_default(
+        key=f'default_ip_image_{image_count}',
+        default_value='None',
+        validator=lambda x: x == 'None' or isinstance(x, str) and os.path.exists(x),
+        expected_type=str
+    )
+
+    if default_ip_images[image_count] == 'None':
+        default_ip_images[image_count] = None
+
+    default_ip_types[image_count] = get_config_item_or_set_default(
+        key=f'default_ip_type_{image_count}',
+        default_value=modules.flags.default_ip,
+        validator=lambda x: x in modules.flags.ip_list,
+        expected_type=str
+    )
+
+    default_end, default_weight = modules.flags.default_parameters[default_ip_types[image_count]]
+
+    default_ip_stop_ats[image_count] = get_config_item_or_set_default(
+        key=f'default_ip_stop_at_{image_count}',
+        default_value=default_end,
+        validator=lambda x: isinstance(x, float) and 0 <= x <= 1,
+        expected_type=float
+    )
+    default_ip_weights[image_count] = get_config_item_or_set_default(
+        key=f'default_ip_weight_{image_count}',
+        default_value=default_weight,
+        validator=lambda x: isinstance(x, float) and 0 <= x <= 2,
+        expected_type=float
+    )
+# TODO ⬆
 default_inpaint_advanced_masking_checkbox = get_config_item_or_set_default(
     key='default_inpaint_advanced_masking_checkbox',
     default_value=False,
