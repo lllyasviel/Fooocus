@@ -14,7 +14,8 @@ Fooocus has included and automated [lots of inner optimizations and quality impr
 
 <a name="tech_list"></a>
 
-The below things are already inside the software, and **users do not need to do anything about these**.
+<details>
+<summary>Click to see a list of tricks. Those are based on SDXL and are not very up-to-date with latest models.</summary>
 
 1. GPT2-based [prompt expansion as a dynamic style "Fooocus V2".](https://github.com/lllyasviel/Fooocus/discussions/117#raw) (similar to Midjourney's hidden pre-processing and "raw" mode, or the LeonardoAI's Prompt Magic).
 2. Native refiner swap inside one single k-sampler. The advantage is that the refiner model can now reuse the base model's momentum (or ODE's history parameters) collected from k-sampling to achieve more coherent sampling. In Automatic1111's high-res fix and ComfyUI's node system, the base model and refiner use two independent k-samplers, which means the momentum is largely wasted, and the sampling continuity is broken. Fooocus uses its own advanced k-diffusion sampling that ensures seamless, native, and continuous swap in a refiner setup. (Update Aug 13: Actually, I discussed this with Automatic1111 several days ago, and it seems that the “native refiner swap inside one single k-sampler” is [merged](https://github.com/AUTOMATIC1111/stable-diffusion-webui/pull/12371) into the dev branch of webui. Great!)
@@ -30,6 +31,7 @@ The below things are already inside the software, and **users do not need to do 
 12. Using automatic1111's method to normalize prompt emphasizing. This significantly improves results when users directly copy prompts from civitai.
 13. The joint swap system of the refiner now also supports img2img and upscale in a seamless way.
 14. CFG Scale and TSNR correction (tuned for SDXL) when CFG is bigger than 10.
+</details>
 
 ## Customization
 

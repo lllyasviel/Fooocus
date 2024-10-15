@@ -91,8 +91,9 @@ inpaint_option_detail = 'Improve Detail (face, hand, eyes, etc.)'
 inpaint_option_modify = 'Modify Content (add objects, change background, etc.)'
 inpaint_options = [inpaint_option_default, inpaint_option_detail, inpaint_option_modify]
 
-desc_type_photo = 'Photograph'
-desc_type_anime = 'Art/Anime'
+describe_type_photo = 'Photograph'
+describe_type_anime = 'Art/Anime'
+describe_types = [describe_type_photo, describe_type_anime]
 
 sdxl_aspect_ratios = [
     '704*1408', '704*1344', '768*1344', '768*1280', '832*1216', '832*1152',
@@ -112,8 +113,6 @@ metadata_scheme = [
     (f'{MetadataScheme.FOOOCUS.value} (json)', MetadataScheme.FOOOCUS.value),
     (f'{MetadataScheme.A1111.value} (plain text)', MetadataScheme.A1111.value),
 ]
-
-controlnet_image_count = 4
 
 
 class OutputFormat(Enum):
