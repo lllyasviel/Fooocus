@@ -403,8 +403,32 @@ default_performance = get_config_item_or_set_default(
     validator=lambda x: x in Performance.values(),
     expected_type=str
 )
+default_image_prompt_checkbox = get_config_item_or_set_default(
+    key='default_image_prompt_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+default_enhance_checkbox = get_config_item_or_set_default(
+    key='default_enhance_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
 default_advanced_checkbox = get_config_item_or_set_default(
     key='default_advanced_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+default_developer_debug_mode_checkbox = get_config_item_or_set_default(
+    key='default_developer_debug_mode_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+default_image_prompt_advanced_checkbox = get_config_item_or_set_default(
+    key='default_image_prompt_advanced_checkbox',
     default_value=False,
     validator=lambda x: isinstance(x, bool),
     expected_type=bool
@@ -469,6 +493,24 @@ default_inpaint_engine_version = get_config_item_or_set_default(
     validator=lambda x: x in modules.flags.inpaint_engine_versions,
     expected_type=str
 )
+default_selected_image_input_tab_id = get_config_item_or_set_default(
+    key='default_selected_image_input_tab_id',
+    default_value=modules.flags.default_input_image_tab,
+    validator=lambda x: x in modules.flags.input_image_tab_ids,
+    expected_type=str
+)
+default_uov_method = get_config_item_or_set_default(
+    key='default_uov_method',
+    default_value=modules.flags.disabled,
+    validator=lambda x: x in modules.flags.uov_list,
+    expected_type=str
+)
+default_inpaint_advanced_masking_checkbox = get_config_item_or_set_default(
+    key='default_inpaint_advanced_masking_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
 default_inpaint_method = get_config_item_or_set_default(
     key='default_inpaint_method',
     default_value=modules.flags.inpaint_option_default,
@@ -526,12 +568,6 @@ default_enhance_tabs = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, int) and 1 <= x <= 5,
     expected_type=int
 )
-default_enhance_checkbox = get_config_item_or_set_default(
-    key='default_enhance_checkbox',
-    default_value=False,
-    validator=lambda x: isinstance(x, bool),
-    expected_type=bool
-)
 default_enhance_uov_method = get_config_item_or_set_default(
     key='default_enhance_uov_method',
     default_value=modules.flags.disabled,
@@ -562,6 +598,12 @@ default_black_out_nsfw = get_config_item_or_set_default(
     validator=lambda x: isinstance(x, bool),
     expected_type=bool
 )
+default_save_only_final_enhanced_image = get_config_item_or_set_default(
+    key='default_save_only_final_enhanced_image',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
 default_save_metadata_to_images = get_config_item_or_set_default(
     key='default_save_metadata_to_images',
     default_value=False,
@@ -583,6 +625,13 @@ metadata_created_by = get_config_item_or_set_default(
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
 example_enhance_detection_prompts = [[x] for x in example_enhance_detection_prompts]
+
+default_invert_mask_checkbox = get_config_item_or_set_default(
+    key='default_invert_mask_checkbox',
+    default_value=False,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
 
 default_inpaint_mask_model = get_config_item_or_set_default(
     key='default_inpaint_mask_model',
@@ -608,8 +657,21 @@ default_inpaint_mask_cloth_category = get_config_item_or_set_default(
 default_inpaint_mask_sam_model = get_config_item_or_set_default(
     key='default_inpaint_mask_sam_model',
     default_value='vit_b',
-    validator=lambda x: x in [y[1] for y in modules.flags.inpaint_mask_sam_model if y[1] == x],
+    validator=lambda x: x in modules.flags.inpaint_mask_sam_model,
     expected_type=str
+)
+
+default_describe_apply_prompts_checkbox = get_config_item_or_set_default(
+    key='default_describe_apply_prompts_checkbox',
+    default_value=True,
+    validator=lambda x: isinstance(x, bool),
+    expected_type=bool
+)
+default_describe_content_type = get_config_item_or_set_default(
+    key='default_describe_content_type',
+    default_value=[modules.flags.describe_type_photo],
+    validator=lambda x: all(k in modules.flags.describe_types for k in x),
+    expected_type=list
 )
 
 config_dict["default_loras"] = default_loras = default_loras[:default_max_lora_number] + [[True, 'None', 1.0] for _ in range(default_max_lora_number - len(default_loras))]

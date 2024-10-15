@@ -12,6 +12,7 @@ from typing import Literal, Optional
 from modules import config, constants, flags
 from modules.sdxl_styles import legal_style_names
 import modules.style_sorter as style_sorter
+import args_manager
 
 style_sorter.try_load_sorted_styles(legal_style_names, config.default_styles)
 config.update_files()
@@ -141,8 +142,8 @@ class PdAcyncTask(BaseModel):
     loras: list = lora_ctrls
 
     input_image_checkbox: bool = False
-    current_tab: ALLOWED_TABS = "uov" # upscale or variation
-    uov_method: str = config.default_enhance_uov_method
+    current_tab: str = config.default_selected_image_input_tab_id
+    uov_method: str = config.default_uov_method
     uov_input_image: numpy.ndarray = None # TODO: trigger_auto_describe
     outpaint_selections: Optional[OUTPAINT_SELECTIONS | list] = []
     inpaint_input_image: numpy.ndarray = None # TODO: trigger_auto_describe
@@ -201,9 +202,11 @@ class PdAcyncTask(BaseModel):
 
     inpaint_strength: float = 1.0 # min 0.0 max 1.0
     inpaint_respective_field: float = 0.618 # min 0.0 max 1.0
-    inpaint_advanced_masking_checkbox: bool = False
+    inpaint_advanced_masking_checkbox: bool = config.default_inpaint_advanced_masking_checkbox
     invert_mask_checkbox: bool = False
     inpaint_erode_or_dilate: int = 0 # min -64 max 64
+    
+    save_final_enhanced_image_only: bool = bool(args_manager.args.disable_image_log)
     save_metadata_to_images: bool = config.default_save_metadata_to_images
     
     args_disable_metadata: bool = True
@@ -222,6 +225,8 @@ class PdAcyncTask(BaseModel):
 
     enhance_uov_prompt_type: str = config.default_enhance_uov_prompt_type
     enhance_ctrls: Optional[list[EnhanceMaskCtrls]] = []
+
+    should_enhance: bool = True if enhance_checkbox and (enhance_uov_method != flags.disabled.casefold() or len(enhance_ctrls) > 0)
 
     @field_validator("output_format")
     def validate_output_format(cls, v):

@@ -67,6 +67,9 @@ default_vae = 'Default (model)'
 
 refiner_swap_method = 'joint'
 
+default_input_image_tab = 'uov_tab'
+input_image_tab_ids = ['uov_tab', 'ip_tab', 'inpaint_tab', 'describe_tab', 'enhance_tab', 'metadata_tab']
+
 cn_ip = "ImagePrompt"
 cn_ip_face = "FaceSwap"
 cn_canny = "PyraCanny"
