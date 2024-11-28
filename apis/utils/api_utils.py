@@ -5,6 +5,8 @@ from fastapi import HTTPException, Security
 from fastapi.security import APIKeyHeader
 from apis.models.base import UpscaleOrVaryMethod
 
+from args_manager import args
+
 api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=False)
 APIKEY_AUTH = None
 
@@ -96,12 +98,15 @@ def params_to_params(req: object) -> list:
         req.inpaint_respective_field,
         req.inpaint_advanced_masking_checkbox,
         req.invert_mask_checkbox,
-        req.inpaint_erode_or_dilate,
-        req.save_final_enhanced_image_only,
-
-        req.save_metadata_to_images,
-        req.metadata_scheme.value,
+        req.inpaint_erode_or_dilate
     ])
+    if not args.disable_image_log:
+        params.extend(req.save_final_enhanced_image_only)
+    if not args.disable_metadata:
+        params.extend([
+            req.save_metadata_to_images,
+            req.metadata_scheme.value,
+        ])
     params.extend(req.controlnet_image)
     params.extend([
         req.debugging_dino,
