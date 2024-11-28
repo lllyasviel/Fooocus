@@ -953,9 +953,9 @@ def downloading_safety_checker_model():
     load_file_from_url(
         url='https://huggingface.co/mashb1t/misc/resolve/main/stable-diffusion-safety-checker.bin',
         model_dir=path_safety_checker,
-        file_name='stable-diffusion-safety-checker.bin'
+        file_name='pytorch_model.bin'
     )
-    return os.path.join(path_safety_checker, 'stable-diffusion-safety-checker.bin')
+    return os.path.join(path_safety_checker)
 
 
 def download_sam_model(sam_model: str) -> str:
