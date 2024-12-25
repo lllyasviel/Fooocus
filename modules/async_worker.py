@@ -1101,7 +1101,7 @@ def worker():
     @torch.no_grad()
     @torch.inference_mode()
     def handler(async_task: AsyncTask):
-        
+        skipped_images_ids = []
         preparation_start_time = time.perf_counter()
         async_task.processing = True
 
