@@ -1391,17 +1391,11 @@ def worker():
                 print("Error: current_task_id exceeds the number of images to enhance.")
                 break
 
-            if current_task_id < len(images_to_enhance) and prompts_processed:
-                enhance_prompt = processed_tasks_dictionary[current_task_id]['positive']
-                last_enhance_prompt = enhance_prompt
-                enhance_negative_prompt = processed_tasks_dictionary[current_task_id]['negative']
-                last_enhance_negative_prompt = enhance_negative_prompt
-                #print(f"DEBUG processed_tasks_dictionary[{current_task_id}]['positive']: "+str(processed_tasks_dictionary[current_task_id]['positive'])) ##
-            else:
-                enhance_prompt = async_task.prompt
-                enhance_negative_prompt = async_task.negative_prompt
-                last_enhance_prompt = async_task.prompt
-                last_enhance_negative_prompt = async_task.negative_prompt
+            
+            enhance_prompt = async_task.prompt
+            enhance_negative_prompt = async_task.negative_prompt
+            last_enhance_prompt = async_task.prompt
+            last_enhance_negative_prompt = async_task.negative_prompt
            
             if enhance_uov_before: ## changed async_task.prompt to processed_tasks_dictionary[current_task_id]['positive']
                 #current_task_id += 1 ##
