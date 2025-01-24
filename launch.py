@@ -56,6 +56,24 @@ def prepare_environment():
     if REINSTALL_ALL or not requirements_met(requirements_file):
         run_pip(f"install -r \"{requirements_file}\"", "requirements")
 
+    if platform.system() == "Windows":
+        print("Windows detected. Assigning cache directory to Transformers in AppData\Local.")
+        transformers_cache_directory = os.path.join(os.getenv('LOCALAPPDATA'), 'transformers_cache')
+        if not os.path.exists(transformers_cache_directory):
+            try:
+                os.mkdir(transformers_cache_directory)
+                print(f"First launch. Directory '{transformers_cache_directory}' created successfully.")
+            except OSError as e:
+                print(f"Error creating directory '{transformers_cache_directory}': {e}")
+        else:
+            print(f"Directory '{transformers_cache_directory}' already exists.")
+        os.environ['TRANSFORMERS_CACHE'] = transformers_cache_directory
+        print("Environment variable assigned.")
+        del transformers_cache_directory
+
+    else:
+        print("Windows not detected. Assignment of Transformers cache directory not necessary.")
+
     return
 
 
