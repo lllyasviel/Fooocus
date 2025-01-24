@@ -53,3 +53,4 @@ user_path_config-deprecated.txt
 /.coverage*
 /auth.json
 .DS_Store
+/.venv

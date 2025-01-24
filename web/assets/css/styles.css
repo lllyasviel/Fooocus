@@ -1,0 +1,398 @@
+#chart-button {
+  position: sticky;
+  transition: background-color 0.3s ease, width 0.8s ease, height 0.8s ease, transform 0.5s ease;
+  background-color: #00000096 !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2) !important;
+  color: white !important;
+  border-radius: 10px !important;
+  z-index: 9998;
+  -webkit-app-region: drag; /* Make this container draggable */
+  width: 100% !important;
+  height: 100% !important;
+  transform: scale(0);
+  -webkit-user-select: none; /* For Chrome, Safari, and Opera */
+  -moz-user-select: none; /* For Firefox */
+  -ms-user-select: none; /* For Internet Explorer and Edge */
+  user-select: none; /* Standard syntax */
+}
+
+#chart-button-container {
+  top: 0px;
+  left: 0px;
+  height: 0% !important;
+  width: 0% !important;
+  transform: scale(0);
+  position: fixed;
+  z-index: 9991;
+  will-change: transform;
+  text-align: center;
+  transition: width 0.8s ease, height 0.8s ease, transform 0.3s ease;
+}
+
+#chart-button-container.active {
+  transform: scale(1);
+}
+
+#mydivheader {
+  padding: 10px;
+  cursor: move;
+  z-index: 10;
+  background-color: #2196f3;
+  color: #fff;
+}
+
+body {
+  transition: all 0.3s ease;
+}
+#chart-button.small {
+  transform: scale(0.83);
+}
+
+#chart-button.medium {
+  transform: scale(0.93);
+}
+
+#chart-button.large {
+  transform: scale(0.96);
+}
+
+#chart-button.bottom-right {
+  margin: 0px;
+}
+
+#chart-button.bottom-left {
+  margin: 0px;
+}
+
+#chart-button.bottom-center {
+  margin: 0px;
+}
+
+#chart-button.top-right {
+  margin: 0px;
+}
+
+#chart-button.top-left {
+  margin: 0px;
+}
+
+#chart-button.top-center {
+  margin: 0px;
+}
+
+#chart-button.left-center {
+  margin: 0px;
+}
+
+#chart-button.right-center {
+  margin: 0px;
+}
+
+#chart-button.center {
+  margin: 0px;
+}
+#chart-button.bottom-right.active {
+  margin: 0px;
+}
+#chart-button.bottom-left.active {
+  margin: 0px;
+}
+#chart-button.bottom-center.active {
+  margin: 0px;
+}
+#chart-button.top-right.active {
+  margin: 0px;
+}
+#chart-button.top-left.active {
+  margin: 0px;
+}
+#chart-button.top-center.active {
+  margin: 0px;
+}
+#chart-button.left-center.active {
+  margin: 0px;
+}
+#chart-button.right-center.active {
+  margin: 0px;
+}
+#chart-button.center.active {
+  margin: 0px;
+}
+.chart-row {
+  padding: 5px 5px 0px 5px !important;
+  text-align: right !important;
+  display: flex !important;
+  justify-content: space-evenly !important;
+  z-index: 9999 !important;
+  position: relative !important;
+  align-items: center;
+  margin-bottom: -10px;
+}
+
+.chart-row.no-drag {
+  -webkit-app-region: no-drag; /* Make these elements non-draggable */
+}
+
+.chart-col {
+  flex: auto !important;
+}
+
+.left-col a {
+  width: 15px !important;
+  cursor: pointer !important;
+  border-radius: 4px !important;
+  display: inline-block !important;
+  text-align: center !important;
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
+.left-col a:hover {
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+#chart-container.bar.small {
+  padding: 5px !important;
+}
+
+#chart-container.bar.medium {
+  padding: 5px !important;
+}
+
+#chart-container.bar.large {
+  padding: 5px !important;
+}
+
+#chart-container.line.small {
+  padding: 5px !important;
+}
+
+#chart-container.line.medium {
+  padding: 5px !important;
+}
+
+#chart-container.line.large {
+  padding: 5px !important;
+}
+
+i {
+  color: #fff !important; /* Adjust color */
+  cursor: pointer !important; /* Change cursor to pointer on hover */
+  -webkit-app-region: no-drag; /* Make these elements non-draggable */
+}
+
+a,
+button {
+  -webkit-app-region: no-drag; /* Make these elements non-draggable */
+}
+
+.toggle-resources-button:hover {
+  color: rgb(101, 101, 101) !important; /* Change color on hover */
+}
+
+.drag {
+  -webkit-app-region: drag; /* Make this container draggable */
+}
+
+.no-drag {
+  -webkit-app-region: no-drag; /* Make these elements non-draggable */
+}
+
+#settingsMenu {
+  display: grid !important; /* Show the menu */
+  position: absolute !important;
+  transform: scale(0) translateX(-100%) translateY(-200%) !important; /* Center alignment */
+  background: #000000 !important;
+  border: 0px solid #ddd !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  opacity: 0 !important;
+  transition: opacity 0.5s ease, transform 0.3s ease !important;
+  text-align: center;
+  -webkit-app-region: no-drag; /* Make these elements non-draggable */
+}
+
+#settingsMenu.show {
+  min-width: 110px;
+  opacity: 1 !important;
+  z-index: 1000 !important;
+  transform: scale(0.8) translateY(-30px) translateX(-10px) !important; /* Animate to visible state */
+}
+
+.position-menu {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-template-rows: repeat(3, 1fr) !important;
+  grid-gap: 0px !important;
+}
+
+.position-btn > i {
+  color: #fff !important;
+}
+
+.position-btn {
+  color: #fff !important;
+  padding: 6px !important;
+  margin: 0px !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  border: 0px solid #ccc !important;
+  background-color: transparent !important;
+  border-radius: 4px !important;
+  text-align: center !important;
+}
+
+.position-btn:hover {
+  background-color: #fff !important;
+}
+.position-btn:hover > i {
+  color: #000 !important;
+}
+
+.material-icons {
+  font-size: 14px !important;
+}
+
+.left-col {
+  text-align: left !important;
+  margin-right: 10px;
+}
+
+.left-col.text {
+  margin-bottom: 5px !important;
+}
+.settings-row {
+  display: inline-block;
+  text-align: center !important;
+  margin: 5px !important;
+}
+
+.settings-col {
+  text-align: center;
+  font-size: 10px;
+}
+.settings-hr {
+  width: 0px;
+  margin-top: 0px !important;
+  margin-bottom: 4px !important;
+  transition: width 1s ease;
+}
+
+.settings-hr.show {
+  width: 100%;
+}
+#custom-legend {
+  display: flex !important;
+  text-align: center;
+}
+
+.custom-legend-item {
+  margin-bottom: 5px !important;
+  font-size: 14px !important;
+  flex: auto !important;
+  align-items: center;
+}
+
+.custom-legend-color {
+  display: inline-block !important;
+  width: 15px !important;
+  height: 15px !important;
+  margin-right: 10px !important;
+  vertical-align: middle !important;
+}
+
+.custom-legend-text {
+  display: inline !important;
+  vertical-align: middle !important;
+}
+
+#show_resource_monitor {
+  cursor: pointer !important;
+  z-index: 9991;
+  margin: 5px;
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+}
+
+.resource-monitor-icon {
+  margin: 5px;
+  height: 14px;
+}
+
+/* Example CSS transition for smooth resizing */
+.window {
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+#show_resource_monitor_link {
+  cursor: pointer !important;
+  position: fixed;
+  top: 20px;
+  left: 10px;
+  z-index: 9991;
+  margin: 5px;
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+}
+
+.resource-monitor-icon {
+  margin: 5px;
+  height: 14px;
+}
+#item-table {
+  width: -webkit-fill-available;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  border-collapse: separate; /* Ensures that border-radius works */
+  border-spacing: 0; /* Removes spacing between cells */
+  border: 0px solid #ddd; /* Adds border to the table */
+  border-radius: 8px; /* Adjust the value for desired corner radius */
+  overflow: hidden; /* Ensures rounded corners are visible */
+}
+
+#item-table th,
+#item-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+  line-height: 10px;
+}
+
+#item-table thead {
+  background-color: #333;
+  color: #fff;
+}
+
+#item-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#item-table tbody tr:nth-child(odd) {
+  background-color: transparent;
+}
+
+#item-table tbody td {
+  color: #fff;
+}
+
+#progress-bar-container {
+  width: -webkit-fill-available;
+
+  height: 20px; /* Height of the progress bar */
+  background-color: #e0e0e0; /* Light gray background */
+  border-radius: 10px; /* Rounded corners for the progress bar container */
+  margin: 0px 5px; /* Space between the progress bar and the table */
+  display: none;
+}
+
+#progress-bar {
+  height: 100%;
+  width: 0%; /* Start with 0% width */
+  background-color: #76c7c0; /* Fill color of the progress bar */
+  border-radius: 10px; /* Rounded corners for the progress bar */
+  transition: width 0.5s ease; /* Smooth transition effect */
+}

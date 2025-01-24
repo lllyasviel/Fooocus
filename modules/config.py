@@ -7,7 +7,6 @@ import args_manager
 import tempfile
 import modules.flags
 import modules.sdxl_styles
-
 from modules.model_loader import load_file_from_url
 from modules.extra_utils import makedirs_with_log, get_files_from_folder, try_eval_env_var
 from modules.flags import OutputFormat, Performance, MetadataScheme
@@ -21,9 +20,11 @@ def get_config_path(key, default_value):
     else:
         return os.path.abspath(default_value)
 
+
 wildcards_max_bfs_depth = 64
 config_path = get_config_path('config_path', "./config.txt")
-config_example_path = get_config_path('config_example_path', "config_modification_tutorial.txt")
+config_example_path = get_config_path(
+    'config_example_path', "config_modification_tutorial.txt")
 config_dict = {}
 always_save_keys = []
 visited_keys = []
@@ -41,9 +42,11 @@ try:
             config_dict.update(json.load(json_file))
             always_save_keys = list(config_dict.keys())
 except Exception as e:
-    print(f'Failed to load config file "{config_path}" . The reason is: {str(e)}')
+    print(
+        f'Failed to load config file "{config_path}" . The reason is: {str(e)}')
     print('Please make sure that:')
-    print(f'1. The file "{config_path}" is a valid text file, and you have access to read it.')
+    print(
+        f'1. The file "{config_path}" is a valid text file, and you have access to read it.')
     print('2. Use "\\\\" instead of "\\" when describing paths.')
     print('3. There is no "," before the last "}".')
     print('4. All key/value formats are correct.')
@@ -56,7 +59,8 @@ def try_load_deprecated_user_path_config():
         return
 
     try:
-        deprecated_config_dict = json.load(open('user_path_config.txt', "r", encoding="utf-8"))
+        deprecated_config_dict = json.load(
+            open('user_path_config.txt', "r", encoding="utf-8"))
 
         def replace_config(old_key, new_key):
             if old_key in deprecated_config_dict:
@@ -75,7 +79,8 @@ def try_load_deprecated_user_path_config():
         replace_config('temp_outputs_path', 'path_outputs')
 
         if deprecated_config_dict.get("default_model", None) == 'juggernautXL_version6Rundiffusion.safetensors':
-            os.replace('user_path_config.txt', 'user_path_config-deprecated.txt')
+            os.replace('user_path_config.txt',
+                       'user_path_config-deprecated.txt')
             print('Config updated successfully in silence. '
                   'A backup of previous config is written to "user_path_config-deprecated.txt".')
             return
@@ -86,7 +91,8 @@ def try_load_deprecated_user_path_config():
             print('Loading using deprecated old models and deprecated old configs.')
             return
         else:
-            os.replace('user_path_config.txt', 'user_path_config-deprecated.txt')
+            os.replace('user_path_config.txt',
+                       'user_path_config-deprecated.txt')
             print('Config updated successfully by user. '
                   'A backup of previous config is written to "user_path_config-deprecated.txt".')
             return
@@ -98,6 +104,7 @@ def try_load_deprecated_user_path_config():
 
 try_load_deprecated_user_path_config()
 
+
 def get_presets():
     preset_folder = 'presets'
     presets = ['initial']
@@ -107,9 +114,11 @@ def get_presets():
 
     return presets + [f[:f.index(".json")] for f in os.listdir(preset_folder) if f.endswith('.json')]
 
+
 def update_presets():
     global available_presets
     available_presets = get_presets()
+
 
 def try_get_preset_content(preset):
     if isinstance(preset, str):
@@ -127,18 +136,22 @@ def try_get_preset_content(preset):
             print(e)
     return {}
 
+
 available_presets = get_presets()
 preset = args_manager.args.preset
 config_dict.update(try_get_preset_content(preset))
+
 
 def get_path_output() -> str:
     """
     Checking output path argument and overriding default path.
     """
     global config_dict
-    path_output = get_dir_or_set_default('path_outputs', '../outputs/', make_directory=True)
+    path_output = get_dir_or_set_default(
+        'path_outputs', '../outputs/', make_directory=True)
     if args_manager.args.output_path:
-        print(f'Overriding config value path_outputs with {args_manager.args.output_path}')
+        print(
+            f'Overriding config value path_outputs with {args_manager.args.output_path}')
         config_dict['path_outputs'] = path_output = args_manager.args.output_path
     return path_output
 
@@ -172,15 +185,18 @@ def get_dir_or_set_default(key, default_value, as_array=False, make_directory=Fa
             return v
 
     if v is not None:
-        print(f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
+        print(
+            f'Failed to load config key: {json.dumps({key:v})} is invalid or does not exist; will use {json.dumps({key:default_value})} instead.')
     if isinstance(default_value, list):
         dp = []
         for path in default_value:
-            abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), path))
+            abs_path = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), path))
             dp.append(abs_path)
             os.makedirs(abs_path, exist_ok=True)
     else:
-        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), default_value))
+        dp = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), default_value))
         os.makedirs(dp, exist_ok=True)
         if as_array:
             dp = [dp]
@@ -188,18 +204,26 @@ def get_dir_or_set_default(key, default_value, as_array=False, make_directory=Fa
     return dp
 
 
-paths_checkpoints = get_dir_or_set_default('path_checkpoints', ['../models/checkpoints/'], True)
+paths_checkpoints = get_dir_or_set_default(
+    'path_checkpoints', ['../models/checkpoints/'], True)
 paths_loras = get_dir_or_set_default('path_loras', ['../models/loras/'], True)
-path_embeddings = get_dir_or_set_default('path_embeddings', '../models/embeddings/')
-path_vae_approx = get_dir_or_set_default('path_vae_approx', '../models/vae_approx/')
+path_embeddings = get_dir_or_set_default(
+    'path_embeddings', '../models/embeddings/')
+path_vae_approx = get_dir_or_set_default(
+    'path_vae_approx', '../models/vae_approx/')
 path_vae = get_dir_or_set_default('path_vae', '../models/vae/')
-path_upscale_models = get_dir_or_set_default('path_upscale_models', '../models/upscale_models/')
+path_upscale_models = get_dir_or_set_default(
+    'path_upscale_models', '../models/upscale_models/')
 path_inpaint = get_dir_or_set_default('path_inpaint', '../models/inpaint/')
-path_controlnet = get_dir_or_set_default('path_controlnet', '../models/controlnet/')
-path_clip_vision = get_dir_or_set_default('path_clip_vision', '../models/clip_vision/')
-path_fooocus_expansion = get_dir_or_set_default('path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
+path_controlnet = get_dir_or_set_default(
+    'path_controlnet', '../models/controlnet/')
+path_clip_vision = get_dir_or_set_default(
+    'path_clip_vision', '../models/clip_vision/')
+path_fooocus_expansion = get_dir_or_set_default(
+    'path_fooocus_expansion', '../models/prompt_expansion/fooocus_expansion')
 path_wildcards = get_dir_or_set_default('path_wildcards', '../wildcards/')
-path_safety_checker = get_dir_or_set_default('path_safety_checker', '../models/safety_checker/')
+path_safety_checker = get_dir_or_set_default(
+    'path_safety_checker', '../models/safety_checker/')
 path_sam = get_dir_or_set_default('path_sam', '../models/sam/')
 path_outputs = get_path_output()
 
@@ -209,7 +233,7 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
 
     if key not in visited_keys:
         visited_keys.append(key)
-    
+
     v = os.getenv(key)
     if v is not None:
         v = try_eval_env_var(v, expected_type)
@@ -228,7 +252,8 @@ def get_config_item_or_set_default(key, default_value, validator, disable_empty_
         return v
     else:
         if v is not None:
-            print(f'Failed to load config key: {json.dumps({key:v})} is invalid; will use {json.dumps({key:default_value})} instead.')
+            print(
+                f'Failed to load config key: {json.dumps({key:v})} is invalid; will use {json.dumps({key:default_value})} instead.')
         config_dict[key] = default_value
         return default_value
 
@@ -274,7 +299,8 @@ default_base_model_name = default_model = get_config_item_or_set_default(
 previous_default_models = get_config_item_or_set_default(
     key='previous_default_models',
     default_value=[],
-    validator=lambda x: isinstance(x, list) and all(isinstance(k, str) for k in x),
+    validator=lambda x: isinstance(x, list) and all(
+        isinstance(k, str) for k in x),
     expected_type=list
 )
 default_refiner_model_name = default_refiner = get_config_item_or_set_default(
@@ -331,15 +357,18 @@ default_loras = get_config_item_or_set_default(
         ]
     ],
     validator=lambda x: isinstance(x, list) and all(
-        len(y) == 3 and isinstance(y[0], bool) and isinstance(y[1], str) and isinstance(y[2], numbers.Number)
+        len(y) == 3 and isinstance(y[0], bool) and isinstance(
+            y[1], str) and isinstance(y[2], numbers.Number)
         or len(y) == 2 and isinstance(y[0], str) and isinstance(y[1], numbers.Number)
         for y in x),
     expected_type=list
 )
-default_loras = [(y[0], y[1], y[2]) if len(y) == 3 else (True, y[0], y[1]) for y in default_loras]
+default_loras = [(y[0], y[1], y[2]) if len(y) == 3 else (
+    True, y[0], y[1]) for y in default_loras]
 default_max_lora_number = get_config_item_or_set_default(
     key='default_max_lora_number',
-    default_value=len(default_loras) if isinstance(default_loras, list) and len(default_loras) > 0 else 5,
+    default_value=len(default_loras) if isinstance(
+        default_loras, list) and len(default_loras) > 0 else 5,
     validator=lambda x: isinstance(x, int) and x >= 1,
     expected_type=int
 )
@@ -380,7 +409,8 @@ default_styles = get_config_item_or_set_default(
         "Fooocus Enhance",
         "Fooocus Sharp"
     ],
-    validator=lambda x: isinstance(x, list) and all(y in modules.sdxl_styles.legal_style_names for y in x),
+    validator=lambda x: isinstance(x, list) and all(
+        y in modules.sdxl_styles.legal_style_names for y in x),
     expected_type=list
 )
 default_prompt_negative = get_config_item_or_set_default(
@@ -448,37 +478,43 @@ default_output_format = get_config_item_or_set_default(
 default_image_number = get_config_item_or_set_default(
     key='default_image_number',
     default_value=2,
-    validator=lambda x: isinstance(x, int) and 1 <= x <= default_max_image_number,
+    validator=lambda x: isinstance(
+        x, int) and 1 <= x <= default_max_image_number,
     expected_type=int
 )
 checkpoint_downloads = get_config_item_or_set_default(
     key='checkpoint_downloads',
     default_value={},
-    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
+    validator=lambda x: isinstance(x, dict) and all(
+        isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
     expected_type=dict
 )
 lora_downloads = get_config_item_or_set_default(
     key='lora_downloads',
     default_value={},
-    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
+    validator=lambda x: isinstance(x, dict) and all(
+        isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
     expected_type=dict
 )
 embeddings_downloads = get_config_item_or_set_default(
     key='embeddings_downloads',
     default_value={},
-    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
+    validator=lambda x: isinstance(x, dict) and all(
+        isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
     expected_type=dict
 )
 vae_downloads = get_config_item_or_set_default(
     key='vae_downloads',
     default_value={},
-    validator=lambda x: isinstance(x, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
+    validator=lambda x: isinstance(x, dict) and all(
+        isinstance(k, str) and isinstance(v, str) for k, v in x.items()),
     expected_type=dict
 )
 available_aspect_ratios = get_config_item_or_set_default(
     key='available_aspect_ratios',
     default_value=modules.flags.sdxl_aspect_ratios,
-    validator=lambda x: isinstance(x, list) and all('*' in v for v in x) and len(x) > 1,
+    validator=lambda x: isinstance(x, list) and all(
+        '*' in v for v in x) and len(x) > 1,
     expected_type=list
 )
 default_aspect_ratio = get_config_item_or_set_default(
@@ -521,7 +557,8 @@ for image_count in range(default_controlnet_image_count):
     default_ip_images[image_count] = get_config_item_or_set_default(
         key=f'default_ip_image_{image_count}',
         default_value='None',
-        validator=lambda x: x == 'None' or isinstance(x, str) and os.path.exists(x),
+        validator=lambda x: x == 'None' or isinstance(
+            x, str) and os.path.exists(x),
         expected_type=str
     )
 
@@ -571,7 +608,8 @@ default_cfg_tsnr = get_config_item_or_set_default(
 default_clip_skip = get_config_item_or_set_default(
     key='default_clip_skip',
     default_value=2,
-    validator=lambda x: isinstance(x, int) and 1 <= x <= modules.flags.clip_skip_max,
+    validator=lambda x: isinstance(
+        x, int) and 1 <= x <= modules.flags.clip_skip_max,
     expected_type=int
 )
 default_overwrite_step = get_config_item_or_set_default(
@@ -596,7 +634,8 @@ example_inpaint_prompts = get_config_item_or_set_default(
     default_value=[
         'highly detailed face', 'detailed girl face', 'detailed man face', 'detailed hand', 'beautiful eyes'
     ],
-    validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
+    validator=lambda x: isinstance(x, list) and all(
+        isinstance(v, str) for v in x),
     expected_type=list
 )
 example_enhance_detection_prompts = get_config_item_or_set_default(
@@ -604,9 +643,38 @@ example_enhance_detection_prompts = get_config_item_or_set_default(
     default_value=[
         'face', 'eye', 'mouth', 'hair', 'hand', 'body'
     ],
-    validator=lambda x: isinstance(x, list) and all(isinstance(v, str) for v in x),
+    validator=lambda x: isinstance(x, list) and all(
+        isinstance(v, str) for v in x),
     expected_type=list
 )
+
+default_enhance_prompts = {
+    'face': {
+        'positive': "Enhance the face to ensure clear and detailed features. The face should have a well-defined structure with smooth skin, natural contours, and a balanced complexion. Make sure the expression is natural and engaging.",
+        'negative': "Avoid any blurriness or distortions in the face. Do not include uneven skin tones, unnatural facial expressions, or any missing facial features. Ensure there are no artifacts or unnatural smoothing that might distort the face's natural appearance."
+    },
+    'eye': {
+        'positive': "Enhance the eyes to be clear, sharp, and vividly detailed. The eyes should have natural reflections and a realistic appearance. Ensure the irises and pupils are distinct, and there are no shadows or blurs affecting the eyes.",
+        'negative': "Exclude any blurring, distortions, or unnatural reflections in the eyes. Avoid asymmetrical or misaligned eyes, and ensure there are no unnatural colors or artifacts that could detract from a realistic appearance."
+    },
+    'mouth': {
+        'positive': "Enhance the mouth to appear natural and symmetrical. The lips should be smooth and well-defined, with no abnormalities. Ensure the mouth reflects a realistic expression and that teeth are visible only if naturally exposed.",
+        'negative': "Avoid any distortions, asymmetry, or unnatural shapes in the mouth. Do not include missing or extra teeth, and ensure there are no anomalies or artifacts affecting the mouth's appearance."
+    },
+    'hair': {
+        'positive': "Enhance the hair to look full, natural, and well-styled. The texture should be realistic, with clear individual strands or locks and natural shine. Ensure the color and style match the intended look without any unnatural effects.",
+        'negative': "Exclude any unnatural textures, blurs, or artifacts in the hair. Avoid colors that look artificial or inconsistent, and ensure there are no missing or irregular sections of hair that could disrupt the natural appearance."
+    },
+    'hand': {
+        'positive': "Enhance the hands to ensure all fingers are clearly visible and well-defined. The hands should have realistic textures and proportions, with no missing or distorted fingers. The overall appearance should be natural and proportional.",
+        'negative': "Avoid any distortions or missing fingers in the hands. Do not include unnatural shapes or proportions, and ensure there are no anomalies or artifacts that affect the realistic appearance of the hands."
+    },
+    'body': {
+        'positive': "Enhance the body to ensure a complete and natural appearance with all limbs properly defined. The body should reflect realistic proportions and posture, with no missing or distorted body parts. Ensure the overall shape and anatomy are natural and well-balanced.",
+        'negative': "Exclude any missing limbs, distortions, or unrealistic body shapes. Avoid anomalies in body posture or proportions, and ensure there are no artifacts or inconsistencies that could affect the natural appearance of the body."
+    }
+}
+
 default_enhance_tabs = get_config_item_or_set_default(
     key='default_enhance_tabs',
     default_value=3,
@@ -658,7 +726,8 @@ default_save_metadata_to_images = get_config_item_or_set_default(
 default_metadata_scheme = get_config_item_or_set_default(
     key='default_metadata_scheme',
     default_value=MetadataScheme.FOOOCUS.value,
-    validator=lambda x: x in [y[1] for y in modules.flags.metadata_scheme if y[1] == x],
+    validator=lambda x: x in [y[1]
+                              for y in modules.flags.metadata_scheme if y[1] == x],
     expected_type=str
 )
 metadata_created_by = get_config_item_or_set_default(
@@ -669,7 +738,8 @@ metadata_created_by = get_config_item_or_set_default(
 )
 
 example_inpaint_prompts = [[x] for x in example_inpaint_prompts]
-example_enhance_detection_prompts = [[x] for x in example_enhance_detection_prompts]
+example_enhance_detection_prompts = [[x]
+                                     for x in example_enhance_detection_prompts]
 
 default_invert_mask_checkbox = get_config_item_or_set_default(
     key='default_invert_mask_checkbox',
@@ -719,7 +789,9 @@ default_describe_content_type = get_config_item_or_set_default(
     expected_type=list
 )
 
-config_dict["default_loras"] = default_loras = default_loras[:default_max_lora_number] + [[True, 'None', 1.0] for _ in range(default_max_lora_number - len(default_loras))]
+config_dict["default_loras"] = default_loras = default_loras[:default_max_lora_number] + \
+    [[True, 'None', 1.0]
+        for _ in range(default_max_lora_number - len(default_loras))]
 
 # mapping config to meta parameter
 possible_preset_keys = {
@@ -759,7 +831,8 @@ REWRITE_PRESET = False
 if REWRITE_PRESET and isinstance(args_manager.args.preset, str):
     save_path = 'presets/' + args_manager.args.preset + '.json'
     with open(save_path, "w", encoding="utf-8") as json_file:
-        json.dump({k: config_dict[k] for k in possible_preset_keys}, json_file, indent=4)
+        json.dump({k: config_dict[k]
+                  for k in possible_preset_keys}, json_file, indent=4)
     print(f'Preset saved to {save_path}. Exiting ...')
     exit(0)
 
@@ -772,13 +845,15 @@ def add_ratio(x):
 
 
 default_aspect_ratio = add_ratio(default_aspect_ratio)
-available_aspect_ratios_labels = [add_ratio(x) for x in available_aspect_ratios]
+available_aspect_ratios_labels = [
+    add_ratio(x) for x in available_aspect_ratios]
 
 
 # Only write config in the first launch.
 if not os.path.exists(config_path):
     with open(config_path, "w", encoding="utf-8") as json_file:
-        json.dump({k: config_dict[k] for k in always_save_keys}, json_file, indent=4)
+        json.dump({k: config_dict[k]
+                  for k in always_save_keys}, json_file, indent=4)
 
 
 # Always write tutorials.
@@ -799,7 +874,8 @@ wildcard_filenames = []
 
 def get_model_filenames(folder_paths, extensions=None, name_filter=None):
     if extensions is None:
-        extensions = ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']
+        extensions = ['.pth', '.ckpt', '.bin',
+                      '.safetensors', '.fooocus.patch']
     files = []
 
     if not isinstance(folder_paths, list):
@@ -913,14 +989,16 @@ def downloading_ip_adapters(v):
         model_dir=path_clip_vision,
         file_name='clip_vision_vit_h.safetensors'
     )
-    results += [os.path.join(path_clip_vision, 'clip_vision_vit_h.safetensors')]
+    results += [os.path.join(path_clip_vision,
+                             'clip_vision_vit_h.safetensors')]
 
     load_file_from_url(
         url='https://huggingface.co/lllyasviel/misc/resolve/main/fooocus_ip_negative.safetensors',
         model_dir=path_controlnet,
         file_name='fooocus_ip_negative.safetensors'
     )
-    results += [os.path.join(path_controlnet, 'fooocus_ip_negative.safetensors')]
+    results += [os.path.join(path_controlnet,
+                             'fooocus_ip_negative.safetensors')]
 
     if v == 'ip':
         load_file_from_url(
@@ -928,7 +1006,8 @@ def downloading_ip_adapters(v):
             model_dir=path_controlnet,
             file_name='ip-adapter-plus_sdxl_vit-h.bin'
         )
-        results += [os.path.join(path_controlnet, 'ip-adapter-plus_sdxl_vit-h.bin')]
+        results += [os.path.join(path_controlnet,
+                                 'ip-adapter-plus_sdxl_vit-h.bin')]
 
     if v == 'face':
         load_file_from_url(
@@ -936,7 +1015,8 @@ def downloading_ip_adapters(v):
             model_dir=path_controlnet,
             file_name='ip-adapter-plus-face_sdxl_vit-h.bin'
         )
-        results += [os.path.join(path_controlnet, 'ip-adapter-plus-face_sdxl_vit-h.bin')]
+        results += [os.path.join(path_controlnet,
+                                 'ip-adapter-plus-face_sdxl_vit-h.bin')]
 
     return results
 
@@ -948,6 +1028,7 @@ def downloading_upscale_model():
         file_name='fooocus_upscaler_s409985e5.bin'
     )
     return os.path.join(path_upscale_models, 'fooocus_upscaler_s409985e5.bin')
+
 
 def downloading_safety_checker_model():
     load_file_from_url(
