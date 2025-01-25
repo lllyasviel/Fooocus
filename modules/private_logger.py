@@ -86,7 +86,7 @@ def log(img, metadata, metadata_parser: MetadataParser | None = None, output_for
             document.execCommand('copy')
             document.body.removeChild(textArea)
         }
-        alert('Copied to Clipboard!\\nPaste to prompt area to load parameters.\\nCurrent clipboard content is:\\n\\n' + txt);
+        alert('Copied to Clipboard!\\nPaste to prompt area to load parameters.');
         }
         </script>"""
     )
