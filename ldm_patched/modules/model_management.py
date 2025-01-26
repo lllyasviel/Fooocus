@@ -369,12 +369,12 @@ def free_memory(memory_required, device, keep_loaded=[]):
                 unloaded_model = True
 
     if unloaded_model:
-        soft_empty_cache()
+        soft_empty_cache(force=ALWAYS_VRAM_OFFLOAD)
     else:
         if vram_state != VRAMState.HIGH_VRAM:
             mem_free_total, mem_free_torch = get_free_memory(device, torch_free_too=True)
             if mem_free_torch > mem_free_total * 0.25:
-                soft_empty_cache()
+                soft_empty_cache(force=ALWAYS_VRAM_OFFLOAD)
 
 def load_models_gpu(models, memory_required=0):
     global vram_state
