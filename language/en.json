@@ -62,7 +62,7 @@
     "Image Number": "Image Number",
     "Negative Prompt": "Negative Prompt",
     "Describing what you do not want to see.": "Describing what you do not want to see.",
-    "Random": "Random",
+    "Random Seed": "Random Seed",
     "Seed": "Seed",
     "Disable seed increment": "Disable seed increment",
     "Disable automatic seed increment when image number is > 1.": "Disable automatic seed increment when image number is > 1.",
