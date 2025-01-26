@@ -155,17 +155,17 @@ Your Linux needs to have **Python 3.10** installed, and let's say your Python ca
     cd Fooocus
     python3 -m venv fooocus_env
     source fooocus_env/bin/activate
-    pip install -r requirements_versions.txt
+    pip3 install -r requirements_versions.txt
 
 See the above sections for model downloads. You can launch the software with:
 
     source fooocus_env/bin/activate
-    python entry_with_update.py
+    python3 entry_with_update.py
 
 Or, if you want to open a remote port, use
 
     source fooocus_env/bin/activate
-    python entry_with_update.py --listen
+    python3 entry_with_update.py --listen
 
 Use `python entry_with_update.py --preset anime` or `python entry_with_update.py --preset realistic` for Fooocus Anime/Realistic Edition.
 
