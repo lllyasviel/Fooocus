@@ -49,12 +49,12 @@ def get_reference_facial_points(output_size=None, inner_padding_factor=0.0, oute
                 inner_padding_factor))
     Returns:
     ----------
-        @reference_5point: 5x2 np.array
+        @reference_5point: 5x2 np.asarray
             each row is a pair of transformed coordinates (x, y)
     """
 
-    tmp_5pts = np.array(REFERENCE_FACIAL_POINTS)
-    tmp_crop_size = np.array(DEFAULT_CROP_SIZE)
+    tmp_5pts = np.asarray(REFERENCE_FACIAL_POINTS)
+    tmp_crop_size = np.asarray(DEFAULT_CROP_SIZE)
 
     # 0) make the inner region a square
     if default_square:
@@ -79,7 +79,7 @@ def get_reference_facial_points(output_size=None, inner_padding_factor=0.0, oute
     if ((inner_padding_factor > 0 or outer_padding[0] > 0 or outer_padding[1] > 0) and output_size is None):
         output_size = tmp_crop_size * \
             (1 + inner_padding_factor * 2).astype(np.int32)
-        output_size += np.array(outer_padding)
+        output_size += np.asarray(outer_padding)
     if not (outer_padding[0] < output_size[0] and outer_padding[1] < output_size[1]):
         raise FaceWarpException('Not (outer_padding[0] < output_size[0] and outer_padding[1] < output_size[1])')
 
@@ -90,7 +90,7 @@ def get_reference_facial_points(output_size=None, inner_padding_factor=0.0, oute
         tmp_crop_size += np.round(size_diff).astype(np.int32)
 
     # 2) resize the padded inner region
-    size_bf_outer_pad = np.array(output_size) - np.array(outer_padding) * 2
+    size_bf_outer_pad = np.asarray(output_size) - np.asarray(outer_padding) * 2
 
     if size_bf_outer_pad[0] * tmp_crop_size[1] != size_bf_outer_pad[1] * tmp_crop_size[0]:
         raise FaceWarpException('Must have (output_size - outer_padding)'
@@ -103,7 +103,7 @@ def get_reference_facial_points(output_size=None, inner_padding_factor=0.0, oute
     tmp_crop_size = size_bf_outer_pad
 
     # 3) add outer_padding to make output_size
-    reference_5point = tmp_5pts + np.array(outer_padding)
+    reference_5point = tmp_5pts + np.asarray(outer_padding)
     tmp_crop_size = output_size
 
     return reference_5point
@@ -116,13 +116,13 @@ def get_affine_transform_matrix(src_pts, dst_pts):
         get affine transform matrix 'tfm' from src_pts to dst_pts
     Parameters:
     ----------
-        @src_pts: Kx2 np.array
+        @src_pts: Kx2 np.asarray
             source points matrix, each row is a pair of coordinates (x, y)
-        @dst_pts: Kx2 np.array
+        @dst_pts: Kx2 np.asarray
             destination points matrix, each row is a pair of coordinates (x, y)
     Returns:
     ----------
-        @tfm: 2x3 np.array
+        @tfm: 2x3 np.asarray
             transform matrix from src_pts to dst_pts
     """
 
@@ -149,17 +149,17 @@ def warp_and_crop_face(src_img, facial_pts, reference_pts=None, crop_size=(96, 1
         apply affine transform 'trans' to uv
     Parameters:
     ----------
-        @src_img: 3x3 np.array
+        @src_img: 3x3 np.asarray
             input image
         @facial_pts: could be
             1)a list of K coordinates (x,y)
         or
-            2) Kx2 or 2xK np.array
+            2) Kx2 or 2xK np.asarray
             each row or col is a pair of coordinates (x, y)
         @reference_pts: could be
             1) a list of K coordinates (x,y)
         or
-            2) Kx2 or 2xK np.array
+            2) Kx2 or 2xK np.asarray
             each row or col is a pair of coordinates (x, y)
         or
             3) None

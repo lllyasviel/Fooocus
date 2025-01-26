@@ -33,12 +33,12 @@ def get_largest_face(det_faces, h, w):
 
 def get_center_face(det_faces, h=0, w=0, center=None):
     if center is not None:
-        center = np.array(center)
+        center = np.asarray(center)
     else:
-        center = np.array([w / 2, h / 2])
+        center = np.asarray([w / 2, h / 2])
     center_dist = []
     for det_face in det_faces:
-        face_center = np.array([(det_face[0] + det_face[2]) / 2, (det_face[1] + det_face[3]) / 2])
+        face_center = np.asarray([(det_face[0] + det_face[2]) / 2, (det_face[1] + det_face[3]) / 2])
         dist = np.linalg.norm(face_center - center)
         center_dist.append(dist)
     center_idx = center_dist.index(min(center_dist))
@@ -67,10 +67,10 @@ class FaceRestoreHelper(object):
         self.face_size = (int(face_size * self.crop_ratio[1]), int(face_size * self.crop_ratio[0]))
 
         if self.template_3points:
-            self.face_template = np.array([[192, 240], [319, 240], [257, 371]])
+            self.face_template = np.asarray([[192, 240], [319, 240], [257, 371]])
         else:
             # standard 5 landmarks for FFHQ faces with 512 x 512
-            self.face_template = np.array([[192.98138, 239.94708], [318.90277, 240.1936], [256.63416, 314.01935],
+            self.face_template = np.asarray([[192.98138, 239.94708], [318.90277, 240.1936], [256.63416, 314.01935],
                                            [201.26117, 371.41043], [313.08905, 371.15118]])
         self.face_template = self.face_template * (face_size / 512.0)
         if self.crop_ratio[0] > 1:
@@ -144,9 +144,9 @@ class FaceRestoreHelper(object):
                 continue
 
             if self.template_3points:
-                landmark = np.array([[bbox[i], bbox[i + 1]] for i in range(5, 11, 2)])
+                landmark = np.asarray([[bbox[i], bbox[i + 1]] for i in range(5, 11, 2)])
             else:
-                landmark = np.array([[bbox[i], bbox[i + 1]] for i in range(5, 15, 2)])
+                landmark = np.asarray([[bbox[i], bbox[i + 1]] for i in range(5, 15, 2)])
             self.all_landmarks_5.append(landmark)
             self.det_faces.append(bbox[0:5])
         if len(self.det_faces) == 0:

@@ -25,7 +25,7 @@ def log_txt_as_img(wh, xc, size=10):
         except UnicodeEncodeError:
             print("Cant encode string for logging. Skipping.")
 
-        txt = np.array(txt).transpose(2, 0, 1) / 127.5 - 1.0
+        txt = np.asarray(txt).transpose(2, 0, 1) / 127.5 - 1.0
         txts.append(txt)
     txts = np.stack(txts)
     txts = torch.tensor(txts)

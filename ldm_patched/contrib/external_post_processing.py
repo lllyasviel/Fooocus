@@ -154,7 +154,7 @@ class Quantize:
         bayer_n = int(math.log2(order))
         bayer_matrix = torch.from_numpy(spread * normalized_bayer_matrix(bayer_n) + 0.5)
 
-        result = torch.from_numpy(np.array(im).astype(np.float32))
+        result = torch.from_numpy(np.asarray(im).astype(np.float32))
         tw = math.ceil(result.shape[0] / bayer_matrix.shape[0])
         th = math.ceil(result.shape[1] / bayer_matrix.shape[1])
         tiled_matrix = bayer_matrix.tile(tw, th).unsqueeze(-1)
@@ -182,7 +182,7 @@ class Quantize:
                 order = int(dither.split('-')[-1])
                 quantized_image = Quantize.bayer(im, pal_im, order)
 
-            quantized_array = torch.tensor(np.array(quantized_image.convert("RGB"))).float() / 255
+            quantized_array = torch.tensor(np.asarray(quantized_image.convert("RGB"))).float() / 255
             result[b] = quantized_array
 
         return (result,)

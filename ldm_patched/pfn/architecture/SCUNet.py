@@ -149,7 +149,7 @@ class WMSA(nn.Module):
 
     def relative_embedding(self):
         cord = torch.tensor(
-            np.array(
+            np.asarray(
                 [
                     [i, j]
                     for i in range(self.window_size)

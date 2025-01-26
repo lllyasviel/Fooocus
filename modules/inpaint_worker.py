@@ -26,7 +26,7 @@ current_task = None
 def box_blur(x, k):
     x = Image.fromarray(x)
     x = x.filter(ImageFilter.BoxBlur(k))
-    return np.array(x)
+    return np.asarray(x)
 
 
 def max_filter_opencv(x, ksize=3):

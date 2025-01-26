@@ -40,7 +40,7 @@ def erode_or_dilate(x, k):
 def resample_image(im, width, height):
     im = Image.fromarray(im)
     im = im.resize((int(width), int(height)), resample=LANCZOS)
-    return np.array(im)
+    return np.asarray(im)
 
 
 def resize_image(im, width, height, resize_mode=1):
@@ -98,7 +98,7 @@ def resize_image(im, width, height, resize_mode=1):
                 res.paste(resized.resize((fill_width, height), box=(0, 0, 0, height)), box=(0, 0))
                 res.paste(resized.resize((fill_width, height), box=(resized.width, 0, resized.width, height)), box=(fill_width + src_w, 0))
 
-    return np.array(res)
+    return np.asarray(res)
 
 
 def get_shape_ceil(h, w):
