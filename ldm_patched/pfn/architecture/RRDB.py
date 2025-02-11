@@ -281,6 +281,7 @@ class RRDBNet(nn.Module):
         return max(*nbs) + 1
 
     def forward(self, x):
+        x = x.contiguous()
         if self.shuffle_factor:
             _, _, h, w = x.size()
             mod_pad_h = (
