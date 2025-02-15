@@ -1,0 +1,19 @@
+FROM python:3.10-slim
+
+# Install system dependencies
+RUN apt update && apt install -y git && rm -rf /var/lib/apt/lists/*
+
+# Clone Fooocus repository
+RUN git clone https://github.com/lllyasviel/Fooocus.git /app
+WORKDIR /app
+
+# Copy requirements.txt
+COPY cpu-only-requirements.txt /app/requirements.txt
+
+# Install Python dependencies from requirements.txt
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Run Fooocus
+CMD ["python", "/app/entry_with_update.py", "--always-cpu", "--port", "7860"]
+
