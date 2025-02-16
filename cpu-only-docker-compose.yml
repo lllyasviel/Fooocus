@@ -1,7 +1,6 @@
-version: '3.8'  # Always specify the version
-
 services:
   cpu-only-fooocus:
+    user: "${UID}:${GID}"    # Run as the same user as the host  
     build:
       context: .             # Use the Dockerfile in the current directory
       dockerfile: Dockerfile # Custom Dockerfile (if needed)
