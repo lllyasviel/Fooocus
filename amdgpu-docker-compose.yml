@@ -1,0 +1,13 @@
+services:
+  amdgpu-fooocus:
+    build:
+      context: .                    # Use custom Dockerfile in the current directory
+      dockerfile: amdgpu-Dockerfile # AMD GPU specific Dockerfile
+    container_name: amdgpu-fooocus
+    privileged: true
+    volumes:
+      - .:/workspace
+    environment:
+      - DISPLAY=${DISPLAY}
+#    ports:
+#      - "8888:8888"

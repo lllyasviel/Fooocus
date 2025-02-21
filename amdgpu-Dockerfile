@@ -1,0 +1,14 @@
+# Use the official ROCm PyTorch image as the base
+FROM rocm/pytorch:rocm6.1.3_ubuntu22.04_py3.10_pytorch_release-2.1.2
+
+# Set a working directory in the container
+WORKDIR /workspace
+
+# Copy the test script into the container
+COPY amdgpu-test.py /workspace/amdgpu-test.py
+
+# Set the working directory
+WORKDIR /workspace
+
+# Run the test script when the container starts
+CMD ["python3", "amdgpu-test.py"]
