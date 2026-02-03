@@ -27,9 +27,9 @@ TRY_INSTALL_XFORMERS = False
 
 
 def prepare_environment():
-    torch_index_url = os.environ.get('TORCH_INDEX_URL', "https://download.pytorch.org/whl/cu121")
+    torch_index_url = os.environ.get('TORCH_INDEX_URL', "https://download.pytorch.org/whl/cu128")
     torch_command = os.environ.get('TORCH_COMMAND',
-                                   f"pip install torch==2.1.0 torchvision==0.16.0 --extra-index-url {torch_index_url}")
+                                   f"pip install torch==2.7.1 torchvision==0.22.1 --extra-index-url {torch_index_url}")
     requirements_file = os.environ.get('REQS_FILE', "requirements_versions.txt")
 
     print(f"Python {sys.version}")
@@ -148,5 +148,16 @@ config.default_base_model_name, config.checkpoint_downloads = download_models(
 
 config.update_files()
 init_cache(config.model_filenames, config.paths_checkpoints, config.lora_filenames, config.paths_loras)
+
+if args.prompt is not None:
+    try:
+        from modules.cli_worker import run_cli
+        run_cli(args)
+        sys.exit(0)
+    except Exception as e:
+        print(f"[CLI] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 from webui import *
