@@ -428,6 +428,15 @@ Processed only for positive prompt.
 
 Applies a LoRA to the prompt. The LoRA file must be located in the `models/loras` directory.
 
+## Command Line Interface (CLI)
+
+Fooocus now supports a headless Command Line Interface for generating images without the Web UI.
+
+See [README_CLI.md](README_CLI.md) for detailed instructions.
+
+Quick Example:
+`python entry_with_update.py --prompt "astronaut in space" --output "space.png"`
+
 ## Advanced Features
 
 [Click here to browse the advanced features.](https://github.com/lllyasviel/Fooocus/discussions/117)

@@ -122,8 +122,28 @@ def patched_SDClipModel_forward(self, tokens):
                 if tokens[x, y] == max_token:
                     break
 
-    outputs = self.transformer(input_ids=tokens, attention_mask=attention_mask,
-                               output_hidden_states=self.layer == "hidden")
+    try:
+        outputs = self.transformer(input_ids=tokens, attention_mask=attention_mask,
+                                   output_hidden_states=self.layer == "hidden")
+    except TypeError:
+        # Fallback for ldm_patched.modules.clip_model.CLIPTextModel_
+        # which uses a different signature than transformers.CLIPTextModel
+        intermediate_output = self.layer_idx if self.layer == "hidden" else None
+        # Note: ldm_patched expects positional input_tokens
+        outputs = self.transformer(tokens, attention_mask=attention_mask,
+                                   intermediate_output=intermediate_output)
+
+    # Handle ldm_patched return type (tuple) vs transformers return type (BaseModelOutputWithPooling)
+    if isinstance(outputs, tuple):
+        class MockOutput:
+            pass
+        out_obj = MockOutput()
+        out_obj.last_hidden_state = outputs[0]
+        # output[1] is intermediate
+        out_obj.hidden_states = {self.layer_idx: outputs[1]} if outputs[1] is not None else None 
+        out_obj.pooler_output = outputs[2]
+        outputs = out_obj
+
     self.transformer.set_input_embeddings(backup_embeds)
 
     if self.layer == "last":
@@ -131,7 +151,12 @@ def patched_SDClipModel_forward(self, tokens):
     elif self.layer == "pooled":
         z = outputs.pooler_output[:, None, :]
     else:
-        z = outputs.hidden_states[self.layer_idx]
+        # For ldm_patched, we stored it in the dict with key layer_idx
+        if isinstance(outputs.hidden_states, dict):
+            z = outputs.hidden_states[self.layer_idx]
+        else:
+            z = outputs.hidden_states[self.layer_idx]
+            
         if self.layer_norm_hidden_state:
             z = self.transformer.text_model.final_layer_norm(z)
 

@@ -58,7 +58,7 @@ class ModelSamplingDiscrete(torch.nn.Module):
         else:
             betas = make_beta_schedule(beta_schedule, timesteps, linear_start=linear_start, linear_end=linear_end, cosine_s=cosine_s)
         alphas = 1. - betas
-        alphas_cumprod = torch.cumprod(alphas, dim=0)
+        alphas_cumprod = torch.cumprod(torch.tensor(alphas, dtype=torch.float32), dim=0)
 
         timesteps, = betas.shape
         self.num_timesteps = int(timesteps)
