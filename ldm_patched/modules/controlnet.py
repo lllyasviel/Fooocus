@@ -288,7 +288,7 @@ class ControlLora(ControlNet):
             weight = sd[k]
             try:
                 ldm_patched.modules.utils.set_attr(self.control_model, k, weight)
-            except:
+            except Exception:
                 pass
 
         for k in self.control_weights:

@@ -33,7 +33,7 @@ def load_hypernetwork_patch(path, strength):
     for d in sd:
         try:
             dim = int(d)
-        except:
+        except Exception:
             continue
 
         output = []

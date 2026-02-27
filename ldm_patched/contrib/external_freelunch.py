@@ -50,7 +50,7 @@ class FreeU:
                 if hsp.device not in on_cpu_devices:
                     try:
                         hsp = Fourier_filter(hsp, threshold=1, scale=scale[1])
-                    except:
+                    except Exception:
                         print("Device", hsp.device, "does not support the torch.fft functions used in the FreeU node, switching to CPU.")
                         on_cpu_devices[hsp.device] = True
                         hsp = Fourier_filter(hsp.cpu(), threshold=1, scale=scale[1]).to(hsp.device)
@@ -96,7 +96,7 @@ class FreeU_V2:
                 if hsp.device not in on_cpu_devices:
                     try:
                         hsp = Fourier_filter(hsp, threshold=1, scale=scale[1])
-                    except:
+                    except Exception:
                         print("Device", hsp.device, "does not support the torch.fft functions used in the FreeU node, switching to CPU.")
                         on_cpu_devices[hsp.device] = True
                         hsp = Fourier_filter(hsp.cpu(), threshold=1, scale=scale[1]).to(hsp.device)

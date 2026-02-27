@@ -620,7 +620,7 @@ class CodeFormer(VQAutoEncoder):
             n_layers = len(
                 set([x.split(".")[1] for x in state_dict.keys() if "ft_layers" in x])
             )
-        except:
+        except Exception:
             pass
 
         codebook_size = state_dict["quantize.embedding.weight"].shape[0]

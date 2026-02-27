@@ -237,7 +237,7 @@ def token_weights(string, current_weight):
                 try:
                     weight = float(x[xx+1:])
                     x = x[:xx]
-                except:
+                except Exception:
                     pass
             out += token_weights(x, weight)
         else:
@@ -294,7 +294,7 @@ def load_embed(embedding_name, embedding_directory, embedding_size, embed_key=No
         try:
             if os.path.commonpath((embed_dir, embed_path)) != embed_dir:
                 continue
-        except:
+        except Exception:
             continue
         if not os.path.isfile(embed_path):
             extensions = ['.safetensors', '.pt', '.bin']
@@ -323,7 +323,7 @@ def load_embed(embedding_name, embedding_directory, embedding_size, embed_key=No
             if 'weights_only' in torch.load.__code__.co_varnames:
                 try:
                     embed = torch.load(embed_path, weights_only=True, map_location="cpu")
-                except:
+                except Exception:
                     embed_out = safe_load_embed_zip(embed_path)
             else:
                 embed = torch.load(embed_path, map_location="cpu", weights_only=True)

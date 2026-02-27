@@ -482,7 +482,7 @@ def apply_wildcards(wildcard_text, rng, i, read_wildcards_in_order) -> str:
                     wildcard_text = wildcard_text.replace(f'__{placeholder}__', words[i % len(words)], 1)
                 else:
                     wildcard_text = wildcard_text.replace(f'__{placeholder}__', rng.choice(words), 1)
-            except:
+            except Exception:
                 print(f'[Wildcards] Warning: {placeholder}.txt missing or empty. '
                       f'Using "{placeholder}" as a normal word.')
                 wildcard_text = wildcard_text.replace(f'__{placeholder}__', placeholder)
