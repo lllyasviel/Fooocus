@@ -358,7 +358,7 @@ def apply_control(h, control, name):
         if ctrl is not None:
             try:
                 h += ctrl
-            except:
+            except Exception:
                 print("warning control could not be applied", h.shape, ctrl.shape)
     return h
 

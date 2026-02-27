@@ -37,5 +37,5 @@ def try_eval_env_var(value: str, expected_type=None):
         if expected_type is not None and not isinstance(value_eval, expected_type):
             return value
         return value_eval
-    except:
+    except Exception:
         return value

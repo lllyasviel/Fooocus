@@ -1473,7 +1473,7 @@ def worker():
                     build_image_wall(task)
                 task.yields.append(['finish', task.results])
                 pipeline.prepare_text_encoder(async_call=True)
-            except:
+            except Exception:
                 traceback.print_exc()
                 task.yields.append(['finish', task.results])
             finally:

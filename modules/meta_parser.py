@@ -78,7 +78,7 @@ def get_str(key: str, fallback: str | None, source_dict: dict, results: list, de
         assert isinstance(h, str)
         results.append(h)
         return h
-    except:
+    except Exception:
         results.append(gr.update())
         return None
 
@@ -89,7 +89,7 @@ def get_list(key: str, fallback: str | None, source_dict: dict, results: list, d
         h = eval(h)
         assert isinstance(h, list)
         results.append(h)
-    except:
+    except Exception:
         results.append(gr.update())
 
 
@@ -99,7 +99,7 @@ def get_number(key: str, fallback: str | None, source_dict: dict, results: list,
         assert h is not None
         h = cast_type(h)
         results.append(h)
-    except:
+    except Exception:
         results.append(gr.update())
 
 
@@ -110,7 +110,7 @@ def get_image_number(key: str, fallback: str | None, source_dict: dict, results:
         h = int(h)
         h = min(h, modules.config.default_max_image_number)
         results.append(h)
-    except:
+    except Exception:
         results.append(1)
 
 
@@ -126,7 +126,7 @@ def get_steps(key: str, fallback: str | None, source_dict: dict, results: list, 
             results.append(h)
             return
         results.append(-1)
-    except:
+    except Exception:
         results.append(-1)
 
 
@@ -143,7 +143,7 @@ def get_resolution(key: str, fallback: str | None, source_dict: dict, results: l
             results.append(gr.update())
             results.append(int(width))
             results.append(int(height))
-    except:
+    except Exception:
         results.append(gr.update())
         results.append(gr.update())
         results.append(gr.update())
@@ -156,7 +156,7 @@ def get_seed(key: str, fallback: str | None, source_dict: dict, results: list, d
         h = int(h)
         results.append(False)
         results.append(h)
-    except:
+    except Exception:
         results.append(gr.update())
         results.append(gr.update())
 
@@ -171,7 +171,7 @@ def get_inpaint_engine_version(key: str, fallback: str | None, source_dict: dict
             results.append(gr.update())
         results.append(h)
         return h
-    except:
+    except Exception:
         results.append(gr.update())
         results.append('empty')
         return None
@@ -185,7 +185,7 @@ def get_inpaint_method(key: str, fallback: str | None, source_dict: dict, result
         for i in range(modules.config.default_enhance_tabs):
             results.append(h)
         return h
-    except:
+    except Exception:
         results.append(gr.update())
         for i in range(modules.config.default_enhance_tabs):
             results.append(gr.update())
@@ -198,7 +198,7 @@ def get_adm_guidance(key: str, fallback: str | None, source_dict: dict, results:
         results.append(float(p))
         results.append(float(n))
         results.append(float(e))
-    except:
+    except Exception:
         results.append(gr.update())
         results.append(gr.update())
         results.append(gr.update())
@@ -213,7 +213,7 @@ def get_freeu(key: str, fallback: str | None, source_dict: dict, results: list, 
         results.append(float(b2))
         results.append(float(s1))
         results.append(float(s2))
-    except:
+    except Exception:
         results.append(False)
         results.append(gr.update())
         results.append(gr.update())
@@ -240,7 +240,7 @@ def get_lora(key: str, fallback: str | None, source_dict: dict, results: list, p
         results.append(enabled)
         results.append(name)
         results.append(weight)
-    except:
+    except Exception:
         results.append(True)
         results.append('None')
         results.append(1)

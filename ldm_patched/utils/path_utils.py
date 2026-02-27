@@ -43,7 +43,7 @@ filename_list_cache = {}
 if not os.path.exists(input_directory):
     try:
         pass  # os.makedirs(input_directory)
-    except:
+    except Exception:
         print("Failed to create input directory")
 
 def set_output_directory(output_dir):
@@ -228,7 +228,7 @@ def get_save_image_path(filename_prefix, output_dir, image_width=0, image_height
         prefix = filename[:prefix_len + 1]
         try:
             digits = int(filename[prefix_len + 1:].split('_')[0])
-        except:
+        except Exception:
             digits = 0
         return (digits, prefix)
 
