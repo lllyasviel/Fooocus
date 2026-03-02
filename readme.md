@@ -115,7 +115,24 @@ See also the common problems and troubleshoots [here](troubleshoot.md).
 | --- | --- |
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lllyasviel/Fooocus/blob/main/fooocus_colab.ipynb) | Fooocus Official
 
-In Colab, you can modify the last line to `!python entry_with_update.py --share --always-high-vram` or `!python entry_with_update.py --share --always-high-vram --preset anime` or `!python entry_with_update.py --share --always-high-vram --preset realistic` for Fooocus Default/Anime/Realistic Edition.
+# The current version has CuPy conflicts. Run it in Google Colab using the following code:
+
+import os
+
+!pip install pygit2==1.15.1
+
+%cd /content
+
+!git clone https://github.com/lllyasviel/Fooocus.git
+
+%cd /content/Fooocus
+
+# Uninstall existing cupy installations to prevent conflicts
+!pip uninstall -y cupy cupy-cuda11x cupy-cuda12x
+
+!python entry_with_update.py --share --always-high-vram --preset realistic 
+# In Colab, you can modify the last line to
+ `!python entry_with_update.py --share --always-high-vram` or `!python entry_with_update.py --share --always-high-vram --preset anime` or `!python entry_with_update.py --share --always-high-vram --preset realistic` for Fooocus Default/Anime/Realistic Edition.
 
 You can also change the preset in the UI. Please be aware that this may lead to timeouts after 60 seconds. If this is the case, please wait until the download has finished, change the preset to initial and back to the one you've selected or reload the page.
 
