@@ -375,7 +375,7 @@ def patched_cldm_forward(self, x, hint, timesteps, context, y=None, **kwargs):
 
 def patched_unet_forward(self, x, timesteps=None, context=None, y=None, control=None, transformer_options={}, **kwargs):
     self.current_step = 1.0 - timesteps.to(x) / 999.0
-    patch_settings[os.getpid()].global_diffusion_progress = float(self.current_step.detach().cpu().numpy().tolist()[0])
+    patch_settings[os.getpid()].global_diffusion_progress = float(self.current_step.detach().cpu().float().flatten()[0].item())
 
     y = timed_adm(y, timesteps)
 

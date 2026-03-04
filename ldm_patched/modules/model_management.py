@@ -491,6 +491,14 @@ def unet_inital_load_device(parameters, dtype):
         return cpu_dev
 
 def unet_dtype(device=None, model_params=0):
+    # RTX 50xx Blackwell (sm_120, major>=12): use bf16 for native tensor core support
+    if torch.cuda.is_available():
+        _dev = device if device is not None else "cuda"
+        try:
+            if torch.cuda.get_device_properties(_dev).major >= 12:
+                return torch.bfloat16
+        except Exception:
+            pass
     if args.unet_in_bf16:
         return torch.bfloat16
     if args.unet_in_fp16:
@@ -506,6 +514,9 @@ def unet_dtype(device=None, model_params=0):
 # None means no manual cast
 def unet_manual_cast(weight_dtype, inference_device):
     if weight_dtype == torch.float32:
+        return None
+
+    if weight_dtype == torch.bfloat16:
         return None
 
     fp16_supported = ldm_patched.modules.model_management.should_use_fp16(inference_device, prioritize_performance=False)

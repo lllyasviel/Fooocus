@@ -207,7 +207,7 @@ def patch_model(model, tasks):
     def make_attn_patcher(ip_index):
         def patcher(n, context_attn2, value_attn2, extra_options):
             org_dtype = n.dtype
-            current_step = float(model.model.diffusion_model.current_step.detach().cpu().numpy()[0])
+            current_step = float(model.model.diffusion_model.current_step.detach().cpu().float().numpy()[0])
             cond_or_uncond = extra_options['cond_or_uncond']
 
             q = n
