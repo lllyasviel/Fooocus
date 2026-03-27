@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Fooocus WebUI",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["launch.py"],
+      "port": 7865
+    },
+    {
+      "name": "Fooocus WebUI (ブラウザ自動起動)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["launch.py", "--in-browser"],
+      "port": 7865
+    },
+    {
+      "name": "Fooocus WebUI (アップデート付き起動)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["entry_with_update.py"],
+      "port": 7865
+    },
+    {
+      "name": "Prompt Forge Bridge (単独テスト)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-c", "import prompt_forge_bridge; import time; prompt_forge_bridge.start_bridge(); print('Bridge running on http://127.0.0.1:8080'); time.sleep(86400)"],
+      "port": 8080
+    }
+  ]
+}

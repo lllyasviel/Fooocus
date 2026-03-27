@@ -416,3 +416,126 @@ div:has(> #positive_prompt) {
 #inpaint_brush_color input[type=color]{
   background: none;
 }
+
+/* ── ブラッシュアップ コンパクトボタン ── */
+.brushup_btn_col button {
+  padding: 3px 6px !important;
+  font-size: 11px !important;
+  min-height: 28px !important;
+  height: 28px !important;
+  line-height: 1.2 !important;
+}
+
+#brushup_bar {
+  align-items: flex-start !important;
+  gap: 6px !important;
+}
+
+/* ── OpenCV エディットパネル ── */
+#edit_panel {
+  border-top: 1px solid rgba(255,255,255,0.08) !important;
+  padding-top: 8px !important;
+  margin-top: 4px !important;
+}
+
+/* プリセットボタン */
+#edit_presets button, .preset_btn button {
+  padding: 3px 5px !important;
+  font-size: 10px !important;
+  min-height: 26px !important;
+  height: 26px !important;
+  line-height: 1.1 !important;
+}
+
+/* 回転・反転・B/Aボタン */
+#edit_panel .gr-row button {
+  padding: 3px 6px !important;
+  font-size: 11px !important;
+  min-height: 26px !important;
+}
+
+/* スライダーラベル */
+#edit_panel label {
+  font-size: 11px !important;
+  margin-bottom: 0 !important;
+}
+
+/* スライダー間隔を詰める */
+#edit_panel .gr-form {
+  gap: 2px !important;
+}
+
+/* ══════════════════════════════════════════
+   統一感テーマ — アクセントカラー: #7c4dff (紫)
+   ══════════════════════════════════════════ */
+
+/* ── アコーディオン共通 ── */
+#pf_accordion > .label-wrap,
+#user_sp_accordion > .label-wrap {
+  border-left: 3px solid #7c4dff !important;
+  padding-left: 8px !important;
+}
+
+/* ── ブラッシュアップバー 背景帯 ── */
+#brushup_bar {
+  background: rgba(124, 77, 255, 0.04) !important;
+  border-radius: 8px !important;
+  padding: 6px 8px !important;
+  border: 1px solid rgba(124, 77, 255, 0.12) !important;
+}
+
+/* ── 微調整・強変更ボタン: プライマリ色をテーマ紫に ── */
+.brushup_btn_col button.secondary {
+  border-color: rgba(124, 77, 255, 0.4) !important;
+  color: rgba(180, 150, 255, 0.9) !important;
+}
+.brushup_btn_col button.secondary:hover {
+  background: rgba(124, 77, 255, 0.15) !important;
+  border-color: #7c4dff !important;
+}
+
+/* ── 変更して生成ボタン ── */
+.brushup_btn_col button.primary {
+  background: linear-gradient(135deg, #7c4dff 0%, #5c35cc 100%) !important;
+  border: none !important;
+}
+
+/* ── エディットパネル ── */
+#edit_panel {
+  background: rgba(124, 77, 255, 0.03) !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(124, 77, 255, 0.10) !important;
+  border-top: 1px solid rgba(124, 77, 255, 0.15) !important;
+  padding: 8px !important;
+}
+
+/* ── 設定プリセット アコーディオン内 ── */
+#user_sp_accordion {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+/* ── 生成ボタンは維持しつつ補助ボタンをトーン統一 ── */
+#generate_button {
+  background: linear-gradient(135deg, #7c4dff 0%, #3a1d96 100%) !important;
+  box-shadow: 0 2px 12px rgba(124, 77, 255, 0.35) !important;
+}
+
+/* ── セクション区切り (Prompt Forge 上部) ── */
+#pf_accordion {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+/* ── プリセットボタン ホバー ── */
+#edit_presets button:hover, .preset_btn button:hover {
+  background: rgba(124, 77, 255, 0.2) !important;
+  border-color: #7c4dff !important;
+  color: #d0b8ff !important;
+}
+
+/* ── ステータス HTML テキストカラー ── */
+#brushup_status_html {
+  color: rgba(200, 185, 255, 0.85) !important;
+  font-size: 12px !important;
+}
