@@ -1,0 +1,3110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROMPT FORGE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root {
+    --bg:#0a0a0f;--surface:#11111a;--surface2:#18182a;--border:#2a2a45;
+    --accent:#7c4dff;--accent2:#ff4da6;--accent3:#00e5ff;
+    --text:#e0e0ff;--text2:#8888bb;--success:#00e5a0;--neg:#ff6b6b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;padding:20px 14px;
+    background-image:radial-gradient(ellipse at 20% 0%,rgba(124,77,255,.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(255,77,166,.08) 0%,transparent 60%);}
+  h1{font-family:'Orbitron',monospace;font-size:17px;font-weight:900;letter-spacing:3px;text-align:center;
+    background:linear-gradient(90deg,var(--accent3),var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2px;}
+  .subtitle{text-align:center;font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:20px;}
+
+  /* API KEY */
+  .apikey-bar{display:flex;gap:8px;margin-bottom:16px;align-items:center;}
+  .apikey-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 12px;outline:none;transition:border-color .2s;}
+  .apikey-input:focus{border-color:var(--accent3);}
+  .apikey-input::placeholder{color:var(--text2);}
+  .apikey-status{font-size:9px;font-family:'Orbitron',monospace;letter-spacing:1px;white-space:nowrap;}
+  .apikey-status.ok{color:var(--success);}
+  .apikey-status.no{color:var(--neg);}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:.6;}
+  .card.neg-card::before{background:linear-gradient(90deg,var(--neg),#ff9f43);}
+  .card.final-card::before{background:linear-gradient(90deg,var(--success),var(--accent3));}
+  .card.save-card::before{background:linear-gradient(90deg,#f39c12,#e67e22);}
+  .card.key-card::before{background:linear-gradient(90deg,var(--accent3),var(--accent));}
+
+  .slabel{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+  .slabel.neg{color:var(--neg);} .slabel.final{color:var(--success);} .slabel.save-col{color:#f39c12;} .slabel.key-col{color:var(--accent3);}
+  textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);
+    font-family:'Noto Sans JP',sans-serif;font-size:13px;padding:11px;resize:vertical;min-height:80px;outline:none;transition:border-color .2s;}
+  textarea:focus{border-color:var(--accent);}
+  textarea.neg-ta:focus{border-color:var(--neg);}
+  textarea::placeholder{color:var(--text2);}
+  .output-area{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:#00e5ff;
+    font-family:'JetBrains Mono',monospace;font-size:11px;padding:11px;min-height:50px;white-space:pre-wrap;word-break:break-all;line-height:1.8;}
+  .output-area.empty{color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:12px;}
+  .output-area.neg-color{color:#ff9f9f;}
+  .btn-translate{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),#5c35cc);border:none;border-radius:9px;color:#fff;
+    font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;margin:9px 0;transition:all .2s;}
+  .btn-translate:hover{transform:translateY(-1px);filter:brightness(1.15);}
+  .btn-translate:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  .btn-translate.neg-btn{background:linear-gradient(135deg,#c0392b,#e74c3c);}
+  .spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .row-btns{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+  .btn{padding:5px 11px;border-radius:6px;font-size:9px;cursor:pointer;font-family:'Orbitron',monospace;letter-spacing:1px;transition:all .2s;border:1px solid var(--accent);background:rgba(124,77,255,.1);color:var(--accent);}
+  .btn:hover{background:rgba(124,77,255,.25);}
+  .btn.btn-c{border-color:var(--accent3);background:var(--surface2);color:var(--accent3);}
+  .btn.btn-c:hover{background:rgba(0,229,255,.1);}
+  .btn.btn-c.copied{border-color:var(--success);color:var(--success);}
+  .btn.btn-d{border-color:#ff6666;background:transparent;color:#ff6666;}
+  .btn.btn-d:hover{background:rgba(255,100,100,.1);}
+  .btn.btn-save{border-color:#f39c12;background:rgba(243,156,18,.1);color:#f39c12;}
+  .btn.btn-save:hover{background:rgba(243,156,18,.25);}
+  .btn.btn-rand{border-color:#00e5a0;background:rgba(0,229,160,.1);color:#00e5a0;}
+  .btn.btn-rand:hover{background:rgba(0,229,160,.25);}
+
+  .preset-tabs{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+  .ptab{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;cursor:pointer;transition:all .2s;font-family:'Noto Sans JP',sans-serif;}
+  .ptab.active{border-color:var(--accent2);color:var(--accent2);background:rgba(255,77,166,.08);}
+  .ptab-animagine.active{border-color:#7c4dff;color:#a78bfa;background:rgba(124,77,255,.12);}
+  .ptab-pony.active{border-color:#ff4da6;color:#ff80c0;background:rgba(255,77,166,.12);}
+  .ptab-general.active{border-color:#00e5ff;color:#00e5ff;background:rgba(0,229,255,.08);}
+  .ptab-style.active{border-color:#00e5a0;color:#00e5a0;background:rgba(0,229,160,.08);}
+  .ptab-rating{border-color:rgba(255,230,0,.3);color:rgba(255,230,0,.7);}
+  .ptab-rating.active{border-color:#ffe600;color:#ffe600;background:rgba(255,230,0,.08);}
+  .ptab-year{border-color:rgba(0,229,255,.25);color:rgba(0,229,255,.6);}
+  .ptab-year.active{border-color:#00e5ff;color:#00e5ff;background:rgba(0,229,255,.08);}
+  .src-rating{background:rgba(255,230,0,.18);border-color:rgba(255,230,0,.4);color:#ffe600;}
+  .ptab-chara.active{border-color:#f9a825;color:#ffe57f;background:rgba(249,168,37,.08);}
+  .ptab-appear.active{border-color:#ab47bc;color:#e040fb;background:rgba(171,71,188,.08);}
+  .ptab-nsfw.active{border-color:#ff6b6b;color:#ff9f9f;background:rgba(255,107,107,.12);}
+  .ptab-neg-ani{border-color:var(--border);color:var(--text2);}
+  .ptab-neg-ani.active{border-color:#ff7043;color:#ffab91;background:rgba(255,112,67,.12);}
+  .ptab-neg-pony{border-color:var(--border);color:var(--text2);}
+  .ptab-neg-pony.active{border-color:#f06292;color:#f8bbd0;background:rgba(240,98,146,.12);}
+  /* negative selected zone */
+  .neg-sel-zone{display:flex;flex-wrap:wrap;gap:5px;min-height:36px;padding:8px;background:var(--surface2);border-radius:6px;border:1px dashed rgba(255,107,107,.3);margin-top:8px;}
+  .neg-sel-label{font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:var(--neg);margin-top:10px;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+  .all-btn{margin-left:auto;padding:4px 10px;border-radius:20px;border:1px solid var(--accent3);background:transparent;color:var(--accent3);
+    font-size:9px;cursor:pointer;transition:all .2s;font-family:'Orbitron',monospace;letter-spacing:1px;white-space:nowrap;}
+  .all-btn:hover{background:rgba(0,229,255,.1);}
+  .all-btn.all-on{border-color:var(--accent2);color:var(--accent2);background:rgba(255,77,166,.1);}
+
+  .search-wrap{position:relative;margin-bottom:10px;}
+  .search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 32px 8px 10px;outline:none;transition:border-color .2s;}
+  .search-input:focus{border-color:var(--accent3);}
+  .search-input::placeholder{color:var(--text2);}
+  .search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;padding:0;}
+  .search-clear:hover{color:var(--text);}
+
+  .tags-grid{display:flex;flex-wrap:wrap;gap:5px;}
+  .tag{padding:4px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);
+    font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all .15s;user-select:none;}
+  .tag:hover{border-color:var(--accent);color:var(--text);}
+  .tag.selected{border-color:var(--accent2);background:rgba(255,77,166,.15);color:var(--accent2);}
+  .tag.search-match{border-color:var(--accent3);color:var(--accent3);}
+  .tag.search-match.selected{border-color:var(--accent2);color:var(--accent2);}
+  .tag-jp{display:block;font-size:8px;color:var(--text2);font-family:'Noto Sans JP',sans-serif;margin-top:2px;line-height:1.2;}
+  .tag.selected .tag-jp{color:rgba(255,77,166,.7);}
+  .tag:hover .tag-jp{color:var(--text2);}
+
+  .selected-tags-zone{display:flex;flex-wrap:wrap;gap:5px;min-height:36px;padding:8px;background:var(--surface2);border-radius:6px;border:1px dashed var(--border);margin-top:8px;}
+  .sel-tag{padding:4px 8px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:grab;user-select:none;display:flex;align-items:center;gap:5px;transition:all .15s;border:1px solid var(--accent2);background:rgba(255,77,166,.12);color:var(--accent2);}
+  .sel-tag.src-animagine{border-color:#7c4dff;background:rgba(124,77,255,.18);color:#a78bfa;}
+  .sel-tag.src-pony{border-color:#e040a0;background:rgba(224,64,160,.15);color:#ff80c0;}
+  .sel-tag.src-general{border-color:#00b8cc;background:rgba(0,184,204,.12);color:#00e5ff;}
+  .sel-tag.src-style{border-color:#00c896;background:rgba(0,200,150,.12);color:#00e5a0;}
+  .zgl-style{color:#00e5a0;border:1px solid rgba(0,229,160,.4);background:rgba(0,229,160,.08);}
+  .sel-tag.src-nsfw{border-color:#cc4444;background:rgba(204,68,68,.12);color:#ff9f9f;}
+  .sel-tag.src-neg_animagine{border-color:#ff7043;background:rgba(255,112,67,.12);color:#ffab91;}
+  .sel-tag.src-neg_pony{border-color:#f06292;background:rgba(240,98,146,.12);color:#f8bbd0;}
+  .sel-tag.src-chara{border-color:#f9a825;background:rgba(249,168,37,.12);color:#ffe57f;}
+  .sel-tag.src-appear{border-color:#ab47bc;background:rgba(171,71,188,.12);color:#e040fb;}
+  .sel-tag.locked{box-shadow:0 0 0 1px #fff3,inset 0 0 0 1px #fff1;}
+  .lock-btn{cursor:pointer;font-size:10px;line-height:1;opacity:.45;transition:opacity .15s;padding:0 2px;}
+  .lock-btn:hover{opacity:1;}
+  .lock-btn.is-locked{opacity:1;}
+  .sel-tag:active{cursor:grabbing;}
+  .sel-tag.dragging{opacity:.4;border-style:dashed;}
+  .sel-tag.drag-over{border-color:#fff;background:rgba(255,255,255,.1);}
+  .sel-tag .del-tag{cursor:pointer;color:var(--text2);font-size:12px;line-height:1;}
+  .sel-tag .del-tag:hover{color:var(--neg);}
+  .empty-zone{color:var(--text2);font-size:11px;font-family:'Noto Sans JP',sans-serif;padding:2px;}
+  .tag-count{font-size:9px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-left:auto;}
+  .zone-group-label{font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;padding:1px 6px;border-radius:3px;margin-right:2px;flex-shrink:0;}
+  .zgl-animagine{color:#a78bfa;border:1px solid rgba(124,77,255,.4);background:rgba(124,77,255,.1);}
+  .zgl-pony{color:#ff80c0;border:1px solid rgba(255,77,166,.4);background:rgba(255,77,166,.1);}
+  .zgl-general{color:#00e5ff;border:1px solid rgba(0,229,255,.3);background:rgba(0,229,255,.08);}
+  .zgl-chara{color:#ffe57f;border:1px solid rgba(249,168,37,.4);background:rgba(249,168,37,.08);}
+  .zgl-appear{color:#e040fb;border:1px solid rgba(171,71,188,.4);background:rgba(171,71,188,.08);}
+  .zgl-nsfw{color:#ff9f9f;border:1px solid rgba(255,107,107,.4);background:rgba(255,107,107,.1);}
+  .zgl-neg_animagine{color:#ffab91;border:1px solid rgba(255,112,67,.4);background:rgba(255,112,67,.1);}
+  .zgl-neg_pony{color:#f8bbd0;border:1px solid rgba(240,98,146,.4);background:rgba(240,98,146,.1);}
+  .zone-sep{width:100%;height:1px;background:rgba(255,255,255,.06);flex-basis:100%;margin:2px 0;}
+  /* translated text display in selzone */
+  .sel-zone-translated{width:100%;background:rgba(0,229,255,.06);border:1px dashed rgba(0,229,255,.2);border-radius:6px;padding:7px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent3);line-height:1.7;word-break:break-all;margin-bottom:4px;}
+  .sel-zone-translated-label{font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;color:var(--accent3);opacity:.7;display:block;margin-bottom:3px;}
+
+  .random-result{margin-top:8px;padding:8px 10px;background:var(--surface2);border-radius:6px;border:1px dashed rgba(0,229,160,.3);
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--success);word-break:break-all;min-height:32px;line-height:1.7;}
+
+  .save-name-row{display:flex;gap:7px;margin-bottom:8px;}
+  .save-name-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);
+    font-family:'Noto Sans JP',sans-serif;font-size:12px;padding:7px 10px;outline:none;transition:border-color .2s;}
+  .save-name-input:focus{border-color:#f39c12;}
+  .save-name-input::placeholder{color:var(--text2);}
+  .save-list{display:flex;flex-direction:column;gap:5px;max-height:220px;overflow-y:auto;}
+  .save-item{padding:8px 10px;background:var(--surface2);border-radius:7px;border:1px solid var(--border);transition:all .15s;}
+  .save-item:hover{border-color:#f39c12;}
+  .save-item-name{font-family:'Orbitron',monospace;font-size:9px;color:#f39c12;margin-bottom:3px;letter-spacing:1px;}
+  .save-item-pos{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--success);word-break:break-all;line-height:1.5;margin-bottom:2px;}
+  .save-item-neg{font-family:'JetBrains Mono',monospace;font-size:10px;color:#ff9f9f;word-break:break-all;line-height:1.5;}
+  .save-item-row{display:flex;align-items:center;gap:6px;margin-top:5px;}
+  .empty-saves{color:var(--text2);font-size:12px;padding:8px;text-align:center;}
+
+  .coll-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+  .coll-toggle .arr{font-size:9px;transition:transform .2s;color:var(--text2);}
+  .coll-toggle.open .arr{transform:rotate(90deg);}
+  .coll-body{overflow:hidden;transition:max-height .35s ease;}
+  .coll-body.closed{max-height:0;}
+  .coll-body.open{max-height:2000px;padding-top:10px;}
+
+  .final-output{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--success);background:var(--surface2);
+    border:1px solid rgba(0,229,160,.3);border-radius:8px;padding:11px;min-height:44px;word-break:break-all;line-height:1.8;}
+  .final-neg-output{font-family:'JetBrains Mono',monospace;font-size:11px;color:#ff9f9f;background:var(--surface2);
+    border:1px solid rgba(255,107,107,.3);border-radius:8px;padding:11px;min-height:36px;word-break:break-all;line-height:1.8;margin-top:8px;}
+  .label-s{font-size:9px;font-family:'Orbitron',monospace;letter-spacing:1px;color:var(--text2);margin-bottom:4px;}
+  .divider{height:1px;background:var(--border);margin:10px 0;}
+
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:var(--surface2);}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .api-note{font-size:10px;color:var(--text2);text-align:center;margin-top:14px;line-height:1.6;}
+  .err-msg{color:var(--neg);font-size:11px;font-family:'Noto Sans JP',sans-serif;margin-top:6px;}
+
+  /* ===== WC BADGE (タブに密着するwildcardバッジ) ===== */
+  .wc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 3px;
+    color: rgba(255,255,255,.22);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5px;
+    letter-spacing: .5px;
+    padding: 2px 5px;
+    cursor: pointer;
+    margin-left: -3px;
+    transition: all .18s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .wc-btn::before {
+    content: '◆';
+    font-size: 5px;
+    opacity: .5;
+  }
+  .wc-btn:hover {
+    background: rgba(255,193,7,.14);
+    border-color: rgba(255,193,7,.55);
+    color: #ffd54f;
+  }
+  .wc-btn:hover::before { opacity: 1; }
+  .wc-btn.wc-active {
+    background: rgba(255,193,7,.22);
+    border-color: rgba(255,193,7,.75);
+    color: #ffd54f;
+    box-shadow: 0 0 6px rgba(255,193,7,.25);
+  }
+  .wc-btn.wc-active::before { opacity: 1; content: '◆'; color: #ffd54f; }
+
+  .wc-all-btn {
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,193,7,.45);
+    background: transparent;
+    color: rgba(255,193,7,.8);
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .18s;
+    white-space: nowrap;
+  }
+  .wc-all-btn:hover {
+    background: rgba(255,193,7,.15);
+    border-color: rgba(255,193,7,.8);
+    color: #ffd54f;
+  }
+  .wc-all-btn.wc-all-off {
+    border-color: rgba(255,100,100,.4);
+    color: rgba(255,120,120,.7);
+  }
+  .wc-all-btn.wc-all-off:hover {
+    background: rgba(255,100,100,.12);
+    border-color: rgba(255,100,100,.7);
+    color: #ff9f9f;
+  }
+
+  /* ===== WILDCARD SHELF BUTTONS ===== */
+  .wc-shelf-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255,193,7,.04);
+    border: 1px solid rgba(255,193,7,.18);
+    border-radius: 9px;
+    padding: 8px 14px 8px 10px;
+    cursor: pointer;
+    transition: all .18s;
+    color: var(--text);
+    text-align: left;
+  }
+  .wc-shelf-btn:hover {
+    background: rgba(255,193,7,.13);
+    border-color: rgba(255,193,7,.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(255,193,7,.08);
+  }
+  .wc-shelf-btn.wc-active {
+    background: rgba(255,193,7,.18);
+    border-color: rgba(255,193,7,.7);
+    box-shadow: 0 0 12px rgba(255,193,7,.18);
+  }
+  .wc-shelf-btn.wc-active .wcsb-tag {
+    color: rgba(255,193,7,.75);
+  }
+  .wc-shelf-btn.wc-active .wcsb-label {
+    text-shadow: 0 0 8px rgba(255,193,7,.4);
+  }
+  .wcsb-icon {
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .wcsb-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .wcsb-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: #ffd54f;
+    white-space: nowrap;
+  }
+  .wcsb-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: rgba(255,193,7,.38);
+    white-space: nowrap;
+  }
+
+  /* ===== CHARA SEARCH ===== */
+  .chara-search-input {
+    background: rgba(30,12,48,.9);
+    border: 1px solid rgba(249,168,37,.25);
+    border-radius: 5px;
+    color: #ffe57f;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 7px;
+    width: 130px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .chara-search-input:focus { border-color: rgba(249,168,37,.65); }
+  .chara-search-input::placeholder { color: rgba(255,229,127,.3); }
+
+  /* ===== WC TOAST ===== */
+  .wc-toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: rgba(30,20,8,.95);
+    border: 1px solid rgba(255,193,7,.45);
+    color: #ffd54f;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 8px 18px;
+    border-radius: 20px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .25s, transform .25s;
+    z-index: 9999;
+    white-space: nowrap;
+    letter-spacing: .5px;
+  }
+  .wc-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ===== COLLAPSE TOGGLE ===== */
+  .coll-toggle { justify-content: space-between; }
+  .coll-toggle .arr { font-size: 10px; margin-left: auto; flex-shrink:0; }
+
+</style>
+</head>
+<body>
+<h1>PROMPT FORGE</h1>
+<p class="subtitle">Fooocus 日本語プロンプト → 英語変換 v3</p>
+
+<!-- API KEY -->
+<div class="card key-card">
+  <div class="slabel key-col">▸ Anthropic API Key</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <input type="password" class="apikey-input" id="apikeyInput" placeholder="sk-ant-api03-..." oninput="onKeyInput()">
+    <span class="apikey-status no" id="keyStatus">未設定</span>
+  </div>
+  <div style="font-size:10px;color:var(--text2);margin-top:6px;">
+    ※ キーは <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent3);">console.anthropic.com</a> で取得。このページ内にのみ保持されます。
+  </div>
+</div>
+
+<!-- POSITIVE -->
+<div class="card">
+  <div class="coll-toggle open" onclick="toggleColl(this,'posBody')">
+    <div class="slabel" style="margin-bottom:0;">▸ ポジティブ プロンプト</div>
+    <span class="arr">▶</span>
+  </div>
+  <div class="coll-body open" id="posBody">
+  <textarea id="jpInput" placeholder="例：銀髪のエルフの女の子、森の中で本を読んでいる、柔らかい光、魔法的な雰囲気..."></textarea>
+  <button class="btn-translate" id="translateBtn" onclick="doTranslate('pos')">✦ 英語に翻訳する</button>
+  <div class="slabel">▸ 翻訳結果</div>
+  <div class="output-area empty" id="translatedOutput">← 上で翻訳ボタンを押してください</div>
+  <div class="row-btns">
+    <button class="btn btn-c" id="copyTransBtn" onclick="copyBtn(translatedText,'copyTransBtn','COPY')">COPY</button>
+  </div>
+</div>
+  </div><!-- /posBody -->
+
+<!-- NEGATIVE -->
+<div class="card neg-card">
+  <div class="coll-toggle open" onclick="toggleColl(this,'negTransBody')">
+    <div class="slabel neg" style="margin-bottom:0;">▸ ネガティブ プロンプト</div>
+    <span class="arr">▶</span>
+  </div>
+  <div class="coll-body open" id="negTransBody">
+  <textarea id="jpNegInput" class="neg-ta" placeholder="例：低品質、ぼやけた、変形した手、テキスト、透かし..."></textarea>
+  <button class="btn-translate neg-btn" id="translateNegBtn" onclick="doTranslate('neg')">✦ ネガティブを翻訳する</button>
+  <div class="slabel neg">▸ 翻訳結果（ネガティブ）</div>
+  <div class="output-area neg-color empty" id="translatedNegOutput">← ネガティブを翻訳してください</div>
+  <div class="row-btns">
+    <button class="btn btn-c" style="border-color:#ff9f9f;color:#ff9f9f;" id="copyNegBtn" onclick="copyBtn(translatedNegText,'copyNegBtn','COPY')">COPY</button>
+  </div>
+</div>
+  </div><!-- /negTransBody -->
+
+<!-- PRESETS + SEARCH -->
+<div class="card">
+  <div class="coll-toggle open" onclick="toggleColl(this,'presetBody')">
+    <div class="slabel" style="margin-bottom:0;">▸ モデル別タグ <span class="tag-count" id="tagCount">0 selected</span></div>
+    <span class="arr">▶</span>
+  </div>
+  <div class="coll-body open" id="presetBody">
+  <div class="search-wrap">
+    <input class="search-input" id="searchInput" placeholder="🔍 タグを検索... (例: quality, score, cute)" oninput="onSearch()" autocomplete="off">
+    <button class="search-clear" onclick="clearSearch()">×</button>
+  </div>
+  <!-- 汎用 + 外見 + 検索 -->
+  <div class="preset-tabs" style="margin-bottom:5px;">
+    <button class="ptab ptab-general" onclick="switchPreset('general')">汎用</button><button class="wc-btn" data-wc="__pf_general__" onclick="insertWildcard('general','pf_general')" title="汎用タグをwildcardとして挿入">WC</button>
+    <button class="ptab ptab-rating" onclick="switchPreset('rating')">⭐ レーティング</button>
+    <button class="ptab ptab-year" onclick="switchPreset('year')">📅 年代</button>
+    <button class="ptab ptab-chara" onclick="switchPreset('chara')">👤 キャラ</button>
+    <button class="ptab ptab-appear" onclick="switchPreset('appear_hair')">✨ 外見 ▾</button>
+    <button class="ptab ptab-style" id="ptab-style" onclick="switchPreset('style')">🎨 絵柄</button><button class="wc-btn" data-wc="__pf_style__" onclick="insertWildcard('style','pf_style')" title="絵柄をwildcardとして挿入">WC</button>
+    <button class="ptab" id="searchTab" style="display:none;" onclick="switchPreset('_search')">🔍検索</button>
+    <button class="all-btn" id="allBtn" onclick="toggleSelectAll()">ALL ON</button>
+  </div>
+  <!-- キャラクター 作品選択 -->
+  <div id="charaSeriesRow" style="display:none;margin-bottom:5px;">
+    <div class="preset-tabs" style="padding:6px 8px;background:rgba(249,168,37,.05);border-radius:8px 8px 0 0;border:1px solid rgba(249,168,37,.2);border-bottom:none;gap:6px;flex-wrap:nowrap;align-items:center;">
+      <span style="font-family:'Orbitron',monospace;font-size:8px;color:#ffe57f;letter-spacing:1px;white-space:nowrap;flex-shrink:0;">📚 作品 ▸</span>
+      <select id="charaSeriesSelect" onchange="onCharaSeriesChange()" style="flex:1;min-width:0;background:rgba(30,12,48,.9);color:#ffe57f;border:1px solid rgba(249,168,37,.3);border-radius:5px;padding:3px 6px;font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">
+        <option value="">-- 作品を選択 (158作品) --</option>
+      </select>
+      <span id="charaSeriesCount" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,229,127,.6);flex-shrink:0;"></span>
+      <button class="wc-btn" data-wc="__pf_character__" onclick="insertWildcard('character','pf_character')" title="キャラ全体をwildcardとして挿入">WC</button>
+    </div>
+    <div style="padding:5px 8px;background:rgba(249,168,37,.03);border:1px solid rgba(249,168,37,.2);border-top:none;border-radius:0 0 8px 8px;display:flex;align-items:center;gap:6px;">
+      <span style="font-family:'Orbitron',monospace;font-size:8px;color:rgba(255,229,127,.5);white-space:nowrap;">🔍 キャラ検索 ▸</span>
+      <input class="chara-search-input" id="charaSearchInput" type="text" placeholder="キャラ名を検索..." oninput="onCharaSearch()" autocomplete="off">
+      <button class="search-clear" onclick="clearCharaSearch()" style="padding:2px 6px;font-size:11px;">×</button>
+      <span id="charaSearchCount" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,229,127,.5);flex-shrink:0;"></span>
+    </div>
+  </div>
+  <!-- 外見サブタブ -->
+  <div class="preset-tabs appear-subtabs-row" id="appearSubRow" style="display:none;margin-bottom:5px;padding:5px 8px;background:rgba(171,71,188,.05);border-radius:8px;border:1px solid rgba(171,71,188,.18);">
+    <span style="font-family:'Orbitron',monospace;font-size:8px;color:#e040fb;letter-spacing:1px;margin-right:4px;white-space:nowrap;">外見 ▸</span>
+    <button class="ptab ptab-appear" onclick="switchPreset('appear_hair')">💇 髪</button>
+    <button class="wc-btn" data-wc="__pf_appear_hair__" onclick="insertWildcard('appear_hair','pf_appear_hair')" title="髪タグをwildcardとして挿入">WC</button>
+    <button class="ptab ptab-appear" onclick="switchPreset('appear_eye')">👁 目</button>
+    <button class="wc-btn" data-wc="__pf_appear_eye__" onclick="insertWildcard('appear_eye','pf_appear_eye')" title="目タグをwildcardとして挿入">WC</button>
+    <button class="ptab ptab-appear" onclick="switchPreset('appear_face')">😊 顔</button>
+    <button class="wc-btn" data-wc="__pf_appear_face__" onclick="insertWildcard('appear_face','pf_appear_face')" title="顔タグをwildcardとして挿入">WC</button>
+    <button class="ptab ptab-appear" onclick="switchPreset('appear_body')">🫀 体型</button>
+    <button class="wc-btn" data-wc="__pf_appear_body__" onclick="insertWildcard('appear_body','pf_appear_body')" title="体型タグをwildcardとして挿入">WC</button>
+    <button class="ptab ptab-appear" onclick="switchPreset('appear_height')">📏 身長</button>
+    <button class="wc-btn" data-wc="__pf_appear_height__" onclick="insertWildcard('appear_height','pf_appear_height')" title="身長タグをwildcardとして挿入">WC</button>
+    <button class="ptab ptab-appear" onclick="switchPreset('appear_special')">✨ 特殊</button>
+    <button class="wc-btn" data-wc="__pf_appear_special__" onclick="insertWildcard('appear_special','pf_appear_special')" title="特殊外見をwildcardとして挿入">WC</button>
+  </div>
+  <!-- Animagine ポジティブ / ネガティブ -->
+  <div class="preset-tabs" style="margin-bottom:5px;padding:5px 8px;background:rgba(124,77,255,.05);border-radius:8px;border:1px solid rgba(124,77,255,.18);">
+    <span style="font-family:'Orbitron',monospace;font-size:8px;color:#a78bfa;letter-spacing:1px;margin-right:6px;white-space:nowrap;">ANI ▸</span>
+    <button class="ptab ptab-animagine" onclick="switchPreset('animagine')">ポジティブ</button>
+    <button class="ptab ptab-neg-ani" onclick="switchPreset('neg_animagine')">ネガティブ</button>
+    <button class="all-btn" id="allBtnAni" onclick="toggleSelectAllPreset('animagine','neg_animagine','allBtnAni')" style="margin-left:auto;">ALL ON</button>
+  </div>
+  <!-- Pony ポジティブ / ネガティブ -->
+  <div class="preset-tabs" style="margin-bottom:5px;padding:5px 8px;background:rgba(255,77,166,.05);border-radius:8px;border:1px solid rgba(255,77,166,.18);">
+    <span style="font-family:'Orbitron',monospace;font-size:8px;color:#ff80c0;letter-spacing:1px;margin-right:6px;white-space:nowrap;">PONY ▸</span>
+    <button class="ptab ptab-pony" onclick="switchPreset('pony')">ポジティブ</button>
+    <button class="ptab ptab-neg-pony" onclick="switchPreset('neg_pony')">ネガティブ</button>
+    <button class="all-btn" id="allBtnPony" onclick="toggleSelectAllPreset('pony','neg_pony','allBtnPony')" style="margin-left:auto;">ALL ON</button>
+  </div>
+  <!-- NSFW sub-tabs row -->
+  <div class="preset-tabs nsfw-tabs-row" style="margin-bottom:10px;padding:6px 8px;background:rgba(255,107,107,.05);border-radius:8px;border:1px solid rgba(255,107,107,.15);">
+    <span style="font-family:'Orbitron',monospace;font-size:8px;color:#ff6b6b;letter-spacing:1px;margin-right:4px;white-space:nowrap;">NSFW ▸</span>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_rating')">レーティング</button><button class="wc-btn" data-wc="__pf_nsfw_rating__" onclick="insertWildcard('nsfw_rating','pf_nsfw_rating')" title="レーティングをwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_body_f')">女性の体</button><button class="wc-btn" data-wc="__pf_nsfw_body_f__" onclick="insertWildcard('nsfw_body_f','pf_nsfw_body_f')" title="女性の体をwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_body_m')">男性の体</button><button class="wc-btn" data-wc="__pf_nsfw_body_m__" onclick="insertWildcard('nsfw_body_m','pf_nsfw_body_m')" title="男性の体をwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_position')">体位</button><button class="wc-btn" data-wc="__pf_nsfw_position__" onclick="insertWildcard('nsfw_position','pf_nsfw_position')" title="体位をwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_vaginal')">膣内</button><button class="wc-btn" data-wc="__pf_nsfw_vaginal__" onclick="insertWildcard('nsfw_vaginal','pf_nsfw_vaginal')" title="膣内をwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_oral')">口淫</button><button class="wc-btn" data-wc="__pf_nsfw_oral__" onclick="insertWildcard('nsfw_oral','pf_nsfw_oral')" title="口淫をwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_anal')">アナル</button><button class="wc-btn" data-wc="__pf_nsfw_anal__" onclick="insertWildcard('nsfw_anal','pf_nsfw_anal')" title="アナルをwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_cum')">射精</button><button class="wc-btn" data-wc="__pf_nsfw_cum__" onclick="insertWildcard('nsfw_cum','pf_nsfw_cum')" title="射精をwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_reaction')">反応・顔</button><button class="wc-btn" data-wc="__pf_nsfw_reaction__" onclick="insertWildcard('nsfw_reaction','pf_nsfw_reaction')" title="反応・顔をwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_costume')">衣装</button><button class="wc-btn" data-wc="__pf_nsfw_costume__" onclick="insertWildcard('nsfw_costume','pf_nsfw_costume')" title="衣装をwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_bondage')">拘束</button><button class="wc-btn" data-wc="__pf_nsfw_bondage__" onclick="insertWildcard('nsfw_bondage','pf_nsfw_bondage')" title="拘束をwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_special')">特殊</button><button class="wc-btn" data-wc="__pf_nsfw_special__" onclick="insertWildcard('nsfw_special','pf_nsfw_special')" title="特殊をwildcardとして挿入">WC</button>
+    <button class="ptab ptab-nsfw" onclick="switchPreset('nsfw_misc')">その他</button><button class="wc-btn" data-wc="__pf_nsfw_misc__" onclick="insertWildcard('nsfw_misc','pf_nsfw_misc')" title="その他をwildcardとして挿入">WC</button>
+    <button class="btn btn-rand" id="nsfwAllBtn" style="margin-left:auto;white-space:nowrap;font-size:8px;padding:4px 10px;" onclick="randomAllNsfw()">🎲 全タブ一括</button>
+  </div>
+  <div class="tags-grid" id="tagsGrid"></div>
+  <div class="divider"></div>
+  <div class="slabel" style="color:var(--accent2);">▸ 選択中タグ（ドラッグで並び替え）</div>
+  <div class="selected-tags-zone" id="selZone"><span class="empty-zone">タグをクリックして追加</span></div>
+  <div class="neg-sel-label">▸ ネガティブ選択タグ</div>
+  <div class="neg-sel-zone" id="negSelZone"><span class="empty-zone">ネガティブタグをクリックして追加</span></div>
+  <div class="row-btns">
+    <button class="btn" onclick="appendToFinal()">↓ 最終出力に反映</button>
+    <button class="btn btn-c" id="copyTagsBtn" onclick="copyBtn(getSortedSelTags().map(s=>s.tag).join(', '),'copyTagsBtn','COPY TAGS')">COPY TAGS</button>
+    <button class="btn btn-rand" id="randOneBtn" onclick="randomOne()" style="display:none;">🎲 1つランダム</button>
+    <button class="btn btn-d" onclick="clearTags()">CLEAR</button>
+  </div>
+  <div id="randomResult" class="random-result" style="display:none;"></div>
+</div>
+  </div><!-- /presetBody -->
+
+<!-- WILDCARD SHELF -->
+<div class="card" style="border-color:rgba(255,193,7,.25);background:var(--surface);">
+  <div class="card" style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#f39c12,#ffd54f);opacity:.7;border-radius:12px 12px 0 0;"></div>
+  <div class="coll-toggle open" onclick="toggleColl(this,'wcShelfBody')">
+    <div class="slabel" style="margin-bottom:0;color:#ffd54f;">▸ Wildcard 置き場 <span style="font-size:8px;opacity:.6;font-family:'Noto Sans JP',sans-serif;letter-spacing:0;margin-left:4px;">TXTファイルと対応</span></div>
+    <div style="display:flex;gap:5px;margin-left:auto;flex-shrink:0;" onclick="event.stopPropagation()">
+      <button class="wc-all-btn" id="wcAllOnBtn" onclick="wcShelfAllOn()">ALL ON</button>
+      <button class="wc-all-btn wc-all-off" id="wcAllOffBtn" onclick="wcShelfAllOff()">ALL OFF</button>
+    </div>
+    <span class="arr" style="color:#ffd54f;margin-left:6px;">▶</span>
+  </div>
+  <div class="coll-body open" id="wcShelfBody">
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;">
+      <button class="wc-shelf-btn" data-wc="__pf_hair__" onclick="insertWildcard('hair','pf_hair')">
+        <span class="wcsb-icon">💇</span><span class="wcsb-text"><span class="wcsb-label">Hair</span><span class="wcsb-tag">__pf_hair__</span></span>
+      </button>
+      <button class="wc-shelf-btn" data-wc="__pf_fetish__" onclick="insertWildcard('fetish','pf_fetish')">
+        <span class="wcsb-icon">✨</span><span class="wcsb-text"><span class="wcsb-label">Fetish</span><span class="wcsb-tag">__pf_fetish__</span></span>
+      </button>
+      <button class="wc-shelf-btn" data-wc="__pf_lewd__" onclick="insertWildcard('lewd','pf_lewd')">
+        <span class="wcsb-icon">🔥</span><span class="wcsb-text"><span class="wcsb-label">Lewd</span><span class="wcsb-tag">__pf_lewd__</span></span>
+      </button>
+      <button class="wc-shelf-btn" data-wc="__pf_location__" onclick="insertWildcard('location','pf_location')">
+        <span class="wcsb-icon">🏩</span><span class="wcsb-text"><span class="wcsb-label">Location</span><span class="wcsb-tag">__pf_location__</span></span>
+      </button>
+      <button class="wc-shelf-btn" data-wc="__pf_maniac_clothes__" onclick="insertWildcard('maniac_clothes','pf_maniac_clothes')">
+        <span class="wcsb-icon">👗</span><span class="wcsb-text"><span class="wcsb-label">Maniac Clothes</span><span class="wcsb-tag">__pf_maniac_clothes__</span></span>
+      </button>
+      <button class="wc-shelf-btn" data-wc="__pf_artist__" onclick="insertWildcard('artist','pf_artist')">
+        <span class="wcsb-icon">🎨</span><span class="wcsb-text"><span class="wcsb-label">Artist</span><span class="wcsb-tag">__pf_artist__</span></span>
+      </button>
+      <button class="wc-shelf-btn" data-wc="__pf_pose__" onclick="insertWildcard('pose','pf_pose')">
+        <span class="wcsb-icon">🤸</span><span class="wcsb-text"><span class="wcsb-label">Pose</span><span class="wcsb-tag">__pf_pose__</span></span>
+      </button>
+    </div>
+    <div style="margin-top:8px;font-size:9px;color:rgba(255,255,255,.25);font-family:'JetBrains Mono',monospace;line-height:1.8;">
+      ▸ TXTは Fooocus の <code style="background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;">wildcards/</code> フォルダに配置
+    </div>
+  </div>
+</div>
+
+<!-- SAVE -->
+<div class="card save-card">
+  <div class="coll-toggle" onclick="toggleColl(this,'saveBody')">
+    <div class="slabel save-col" style="margin-bottom:0;">▸ プロンプト保存・呼び出し</div>
+    <span class="arr">▶</span>
+  </div>
+  <div class="coll-body closed" id="saveBody">
+    <div class="save-name-row">
+      <input class="save-name-input" id="saveNameInput" placeholder="保存名（例：エルフ女の子_森）" maxlength="40">
+      <label class="btn btn-save" style="white-space:nowrap;cursor:pointer;" title="参考画像を添付（任意）">
+        🖼️
+        <input type="file" id="saveImageInput" accept="image/*" style="display:none;" onchange="onImageSelect(event)">
+      </label>
+      <button class="btn btn-save" onclick="savePrompt()" style="white-space:nowrap;">💾 保存</button>
+    </div>
+    <div id="saveImagePreview" style="display:none;margin-bottom:8px;">
+      <img id="saveImgThumb" style="height:48px;border-radius:6px;border:1px solid var(--border);vertical-align:middle;">
+      <button class="btn btn-d" style="font-size:8px;margin-left:6px;" onclick="clearImageInput()">✕</button>
+    </div>
+    <div class="save-list" id="saveList"><div class="empty-saves">保存なし</div></div>
+    <!-- hidden file input for adding image to existing save -->
+    <input type="file" id="addImgInput" accept="image/*" style="display:none;" onchange="onAddImgSelect(event)">
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="card">
+  <div class="coll-toggle" onclick="toggleColl(this,'histBody')">
+    <div class="slabel" style="margin-bottom:0;">▸ 翻訳履歴</div>
+    <span class="arr">▶</span>
+  </div>
+  <div class="coll-body closed" id="histBody">
+    <div class="save-list" id="historyList"><div class="empty-saves">まだ履歴がありません</div></div>
+    <div class="row-btns" style="margin-top:7px;">
+      <button class="btn btn-d" onclick="clearHistory()">履歴クリア</button>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div class="card final-card">
+  <div class="coll-toggle open" onclick="toggleColl(this,'finalBody')">
+    <div class="slabel final" style="margin-bottom:0;">▸ 最終プロンプト</div>
+    <span class="arr">▶</span>
+  </div>
+  <div class="coll-body open" id="finalBody">
+  <div class="label-s">POSITIVE</div>
+  <div class="final-output" id="finalOutput">ここにポジティブプロンプトが表示されます</div>
+  <div class="label-s" style="margin-top:8px;">NEGATIVE</div>
+  <div class="final-neg-output" id="finalNegOutput">ここにネガティブプロンプトが表示されます</div>
+  <div class="row-btns" style="margin-top:9px;">
+    <button class="btn btn-c" id="cpFPos" onclick="copyBtn(getFinalPos(),'cpFPos','✦ COPY POS')">✦ COPY POS</button>
+    <button class="btn btn-c" style="border-color:#ff9f9f;color:#ff9f9f;" id="cpFNeg" onclick="copyBtn(getFinalNeg(),'cpFNeg','✦ COPY NEG')">✦ COPY NEG</button>
+    <button class="btn btn-d" onclick="resetAll()">RESET</button>
+  </div>
+</div>
+  </div><!-- /finalBody -->
+
+<p class="api-note">※ APIキーはこのページ内のみで使用。外部送信なし（Anthropic APIへの翻訳リクエストを除く）</p>
+
+<script>
+/* ===== PRESETS ===== */
+const PRESETS = {
+  // ── 汎用 ──
+  general:[
+    'pure white background',
+    '1girl','2girls','1boy','1other','harem',
+    'looking at viewer','full body'
+  ],
+
+  // ── レーティング ──
+  rating:[
+    'safe','sensitive','nsfw','explicit'
+  ],
+
+  // ── 年代タグ ──
+  year:[
+    'year 2005','year 2006','year 2007','year 2008','year 2009','year 2010',
+    'year 2011','year 2012','year 2013','year 2014','year 2015','year 2016',
+    'year 2017','year 2018','year 2019','year 2020','year 2021','year 2022',
+    'year 2023','year 2024','year 2025'
+  ],
+
+  // ── キャラ構図 ──
+  chara:[
+    '1girl','1boy','solo','solo focus','multiple girls','multiple boys','2girls','2boys',
+    'girl and boy','couple','group',
+    'looking at viewer','looking away','looking back','looking up','looking down',
+    'from above','from below','from side','from behind','dutch angle','dynamic angle',
+    'standing','sitting','lying','kneeling','squatting','leaning forward','leaning back',
+    'arms up','arms behind head','arms behind back','hand on hip','crossed arms',
+    'on all fours','spread arms','reaching out',
+    'portrait','close-up','medium shot','wide shot','fisheye',
+    'full body','upper body','lower body','waist up','knees up',
+    'smile','grin','smirk','blush','shy','serious','expressionless','surprised',
+    'happy','sad','angry','embarrassed','seductive','sleepy','crying','pout'
+  ],
+
+  // ── 外見: 髪 ──
+  appear_hair:[
+    'white hair','black hair','blonde hair','brown hair','red hair','blue hair',
+    'pink hair','purple hair','silver hair','gray hair','green hair','orange hair',
+    'multicolored hair','gradient hair','streaked hair','two-tone hair',
+    'long hair','short hair','medium hair','very long hair','very short hair',
+    'twin tails','ponytail','high ponytail','low ponytail','side ponytail',
+    'braid','braided hair','twin braids','ahoge','bangs','blunt bangs',
+    'sidelocks','wavy hair','curly hair','straight hair','messy hair',
+    'hair bun','double bun','pigtails','bob cut','pixie cut','drill hair',
+    'hair up','hair down','hair flower','hair ribbon','hair ornament','hair clip'
+  ],
+
+  // ── 外見: 目 ──
+  appear_eye:[
+    'red eyes','blue eyes','green eyes','purple eyes','gold eyes','silver eyes',
+    'brown eyes','heterochromia','aqua eyes','pink eyes','yellow eyes','white eyes',
+    'orange eyes','black eyes','gray eyes','teal eyes','violet eyes',
+    'glowing eyes','empty eyes','sparkling eyes','half-closed eyes','closed eyes',
+    'wide eyes','narrow eyes','bedroom eyes','innocent eyes',
+    'bags under eyes','dark circles','heavy eyelids',
+    'thick eyebrows','thin eyebrows','long eyelashes','false eyelashes',
+    'eye patch','glasses','sunglasses','monocle','colored contact lenses',
+    'double eyelid','monolid','sharp eyes','soft eyes'
+  ],
+
+  // ── 外見: 顔・鼻・口 ──
+  appear_face:[
+    'round face','oval face','heart-shaped face','square jaw','pointed chin',
+    'soft features','angular features','sharp jaw',
+    'freckles','scar','mole','mole under eye','mole on cheek',
+    'mole on neck','mole on breast','birthmark','blush stickers','face paint',
+    'button nose','small nose','upturned nose','pointy nose','flat nose',
+    'thin lips','plump lips','full lips','small mouth','wide mouth',
+    'fangs','vampire fangs','tongue out','tongue piercing','lip piercing',
+    'beauty mark','smug','ahegao','pout','open mouth','closed mouth'
+  ],
+
+  // ── 外見: 体の作り ──
+  appear_body:[
+    'pale skin','fair skin','tan skin','dark skin','white skin',
+    'albino','white character','olive skin','tanned','sunburn',
+    'slim body','slender','thin','petite body','athletic',
+    'muscular','abs','toned body','curvy','plump','chubby','soft body',
+    'large breasts','medium breasts','small breasts','flat chest',
+    'wide hips','narrow waist','hourglass figure','pear figure',
+    'navel','belly button','visible collarbone','visible ribs',
+    'long legs','short legs','thick thighs','slim legs',
+    'tattoo','piercing','body piercing','scar on body'
+  ],
+
+  // ── 外見: 身長 ──
+  appear_height:[
+    'tall','short','average height','very tall','extremely tall',
+    'petite','chibi','towering','height difference',
+    'small stature','large stature','tall girl','short girl',
+    'tall boy','short boy','loli','shota','adult body','mature',
+    'same height','shorter than viewer','taller than viewer'
+  ],
+
+  // ── 外見: 特殊外見 ──
+  appear_special:[
+    'elf ears','cat ears','dog ears','fox ears','wolf ears',
+    'rabbit ears','bear ears','dragon ears','animal ears','kemonomimi',
+    'horns','dragon horns','oni horns','demon horns','antlers','halo',
+    'angel wings','demon wings','wings','tail','cat tail','fox tail',
+    'wolf tail','dragon tail','fluffy tail','multiple tails',
+    'demon girl','angel','vampire','succubus','witch','elf','half-elf',
+    'ghost','zombie','robot ears','mechanical parts','cyborg',
+    'scales','fur','monster girl','dragon girl','naga','lamia',
+    'glowing markings','tribal markings','runes on body','dark sclera'
+  ],
+
+  // ── 絵柄スタイル ──
+  style:[
+    'kyoto animation','production i.g','ufotable','wit studio','cloverworks',
+    'a-1 pictures','trigger','mappa','shaft','toei animation','studio ghibli'
+  ],
+
+  // ── Animagine ポジティブ ──
+  animagine:[
+    'masterpiece','high score','great score','absurdres','very aesthetic'
+  ],
+
+  // ── Pony ポジティブ ──
+  pony:[
+    'score_9','score_8_up','score_7_up','score_6_up','score_5_up','score_4_up',
+    'source_anime','source_furry','source_cartoon','source_pony',
+    'rating_safe','rating_questionable','rating_explicit',
+    'best quality','high quality','detailed','intricate details','sharp focus','masterpiece','absurdres','highres'
+  ],
+
+  // ── Animagine ネガティブ ──
+  neg_animagine:[
+    'lowres','bad anatomy','bad hands','text','error','missing fingers','extra digits',
+    'fewer digits','cropped','worst quality','low quality','low score','bad score',
+    'average score','signature','watermark','username','blurry'
+  ],
+
+  // ── Pony ネガティブ ──
+  neg_pony:[
+    'score_1','score_2','score_3','score_4',
+    'worst quality','low quality','normal quality','lowres','jpeg artifacts','compression artifacts','blurry','noisy','pixelated',
+    'bad anatomy','bad hands','bad feet','extra limbs','missing limbs','fused body parts','extra fingers','missing fingers','deformed','ugly','disfigured','malformed','bad proportions','cloned face','long neck',
+    'source_pony','source_furry','source_cartoon','source_real','rating_safe','rating_questionable',
+    'sketch','3d render','realistic','photo','photograph','flat color','monochrome','grayscale','out of frame','cropped','watermark','text','duplicate','artist name','patreon logo','poorly drawn'
+  ],
+
+  // ── NSFW ──
+  nsfw_rating:[
+    'nsfw','explicit','uncensored','no censor','completely nude','nude',
+    'rating_explicit','rating_questionable',
+    'mosaic censorship','bar censor','partially censored'
+  ],
+  nsfw_body_f:[
+    'breasts','small breasts','medium breasts','large breasts','huge breasts','gigantic breasts',
+    'flat chest','perky breasts','sagging breasts','bouncing breasts','breast press',
+    'cleavage','deep cleavage','underboob','sideboob','topless','bare breasts',
+    'nipples','erect nipples','inverted nipples','puffy nipples','dark nipples',
+    'pink nipples','large areolae','areolae','nipple piercing',
+    'pussy','wet pussy','dripping pussy','spread pussy','puffy pussy','hairy pussy',
+    'shaved pussy','visible pussy','pussy juice','labia','labia minora','labia majora',
+    'clitoris','clitoral hood','vaginal opening','cervix','uterus',
+    'slim body','thick thighs','wide hips','big hips','curvy','plump',
+    'flat stomach','abs','toned body','soft body','chubby',
+    'ass','big ass','round ass','bubble butt','ass grab','butt crack',
+    'navel','belly button','armpits','exposed armpits','inner thigh'
+  ],
+  nsfw_body_m:[
+    'penis','erect penis','flaccid penis','huge cock','thick cock','long cock',
+    'small penis','veiny penis','throbbing cock','foreskin','uncircumcised',
+    'balls','testicles','scrotum','taint','pubic hair',
+    'male pubic hair','masculine body','muscular','abs','chest hair'
+  ],
+  nsfw_position:[
+    // ── 基本体位 ──
+    'missionary','doggy style','cowgirl position','reverse cowgirl',
+    'spoon position','prone bone','lotus position',
+    // ── 高強度・特殊体位 ──
+    'mating press','pile driver','standing sex','wall sex',
+    'face down ass up','frog position','amazon position',
+    'wheelbarrow position','suspended congress',
+    'from behind standing','lifted and penetrated',
+    'carrying sex','against glass',
+    // ── 脚・開脚系 ──
+    'legs up','spread legs','legs over shoulders','legs behind head',
+    'leg lock','spread eagle','legs apart',
+    // ── 騎乗・密着系 ──
+    'riding','straddling','sitting on lap','grinding',
+    'reverse sitting','face sitting position',
+    // ── 屈み・寄りかかり系 ──
+    'bent over','bent over desk','bent over table','leaning forward sex',
+    'pressed against wall','against desk',
+    // ── 寝位・床系 ──
+    'lying on back','lying on stomach','lying on side',
+    'on all fours sex','floor sex','bed sex',
+    'spread to bed','tied to bed sex',
+    // ── 補助系 ──
+    'lap pillow','dry humping','thigh job','paizuri position',
+    'from above pov','pov sex','missionary pov'
+  ],
+  nsfw_vaginal:[
+    'vaginal','vaginal sex','vaginal penetration','deep penetration','shallow penetration',
+    'creampie','vaginal creampie','cum inside','womb penetration','cervix penetration',
+    'fingering','finger insertion','two fingers','three fingers','knuckle deep',
+    'fisting','fist insertion',
+    'sex toy','dildo','vibrator','wand vibrator','butt plug in pussy',
+    'rubbing','masturbation','fingering herself','legs spread masturbation',
+    'mutual masturbation','insertion','object insertion'
+  ],
+  nsfw_oral:[
+    'oral','fellatio','blowjob','cunnilingus','deepthroat','irrumatio','facefuck',
+    '69','face sitting','licking','tongue out','lip licking','penis licking',
+    'ball licking','licking shaft',
+    'saliva','saliva string','drooling on penis',
+    'mouth full','bulge in cheek','spitting','cum in mouth','swallowing cum',
+    'throat fuck','gagging','teary eyes from oral',
+    'sucking fingers','nipple licking','nipple sucking','breast licking'
+  ],
+  nsfw_anal:[
+    'anal','anal sex','anal penetration','anal insertion','deep anal',
+    'anal creampie','cum in ass','double penetration','dp','triple penetration',
+    'pegging','strapon anal','finger in ass','anal fingering','two fingers in ass',
+    'butt plug','anal beads','plug tail','object in ass',
+    'ass spread','spread ass','gaping','gaping ass','prolapse'
+  ],
+  nsfw_cum:[
+    'cum','cumshot','facial','cum on face','cum on hair','cum on tongue',
+    'creampie','cum inside','cum dripping','dripping cum','cum overflow',
+    'cum on breasts','cum on body','cum on stomach','cum on back',
+    'cum on thighs','cum on feet','multiple cumshots','massive cumshot',
+    'swallowing','cum in mouth','cum string','cum trail',
+    'bukakke','covered in cum','messy cum','sticky','cum pool',
+    'internal cumshot','x-ray cumshot','womb full of cum'
+  ],
+  nsfw_reaction:[
+    'ahegao','rolling eyes','eyes rolled back','orgasm face','climax face',
+    'moaning','mouth open','panting','heavy breathing','gasping',
+    'drooling','saliva','blushing','full body blush','sweating',
+    'crying','tears','tears of pleasure','teary eyes',
+    'shaking','trembling','twitching','convulsing','body spasm',
+    'mind break','blank stare','dazed','in heat','lustful look',
+    'satisfied expression','ecstasy','euphoria','pleasure expression',
+    'embarrassed moan','trying to suppress moaning','biting lip','biting sleeve'
+  ],
+  nsfw_costume:[
+    'naked','topless','bottomless','completely nude','clothed female nude male',
+    'nude filter','see-through','wet clothes','clothes pulled aside',
+    'lingerie','bra','panties','thong','g-string','bikini','micro bikini',
+    'side-tie panties','crotchless panties','crotchless lingerie',
+    'garter belt','garter straps','stockings','thigh-highs','fishnet stockings',
+    'fishnet bodysuit','corset','bodystocking','sheer lingerie',
+    'undressing','clothes torn','ripped clothes','lifting skirt','lifting dress',
+    'panties around ankles','panties pulled down','bra pulled down',
+    'bra removed','shirt lift','skirt lift','dress lift',
+    'school uniform','sailor uniform','gym uniform','nurse','maid','bunny suit',
+    'catsuit','latex','leather outfit','swimsuit','one-piece swimsuit',
+    'bikini armor','sexy santa','sexy witch','kimono','yukata open'
+  ],
+  nsfw_bondage:[
+    'bondage','shibari','rope bondage','hogtied','suspension bondage',
+    'handcuffed','wrist cuffs','ankle cuffs','spread eagle','bound wrists',
+    'bound ankles','bound arms','arms bound behind back','tied to chair',
+    'tied to bed','spread to bed','restrained','immobilized',
+    'blindfold','ballgag','bit gag','ring gag','tape gag','mouth stuffed',
+    'collar','slave collar','neck collar','leash','pulled by leash',
+    'chains','chain bondage','ball and chain','ankle chain',
+    'vibrator bondage','forced orgasm','orgasm denial','edging'
+  ],
+  nsfw_special:[
+    'tentacle','tentacle sex','tentacle rape','tentacle in pussy','tentacle in mouth',
+    'monster sex','orc','goblin sex','creature sex','beast sex',
+    'futa','futanari','futa on female','futa on male','futa on futa',
+    'yuri','lesbian sex','tribadism','scissoring','strap-on sex',
+    'yaoi','male on male','bara',
+    'gangbang','orgy','threesome','foursome','harem','reverse harem',
+    'ntr','netorare','cuckolding','sharing','wife sharing',
+    'femdom','maledom','submission','domination','rough sex',
+    'consensual','non-consensual implication','reluctant','forced',
+    'exhibitionism','public sex','outdoor sex','sex in public','voyeurism',
+    'lactation','breast milk','milking','squirting','female ejaculation',
+    'foot fetish','feet','sole','toes','licking feet','footjob',
+    'armpit fetish','licking armpits','belly fetish','navel licking',
+    'smell fetish','used panties','sweaty body',
+    'internal view','x-ray','womb view','cross section','see through body',
+    'pov','first person view','point of view penetration'
+  ],
+  nsfw_misc:[
+    'age difference','older man younger woman','older woman younger man',
+    'onee-shota','shotacon implication','teacher and student',
+    'cheating','affair','secret sex','forbidden love',
+    'drunk sex','sleepy sex','somnophilia implication','after sex',
+    'morning sex','quickie','one night stand',
+    'multiple orgasms','post-orgasm','afterglow','overstimulation','too much pleasure',
+    'pregnant','impregnation','breeding','womb tattoo','ahegao aftermath',
+    'used','well-used','worn out','exhausted after sex',
+    'glory hole','bathroom sex','locker room sex','hot spring sex','car sex',
+    'caught having sex','watched','hidden camera implication',
+    'smell','musk','body odor fetish','sweat fetish'
+  ]
+};
+
+const CHARA_DATA = {
+  "fire emblem": ["byleth (fire emblem)", "byleth (female) (fire emblem)", "lucina (fire emblem)", "corrin (fire emblem)", "edelgard von hresvelg", "robin (fire emblem)", "hilda valentine goneril", "lyn (fire emblem)", "lysithea von ordelia", "robin (female) (fire emblem)", "camilla (fire emblem)", "byleth (male) (fire emblem)", "marianne von edmund", "tiki (fire emblem)", "robin (male) (fire emblem)", "ike (fire emblem)", "tharja (fire emblem)", "alear (fire emblem)", "micaiah (fire emblem)", "azura (fire emblem)", "marth (fire emblem)", "bernadetta von varley", "dorothea arnault", "dimitri alexandre blaiddyd", "claude von riegan", "corrin (male) (fire emblem)", "alear (female) (fire emblem)", "roy (fire emblem)", "tiki (adult) (fire emblem)", "ingrid brandl galatea", "eirika (fire emblem)", "chrom (fire emblem)", "kiran (fire emblem)", "nina (fire emblem)", "rhea (fire emblem)", "takumi (fire emblem)", "julia (fire emblem)", "mercedes von martritz", "ophelia (fire emblem)", "elise (fire emblem)", "grima (fire emblem)", "sakura (fire emblem)", "tiki (young) (fire emblem)", "sothis (fire emblem)", "mia (fire emblem)", "annette fantine dominic", "celica (fire emblem)", "seliph (fire emblem)", "shez (fire emblem)", "leo (fire emblem)", "ninian (fire emblem)", "ivy (fire emblem)", "enlightened byleth (female)", "byleth (female) (summer) (fire emblem)", "larcei (fire emblem)", "xander (fire emblem)", "morgan (fire emblem)", "flayn (fire emblem)", "sophia (fire emblem)", "shez (female) (fire emblem)", "leonie pinelli", "petra macneary", "nowi (fire emblem)", "kagero (fire emblem)", "lissa (fire emblem)", "ishtar (fire emblem)", "caeda (fire emblem)", "yunaka (fire emblem)", "anna (fire emblem)", "fjorm (fire emblem)", "sylvain jose gautier", "eliwood (fire emblem)", "hubert von vestra", "nino (fire emblem)", "felix hugo fraldarius", "shamir nevrand", "sharena (fire emblem)", "cordelia (fire emblem)", "hinoka (fire emblem)", "olivia (fire emblem)", "kiran (male) (fire emblem)", "palla (fire emblem)", "catria (fire emblem)", "morgan (female) (fire emblem)", "ephraim (fire emblem)", "celine (fire emblem)", "alear (male) (fire emblem)", "hector (fire emblem)", "veronica (fire emblem)", "felicia (fire emblem)", "yune (fire emblem)", "myrrh (fire emblem)", "mist (fire emblem)", "florina (fire emblem)", "goldmary (fire emblem)", "fae (fire emblem)", "ryoma (fire emblem)", "alfonse (fire emblem)", "robin (female) (summer) (fire emblem)", "constance von nuvelle", "severa (fire emblem)", "ferdinand von aegir", "linhardt von hevring", "lorenz hellman gloucester", "tana (fire emblem)", "feh (fire emblem heroes)", "chloe (fire emblem)", "soren (fire emblem)", "alcryst (fire emblem)", "enlightened byleth (male)", "corrin (female) (summer) (fire emblem)", "hortensia (fire emblem)", "kana (fire emblem)", "veyle (fire emblem)", "alm (fire emblem)", "soleil (fire emblem)", "caspar von bergliez", "sanaki kirsch altina", "timerra (fire emblem)", "jakob (fire emblem)", "citrinne (fire emblem)", "ashe ubert", "lapis (fire emblem)", "elincia ridell crimea", "laegjarn (fire emblem)", "sonya (fire emblem)", "selkie (fire emblem)", "minerva (fire emblem)", "delthea (fire emblem)", "flora (fire emblem)", "ayra (fire emblem)", "panette (fire emblem)", "nephenee (fire emblem)", "rhea (summer) (fire emblem)", "velouria (fire emblem)", "loki (fire emblem)", "shez (male) (fire emblem)", "morgan (male) (fire emblem)", "ignatz victor", "hapi (fire emblem)", "deirdre (fire emblem)", "niles (fire emblem)", "freyja (fire emblem)", "sommie (fire emblem)", "raphael kirsten", "fir (fire emblem)", "lute (fire emblem)", "dedue molinaro", "faye (fire emblem)", "gunnthra (fire emblem)", "ilyana (fire emblem)", "reinhardt (fire emblem)", "linde (fire emblem)", "diamant (fire emblem)", "ingrid brandl galatea (summer)"],
+  "final fantasy": ["warrior of light (ff14)", "tifa lockhart", "cloud strife", "aerith gainsborough", "adventurer (ff11)", "yuffie kisaragi", "terra branford", "sephiroth", "rydia (ff4)", "white mage", "squall leonhart", "zidane tribal", "garnet til alexandros xvii", "yuna (ff10)", "y'shtola rhul", "lenna charlotte tycoon", "faris scherwiz", "zack fair", "celes chere", "lightning farron", "agrias oaks", "bartz klauser", "adventurer (ff14)", "noctis lucis caelum", "clive rosfield", "vincent valentine", "rosa farrell", "g'raha tia", "venat (ff14)", "tidus", "black mage", "rinoa heartilly", "fran (ff12)", "rikku (ff10)", "cecil harvey", "ryne waters", "jill warrick", "meteion", "barret wallace", "krile mayer baldesion (ff5)", "gladiolus amicitia", "kuja", "vivi ornitier", "red mage", "paladin (final fantasy)", "eiko carol", "dancer (final fantasy)", "emet-selch", "alisaie leveilleur", "ramza beoulve", "prompto argentum", "selphie tilmitt", "ignis scientia", "penelo", "warrior of light (ff1)", "tifa lockhart (refined dress)", "ninja (final fantasy)", "dark knight (final fantasy)", "ashelia b'nargin dalmasca", "reno (ff7)", "dragoon (final fantasy)", "gaia (ff14)", "yotsuyu goe brutus", "scholar (final fantasy)", "ardbert hylfyst", "thief (final fantasy)", "lulu (ff10)", "red xiii", "freija crescent", "lunafreya nox fleuret", "white mage (fft)", "firion", "relm arrowny", "alphinaud leveilleur", "aerith gainsborough (red dress)", "cindy aurum", "beatrix (ff9)", "locke cole", "monk (final fantasy)", "jessie rasberry", "kain highwind", "shiva (final fantasy)", "monk (fft)", "onion knight", "prishe", "carbuncle (final fantasy)", "cid highwind", "hope estheim", "crystal exarch", "vaan", "oerba dia vanille", "adelbert steiner", "quistis trepe", "estinien varlineau", "warrior (final fantasy)"],
+  "gundam": ["suletta mercury", "miorine rembran", "tieria erde", "rx-78-2", "meer campbell", "char aznable", "setsuna f. seiei", "iori rinko", "lunamaria hawke", "feldt grace", "lacus clyne", "zaku ii", "puru two", "haman karn", "sazaki kaoruko", "amuro ray", "lockon stratos", "wang liu mei", "kamille bidan", "gundam aerial", "elan ceres", "cagalli yula athha", "allelujah haptism", "guel jeturk", "nena trinity", "soma peries", "sumeragi lee noriega", "elpeo puru", "mineva lao zabi", "zaku", "marina ismail", "chuatury panlunch", "unicorn gundam", "kudelia aina bernstein", "athrun zala", "nu gundam", "aila jyrkiainen", "nika nanaura", "zeta gundam (mobile suit)", "kira yamato", "marida cruz", "sayla mass", "kousaka china", "kamiki mirai", "mikazuki augus", "gundam barbatos", "audrey burne", "quattro bajeena", "banagher links", "turn a gundam (mobile suit)", "xi gundam", "gundam exia", "rain mikamura", "heero yuy", "louise halevy", "gigi andalusia", "stellar loussier", "meyrin hawke", "loran cehack", "aida rayhunton", "judau ashta", "shinn asuka", "ayame (gundam build divers)", "gm (mobile suit)", "domon kasshu", "atra mixta", "christina sierra", "akihiro altland", "dianna soreil", "graham aker", "relena peacecraft", "roux louka", "sazabi"],
+  "jojo no kimyou na bouken": ["joseph joestar", "kujo jotaro", "dio brando", "kakyoin noriaki", "kujo jolyne", "giorno giovanna", "johnny joestar", "kishibe rohan", "jean pierre polnareff", "bruno bucciarati", "joseph joestar (old)", "guido mista", "kars (jojo)", "narancia ghirga", "kira yoshikage", "diego brando", "mohammed avdol", "pannacotta fugo", "trish una", "hirose koichi", "nijimura okuyasu", "diavolo", "leone abbacchio", "higashikata josuke (jojolion)", "iggy (jojo)", "prosciutto", "lisa lisa", "risotto nero", "erina pendleton", "sugimoto reimi", "narciso anasui", "suzi q", "enrico pucci", "killer queen", "hierophant green", "robert e. o. speedwagon", "yamagishi yukako", "foo fighters (jojo)", "vinegar doppio", "wamuu", "melone", "ghiaccio", "scary monsters (stand)", "esidisi", "hermit purple", "ermes costello", "hirose yasuho", "weather report", "crazy diamond", "funny valentine", "pesci", "gold experience", "illuso", "stone free", "vanilla ice", "silver chariot", "hot pants (sbr)", "kawajiri kosaku", "terence t. d'arby", "kujo holy", "formaggio", "will anthonio zeppeli", "hol horse", "mariah (jojo)", "joseph joestar (tequila)", "haruno shiobana", "king crimson (stand)", "hazekura mikitaka"],
+  "danganronpa (series)": ["nanami chiaki", "komaeda nagito", "hinata hajime", "saihara shuichi", "kirigiri kyoko", "enoshima junko", "akamatsu kaede", "harukawa maki", "tsumiki mikan", "monokuma", "naegi makoto", "momota kaito", "celestia ludenberg", "mioda ibuki", "maizono sayaka", "fujisaki chihiro", "kamukura izuru", "monomi (danganronpa)", "amami rantaro", "yumeno himiko", "iruma miu", "k1-b0", "fukawa toko", "yonaga angie", "sonia nevermind", "koizumi mahiru", "ikusaba mukuro", "asahina aoi", "saionji hiyoko", "chabashira tenko", "pekoyama peko", "shirogane tsumugi", "soda kazuichi", "tanaka gundham", "ishimaru kiyotaka", "kuzuryu fuyuhiko", "owada mondo", "togami byakuya", "tojo kirumi", "naegi komaru", "gokuhara gonta", "owari akane", "shinguji korekiyo", "usami (danganronpa)", "ogami sakura", "hoshi ryoma", "hagakure yasuhiro", "genocider shou", "nidai nekomaru", "sakakura juuzou", "yukizome chisa", "kuwata leon", "hanamura teruteru", "utsugi kotoko"],
+  "persona": ["narukami yuu", "shirogane naoto", "satonaka chie", "amamiya ren", "yuuki makoto (persona 3)", "kujikawa rise", "amagi yukiko", "aegis (persona)", "shiomi kotone", "hanamura yousuke", "sakura futaba", "takamaki anne", "kirijou mitsuru", "tatsumi kanji", "niijima makoto", "takeba yukari", "okumura haru", "yamagishi fuuka", "yoshizawa kasumi", "doujima nanako", "morgana (persona 5)", "aragaki shinjirou", "sanada akihiko", "kawakami sadayo", "adachi tooru", "iori junpei", "elizabeth (persona)", "akechi gorou", "takemi tae", "mochizuki ryouji", "amada ken", "sakamoto ryuuji", "kitagawa yuusuke", "koromaru (persona)", "suou tatsuya", "doujima ryoutarou", "thanatos (persona)", "niijima sae", "jack frost", "labrys (persona)", "marie (persona 4)", "margaret (persona)", "yoshino chidori", "theodore (persona)"],
+  "dragon ball": ["son goku", "android 18", "vegeta", "bulma", "android 21", "son gohan", "chi-chi (dragon ball)", "trunks (dragon ball)", "piccolo", "majin android 21", "kuririn", "videl", "gogeta", "son goten", "pan (dragon ball)", "trunks (future) (dragon ball)", "frieza", "vegetto", "caulifla", "broly (dragon ball z)", "cheelai", "lunch (dragon ball)", "bardock", "muten roushi", "cell (dragon ball)", "yamcha", "kefla (dragon ball)", "android 17", "kale (dragon ball)", "majin buu", "bra (dragon ball)", "lunch (bad) (dragon ball)", "tenshinhan", "perfect cell", "goku black", "gine", "raditz"],
+  "touhou": ["hakurei reimu", "kirisame marisa", "izayoi sakuya", "remilia scarlet", "cirno", "patchouli knowledge", "konpaku youmu", "alice margatroid", "flandre scarlet", "kochiya sanae", "shameimaru aya", "hong meiling", "rumia", "komeiji satori", "komeiji koishi", "yakumo yukari", "reisen udongein inaba", "fujiwara no mokou", "moriya suwako", "saigyouji yuyuko", "hinanawi tenshi", "ibuki suika", "reiuji utsuho", "houraisan kaguya", "usami renko", "kawashiro nitori", "yakumo ran", "maribel hearn", "konpaku youmu (ghost)", "yasaka kanako", "yagokoro eirin", "inaba tewi", "kaenbyou rin", "chen", "inubashiri momiji", "mystia lorelei", "kamishirasawa keine"],
+  "one piece": ["nami (one piece)", "monkey d. luffy", "nico robin", "roronoa zoro", "sanji (one piece)", "trafalgar law", "yamato (one piece)", "boa hancock", "tony tony chopper", "perona", "usopp", "portgas d. ace", "crocodile (one piece)", "donquixote doflamingo", "uta (one piece)", "franky (one piece)", "brook (one piece)", "smoker (one piece)", "nefertari vivi", "ulti (one piece)", "dracule mihawk", "sabo (one piece)", "donquixote rocinante", "shanks (one piece)", "momonosuke (one piece)", "eustass kid", "carrot (one piece)", "jinbe (one piece)", "salome (one piece)", "kaidou (one piece)", "buggy the clown", "jewelry bonney", "tashigi"],
+  "boku no hero academia": ["midoriya izuku", "uraraka ochako", "mirko", "toga himiko", "asui tsuyu", "endeavor (boku no hero academia)", "yaoyorozu momo", "todoroki shouto", "hawks (boku no hero academia)", "ashido mina", "jirou kyouka", "hadou nejire", "kirishima eijirou", "hagakure tooru", "eraser head (boku no hero academia)", "all might", "dabi (boku no hero academia)", "shigaraki tomura", "kaminari denki", "togata mirio", "mineta minoru", "iida tenya", "yagi toshinori", "mount lady", "midnight (boku no hero academia)", "eri (boku no hero academia)", "hatsume mei", "utsushimi kemii", "tokoyami fumikage", "bakugou mitsuki", "lady nagant", "kendou itsuka", "shinsou hitoshi"],
+  "xenoblade chronicles (series)": ["pyra (xenoblade)", "mythra (xenoblade)", "nia (xenoblade)", "rex (xenoblade)", "nia (blade) (xenoblade)", "mio (xenoblade)", "eunie (xenoblade)", "pneuma (xenoblade)", "melia antiqua", "mythra (massive melee) (xenoblade)", "shulk (xenoblade)", "morag ladair (xenoblade)", "poppi (xenoblade)", "mythra (radiant beach) (xenoblade)", "fiora (xenoblade)", "brighid (xenoblade)", "noah (xenoblade)", "sena (xenoblade)", "pandoria (xenoblade)", "zeke von genbu (xenoblade)", "lora (xenoblade)", "poppi qtpi (xenoblade)", "tora (xenoblade 2)", "glimmer (xenoblade)", "ethel (xenoblade)", "jin (xenoblade)", "poppi alpha (xenoblade)", "taion (xenoblade)", "dromarch (xenoblade)"],
+  "bang dream!": ["hikawa sayo", "hikawa hina", "mitake ran", "tsurumaki kokoro", "maruyama aya", "aoba moca", "matsubara kanon", "uehara himari", "okusawa misaki", "shirasagi chisato", "imai lisa", "minato yukina", "udagawa tomoe", "ichigaya arisa", "hazawa tsugumi", "toyama kasumi", "shirokane rinko", "seta kaoru", "yamabuki saya", "michelle (bang dream!)", "hanazono tae", "udagawa ako", "chihaya anon", "ushigome rimi", "wakamiya eve", "nagasaki soyo", "kitazawa hagumi", "yamato maya"],
+  "naruto (series)": ["haruno sakura", "uzumaki naruto", "hyuuga hinata", "uchiha sasuke", "tsunade (naruto)", "yamanaka ino", "hatake kakashi", "temari (naruto)", "uchiha sarada", "uchiha itachi", "uzumaki boruto", "naruko (naruto)", "nara shikamaru", "tenten (naruto)", "konan (naruto)", "uzumaki himawari", "uzumaki kushina", "rock lee", "namikaze minato", "sai (naruto)", "hyuuga neji", "gaara (naruto)", "deidara (naruto)", "uchiha obito", "mitarashi anko", "tayuya (naruto)"],
+  "sword art online": ["asuna (sao)", "kirito", "sinon", "kirigaya suguha", "leafa", "silica", "yuuki (sao)", "alice zuberg", "lisbeth (sao)", "asuna (sao-alo)", "kirito (sao-ggo)", "eugeo", "yui (sao)", "sinon (sao-alo)", "pina (sao)", "silica (sao-alo)", "titania (sao)", "kirito (sao-alo)", "asada shino", "llenn (sao)", "yui (sao-alo)", "lisbeth (sao-alo)", "asuna (stacia)"],
+  "neptune (series)": ["neptune (neptunia)", "noire (neptunia)", "purple heart (neptunia)", "blanc (neptunia)", "nepgear", "vert (neptunia)", "black heart (neptunia)", "adult neptune", "uni (neptunia)", "tennouboshi uzume", "white heart (neptunia)", "iris heart", "if (neptunia)", "green heart (neptunia)", "rom (neptunia)", "ram (neptunia)", "purple sister", "pururut", "dogoo", "histoire", "orange heart (neptunia)", "compa"],
+  "shingeki no kyojin": ["mikasa ackerman", "eren yeager", "christa renz", "levi (shingeki no kyojin)", "ymir (shingeki no kyojin)", "reiner braun", "armin arlert", "annie leonhardt", "titan (shingeki no kyojin)", "hange zoe", "bertolt hoover", "sasha braus", "jean kirchstein", "erwin smith", "connie springer", "colossal titan", "petra ral", "rogue titan", "pieck finger"],
+  "neon genesis evangelion": ["souryuu asuka langley", "ayanami rei", "ikari shinji", "nagisa kaworu", "makinami mari illustrious", "katsuragi misato", "eva 02", "eva 01", "akagi ritsuko", "ikari gendou", "eva 00", "aida kensuke", "mass production eva", "ibuki maya", "penpen", "horaki hikari", "sachiel (evangelion)", "suzuhara touji"],
+  "chainsaw man": ["makima (chainsaw man)", "power (chainsaw man)", "higashiyama kobeni", "reze (chainsaw man)", "hayakawa aki", "yoru (chainsaw man)", "himeno (chainsaw man)", "pochita (chainsaw man)", "mitaka asa", "quanxi (chainsaw man)", "angel devil (chainsaw man)", "meowy (chainsaw man)", "nayuta (chainsaw man)", "yoshida hirofumi", "fami (chainsaw man)", "kishibe (chainsaw man)", "sawatari akane (chainsaw man)", "bomb devil (chainsaw man)"],
+  "code geass": ["c.c.", "lelouch vi britannia", "kallen stadtfeld", "kururugi suzaku", "euphemia li britannia", "nunnally vi britannia", "anya alstreim", "shirley fenette", "cheese-kun", "villetta nu", "zero (code geass)", "cornelia li britannia", "milly ashford", "tianzi", "jeremiah gottwald", "rolo lamperouge", "sumeragi kaguya", "leila malcal"],
+  "kimetsu no yaiba": ["kamado nezuko", "kochou shinobu", "kanroji mitsuri", "kamado tanjirou", "rengoku kyoujurou", "tomioka giyuu", "agatsuma zenitsu", "tsuyuri kanao", "hashibira inosuke", "tokitou muichirou", "shinazugawa sanemi", "iguro obanai", "uzui tengen", "kaburamaru", "kochou kanae", "daki (kimetsu no yaiba)", "douma (kimetsu no yaiba)", "shinazugawa genya"],
+  "kill la kill": ["matoi ryuuko", "senketsu", "kiryuuin satsuki", "mankanshoku mako", "junketsu", "jakuzure nonon", "gamagoori ira", "sanageyama uzu", "inumuta houka", "harime nui", "mikisugi aikurou", "kiryuuin ragyou", "kinagase tsumugu", "guts (kill la kill)", "iori shirou", "hakodate omiko", "mankanshoku sukuyo"],
+  "jujutsu kaisen": ["gojou satoru", "itadori yuuji", "fushiguro megumi", "nanami kento", "kugisaki nobara", "getou suguru", "ryoumen sukuna (jujutsu kaisen)", "toudou aoi (jujutsu kaisen)", "fushiguro touji", "okkotsu yuuta", "zen'in maki", "ieiri shoko", "inumaki toge", "choso (jujutsu kaisen)", "mahito (jujutsu kaisen)", "iori utahime"],
+  "bleach": ["shihouin yoruichi", "inoue orihime", "kuchiki rukia", "kurosaki ichigo", "matsumoto rangiku", "sui-feng", "tier harribel", "nelliel tu odelschwanck", "unohana retsu", "kurotsuchi nemu", "hitsugaya toushirou", "ulquiorra cifer", "bambietta basterbine", "dokugamine riruka", "abarai renji"],
+  "limbus company": ["ishmael (project moon)", "sinclair (project moon)", "don quixote (project moon)", "yi sang (project moon)", "faust (project moon)", "hong lu (project moon)", "dante (limbus company)", "ryoshu (project moon)", "outis (project moon)", "heathcliff (project moon)", "meursault (project moon)", "rodion (project moon)", "gregor (project moon)", "kromer (project moon)"],
+  "monogatari (series)": ["oshino shinobu", "hanekawa tsubasa", "senjougahara hitagi", "sengoku nadeko", "araragi koyomi", "araragi karen", "oshino ougi", "kanbaru suruga", "kiss-shot acerola-orion heart-under-blade", "araragi tsukihi", "black hanekawa", "ononoki yotsugi", "oikura sodachi"],
+  "toaru majutsu no index": ["misaka mikoto", "shirai kuroko", "shokuhou misaki", "saten ruiko", "uiharu kazari", "kamijou touma", "misaka imouto", "frenda seivelun", "accelerator (toaru majutsu no index)", "last order (toaru majutsu no index)", "index (toaru majutsu no index)", "mugino shizuri"],
+  "high school dxd": ["rias gremory", "himejima akeno", "xenovia quarta", "rossweisse", "kuroka (high school dxd)", "toujou koneko", "asia argento", "shidou irina", "grayfia lucifuge", "serafall leviathan", "raynare", "ravel phenex"],
+  "gochuumon wa usagi desu ka?": ["kafuu chino", "hoto cocoa", "kirima syaro", "tippy (gochiusa)", "ujimatsu chiya", "tedeza rize", "jouga maya", "natsu megumi", "wild geese", "aoyama blue mountain", "hoto mocha"],
+  "hibike! euphonium": ["oumae kumiko", "kousaka reina", "yoroizuka mizore", "kasaki nozomi", "nakagawa natsuki", "yoshikawa yuuko", "tanaka asuka", "nakaseko kaori", "kawashima sapphire", "katou hazuki", "hisaishi kanade"],
+  "hunter x hunter": ["killua zoldyck", "kurapika", "gon freecss", "neferpitou", "chrollo lucilfer", "hisoka morow", "illumi zoldyck", "shizuku murasaki", "alluka zoldyck", "feitan portor", "leorio paladiknight"],
+  "k-on!": ["akiyama mio", "nakano azusa", "hirasawa yui", "tainaka ritsu", "kotobuki tsumugi", "hirasawa ui", "manabe nodoka", "suzuki jun", "yamanaka sawako", "tachibana himeko"],
+  "re:zero kara hajimeru isekai seikatsu": ["rem (re:zero)", "emilia (re:zero)", "ram (re:zero)", "natsuki subaru", "beatrice (re:zero)", "echidna (re:zero)", "puck (re:zero)", "felix argyle", "felt (re:zero)", "elsa granhilte"],
+  "kono subarashii sekai ni shukufuku wo!": ["megumin", "aqua (konosuba)", "darkness (konosuba)", "satou kazuma", "yunyun (konosuba)", "chomusuke", "wiz (konosuba)", "chris (konosuba)", "eris (konosuba)", "komekko"],
+  "genshin impact": ["navia (genshin impact)", "xianyun (genshin impact)", "cloud retainer (genshin impact)", "lumine (genshin impact)", "ganyu (genshin impact)", "raiden shogun", "clorinde (genshin impact)", "hu tao (genshin impact)", "shenhe (genshin impact)", "paimon (genshin impact)"],
+  "punishing: gray raven": ["lucia (punishing: gray raven)", "liv (punishing: gray raven)", "alpha (punishing: gray raven)", "karenina (punishing: gray raven)", "no.21 (punishing: gray raven)", "selena (punishing: gray raven)", "vera (punishing: gray raven)", "bianca (punishing: gray raven)", "luna (punishing: gray raven)", "nanami (punishing: gray raven)"],
+  "bocchi the rock!": ["gotoh hitori", "kita ikuyo", "ijichi nijika", "yamada ryo", "hiroi kikuri", "ijichi seika", "pa-san", "gotoh hitori (octopus)", "gotoh futari"],
+  "spy x family": ["yor briar", "anya (spy x family)", "twilight (spy x family)", "damian desmond", "bond (spy x family)", "director chimera (spy x family)", "becky blackbell", "yuri briar", "fiona frost"],
+  "atelier (series)": ["reisalin stout", "totooria helmold", "sophie neuenmuller", "rororina fryxell", "klaudia valentz", "lila decyrus", "escha malier", "merurulince rede arls", "mimi houllier von schwarzlang"],
+  "darling in the franxx": ["zero two (darling in the franxx)", "hiro (darling in the franxx)", "ichigo (darling in the franxx)", "strelizia", "kokoro (darling in the franxx)", "gorou (darling in the franxx)", "miku (darling in the franxx)", "ikuno (darling in the franxx)"],
+  "steins;gate": ["makise kurisu", "okabe rintarou", "shiina mayuri", "amane suzuha", "urushibara ruka", "akiha rumiho", "kiryuu moeka", "hashida itaru"],
+  "honkai: star rail": ["firefly (honkai: star rail)", "ruan mei (honkai: star rail)", "black swan (honkai: star rail)", "aventurine (honkai: star rail)", "dr. ratio (honkai: star rail)", "huohuo (honkai: star rail)", "sparkle (honkai: star rail)", "acheron (honkai: star rail)"],
+  "hololive": ["gawr gura", "takanashi kiara", "ninomae ina'nis", "ouro kronii", "houshou marine", "usada pekora", "watson amelia", "mori calliope"],
+  "nier (series)": ["2b (nier:automata)", "9s (nier:automata)", "a2 (nier:automata)", "kaine (nier)", "emil (nier)", "nier (young)", "2p (nier:automata)"],
+  "onii-chan wa oshimai!": ["oyama mahiro", "oyama mihari", "hozuki momiji", "murosaki miyo", "hozuki kaede", "oka asahi", "tenkawa nayuta"],
+  "gridman universe": ["takarada rikka", "shinjou akane", "minami yume", "hibiki yuuta", "mujina", "gridman (ssss)", "asanaka yomogi"],
+  "kobayashi-san chi no maidragon": ["kanna kamui", "tohru (maidragon)", "lucoa (maidragon)", "ilulu (maidragon)", "kobayashi (maidragon)", "elma (maidragon)", "saikawa riko"],
+  "fullmetal alchemist": ["edward elric", "winry rockbell", "alphonse elric", "riza hawkeye", "roy mustang", "lust (fma)", "olivier mira armstrong"],
+  "free!": ["tachibana makoto", "nanase haruka (free!)", "matsuoka rin", "matsuoka gou", "hazuki nagisa", "ryuugazaki rei", "yamazaki sousuke"],
+  "utawarerumono": ["eruruu", "aruruu", "kuon (utawarerumono)", "karulau", "touka (utawarerumono)", "camyu", "hakuowlo"],
+  "ore no imouto ga konna ni kawaii wake ga nai": ["gokou ruri", "kousaka kirino", "aragaki ayase", "kousaka kyousuke", "tamura manami", "makishima saori"],
+  "go-toubun no hanayome": ["nakano nino", "nakano miku", "nakano yotsuba", "nakano itsuki", "nakano ichika", "uesugi fuutarou"],
+  "kaguya-sama wa kokurasetai ~tensai-tachi no renai zunousen~": ["shinomiya kaguya", "fujiwara chika", "hayasaka ai", "iino miko", "shirogane miyuki", "shirogane kei"],
+  "yurucamp": ["shima rin", "kagamihara nadeshiko", "inuyama aoi", "oogaki chiaki", "saitou ena", "kagamihara sakura"],
+  "new game!": ["suzukaze aoba", "takimoto hifumi", "yagami kou", "iijima yun", "sakura nene", "shinoda hajime"],
+  "mahou shoujo madoka magica": ["akemi homura", "kaname madoka", "kyubey", "tomoe mami", "miki sayaka", "sakura kyoko"],
+  "haikyuu!!": ["hinata shouyou", "kageyama tobio", "shimizu kiyoko", "kuroo tetsurou", "sawamura daichi", "kozume kenma"],
+  "sono bisque doll wa koi wo suru": ["kitagawa marin", "inui sajuna", "gojou wakana", "rizu-kyun", "kuroe shizuku"],
+  "dungeon ni deai wo motomeru no wa machigatteiru darou ka": ["hestia (danmachi)", "bell cranel", "aiz wallenstein", "ryu lion", "liliruca arde"],
+  "one-punch man": ["tatsumaki", "fubuki (one-punch man)", "saitama (one-punch man)", "genos", "onsoku no sonic"],
+  "machikado mazoku": ["yoshida yuuko (machikado mazoku)", "chiyoda momo", "lilith (machikado mazoku)", "hinatsuki mikan", "yoshida ryouko"],
+  "hyouka": ["chitanda eru", "oreki houtarou", "ibara mayaka", "fukube satoshi", "irisu fuyumi"],
+  "overlord (maruyama)": ["albedo (overlord)", "shalltear bloodfallen", "ainz ooal gown", "entoma vasilissa zeta", "narberal gamma"],
+  "tokyo ghoul": ["kaneki ken", "kirishima touka", "suzuya juuzou", "kamishiro rize", "sasaki haise"],
+  "mushoku tensei": ["roxy migurdia", "eris greyrat", "sylphiette (mushoku tensei)", "ghislaine dedoldia", "rudeus greyrat"],
+  "kantai collection": ["admiral (kancolle)", "shimakaze (kancolle)", "admiral suwabe", "hibiki (kancolle)", "kaga (kancolle)"],
+  "hataraku saibou": ["platelet (hataraku saibou)", "white blood cell (hataraku saibou)", "red blood cell (hataraku saibou)", "ae-3803", "u-1146"],
+  "mario (series)": ["mario", "luigi", "rosalina", "bowser", "yoshi"],
+  "yahari ore no seishun lovecome wa machigatteiru.": ["yukinoshita yukino", "yuigahama yui", "isshiki iroha", "hikigaya hachiman"],
+  "tensei shitara slime datta ken": ["rimuru tempest", "milim nava", "rimuru tempest (slime)", "shion (tensei shitara slime datta ken)"],
+  "fate (series)": ["artoria pendragon (fate)", "saber (fate)", "mash kyrielight", "tohsaka rin"],
+  "goblin slayer!": ["priestess (goblin slayer!)", "high elf archer (goblin slayer!)", "sword maiden", "goblin slayer"],
+  "death note": ["l (death note)", "yagami light", "amane misa", "ryuk"],
+  "kuroko no basuke": ["kuroko tetsuya", "kise ryouta", "aomine daiki", "kagami taiga"],
+  "last origin": ["dark elven forest ranger", "may of doom", "elven forest maker", "commander (last origin)"],
+  "lycoris recoil": ["nishikigi chisato", "inoue takina", "kurumi (lycoris recoil)"],
+  "eromanga sensei": ["izumi sagiri", "yamada elf", "senju muramasa"],
+  "komi-san wa komyushou desu": ["komi shouko", "tadano hitohito", "komi shuuko"],
+  "needy girl overdose": ["chouzetsusaikawa tenshi-chan", "ame-chan (needy girl overdose)", "pien cat (needy girl overdose)"],
+  "cyberpunk (series)": ["rebecca (cyberpunk)", "lucy (cyberpunk)", "david martinez"],
+  "tate no yuusha no nariagari": ["raphtalia", "iwatani naofumi", "filo (tate no yuusha no nariagari)"],
+  "berserk": ["guts (berserk)", "griffith (berserk)", "casca (berserk)"],
+  "doraemon": ["doraemon (character)", "nobi nobita", "minamoto shizuka"],
+  "the legend of zelda": ["link", "princess zelda", "toon link"],
+  "shokugeki no souma": ["nakiri erina", "nakiri alice", "mito ikumi"],
+  "pokemon": ["pikachu", "jigglypuff", "pichu"],
+  "blue archive": ["ibuki (blue archive)", "makoto (blue archive)", "iroha (blue archive)"],
+  "suzumiya haruhi no yuuutsu": ["suzumiya haruhi", "nagato yuki", "kyon"],
+  "uzaki-chan wa asobitai!": ["uzaki hana", "uzaki tsuki"],
+  "vocaloid": ["hatsune miku", "kagamine rin"],
+  "seishun buta yarou": ["sakurajima mai", "futaba rio"],
+  "kirby (series)": ["kirby", "meta knight"],
+  "boku no kokoro no yabai yatsu": ["yamada anna", "ichikawa kyoutarou"],
+  "charlotte (anime)": ["tomori nao", "otosaka yuu"],
+  "no game no life": ["jibril (no game no life)", "shiro (no game no life)"],
+  "hataraku maou-sama!": ["sasaki chiho", "yusa emi"],
+  "owari no seraph": ["krul tepes", "hiiragi shinoa"],
+  "kid icarus": ["palutena", "pit (kid icarus)"],
+  "splatoon (series)": ["inkling player character", "inkling girl"],
+  "mother (game)": ["ness (mother 2)", "lucas (mother 3)"],
+  "tokyo revengers": ["sano manjirou", "matsuno chifuyu"],
+  "toaru kagaku no railgun": ["konori mii", "kiyama harumi"],
+  "majo no tabitabi": ["elaina (majo no tabitabi)"],
+  "violet evergarden (series)": ["violet evergarden"],
+  "metroid": ["samus aran"],
+  "arknights": ["shu (arknights)"],
+  "akame ga kill!": ["esdeath"],
+  "yofukashi no uta": ["nanakusa nazuna (yofukashi no uta)"],
+  "alice in wonderland": ["alice (alice in wonderland)"],
+  "kusuriya no hitorigoto": ["maomao (kusuriya no hitorigoto)"],
+  "sonic (series)": ["sonic the hedgehog"],
+  "bungou stray dogs": ["dazai osamu (bungou stray dogs)"],
+  "to heart (series)": ["kousaka tamaki"],
+  "lucky star": ["izumi konata"],
+  "street fighter": ["chun-li"],
+  "bishoujo senshi sailor moon": ["sailor moon"],
+  "animal crossing": ["villager (animal crossing)"],
+  "xenosaga": ["kos-mos"],
+  "tengen toppa gurren lagann": ["yoko littner"],
+  "bayonetta (series)": ["bayonetta"],
+  "original": ["shizuku (kantoku)"],
+  "itai no wa iya nano de bougyoryoku ni kyokufuri shitai to omoimasu": ["maple (bofuri)"],
+  "honkai (series)": ["welt yang"],
+  "f-zero": ["captain falcon"],
+  "metal gear (series)": ["solid snake"],
+  "kemono friends": ["serval (kemono friends)"],
+  "donkey kong (series)": ["donkey kong"],
+  "eden's zero": ["rebecca bluegarden"],
+  "sousou no frieren": ["frieren"],
+  "g gundam": ["allenby beardsley"],
+  "mega man (classic)": ["mega man (character)"],
+  "dr. stone": ["kohaku (dr. stone)"],
+  "oshi no ko": ["hoshino ai", "hoshino ruby", "arima kana", "mem-cho", "aquamarine hoshino"],
+  "serial experiments lain": ["iwakura lain", "alice (serial experiments lain)", "chisa yomoda"],
+  "mirai nikki": ["gasai yuno", "amano yukiteru", "minene uryuu", "tsubaki kasugano"],
+  "black lagoon": ["revy", "roberta (black lagoon)", "balalaika", "eda (black lagoon)", "shenhua"],
+  "elfen lied": ["lucy (elfen lied)", "nyu (elfen lied)", "nana (elfen lied)", "mayu (elfen lied)"],
+  "haibane renmei": ["rakka", "reki (haibane renmei)", "kana (haibane renmei)", "nemu (haibane renmei)"],
+  "hellsing": ["alucard", "seras victoria", "integra hellsing"],
+  "paprika (movie)": ["paprika (movie)", "chiba atsuko"],
+  "perfect blue": ["mima kirigoe"],
+  "akira (movie)": ["kaneda shotaro", "tetsuo shima"],
+  "cowboy bebop": ["faye valentine", "edward (cowboy bebop)", "spike spiegel"],
+  "slayers": ["lina inverse", "naga the serpent", "zelgadis greywords"],
+  "shakugan no shana": ["shana", "yoshida kazumi"],
+  "higurashi no naku koro ni": ["furude rika", "rena ryuuguu", "hanyuu", "sonozaki mion", "sonozaki shion", "houjou satoko"],
+  "garou: mark of the wolves": ["b. jenet", "rock howard"],
+  "the king of fighters": ["shiranui mai", "athena asamiya", "leona heidern", "blue mary", "angel (kof)", "kula diamond"],
+  "darkstalkers": ["morrigan aensland", "lilith aensland", "felicia (darkstalkers)", "hsien-ko"],
+  "guilty gear": ["i-no", "baiken", "millia rage", "dizzy (guilty gear)", "bridget (guilty gear)", "ramlethal valentine", "elphelt valentine", "sol badguy", "ky kiske"],
+  "skullgirls": ["valentine (skullgirls)", "parasoul", "filia (skullgirls)"],
+  "tsukihime": ["arcueid brunestud", "akiha tohno", "hisui (tsukihime)", "kohaku (tsukihime)", "ciel (tsukihime)", "shiki tohno"],
+  "umineko no naku koro ni": ["beatrice (umineko)", "bernkastel", "lambdadelta", "ange ushiromiya"],
+  "black cat (manga)": ["rinslet walker", "saya minatsuki", "eve (black cat)"],
+  "panty & stocking with garterbelt": ["panty (psg)", "stocking (psg)", "kneesocks (psg)", "scanty (psg)"],
+  "dorohedoro": ["nikaido (dorohedoro)", "ebisu (dorohedoro)", "noi (dorohedoro)"],
+  "steven universe": ["holly blue agate", "peridot (steven universe)", "lapis lazuli (steven universe)"],
+  "dead or alive": ["kasumi (doa)", "ayane (doa)", "marie rose (doa)", "nyotengu", "tina armstrong", "lei fang", "honoka (doa)"],
+  "super mario bros.": ["princess peach", "princess daisy", "rosalina", "bowsette"]
+};
+
+const CHARA_SERIES_NAMES = {
+  "fire emblem": "Fire Emblem",
+  "final fantasy": "Final Fantasy",
+  "gundam": "Gundam",
+  "jojo no kimyou na bouken": "JoJo",
+  "danganronpa (series)": "Danganronpa",
+  "persona": "Persona",
+  "dragon ball": "Dragon Ball",
+  "touhou": "\u6771\u65b9 Touhou",
+  "one piece": "One Piece",
+  "boku no hero academia": "\u50d5\u306e\u30d2\u30fc\u30ed\u30fc\u30a2\u30ab\u30c7\u30df\u30a2",
+  "xenoblade chronicles (series)": "Xenoblade",
+  "bang dream!": "BanG Dream!",
+  "naruto (series)": "NARUTO",
+  "sword art online": "SAO",
+  "neptune (series)": "Neptune",
+  "shingeki no kyojin": "\u9032\u6483\u306e\u5de8\u4eba",
+  "neon genesis evangelion": "\u30a8\u30f4\u30a1\u30f3\u30b2\u30ea\u30aa\u30f3",
+  "chainsaw man": "\u30c1\u30a7\u30f3\u30bd\u30fc\u30de\u30f3",
+  "code geass": "\u30b3\u30fc\u30c9\u30ae\u30a2\u30b9",
+  "kimetsu no yaiba": "\u9b3c\u6ec5\u306e\u5203",
+  "kill la kill": "\u30ad\u30eb\u30e9\u30ad\u30eb",
+  "jujutsu kaisen": "\u546a\u8853\u5efb\u6226",
+  "bleach": "BLEACH",
+  "limbus company": "Limbus Company",
+  "monogatari (series)": "\u7269\u8a9e\u30b7\u30ea\u30fc\u30ba",
+  "toaru majutsu no index": "\u3068\u3042\u308b\u9b54\u8853\u306e\u7981\u66f8\u76ee\u9332",
+  "high school dxd": "\u30cf\u30a4\u30b9\u30af\u30fc\u30ebD\u00d7D",
+  "gochuumon wa usagi desu ka?": "\u3054\u6ce8\u6587\u306f\u3046\u3055\u304e\u3067\u3059\u304b?",
+  "hibike! euphonium": "\u97ff\u3051\uff01\u30e6\u30fc\u30d5\u30a9\u30cb\u30a2\u30e0",
+  "hunter x hunter": "HUNTER\u00d7HUNTER",
+  "k-on!": "\u3051\u3044\u304a\u3093!",
+  "re:zero kara hajimeru isekai seikatsu": "Re:\u30bc\u30ed",
+  "kono subarashii sekai ni shukufuku wo!": "\u3053\u306e\u3059\u3070",
+  "genshin impact": "\u539f\u795e",
+  "punishing: gray raven": "PGR",
+  "bocchi the rock!": "\u307c\u3063\u3061\u30fb\u3056\u30fb\u308d\u3063\u304f\uff01",
+  "spy x family": "SPY\u00d7FAMILY",
+  "atelier (series)": "\u30a2\u30c8\u30ea\u30a8\u30b7\u30ea\u30fc\u30ba",
+  "darling in the franxx": "\u30c0\u30ea\u30d5\u30e9",
+  "steins;gate": "\u30b7\u30e5\u30bf\u30b2",
+  "honkai: star rail": "\u5d29\u30b9\u30bf",
+  "hololive": "\u30db\u30ed\u30e9\u30a4\u30d6",
+  "nier (series)": "NieR",
+  "onii-chan wa oshimai!": "\u304a\u306b\u307e\u3044",
+  "gridman universe": "\u30b0\u30ea\u30c3\u30c9\u30de\u30f3",
+  "kobayashi-san chi no maidragon": "\u5c0f\u6797\u3055\u3093\u3061\u306e\u30e1\u30a4\u30c9\u30e9\u30b4\u30f3",
+  "fullmetal alchemist": "\u92fc\u306e\u932c\u91d1\u8853\u5e2b",
+  "free!": "Free!",
+  "utawarerumono": "\u3046\u305f\u308f\u308c\u308b\u3082\u306e",
+  "ore no imouto ga konna ni kawaii wake ga nai": "\u304a\u308c\u3044\u3082",
+  "go-toubun no hanayome": "\u4e94\u7b49\u5206\u306e\u82b1\u5ac1",
+  "kaguya-sama wa kokurasetai ~tensai-tachi no renai zunousen~": "\u304b\u3050\u3084\u69d8",
+  "yurucamp": "\u3086\u308b\u30ad\u30e3\u30f3\u25b3",
+  "new game!": "NEW GAME!",
+  "mahou shoujo madoka magica": "\u307e\u3069\u304b\u2606\u30de\u30ae\u30ab",
+  "haikyuu!!": "\u30cf\u30a4\u30ad\u30e5\u30fc!!",
+  "sono bisque doll wa koi wo suru": "\u7740\u305b\u604b",
+  "dungeon ni deai wo motomeru no wa machigatteiru darou ka": "\u30c0\u30f3\u307e\u3061",
+  "one-punch man": "\u30ef\u30f3\u30d1\u30f3\u30de\u30f3",
+  "machikado mazoku": "\u307e\u3061\u30ab\u30c9\u307e\u305e\u304f",
+  "hyouka": "\u6c37\u83d3",
+  "overlord (maruyama)": "\u30aa\u30fc\u30d0\u30fc\u30ed\u30fc\u30c9",
+  "tokyo ghoul": "\u6771\u4eac\u30b0\u30fc\u30eb",
+  "mushoku tensei": "\u7121\u8077\u8ee2\u751f",
+  "kantai collection": "\u8266\u3053\u308c",
+  "hataraku saibou": "\u306f\u305f\u3089\u304f\u7d30\u80de",
+  "mario (series)": "\u30de\u30ea\u30aa",
+  "yahari ore no seishun lovecome wa machigatteiru.": "\u3084\u306f\u308a\u4ffa\u306e\u9752\u6625\u30e9\u30d6\u30b3\u30e1",
+  "tensei shitara slime datta ken": "\u8ee2\u30b9\u30e9",
+  "fate (series)": "Fate",
+  "goblin slayer!": "\u30b4\u30d6\u30ea\u30f3\u30b9\u30ec\u30a4\u30e4\u30fc",
+  "death note": "\u30c7\u30b9\u30ce\u30fc\u30c8",
+  "kuroko no basuke": "\u9ed2\u5b50\u306e\u30d0\u30b9\u30b1",
+  "last origin": "Last Origin",
+  "lycoris recoil": "\u30ea\u30b3\u30ea\u30b9\u30fb\u30ea\u30b3\u30a4\u30eb",
+  "eromanga sensei": "\u30a8\u30ed\u30de\u30f3\u30ac\u5148\u751f",
+  "komi-san wa komyushou desu": "\u30b3\u30df\u3055\u3093",
+  "needy girl overdose": "NeedyGirl",
+  "cyberpunk (series)": "\u30b5\u30a4\u30d0\u30fc\u30d1\u30f3\u30af",
+  "tate no yuusha no nariagari": "\u76fe\u306e\u52c7\u8005",
+  "berserk": "\u30d9\u30eb\u30bb\u30eb\u30af",
+  "doraemon": "\u30c9\u30e9\u3048\u3082\u3093",
+  "the legend of zelda": "\u30bc\u30eb\u30c0",
+  "shokugeki no souma": "\u98df\u621f\u306e\u30bd\u30fc\u30de",
+  "pokemon": "\u30dd\u30b1\u30e2\u30f3",
+  "blue archive": "\u30d6\u30eb\u30fc\u30a2\u30fc\u30ab\u30a4\u30d6",
+  "suzumiya haruhi no yuuutsu": "\u6dbc\u5bae\u30cf\u30eb\u30d2",
+  "uzaki-chan wa asobitai!": "\u5b87\u5d0e\u3061\u3083\u3093",
+  "vocaloid": "VOCALOID",
+  "seishun buta yarou": "\u9752\u30d6\u30bf",
+  "kirby (series)": "\u30ab\u30fc\u30d3\u30a3",
+  "boku no kokoro no yabai yatsu": "\u50d5\u306e\u5fc3\u306e\u30e4\u30d0\u3044\u3084\u3064",
+  "charlotte (anime)": "Charlotte",
+  "no game no life": "\u30ce\u30fc\u30b2\u30fc\u30e0\u30ce\u30fc\u30e9\u30a4\u30d5",
+  "hataraku maou-sama!": "\u306f\u305f\u3089\u304f\u9b54\u738b\u3055\u307e!",
+  "owari no seraph": "\u7d42\u308f\u308a\u306e\u30bb\u30e9\u30d5",
+  "kid icarus": "Kid Icarus",
+  "splatoon (series)": "\u30b9\u30d7\u30e9\u30c8\u30a5\u30fc\u30f3",
+  "mother (game)": "MOTHER",
+  "tokyo revengers": "\u6771\u4eac\u534d\u30ea\u30d9\u30f3\u30b8\u30e3\u30fc\u30ba",
+  "toaru kagaku no railgun": "\u8d85\u96fb\u78c1\u7832",
+  "majo no tabitabi": "\u9b54\u5973\u306e\u65c5\u3005",
+  "violet evergarden (series)": "\u30f4\u30a1\u30a4\u30aa\u30ec\u30c3\u30c8",
+  "metroid": "\u30e1\u30c8\u30ed\u30a4\u30c9",
+  "arknights": "\u30a2\u30fc\u30af\u30ca\u30a4\u30c4",
+  "akame ga kill!": "\u30a2\u30ab\u30e1\u304c\u65ac\u308b!",
+  "yofukashi no uta": "\u591c\u3075\u304b\u3057\u306e\u5504",
+  "alice in wonderland": "\u30a2\u30ea\u30b9",
+  "kusuriya no hitorigoto": "\u85ac\u5c4b\u306e\u3072\u3068\u308a\u3054\u3068",
+  "sonic (series)": "\u30bd\u30cb\u30c3\u30af",
+  "bungou stray dogs": "\u6587\u30b9\u30c8",
+  "to heart (series)": "To Heart",
+  "lucky star": "\u3089\u304d\u2606\u3059\u305f",
+  "street fighter": "\u30b9\u30c8\u30ea\u30fc\u30c8\u30d5\u30a1\u30a4\u30bf\u30fc",
+  "bishoujo senshi sailor moon": "\u30bb\u30fc\u30e9\u30fc\u30e0\u30fc\u30f3",
+  "animal crossing": "\u3069\u3046\u3076\u3064\u306e\u68ee",
+  "xenosaga": "\u30bc\u30ce\u30b5\u30fc\u30ac",
+  "tengen toppa gurren lagann": "\u30b0\u30ec\u30f3\u30e9\u30ac\u30f3",
+  "bayonetta (series)": "\u30d9\u30e8\u30cd\u30c3\u30bf",
+  "original": "\u30aa\u30ea\u30b8\u30ca\u30eb",
+  "itai no wa iya nano de bougyoryoku ni kyokufuri shitai to omoimasu": "BOFURI",
+  "honkai (series)": "\u5d29\u58ca",
+  "f-zero": "F-ZERO",
+  "metal gear (series)": "\u30e1\u30bf\u30eb\u30ae\u30a2",
+  "kemono friends": "\u3051\u3082\u306e\u30d5\u30ec\u30f3\u30ba",
+  "donkey kong (series)": "\u30c9\u30f3\u30ad\u30fc\u30b3\u30f3\u30b0",
+  "eden's zero": "\u30a8\u30c7\u30f3\u30ba\u30bc\u30ed",
+  "sousou no frieren": "\u846c\u9001\u306e\u30d5\u30ea\u30fc\u30ec\u30f3",
+  "g gundam": "G\u30ac\u30f3\u30c0\u30e0",
+  "mega man (classic)": "\u30ed\u30c3\u30af\u30de\u30f3",
+  "dr. stone": "Dr.STONE",
+  "oshi no ko": "推しの子",
+  "serial experiments lain": "serial experiments lain",
+  "mirai nikki": "未来日記",
+  "black lagoon": "BLACK LAGOON",
+  "elfen lied": "エルフェンリート",
+  "haibane renmei": "灰羽連盟",
+  "hellsing": "HELLSING",
+  "paprika (movie)": "パプリカ（映画）",
+  "perfect blue": "PERFECT BLUE（映画）",
+  "akira (movie)": "AKIRA（映画）",
+  "cowboy bebop": "カウボーイビバップ",
+  "slayers": "スレイヤーズ",
+  "shakugan no shana": "灼眼のシャナ",
+  "higurashi no naku koro ni": "ひぐらしのなく頃に",
+  "garou: mark of the wolves": "餓狼 MARK OF THE WOLVES",
+  "the king of fighters": "THE KING OF FIGHTERS",
+  "darkstalkers": "ヴァンパイア（ダークストーカーズ）",
+  "guilty gear": "GUILTY GEAR",
+  "skullgirls": "スカルガールズ",
+  "tsukihime": "月姫",
+  "umineko no naku koro ni": "うみねこのなく頃に",
+  "black cat (manga)": "ブラックキャット",
+  "panty & stocking with garterbelt": "パンティ&ストッキングwithガーターベルト",
+  "dorohedoro": "ドロヘドロ",
+  "steven universe": "スティーブンユニバース",
+  "dead or alive": "DEAD OR ALIVE",
+  "super mario bros.": "スーパーマリオブラザーズ",
+  "fate/stay night": "Fate/stay night",
+};
+
+
+const SERIES_READING = {
+  "arknights":"あーくないつ","akame ga kill!":"あかめがきる","akira (movie)":"あきらえいが",
+  "alice in wonderland":"ありすいんわんだーらんど","animal crossing":"あつまれどうぶつのもり",
+  "atelier (series)":"あとりえ","angel beats!":"あんじぇるびーつ",
+  "itai no wa iya nano de bougyoryoku ni kyokufuri shitai to omoimasu":"いたいのはいや",
+  "umineko no naku koro ni":"うみねこのなくころに","utawarerumono":"うたわれるもの",
+  "uzaki-chan wa asobitai!":"うざきちゃん","overlord (maruyama)":"おーばーろーど",
+  "ore no imouto ga konna ni kawaii wake ga nai":"おれいも","oshi no ko":"おしのこ",
+  "owari no seraph":"おわりのせらふ","onii-chan wa oshimai!":"おにまい","original":"おりじなる",
+  "garou: mark of the wolves":"がろうまーく","kaguya-sama wa kokurasetai ~tensai-tachi no renai zunousen~":"かぐやさま",
+  "kantai collection":"かんこれ","kill la kill":"きるらきる","kimetsu no yaiba":"きめつのやいば",
+  "kirby (series)":"かーびぃ","kid icarus":"きっどいかるす","komi-san wa komyushou desu":"こみさん",
+  "kobayashi-san chi no maidragon":"こばやしさん","code geass":"こーどぎあす",
+  "kono subarashii sekai ni shukufuku wo!":"このすば","cowboy bebop":"かうぼーいびばっぷ",
+  "goblin slayer!":"ごぶりんすれいやー","gochuumon wa usagi desu ka?":"ごちうさ",
+  "go-toubun no hanayome":"ごとうぶん","genshin impact":"げんしんいんぱくと",
+  "guilty gear":"ぎるてぃぎあ","gundam":"がんだむ","g gundam":"じーがんだむ",
+  "gridman universe":"ぐりっどまん","shakugan no shana":"しゃくがんのしゃな",
+  "jujutsu kaisen":"じゅじゅつかいせん","serial experiments lain":"しりあるえくすぺりめんつれいん",
+  "shingeki no kyojin":"しんげきのきょじん","neon genesis evangelion":"しんせいきえう゛ぁんげりおん",
+  "steven universe":"すてぃーぶんゆにばーす","skullgirls":"すかるがーるず",
+  "slayers":"すれいやーず","splatoon (series)":"すぷらとぅーん","super mario bros.":"すーぱーまりお",
+  "sword art online":"そーどあーとおんらいん","sousou no frieren":"そうそうのふりーれん",
+  "sono bisque doll wa koi wo suru":"そのきせこい","sonic (series)":"そにっく",
+  "spy x family":"すぱいふぁみりー","steins;gate":"しゅたいんずげーと",
+  "seishun buta yarou":"せいしゅんぶたやろう",
+  "darkstalkers":"だーくすとーかーず","danganronpa (series)":"だんがんろんぱ",
+  "darling in the franxx":"だーりんいんざふらんきす","dead or alive":"でっどおあらいぶ",
+  "dorohedoro":"どろへどろ","dragon ball":"どらごんぼーる","death note":"でするのーと",
+  "doraemon":"どらえもん","donkey kong (series)":"どんきーこんぐ",
+  "dungeon ni deai wo motomeru no wa machigatteiru darou ka":"だんまち","dr. stone":"どくたーすとーん",
+  "touhou":"とうほう","tokyo ghoul":"とうきょうぐーる","tokyo revengers":"とうきょうりべんじゃーず",
+  "toaru majutsu no index":"とあるまじゅつのいんでっくす","toaru kagaku no railgun":"とあるかがくのれいるがん",
+  "tate no yuusha no nariagari":"たてのゆうしゃ","tengen toppa gurren lagann":"てんげんとっぱぐれんらがん",
+  "tensei shitara slime datta ken":"てんすらすらいむ","tsukihime":"つきひめ",
+  "the king of fighters":"ざきんぐおぶふぁいたーず","the legend of zelda":"ぜるだのでんせつ",
+  "to heart (series)":"とはーと",
+  "naruto (series)":"なると","neptune (series)":"ねぷちゅーにあ",
+  "needy girl overdose":"にーでぃーがーるおーばーどーず","nier (series)":"にーあ",
+  "no game no life":"のーげーむのーらいふ","haibane renmei":"はいばねれんめい",
+  "bang dream!":"ばんどりーむ","bayonetta (series)":"べよねった","berserk":"べるせるく",
+  "bleach":"ぶりーち","blue archive":"ぶるーあーかいぶ","black cat (manga)":"ぶらっくきゃっと",
+  "black lagoon":"ぶらっくらぐーん","bocchi the rock!":"ぼっちざろっく",
+  "boku no hero academia":"ぼくのひーろーあかでみあ","boku no kokoro no yabai yatsu":"ぼくのこころのやばいやつ",
+  "bishoujo senshi sailor moon":"びしょうじょせんしせーらーむーん",
+  "hibike! euphonium":"ひびけゆーふぉにあむ","higurashi no naku koro ni":"ひぐらしのなくころに",
+  "haikyuu!!":"はいきゅー","honkai (series)":"ほんかいちほん","honkai: star rail":"ほんかいすたーれいる",
+  "hololive":"ほろらいぶ","hataraku maou-sama!":"はたらくまおうさま",
+  "hataraku saibou":"はたらくさいぼう","hellsing":"へるしんぐ","hyouka":"ひょうか",
+  "hunter x hunter":"はんたーはんたー","fullmetal alchemist":"はがねのれんきんじゅつし",
+  "perfect blue":"ぱーふぇくとぶるー","paprika (movie)":"ぱぷりかえいが",
+  "panty & stocking with garterbelt":"ぱんてぃあんどすとっきんぐ","persona":"ぺるそな",
+  "pokemon":"ぽけもん","punishing: gray raven":"ぱにしんぐぐれいれいぶん",
+  "fire emblem":"ふぁいあーえむぶれむ","final fantasy":"ふぁいなるふぁんたじー",
+  "free!":"ふりー","fate (series)":"ふぇいとしりーず","fate/stay night":"ふぇいとすていないと",
+  "f-zero":"えふぜろ","mahou shoujo madoka magica":"まほうしょうじょまどかまぎか",
+  "mario (series)":"まりおしりーず","machikado mazoku":"まちかどまぞく",
+  "majo no tabitabi":"まじょのたびたび","metroid":"めとろいど","metal gear (series)":"めたるぎあ",
+  "mega man (classic)":"めがまん","mirai nikki":"みらいにっき",
+  "monogatari (series)":"ものがたりしりーず","mushoku tensei":"むしょくてんせい",
+  "mother (game)":"まざー","yahari ore no seishun lovecome wa machigatteiru.":"やはりぼっち",
+  "yurucamp":"ゆるきゃんぷ","yofukashi no uta":"よふかしのうた",
+  "lycoris recoil":"りこりすりこいる","limbus company":"りんばすかんぱにー",
+  "last origin":"らすとおりじん","lucky star":"らきすた",
+  "re:zero kara hajimeru isekai seikatsu":"りぜろ",
+  "xenoblade chronicles (series)":"ぜのぶれいど","xenosaga":"ぜのさーが",
+  "k-on!":"けいおん","kemono friends":"けものふれんず","kusuriya no hitorigoto":"くすりやのひとりごと",
+  "kuroko no basuke":"くろこのばすけ","eromanga sensei":"えろまんがせんせい",
+  "eden's zero":"えでんずぜろ","elfen lied":"えるふぇんりーと",
+  "vocaloid":"ぼーかろいど","violet evergarden (series)":"う゛ぁいおれっとえう゛ぁーがーでん",
+  "cyberpunk (series)":"さいばーぱんく","charlotte (anime)":"しゃーろっと",
+  "chainsaw man":"ちぇーんそーまん","suzumiya haruhi no yuuutsu":"すずみやはるひのゆううつ",
+  "umineko no naku koro ni":"うみねこのなくころに",
+  "one piece":"わんぴーす","one-punch man":"わんぱんまん",
+  "jojo no kimyou na bouken":"じょじょのきみょうなぼうけん",
+  "street fighter":"すとりーとふぁいたー",
+  "hataraku saibou":"はたらくさいぼう","shokugeki no souma":"しょくげきのそーま",
+  "eromanga sensei":"えろまんがせんせい","yofukashi no uta":"よふかしのうた",
+  "maju no tabitabi":"まじょのたびたび",
+};
+
+/* ===== PRESET META ===== */
+const PRESET_META = {
+  general:       { label:'汎用',         colorClass:'src-general',       group:'general',  priority:0  },
+  rating:        { label:'レーティング', colorClass:'src-rating',        group:'rating',   priority:2  },
+  year:          { label:'年代',         colorClass:'src-general',       group:'general',  priority:1  },
+  chara:         { label:'キャラ',       colorClass:'src-chara',         group:'chara',    priority:10 },
+  appear_hair:   { label:'髪',           colorClass:'src-appear',        group:'appear',   priority:20 },
+  appear_eye:    { label:'目',           colorClass:'src-appear',        group:'appear',   priority:21 },
+  appear_face:   { label:'顔・鼻・口',  colorClass:'src-appear',        group:'appear',   priority:22 },
+  appear_body:   { label:'体の作り',    colorClass:'src-appear',        group:'appear',   priority:23 },
+  appear_height: { label:'身長',        colorClass:'src-appear',        group:'appear',   priority:24 },
+  appear_special:{ label:'特殊外見',    colorClass:'src-appear',        group:'appear',   priority:25 },
+  style:         { label:'絵柄',         colorClass:'src-style',         group:'style',    priority:30 },
+  animagine:     { label:'ANI-POS',      colorClass:'src-animagine',     group:'ani',      priority:60 },
+  pony:          { label:'PONY-POS',     colorClass:'src-pony',          group:'pony',     priority:70 },
+  neg_animagine: { label:'ANI-NEG',      colorClass:'src-neg_animagine', group:'neg',      priority:80 },
+  neg_pony:      { label:'PONY-NEG',     colorClass:'src-neg_pony',      group:'neg',      priority:90 },
+  nsfw_rating:   { label:'NSFWレーティング', colorClass:'src-nsfw',      group:'nsfw',     priority:40 },
+  nsfw_body_f:   { label:'女性の体',     colorClass:'src-nsfw',          group:'nsfw',     priority:41 },
+  nsfw_body_m:   { label:'男性の体',     colorClass:'src-nsfw',          group:'nsfw',     priority:42 },
+  nsfw_position: { label:'体位',         colorClass:'src-nsfw',          group:'nsfw',     priority:43 },
+  nsfw_vaginal:  { label:'膣内',         colorClass:'src-nsfw',          group:'nsfw',     priority:44 },
+  nsfw_oral:     { label:'口淫',         colorClass:'src-nsfw',          group:'nsfw',     priority:45 },
+  nsfw_anal:     { label:'アナル',       colorClass:'src-nsfw',          group:'nsfw',     priority:46 },
+  nsfw_cum:      { label:'射精',         colorClass:'src-nsfw',          group:'nsfw',     priority:47 },
+  nsfw_reaction: { label:'反応・顔',     colorClass:'src-nsfw',          group:'nsfw',     priority:48 },
+  nsfw_costume:  { label:'衣装',         colorClass:'src-nsfw',          group:'nsfw',     priority:49 },
+  nsfw_bondage:  { label:'拘束',         colorClass:'src-nsfw',          group:'nsfw',     priority:50 },
+  nsfw_special:  { label:'特殊',         colorClass:'src-nsfw',          group:'nsfw',     priority:51 },
+  nsfw_misc:     { label:'その他',       colorClass:'src-nsfw',          group:'nsfw',     priority:52 },
+};
+
+/* ===== NSFW TAB KEYS (for all-random) ===== */
+const NSFW_TABS = ['nsfw_rating','nsfw_body_f','nsfw_body_m','nsfw_position','nsfw_vaginal','nsfw_oral','nsfw_anal','nsfw_cum','nsfw_reaction','nsfw_costume','nsfw_bondage','nsfw_special','nsfw_misc'];
+
+/* ===== TAG JAPANESE LABELS ===== */
+const TAG_JP = {
+  // === 汎用・品質 ===
+  'pure white background':'何もない純白の背景・キャラが際立つ',
+  '1girl':'女の子1人を主役に',
+  '2girls':'女の子2人の構図',
+  '1boy':'男の子1人を主役に',
+  '1other':'性別を明示しないキャラ1人',
+  'harem':'複数人に囲まれたハーレム構図',
+  'looking at viewer':'カメラ目線でこちらを見ている',
+  'full body':'頭からつま先まで全身が入る構図',
+  'masterpiece':'傑作・全体的に最高品質な絵',
+  'best quality':'最高品質',
+  'very aesthetic':'美的センス高め・絵として映える',
+  'absurdres':'解像度が極めて高く細部まで鮮明',
+  'newest':'最新の学習データ寄り',
+  'highres':'高解像度',
+  'ultra-detailed':'あらゆる部位を超緻密に描写',
+  'sharp focus':'輪郭・細部がくっきりシャープ',
+  'high resolution':'高解像度（highresと同義）',
+  'incredibly absurdres':'absurdresの強化版・超超高解像度',
+  'high score':'品質スコアが高い絵',
+  'great score':'品質スコア優秀な絵',
+  'ultra high res':'超高解像度',
+  '8k':'8K解像度相当の精緻さ',
+  '4k':'4K解像度相当の精緻さ',
+  'highly detailed':'細部まで丁寧に描き込まれた',
+  'professional':'プロが描いたような品質感',
+  'beautiful lighting':'光源が美しく描かれている',
+  'cinematic':'映画のカット割りのような臨場感',
+  'perfect anatomy':'体の比率・構造が正確',
+  'detailed background':'背景も細かく描き込まれた',
+  'official art':'公式イラストのような高品質感',
+  // === アングル・構図 ===
+  'portrait':'顔〜胸上のポートレートショット',
+  'close-up':'顔や一部を大写しにしたクローズアップ',
+  'medium shot':'腰から上が入るミドルショット',
+  'wide shot':'シーン全体が入るワイドショット',
+  'fisheye':'広角歪みの魚眼レンズ効果',
+  'cowboy shot':'太もも〜胸上が入るカウボーイショット',
+  'upper body':'胸から上の上半身ショット',
+  'lower body':'腰から下の下半身ショット',
+  'waist up':'腰から上が見えるショット',
+  'knees up':'膝より上が見えるショット',
+  'from above':'高い位置から見下ろした俯瞰アングル',
+  'from below':'下から見上げたあおりアングル',
+  'from side':'真横から見た横顔・側面構図',
+  'from behind':'後ろ姿・後方視点',
+  'dutch angle':'カメラを傾けたダッチアングル',
+  'dynamic angle':'迫力ある動的アングル',
+  'action pose':'躍動感のあるアクションポーズ',
+  'standing':'自然な立ち姿',
+  'sitting':'腰を下ろした座りポーズ',
+  'lying':'床や地面に横たわる',
+  'kneeling':'膝をついた跪きポーズ',
+  'squatting':'膝を曲げてしゃがんだポーズ',
+  'leaning forward':'上体を前に傾けた前傾みポーズ',
+  'leaning back':'上体を後方に反らせたポーズ',
+  'arms up':'両腕を頭上に上げたポーズ',
+  'arms behind head':'手を頭の後ろで組むポーズ',
+  'arms behind back':'腕を背中の後ろに回したポーズ',
+  'hand on hip':'片手を腰に当てて立つポーズ',
+  'crossed arms':'胸の前で腕を組むポーズ',
+  'on all fours':'手足をついた四つん這いポーズ',
+  'spread arms':'左右に両腕を広げたポーズ',
+  'reaching out':'カメラに向かって手を伸ばすポーズ',
+  'solo':'キャラ1人のみの構図',
+  'solo focus':'1人にフォーカスした構図',
+  'multiple girls':'女性が複数いる構図',
+  'multiple boys':'男性が複数いる構図',
+  '1boy':'男の子1人を主役に',
+  '2boys':'男の子2人の構図',
+  '2girls':'女の子2人の構図',
+  'girl and boy':'男女ペアの構図',
+  'couple':'カップル・2人組',
+  'group':'複数人のグループ構図',
+  'looking away':'視線が画面外・よそ見している',
+  'looking back':'後ろを振り返って目線を向ける',
+  'looking up':'上目遣いで見上げている',
+  'looking down':'目線を落として下を見ている',
+  // === 表情 ===
+  'smile':'自然で柔らかい笑顔',
+  'grin':'ニヤリとした得意げな笑顔',
+  'smirk':'口角だけ上げた不敵な笑み',
+  'blush':'恥ずかしさや興奮で頬が赤い',
+  'shy':'照れや恥じらいを感じる表情',
+  'serious':'目を細めた真剣・無表情に近い顔',
+  'expressionless':'感情を出さない無表情',
+  'surprised':'目を見開いて驚いた表情',
+  'happy':'目を細めて嬉しそうな明るい表情',
+  'sad':'眉を下げた悲しそうな表情',
+  'angry':'眉間にしわを寄せた怒り顔',
+  'embarrassed':'目を逸らして赤面した照れ顔',
+  'seductive':'半目で見つめる色気のある誘惑的な表情',
+  'sleepy':'とろんとした眠そうな目',
+  'crying':'涙を流して泣いている表情',
+  'pout':'口を尖らせたふくれっ面',
+  // === 絵柄スタジオ ===
+  'kyoto animation':'京アニ風・水彩的で柔らかく美しい色彩と作画',
+  'production i.g':'プロダクションI.G風・精緻でシャープなメカや都市描写',
+  'ufotable':'ufotable風・鮮やかで立体的なエフェクトと滑らかな作画',
+  'wit studio':'WIT STUDIO風・繊細で力強い線と臨場感のある構図',
+  'cloverworks':'CloverWorks風・丁寧な塗りとキャラの感情表現',
+  'a-1 pictures':'A-1 Pictures風・安定した綺麗な作画と鮮やかな色彩',
+  'trigger':'TRIGGER風・爆発的なエネルギーと大胆な線と色',
+  'mappa':'MAPPA風・力強い線と高精細なキャラ描写',
+  'shaft':'シャフト風・独特のレイアウトと芸術的な演出感',
+  'toei animation':'東映アニメーション風・太めの輪郭線とポップな色彩',
+  'studio ghibli':'ジブリ風・暖かみのある背景と自然豊かな色彩',
+  // === アニメスタイル ===
+  'intricate details':'装飾・背景・服など細部まで書き込む',
+  'detailed face':'顔の造形を細かく描写',
+  'beautiful detailed eyes':'虹彩・反射光まで繊細に描いた目',
+  'beautiful detailed face':'顔全体を美しく緻密に描写',
+  'expressive eyes':'感情が伝わる豊かな目の描写',
+  'skin pores':'毛穴まで見える超リアルな肌質感',
+  'realistic texture':'布・金属・皮膚など素材感がリアル',
+  'highly detailed':'細部まで丁寧に描き込まれた',
+  // === 照明 ===
+  'cinematic lighting':'映画のような劇的な照明効果',
+  'soft lighting':'影が柔らかく肌が優しく見える光',
+  'dramatic lighting':'明暗の強いコントラストで迫力を出す照明',
+  'rim lighting':'輪郭を光で縁取るリムライト',
+  'backlighting':'逆光でシルエットが映えるバックライト',
+  'natural light':'太陽光や窓光の自然な光源',
+  'golden hour':'夕暮れのオレンジ・金色の温かい光',
+  'neon lights':'都市的なネオンサインの色とりどりの光',
+  'volumetric light':'空気中の粒子で光の筋が見えるゴッドレイ',
+  'lens flare':'レンズ反射の光のにじみ',
+  'bloom':'光が滲んで柔らかく輝くブルーム効果',
+  // === ANI/PONY スコア ===
+  'score_9':'最高スコア9・最高品質の絵',
+  'score_8_up':'スコア8以上・高品質',
+  'score_7_up':'スコア7以上・良質',
+  'score_6_up':'スコア6以上・標準以上',
+  'score_5_up':'スコア5以上・平均以上',
+  'score_4_up':'スコア4以上・最低限の品質',
+  'source_anime':'アニメ風の絵柄を優先',
+  'source_furry':'ファーリー（獣人）風の絵柄',
+  'source_cartoon':'カートゥーン・アメコミ風',
+  'source_pony':'マイリトルポニー風絵柄',
+  'rating_safe':'全年齢・性的描写なし',
+  'rating_questionable':'際どいが直接的な性描写なし',
+  'rating_explicit':'明確な性描写あり・成人向け',
+  'detailed':'細部まで描き込まれた',
+  'high quality':'高品質',
+  // === レーティング・年代 ===
+  'safe':'性的描写なし・全年齢向け',
+  'sensitive':'水着・際どい衣装など軽度のセンシティブ',
+  'explicit':'明確な性描写あり・成人向け',
+  'nsfw':'成人向けコンテンツ',
+  'year 2005':'西暦2005年頃の絵柄・作画スタイル',
+  'year 2006':'西暦2006年頃の絵柄・作画スタイル',
+  'year 2007':'西暦2007年頃の絵柄・作画スタイル',
+  'year 2008':'西暦2008年頃の絵柄・作画スタイル',
+  'year 2009':'西暦2009年頃の絵柄・作画スタイル',
+  'year 2010':'西暦2010年頃の絵柄・作画スタイル',
+  'year 2011':'西暦2011年頃の絵柄・作画スタイル',
+  'year 2012':'西暦2012年頃の絵柄・作画スタイル',
+  'year 2013':'西暦2013年頃の絵柄・作画スタイル',
+  'year 2014':'西暦2014年頃の絵柄・作画スタイル',
+  'year 2015':'西暦2015年頃の絵柄・作画スタイル',
+  'year 2016':'西暦2016年頃の絵柄・作画スタイル',
+  'year 2017':'西暦2017年頃の絵柄・作画スタイル',
+  'year 2018':'西暦2018年頃の絵柄・作画スタイル',
+  'year 2019':'西暦2019年頃の絵柄・作画スタイル',
+  'year 2020':'西暦2020年頃の絵柄・作画スタイル',
+  'year 2021':'西暦2021年頃の絵柄・作画スタイル',
+  'year 2022':'西暦2022年頃の絵柄・作画スタイル',
+  'year 2023':'西暦2023年頃の絵柄・作画スタイル',
+  'year 2024':'西暦2024年頃の絵柄・作画スタイル',
+  'year 2025':'西暦2025年頃の絵柄・作画スタイル',
+  // === NEG タグ ===
+  'worst quality':'最低品質・生成を弾く',
+  'low quality':'低品質・生成を弾く',
+  'normal quality':'普通品質・弾いて高品質を狙う',
+  'lowres':'低解像度・弾く',
+  'jpeg artifacts':'JPEG圧縮のブロックノイズ・弾く',
+  'compression artifacts':'圧縮劣化・弾く',
+  'blurry':'全体がぼやけている・弾く',
+  'blur':'ぼかし・弾く',
+  'noise':'ノイズが目立つ・弾く',
+  'pixelated':'ドット化・ピクセル崩れ・弾く',
+  'bad anatomy':'体の構造が崩れている・弾く',
+  'bad hands':'手の描写が崩れている・弾く',
+  'bad feet':'足の描写が崩れている・弾く',
+  'missing fingers':'指が足りない・弾く',
+  'extra digit':'余分な指がある・弾く',
+  'fewer digits':'指の本数が少ない・弾く',
+  'extra limbs':'余分な手足・弾く',
+  'missing limbs':'手足が欠けている・弾く',
+  'malformed limbs':'手足が歪んでいる・弾く',
+  'fused fingers':'指がくっついている・弾く',
+  'too many fingers':'指が多すぎる・弾く',
+  'mutated hands':'手が変異している・弾く',
+  'cloned face':'顔が複製されたような崩れ・弾く',
+  'deformed':'体が変形している・弾く',
+  'disfigured':'容貌が醜く崩れている・弾く',
+  'ugly':'醜い仕上がり・弾く',
+  'mutilated':'切断・破損した描写・弾く',
+  'gross proportions':'体の比率が異常・弾く',
+  'bad proportions':'全体の比率がおかしい・弾く',
+  'long neck':'首が異常に長い・弾く',
+  'extra arms':'余分な腕・弾く',
+  'extra legs':'余分な脚・弾く',
+  'mutation':'変異した体・弾く',
+  'text':'テキストや文字が入る・弾く',
+  'error':'エラー描写・弾く',
+  'signature':'サイン・署名・弾く',
+  'watermark':'透かしウォーターマーク・弾く',
+  'username':'ユーザー名テキスト・弾く',
+  'artist name':'作者名テキスト・弾く',
+  'logo':'ロゴマーク・弾く',
+  'stamp':'スタンプ・弾く',
+  'patreon logo':'Patreonロゴ・弾く',
+  'cropped':'画像が途中で切れている・弾く',
+  'out of frame':'キャラがフレーム外に出る・弾く',
+  'cut off':'体が切断されている・弾く',
+  'partial body':'体の一部しか描かれていない・弾く',
+  'sketch':'下書き風の仕上がり・弾く',
+  'rough sketch':'ラフスケッチ・弾く',
+  'draft':'下書き状態・弾く',
+  'unfinished':'未完成の仕上がり・弾く',
+  'flat color':'ベタ塗り・陰影なし・弾く',
+  'flat shading':'フラットなシェーディング・弾く',
+  'duplicate':'同じ絵が重複・弾く',
+  'morbid':'病的・グロテスクな描写・弾く',
+  'poorly drawn face':'顔の描写が雑・弾く',
+  'poorly drawn hands':'手の描写が雑・弾く',
+  'monochrome':'モノクロ・弾く',
+  'out of focus':'焦点が外れてぼやけている・弾く',
+  'score_1':'スコア1・最低品質・弾く',
+  'score_2':'スコア2・低品質・弾く',
+  'score_3':'スコア3・低品質・弾く',
+  'score_4':'スコア4・低品質・弾く',
+  'noisy':'ノイズが多い・弾く',
+  'fused body parts':'体の部位がくっついている・弾く',
+  'malformed':'変形した体・弾く',
+  'source_real':'実写ソース・アニメ絵に弾く',
+  '3d render':'3DCGレンダリング・弾く',
+  'realistic':'リアル系・弾く',
+  'photo':'写真・弾く',
+  'photograph':'写真・弾く',
+  'grayscale':'グレースケール・弾く',
+  'poorly drawn':'全体的に雑な描写・弾く',
+  'low score':'低スコア・弾く',
+  'bad score':'悪いスコア・弾く',
+  'average score':'平均スコア・弾く',
+  'extra digits':'余分な数字や指・弾く',
+  // === NSFW レーティング ===
+  'uncensored':'修正なし・無修正',
+  'no censor':'修正なし（uncensoredと同義）',
+  'mosaic censorship':'モザイク修正あり',
+  'bar censor':'棒状の黒線修正あり',
+  'completely nude':'一切の衣類なし・完全全裸',
+  'nude':'完全全裸',
+  'nude filter':'服が透過した裸フィルター',
+  'rating_explicit':'明確な性描写あり・成人向け',
+  'rating_questionable':'際どいが直接的な性描写なし',
+  'partially censored':'一部にだけ修正がある',
+  // === 女性ボディ ===
+  'breasts':'胸（描写あり）',
+  'small breasts':'小ぶりな胸',
+  'medium breasts':'標準的な胸の大きさ',
+  'large breasts':'大きめの胸',
+  'huge breasts':'かなり大きい巨乳',
+  'gigantic breasts':'非現実的なほど超巨大な胸',
+  'flat chest':'ほぼ平らな胸・貧乳',
+  'perky breasts':'上向きでハリのある胸',
+  'sagging breasts':'垂れた胸',
+  'bouncing breasts':'動作に合わせて揺れる胸',
+  'breast press':'胸を何かに押しつけている',
+  'cleavage':'胸の谷間が見えている',
+  'deep cleavage':'深い胸の谷間',
+  'underboob':'胸の下が見えている',
+  'sideboob':'胸の横が見えている',
+  'topless':'上半身裸・胸が露出',
+  'bare breasts':'胸が露わになっている',
+  'nipples':'乳首が描写されている',
+  'erect nipples':'勃起した乳首',
+  'inverted nipples':'陥没乳首',
+  'puffy nipples':'ふくらんだぷっくり乳首',
+  'dark nipples':'色の濃い乳首',
+  'pink nipples':'ピンク色の乳首',
+  'large areolae':'広い乳輪',
+  'areolae':'乳輪の描写',
+  'nipple piercing':'乳首ピアス',
+  'pussy':'女性器の描写',
+  'wet pussy':'濡れた状態の女性器',
+  'dripping pussy':'愛液が滴る女性器',
+  'spread pussy':'開いた状態の女性器',
+  'puffy pussy':'ぷっくりとした女性器',
+  'hairy pussy':'毛があるまんこ',
+  'shaved pussy':'剃毛された女性器',
+  'visible pussy':'女性器が見えている',
+  'pussy juice':'愛液・女性器からの分泌液',
+  'labia':'陰唇の描写',
+  'labia minora':'小陰唇',
+  'labia majora':'大陰唇',
+  'clitoris':'クリトリスの描写',
+  'clitoral hood':'陰核包皮',
+  'vaginal opening':'膣口の描写',
+  'cervix':'子宮口の描写',
+  'uterus':'子宮の描写（断面図系）',
+  'slim body':'細くスリムな体型',
+  'thick thighs':'太くセクシーな太もも',
+  'wide hips':'広い腰幅',
+  'big hips':'大きなヒップ',
+  'curvy':'くびれのある曲線美な体型',
+  'plump':'ぽっちゃりとした丸みのある体型',
+  'flat stomach':'引き締まった平らなお腹',
+  'abs':'腹筋が割れている',
+  'toned body':'引き締まった筋肉質な体',
+  'soft body':'柔らかそうなたぷたぷな体',
+  'chubby':'ふくよかな体型',
+  'ass':'お尻の描写',
+  'big ass':'大きなお尻',
+  'round ass':'丸くてきれいなお尻',
+  'bubble butt':'丸くプリっとしたお尻',
+  'ass grab':'お尻をつかんでいる',
+  'butt crack':'臀裂・お尻の割れ目が見える',
+  'navel':'へそが見えている',
+  'belly button':'へそ（navelと同義）',
+  'armpits':'腋が見えている',
+  'exposed armpits':'露出した腋',
+  'inner thigh':'内太ももが見える',
+  // === 男性ボディ ===
+  'penis':'男性器の描写',
+  'erect penis':'勃起した男性器',
+  'flaccid penis':'萎えた状態の男性器',
+  'huge cock':'巨大な男性器',
+  'thick cock':'太い男性器',
+  'long cock':'長い男性器',
+  'small penis':'小さな男性器',
+  'veiny penis':'血管が浮き出た男性器',
+  'throbbing cock':'脈打つように硬い男性器',
+  'foreskin':'包皮が残っている',
+  'uncircumcised':'包茎・未割礼',
+  'balls':'睾丸の描写',
+  'testicles':'睾丸（ballsと同義）',
+  'scrotum':'陰嚢',
+  'taint':'会陰・股間の間',
+  'pubic hair':'陰毛の描写',
+  'male pubic hair':'男性の陰毛',
+  'masculine body':'男らしい筋肉質な体型',
+  'muscular':'筋肉が発達した体',
+  'chest hair':'胸毛',
+  // === NSFW 体位 ===
+  'missionary':'正常位・正面から向き合う基本体位',
+  'doggy style':'後背位・四つん這いバック',
+  'cowgirl position':'女性が上になる騎乗位',
+  'reverse cowgirl':'後ろ向き騎乗位',
+  'mating press':'足を抱えて深く挿入する体位',
+  'standing sex':'立ったまま行う体位',
+  'wall sex':'壁に押しつけての立位',
+  'pile driver':'足を肩にかけ垂直に挿入',
+  'lotus position':'正面で向き合い脚を絡める蓮華座体位',
+  'spoon position':'互いに横向きで寄り添うスプーン体位',
+  'prone bone':'うつ伏せのまま後ろからの体位',
+  'face down ass up':'顔を下げ腰を持ち上げたポーズ',
+  'frog position':'カエルのように脚を開いた体位',
+  'amazon position':'女性が上に乗り前後を逆にした体位',
+  'wheelbarrow position':'相手が後ろから足を持つ体位',
+  'suspended congress':'宙吊りで向き合う体位',
+  'from behind standing':'立ったまま後ろから挿入',
+  'lifted and penetrated':'持ち上げられながら挿入される',
+  'carrying sex':'おんぶ・抱っこしながらのセックス',
+  'against glass':'ガラスに押しつけながらのセックス',
+  'legs up':'両足を高く上げた体位',
+  'spread legs':'脚を大きく広げた状態',
+  'legs over shoulders':'脚を相手の肩にかけた体位',
+  'legs behind head':'足が頭の後ろまで上がった超柔軟体位',
+  'leg lock':'足で相手の腰を引き寄せる体位',
+  'riding':'騎乗して乗る',
+  'straddling':'またがって乗るポーズ',
+  'sitting on lap':'相手の膝の上に乗るポーズ',
+  'grinding':'密着してすりつけるグラインド',
+  'dry humping':'服のままこすりつけるドライハンプ',
+  'pressed against wall':'壁に押しつけられた状態',
+  'bent over':'前に上体を屈めたポーズ',
+  'bent over desk':'机に上体を倒した体位',
+  'bent over table':'テーブルに上体を倒した体位',
+  'thigh job':'太ももで挟む太もも性交',
+  'paizuri position':'胸で挟むパイズリ体位',
+  'lap pillow':'膝枕',
+  'missionary pov':'正常位の一人称・見下ろしアングル',
+  'pov sex':'セックスの一人称・主観視点',
+  'from above pov':'上から見下ろした主観視点',
+  'reverse sitting':'後ろ向きに乗った体位',
+  'face sitting position':'顔に乗る・フェイスシッティング体位',
+  'lying on back':'仰向けに寝ている',
+  'lying on stomach':'うつ伏せに寝ている',
+  'lying on side':'横向きに寝ている',
+  'on all fours sex':'四つん這いでの体位',
+  'floor sex':'床の上でのセックス',
+  'bed sex':'ベッドの上でのセックス',
+  'spread to bed':'ベッドに大の字で広げられた状態',
+  'tied to bed sex':'ベッドに縛り付けられた状態でのセックス',
+  'leaning forward sex':'前傾みで寄りかかった体位',
+  'against desk':'机に寄りかかった体位',
+  'legs apart':'脚を左右に開いたポーズ',
+  'spread eagle':'大の字に手足を広げた体勢',
+  // === 膣・挿入 ===
+  'vaginal':'膣内性交',
+  'vaginal sex':'膣内セックス',
+  'vaginal penetration':'膣内への挿入',
+  'deep penetration':'深く奥まで挿入している',
+  'shallow penetration':'浅くだけ挿入している',
+  'creampie':'膣内中出し',
+  'vaginal creampie':'膣内に中出し',
+  'cum inside':'体内に中出し',
+  'womb penetration':'子宮内への挿入描写',
+  'cervix penetration':'子宮口への挿入描写',
+  'fingering':'指を使った挿入・指マン',
+  'finger insertion':'指での挿入',
+  'two fingers':'2本の指での挿入',
+  'three fingers':'3本の指での挿入',
+  'knuckle deep':'根本まで深く指を挿入',
+  'fisting':'拳を挿入するフィスティング',
+  'fist insertion':'拳での挿入',
+  'sex toy':'オナホ・おもちゃを使用',
+  'dildo':'ディルドを使用',
+  'vibrator':'電動バイブを使用',
+  'wand vibrator':'ワンド型バイブを使用',
+  'butt plug in pussy':'バットプラグを膣に挿入',
+  'rubbing':'性器をこすりつける',
+  'masturbation':'自慰・オナニー',
+  'fingering herself':'自分の指で自慰',
+  'legs spread masturbation':'脚を開いて自慰',
+  'mutual masturbation':'2人で互いに手を使う',
+  'insertion':'挿入描写',
+  'object insertion':'物を挿入している',
+  // === 口淫 ===
+  'oral':'口を使った性行為・口淫',
+  'fellatio':'ペニスを舐める・フェラチオ',
+  'blowjob':'フェラ（fellatio と同義）',
+  'cunnilingus':'女性器を舐める・クンニ',
+  'deepthroat':'奥まで咥えるディープスロート',
+  'irrumatio':'動かず挿れるだけのイラマチオ',
+  'facefuck':'顔を固定して激しいイラマチオ',
+  '69':'互いに舐め合う69体位',
+  'face sitting':'顔に乗って座るフェイスシッティング',
+  'licking':'なめている・舌で触れている',
+  'tongue out':'舌を出している',
+  'lip licking':'唇を舌で舐める',
+  'penis licking':'ペニスを舌で舐める',
+  'ball licking':'睾丸を舌で舐める',
+  'licking shaft':'竿の部分を舐める',
+  'saliva':'唾液がつながっている描写',
+  'saliva string':'唾液の糸がつながっている',
+  'drooling on penis':'ペニスによだれを垂らしている',
+  'mouth full':'口いっぱいに含んでいる',
+  'bulge in cheek':'頬が膨らむほど含んでいる',
+  'spitting':'唾液を吐き出している',
+  'cum in mouth':'口の中に射精',
+  'swallowing cum':'精液を飲み込む',
+  'throat fuck':'喉奥を突く激しいイラマチオ',
+  'gagging':'えずきながら咥えている',
+  'teary eyes from oral':'フェラで目に涙が浮かぶ',
+  'sucking fingers':'指をしゃぶっている',
+  'nipple licking':'乳首を舌で舐める',
+  'nipple sucking':'乳首を吸う',
+  'breast licking':'胸を舌で舐める',
+  // === アナル ===
+  'anal':'アナルセックス・肛門性交',
+  'anal sex':'アナルセックス（analと同義）',
+  'anal penetration':'肛門への挿入',
+  'anal insertion':'肛門に何かを挿入',
+  'deep anal':'奥深くまでアナル挿入',
+  'anal creampie':'肛門内中出し',
+  'cum in ass':'肛門内に中出し',
+  'double penetration':'膣と肛門に同時挿入',
+  'dp':'ダブルペネトレーション（dpと同義）',
+  'triple penetration':'3箇所に同時挿入',
+  'pegging':'ストラップオンで行うアナルセックス',
+  'strapon anal':'ストラップオンでのアナル挿入',
+  'finger in ass':'指でのアナル挿入',
+  'anal fingering':'指でアナルを刺激する',
+  'two fingers in ass':'2本の指でアナル挿入',
+  'butt plug':'アナルプラグを装着している',
+  'anal beads':'アナルビーズを使用',
+  'plug tail':'尻尾つきプラグを装着',
+  'object in ass':'物体を肛門に挿入',
+  'ass spread':'お尻を広げて肛門を見せている',
+  'spread ass':'お尻を手で広げた状態',
+  'gaping':'ぱっくりと開いた状態',
+  'gaping ass':'肛門がぱっくりと開いた状態',
+  'prolapse':'直腸脱・プロラプス描写',
+  // === 射精・体液 ===
+  'cum':'精液の描写',
+  'cumshot':'射精シーン',
+  'facial':'顔への射精・顔射',
+  'cum on face':'顔に精液がかかっている',
+  'cum on hair':'髪に精液がかかっている',
+  'cum on tongue':'舌の上に精液',
+  'cum dripping':'精液が滴り落ちている',
+  'dripping cum':'精液が垂れている',
+  'cum overflow':'精液があふれ出している',
+  'cum on breasts':'胸に精液がかかっている',
+  'cum on body':'体全体に精液がかかっている',
+  'cum on stomach':'お腹に精液',
+  'cum on back':'背中に精液',
+  'cum on thighs':'太ももに精液',
+  'cum on feet':'足に精液',
+  'multiple cumshots':'複数回の射精',
+  'massive cumshot':'大量射精',
+  'swallowing':'精液を飲み込む',
+  'cum in mouth':'口の中に射精',
+  'cum string':'精液の糸がつながっている',
+  'cum trail':'精液の跡が残っている',
+  'bukakke':'複数人から顔や体に射精するぶっかけ',
+  'covered in cum':'体が精液まみれ',
+  'messy cum':'精液で汚れた状態',
+  'sticky':'べたべたとした精液で汚れた状態',
+  'cum pool':'精液の池ができている',
+  'internal cumshot':'体内への射精断面図',
+  'x-ray cumshot':'X線で見た射精断面',
+  'womb full of cum':'子宮が精液でいっぱい',
+  'creampie':'膣内中出し',
+  // === 反応・表情 ===
+  'ahegao':'快感で目が虚ろ・舌が出たアヘ顔',
+  'rolling eyes':'快感で目が虚ろに上を向いた状態',
+  'eyes rolled back':'白目になるほどの快感',
+  'orgasm face':'絶頂時の恍惚な表情',
+  'climax face':'絶頂時の表情（orgasm faceと同義）',
+  'moaning':'口を開けて喘いでいる表情',
+  'mouth open':'口を開けている',
+  'panting':'荒い息づかい・はあはあしている',
+  'heavy breathing':'激しい呼吸・荒い息',
+  'gasping':'はっと息を飲む・あえぎ声',
+  'drooling':'よだれが垂れるほど放心した状態',
+  'blushing':'羞恥や興奮で頬が赤く染まる',
+  'full body blush':'全身が赤く染まるほど恥ずかしい',
+  'sweating':'全身に汗をかいている',
+  'crying':'涙を流して泣いている表情',
+  'tears':'涙が流れている',
+  'tears of pleasure':'快感で涙が出ている',
+  'teary eyes':'涙目になっている',
+  'shaking':'体が小刻みに震えている',
+  'trembling':'全身がガタガタ震える',
+  'twitching':'体が痙攣するように動く',
+  'convulsing':'けいれんしている',
+  'body spasm':'体が痙攣・スパズムしている',
+  'mind break':'快感で正気を失った精神崩壊',
+  'blank stare':'虚ろな目でぼーっとしている',
+  'dazed':'放心状態・ぼうっとしている',
+  'in heat':'発情中・欲情が抑えられない状態',
+  'lustful look':'欲情した目・官能的な眼差し',
+  'satisfied expression':'満足して気持ちよさそうな表情',
+  'ecstasy':'恍惚の絶頂感',
+  'euphoria':'この上ない幸福感・快楽',
+  'pleasure expression':'快感の表情',
+  'embarrassed moan':'恥ずかしそうに喘ぐ',
+  'trying to suppress moaning':'喘ぎ声を必死に抑えようとしている',
+  'biting lip':'唇を噛んで声を我慢している',
+  'biting sleeve':'袖を噛んで声を抑えている',
+  'ahegao aftermath':'アヘ顔の余韻・事後の虚ろ顔',
+  'post-orgasm':'絶頂後のぐったりした状態',
+  // === 衣装・脱衣 ===
+  'nude':'完全全裸',
+  'naked':'裸（nudeと同義）',
+  'topless':'上半身裸・胸が露出',
+  'bottomless':'下半身裸・下半身が露出',
+  'clothed female nude male':'服を着た女性と裸の男性',
+  'see-through':'透け透けの服',
+  'wet clothes':'濡れて体に張り付いた服',
+  'clothes pulled aside':'服を横にずらした状態',
+  'shirt lift':'シャツをめくり上げた状態',
+  'skirt lift':'スカートをめくった状態',
+  'lifting dress':'ドレスをたくし上げた状態',
+  'dress lift':'ドレスが持ち上がった状態',
+  'panties around ankles':'パンティが足首まで下がっている',
+  'panties pulled down':'パンティを引き下げた状態',
+  'bra pulled down':'ブラをずらして胸が出た状態',
+  'bra removed':'ブラを外した状態',
+  'lingerie':'セクシーなランジェリー',
+  'bra':'ブラジャー',
+  'panties':'パンティ',
+  'thong':'Tバックパンティ',
+  'g-string':'Gストリング・超細いパンティ',
+  'stockings':'ストッキング',
+  'garter belt':'ガーターベルト',
+  'corset':'コルセット',
+  'bodystocking':'全身タイツ系ボディストッキング',
+  'crotchless':'股部分がない衣装',
+  'sexy underwear':'セクシーな下着',
+  'ripped clothes':'破れた服',
+  'clothes torn':'服が引き裂かれた状態',
+  'undressing':'服を脱いでいる最中',
+  'lifting skirt':'スカートをたくし上げている',
+  'maid':'メイド服',
+  'school uniform':'学校の制服',
+  'sailor uniform':'セーラー服',
+  'gym uniform':'体操着',
+  'swimsuit':'水着',
+  'one-piece swimsuit':'ワンピース型水着',
+  'bikini':'ビキニ水着',
+  'bikini armor':'ビキニアーマー・際どい鎧',
+  'micro bikini':'極小ビキニ',
+  'kimono':'着物',
+  'yukata open':'浴衣がはだけた状態',
+  'bunny suit':'バニーガールスーツ',
+  'catsuit':'全身密着のキャットスーツ',
+  'latex':'ラテックス素材の密着服',
+  'leather outfit':'革製の衣装',
+  'fishnet bodysuit':'網目状のボディスーツ',
+  'fishnet stockings':'網タイツ',
+  'thigh-highs':'太ももまでのサイハイソックス',
+  'garter straps':'ガーターストラップ',
+  'crotchless lingerie':'股なしランジェリー',
+  'crotchless panties':'股なしパンティ',
+  'sheer lingerie':'透けて見えるランジェリー',
+  'sexy santa':'セクシーサンタコスチューム',
+  'sexy witch':'セクシー魔女コスチューム',
+  'nurse':'ナース服',
+  // === 拘束 ===
+  'bondage':'ボンデージ・拘束プレイ全般',
+  'rope bondage':'縄で縛るロープボンデージ',
+  'handcuffed':'手錠で手首を拘束',
+  'blindfold':'目隠しした状態',
+  'collar':'首輪をつけた状態',
+  'leash':'リード（鎖）でつながれた状態',
+  'ball gag':'ボールギャグをはめた状態',
+  'chains':'鎖で拘束された状態',
+  'tied up':'縛り上げられた状態',
+  'restrained':'自由を奪われた拘束状態',
+  'suspension bondage':'吊り下げた縛り・吊り縛り',
+  'hogtied':'後ろ手に縛られた体位',
+  'shibari':'縄縛り・紐が体に食い込む芸術縛り',
+  'vibrator bondage':'バイブを固定した拘束',
+  'ballgag':'ボールギャグ（ball gagと同義）',
+  'bit gag':'棒状のビットギャグ',
+  'ring gag':'口を開けたまま固定するリングギャグ',
+  'tape gag':'テープで口を塞いだ状態',
+  'chain bondage':'鎖での拘束',
+  'wrist cuffs':'手首の拘束具',
+  'ankle chain':'足首の鎖',
+  'ankle cuffs':'足首の拘束具',
+  'bound wrists':'手首を縛られた状態',
+  'bound ankles':'足首を縛られた状態',
+  'bound arms':'腕を縛られた状態',
+  'arms bound behind back':'後ろ手に縛られた状態',
+  'immobilized':'完全に動きを封じられた状態',
+  'tied to bed':'ベッドに縛り付けられた状態',
+  'tied to chair':'椅子に縛り付けられた状態',
+  'spread to bed':'ベッドに大の字で広げられた状態',
+  'spread eagle':'大の字に手足を広げた体勢',
+  'pulled by leash':'リードで引かれている状態',
+  'slave collar':'奴隷の証の首輪',
+  'neck collar':'首輪（slave collarと同義）',
+  // === 特殊シナリオ ===
+  'tentacle':'触手の描写',
+  'tentacle sex':'触手による性行為',
+  'tentacle rape':'触手による強制性行為',
+  'tentacle in mouth':'口に触手が入っている',
+  'tentacle in pussy':'膣に触手が入っている',
+  'monster sex':'モンスターとの性行為',
+  'goblin sex':'ゴブリンとの性行為',
+  'orc':'オークとの性行為',
+  'beast sex':'獣・動物との性行為',
+  'creature sex':'怪物・生物との性行為',
+  'futa':'ふたなり（male+female属性）',
+  'futanari':'ふたなり（futaと同義）',
+  'futa on female':'ふたなりが女性に挿入',
+  'futa on male':'ふたなりが男性に挿入',
+  'futa on futa':'ふたなり同士の性行為',
+  'yuri':'女性同士の恋愛・性行為',
+  'lesbian sex':'女性同士のセックス',
+  'tribadism':'女性同士が密着してこするトリバジズム',
+  'scissoring':'女性同士がはさみのように脚を絡める',
+  'yaoi':'男性同士の恋愛・性行為',
+  'male on male':'男性同士のセックス',
+  'gangbang':'複数人での輪姦',
+  'orgy':'大人数での乱交パーティー',
+  'threesome':'3人でのセックス',
+  'foursome':'4人でのセックス',
+  'ntr':'寝取られ・NTR',
+  'netorare':'寝取られ（ntrと同義）',
+  'femdom':'女性が支配的な女王様プレイ',
+  'submission':'支配される・服従',
+  'maledom':'男性が支配的なプレイ',
+  'domination':'力関係による支配プレイ',
+  'exhibitionism':'人に見られるのを楽しむ露出プレイ',
+  'public sex':'人目のある場所でのセックス',
+  'sex in public':'公衆の面前でのセックス',
+  'lactation':'母乳・授乳プレイ',
+  'breast milk':'母乳',
+  'milking':'搾乳・乳を絞る',
+  'pregnant':'妊娠した腹の描写',
+  'breeding':'孕ませプレイ・種付け',
+  'impregnation':'妊娠させる行為',
+  'internal view':'体内断面図',
+  'x-ray':'X線透過図',
+  'womb':'子宮の描写',
+  'groping':'胸や体をもみしだく',
+  'nipple suck':'乳首を吸っている',
+  'age difference':'年齢差のある組み合わせ',
+  'onee-shota':'年上お姉さん×少年のおねショタ',
+  'older man younger woman':'年上男性×年下女性',
+  'older woman younger man':'年上女性×年下男性',
+  'teacher and student':'教師と生徒の関係',
+  'affair':'不倫・浮気',
+  'cuckolding':'目の前で浮気を見せられる寝取り',
+  'wife sharing':'妻を他の男と共有',
+  'one night stand':'一夜限りの関係',
+  'secret sex':'秘密のセックス',
+  'forbidden love':'禁断の愛',
+  'reluctant':'嫌がりながらも・しぶしぶ',
+  'consensual':'合意の上で',
+  'forced':'強制的な行為',
+  'non-consensual implication':'非合意を示唆する描写',
+  'shotacon implication':'少年への性的関心を示唆',
+  'voyeurism':'覗き見・盗撮系の描写',
+  'glory hole':'壁の穴越しの性行為',
+  'outdoor sex':'屋外でのセックス',
+  'floor sex':'床の上でのセックス',
+  'morning sex':'朝目覚めてすぐのセックス',
+  'drunk sex':'酔った状態でのセックス',
+  'sleepy sex':'眠りながらのセックス',
+  'car sex':'車内でのセックス',
+  'bathroom sex':'バスルームでのセックス',
+  'locker room sex':'ロッカールームでのセックス',
+  'hot spring sex':'温泉でのセックス',
+  'harem':'複数人に囲まれたハーレム構図',
+  'reverse harem':'複数男性に囲まれる逆ハーレム',
+  // === ボディ詳細 ===
+  'feet':'足・足の描写',
+  'sole':'足の裏',
+  'toes':'足の指',
+  'armpits':'腋が見えている',
+  'inner thigh':'内太ももが見える',
+  'navel':'へそが見えている',
+  'flat stomach':'引き締まった平らなお腹',
+  'ass grab':'お尻をつかんでいる',
+  'ass spread':'お尻を広げて肛門を見せている',
+  'gaping ass':'肛門がぱっくりと開いた状態',
+  'sagging breasts':'垂れた胸',
+  'foot fetish':'足フェチ・足に注目した描写',
+  'armpit fetish':'腋フェチ・腋に注目した描写',
+  'belly fetish':'お腹フェチ・腹部に注目した描写',
+  'smell fetish':'匂いを嗅ぐフェチ描写',
+  'smell':'匂いを感じさせる描写',
+  'musk':'体臭・ムスクの香り',
+  'sweat fetish':'汗フェチ描写',
+  'sweaty body':'汗ばむ体',
+  'body odor fetish':'体臭フェチ描写',
+  'female ejaculation':'潮吹き・女性の射精',
+  'squirting':'潮吹き（female ejaculationと同義）',
+  'used':'使われた状態・ぐったり',
+  'well-used':'十分に使われてぐったりした状態',
+  'worn out':'疲れ果てた状態',
+  'exhausted after sex':'セックス後ぐったり疲弊した状態',
+  'after sex':'事後の描写',
+  'afterglow':'余韻の中でうっとりしている状態',
+  'used panties':'使用済みパンティ',
+  // === その他 ===
+  'rough sex':'激しく荒いセックス',
+  'gentle sex':'優しく丁寧なセックス',
+  'sex from behind':'後ろからのセックス',
+  'riding':'騎乗して乗る',
+  'pov':'一人称・主観視点',
+  'first person view':'主観視点（povと同義）',
+  'lap pillow':'膝枕',
+  'quickie':'素早いクイックセックス',
+  'strap-on sex':'ストラップオンを使ったセックス',
+  'strapon anal':'ストラップオンでのアナル挿入',
+  'pegging':'ストラップオンで行うアナルセックス',
+  'ahegao aftermath':'アヘ顔の余韻・事後の虚ろ顔',
+  'satisfied expression':'満足して気持ちよさそうな表情',
+  'overstimulation':'過剰な刺激で体が反応している',
+  'multiple orgasms':'何度も絶頂している',
+  'orgasm denial':'絶頂寸前で止められる焦らし',
+  'edging':'絶頂直前で止める寸止め',
+  'forced orgasm':'強制的に絶頂させられる',
+  'body spasm':'体が痙攣・スパズムしている',
+  'in heat':'発情中・欲情が抑えられない状態',
+  'too much pleasure':'快感が強すぎて耐えられない状態',
+  'female ejaculation':'潮吹き・女性の射精',
+  'squirting':'潮吹き（female ejaculationと同義）',
+  'swallowing cum':'精液を飲み込む',
+  'covered in cum':'体が精液まみれ',
+  'messy cum':'精液で汚れた状態',
+  'point of view penetration':'挿入シーンの主観視点',
+  'deep penetration':'深く奥まで挿入している',
+  // === 外見 ===
+  'white hair':'白髪',
+  'black hair':'黒髪',
+  'blonde hair':'金髪',
+  'brown hair':'茶髪',
+  'red hair':'赤髪',
+  'blue hair':'青髪',
+  'pink hair':'ピンク髪',
+  'purple hair':'紫髪',
+  'silver hair':'銀髪',
+  'gray hair':'グレー髪',
+  'green hair':'緑髪',
+  'orange hair':'オレンジ髪',
+  'multicolored hair':'複数色の混じった髪',
+  'gradient hair':'グラデーション髪',
+  'streaked hair':'ハイライトが入った髪',
+  'two-tone hair':'ツートンカラーの髪',
+  'long hair':'ロングヘア',
+  'short hair':'ショートヘア',
+  'medium hair':'ミディアムヘア',
+  'very long hair':'超ロングヘア・床まで届く長さ',
+  'twin tails':'ツインテール',
+  'ponytail':'ポニーテール',
+  'braid':'三つ編み',
+  'braided hair':'編み込みヘア',
+  'ahoge':'アホ毛・頭頂部に飛び出た一本毛',
+  'bangs':'前髪',
+  'sidelocks':'サイドロック・頬横の後れ毛',
+  'wavy hair':'ウェーブがかかった髪',
+  'curly hair':'くるくるとカールした髪',
+  'straight hair':'さらさらのストレートヘア',
+  'messy hair':'ぼさぼさに乱れた髪',
+  'hair bun':'お団子ヘア',
+  'double bun':'ダブルお団子',
+  'pigtails':'おさげ・サイドテール',
+  'red eyes':'赤い目',
+  'blue eyes':'青い目',
+  'green eyes':'緑の目',
+  'purple eyes':'紫の目',
+  'gold eyes':'金色の目',
+  'silver eyes':'銀色の目',
+  'brown eyes':'茶色の目',
+  'heterochromia':'左右の目の色が異なるオッドアイ',
+  'aqua eyes':'水色の目',
+  'pink eyes':'ピンクの目',
+  'yellow eyes':'黄色の目',
+  'white eyes':'白い目',
+  'glowing eyes':'発光している目',
+  'empty eyes':'感情がない虚ろな目',
+  'half-closed eyes':'眠そうに半開きの目',
+  'closed eyes':'目を閉じている',
+  'pale skin':'白く透き通るような肌',
+  'fair skin':'明るく綺麗な肌',
+  'tan skin':'小麦色に焼けた肌',
+  'dark skin':'黒い肌・浅黒い肌',
+  'white skin':'純白の肌',
+  'albino':'アルビノ・全体的に色素が薄い',
+  'white character':'全体的に白いキャラ',
+  'freckles':'そばかす',
+  'scar':'傷跡',
+  'birthmark':'あざ・生まれつきのマーク',
+  'elf ears':'エルフの尖った耳',
+  'cat ears':'猫耳',
+  'animal ears':'獣耳全般',
+  'horns':'角',
+  'halo':'頭上の光輪',
+  'wings':'翼',
+  'tail':'尻尾',
+  'demon girl':'悪魔の娘',
+  'angel':'天使',
+  'vampire':'吸血鬼',
+  'kemonomimi':'獣耳のあるキャラ・ケモ耳',
+  'fox ears':'狐耳',
+  'wolf ears':'狼耳',
+
+  // === nsfw_position 追加タグ ===
+  'missionary pov':'正常位の主観視点・見下ろしアングル',
+  'pov sex':'セックスの一人称・主観視点',
+  'from above pov':'上から見下ろした主観視点',
+  'reverse sitting':'後ろ向きに乗った体位',
+  'face sitting position':'顔に乗る・座位フェラ体位',
+  'lying on back':'仰向けに寝ている',
+  'lying on stomach':'うつ伏せに寝ている',
+  'lying on side':'横向きに寝ている',
+  'on all fours sex':'四つん這いでの体位',
+  'floor sex':'床の上でのセックス',
+  'bed sex':'ベッドの上でのセックス',
+  'spread to bed':'ベッドに大の字で広げられた状態',
+  'tied to bed sex':'ベッドに縛り付けられた状態でのセックス',
+  'leaning forward sex':'前傾みで寄りかかった体位',
+  'against desk':'机に寄りかかった体位',
+  'legs apart':'脚を左右に開いたポーズ',
+  'spread eagle':'大の字に手足を広げた体勢',
+  // === 外見サブタブ新規タグ ===
+  'very short hair':'超ショートヘア','high ponytail':'高い位置のポニテ',
+  'low ponytail':'低い位置のポニテ','side ponytail':'サイドポニテ',
+  'twin braids':'ツイン三つ編み','blunt bangs':'ぱっつん前髪',
+  'hair up':'アップスタイル','hair down':'おろし髪',
+  'hair flower':'ヘアフラワー','hair ribbon':'ヘアリボン',
+  'hair ornament':'ヘアアクセサリー','hair clip':'ヘアクリップ',
+  'bob cut':'ボブカット','pixie cut':'ピクシーカット','drill hair':'ドリルヘア',
+  'orange eyes':'オレンジ目','black eyes':'黒目','gray eyes':'グレー目',
+  'teal eyes':'青緑目','violet eyes':'バイオレット目',
+  'sparkling eyes':'キラキラした瞳','bedroom eyes':'とろんとした目',
+  'innocent eyes':'純粋な目','bags under eyes':'目の下のたるみ',
+  'dark circles':'クマ（目の下）','heavy eyelids':'重そうなまぶた',
+  'long eyelashes':'長いまつ毛','false eyelashes':'つけまつ毛',
+  'monocle':'片眼鏡（モノクル）','colored contact lenses':'カラーコンタクト',
+  'double eyelid':'二重まぶた','monolid':'一重まぶた',
+  'sharp eyes':'切れ長の目','soft eyes':'やわらかな目',
+  'round face':'丸顔','oval face':'面長','heart-shaped face':'ハート形の顔',
+  'square jaw':'角顎','pointed chin':'とがった顎',
+  'soft features':'柔らかい顔立ち','angular features':'シャープな顔立ち',
+  'sharp jaw':'シャープな輪郭','mole':'ほくろ',
+  'mole under eye':'泣きぼくろ','mole on cheek':'頬のほくろ',
+  'mole on neck':'首のほくろ','mole on breast':'胸のほくろ',
+  'blush stickers':'チーク（丸い赤み）','face paint':'フェイスペイント',
+  'button nose':'丸い鼻','upturned nose':'上向きの鼻','pointy nose':'尖った鼻',
+  'flat nose':'低い鼻','small nose':'小さな鼻',
+  'thin lips':'薄い唇','plump lips':'ぽってり唇','full lips':'厚い唇',
+  'small mouth':'小さな口','wide mouth':'大きな口',
+  'tongue piercing':'舌ピアス','lip piercing':'リップピアス',
+  'beauty mark':'ビューティーマーク',
+  'open mouth':'口を開けた','closed mouth':'口を閉じた',
+  'olive skin':'オリーブ肌','tanned':'日焼け肌','sunburn':'日焼け（赤み）',
+  'slim body':'細身の体型','slender':'スレンダー','athletic':'アスリート体型',
+  'hourglass figure':'砂時計体型','pear figure':'洋梨体型',
+  'visible collarbone':'鎖骨が見える','visible ribs':'肋骨が見える',
+  'long legs':'長い脚','short legs':'短い脚','slim legs':'細い脚',
+  'tattoo':'タトゥー','piercing':'ピアス','body piercing':'ボディピアス',
+  'scar on body':'体の傷跡',
+  'tall':'背が高い','average height':'平均身長',
+  'very tall':'かなり背が高い','extremely tall':'超長身',
+  'petite':'小柄な','towering':'そびえ立つ背丈',
+  'height difference':'身長差','small stature':'小さい体格',
+  'large stature':'大きい体格','tall girl':'背の高い女の子',
+  'short girl':'背の低い女の子','tall boy':'背の高い男の子',
+  'short boy':'背の低い男の子','loli':'ロリ体型','shota':'ショタ体型',
+  'adult body':'大人の体型','mature':'成熟した体つき',
+  'same height':'同じ身長','shorter than viewer':'視点より低身長',
+  'taller than viewer':'視点より高身長',
+  'dog ears':'犬耳','rabbit ears':'ウサギ耳','bear ears':'クマ耳',
+  'dragon ears':'ドラゴン耳','pointy ears':'尖った耳',
+  'dragon horns':'ドラゴンの角','oni horns':'鬼の角',
+  'demon horns':'悪魔の角','antlers':'鹿の角（枝角）',
+  'angel wings':'天使の翼','demon wings':'悪魔の翼',
+  'cat tail':'猫のしっぽ','fox tail':'狐のしっぽ',
+  'wolf tail':'狼のしっぽ','dragon tail':'ドラゴンのしっぽ',
+  'fluffy tail':'もふもふしっぽ','multiple tails':'複数のしっぽ',
+  'succubus':'サキュバス（夢魔）','witch':'魔女','elf':'エルフ',
+  'half-elf':'ハーフエルフ','ghost':'幽霊','zombie':'ゾンビ',
+  'mechanical parts':'機械パーツ（サイボーグ）','cyborg':'サイボーグ',
+  'scales':'鱗（うろこ）','fur':'毛皮','monster girl':'モンスター娘',
+  'dragon girl':'ドラゴン娘','naga':'ナーガ（蛇人間）','lamia':'ラミア',
+  'glowing markings':'発光する紋様','tribal markings':'部族の紋様',
+  'runes on body':'体に刻まれたルーン文字','dark sclera':'黒い白目',
+  // === 新規キャラクター日本語訳 ===
+  'hoshino ai':'星野アイ（推しの子）','hoshino ruby':'星野ルビー（推しの子）',
+  'arima kana':'有馬かな（推しの子）','aquamarine hoshino':'星野アクア（推しの子）',
+  'iwakura lain':'岩倉玲音（lain）',
+  'gasai yuno':'我妻由乃（未来日記）','amano yukiteru':'天野雪輝（未来日記）',
+  'minene uryuu':'雨流みねね（未来日記）',
+  'revy':'レヴィ（BLACK LAGOON）','roberta (black lagoon)':'ロベルタ（BLACK LAGOON）',
+  'balalaika':'バラライカ（BLACK LAGOON）',
+  'lucy (elfen lied)':'ルーシー/ニュウ（エルフェンリート）',
+  'nana (elfen lied)':'ナナ（エルフェンリート）',
+  'rakka':'落下（灰羽連盟）','reki (haibane renmei)':'礫（灰羽連盟）',
+  'kana (haibane renmei)':'佳奈（灰羽連盟）',
+  'alucard':'アーカード（HELLSING）','seras victoria':'セラス・ヴィクトリア（HELLSING）',
+  'integra hellsing':'インテグラ・ヘルシング',
+  'paprika (movie)':'パプリカ（映画）','mima kirigoe':'霧越未麻（PERFECT BLUE）',
+  'kaneda shotaro':'金田正太郎（AKIRA）','tetsuo shima':'島鉄雄（AKIRA）',
+  'faye valentine':'フェイ・バレンタイン（カウボーイビバップ）',
+  'edward (cowboy bebop)':'エドワード（カウボーイビバップ）',
+  'lina inverse':'リナ・インバース（スレイヤーズ）',
+  'naga the serpent':'ナーガ（スレイヤーズ）',
+  'zelgadis greywords':'ゼルガディス（スレイヤーズ）',
+  'shana':'シャナ（灼眼のシャナ）',
+  'furude rika':'古手梨花（ひぐらし）','rena ryuuguu':'竜宮レナ（ひぐらし）',
+  'hanyuu':'羽入（ひぐらし）','sonozaki mion':'園崎魅音（ひぐらし）',
+  'sonozaki shion':'園崎詩音（ひぐらし）','houjou satoko':'北条沙都子（ひぐらし）',
+  'b. jenet':'B・ジェニー（餓狼）',
+  'shiranui mai':'不知火舞（KOF）','athena asamiya':'麻宮アテナ（KOF）',
+  'leona heidern':'レオナ（KOF）','blue mary':'ブルー・マリー（KOF）',
+  'angel (kof)':'エンジェル（KOF）','kula diamond':'クーラ・ダイアモンド（KOF）',
+  'morrigan aensland':'モリガン・アーンスランド（ヴァンパイア）',
+  'lilith aensland':'リリス・アーンスランド（ヴァンパイア）',
+  'felicia (darkstalkers)':'フェリシア（ヴァンパイア）',
+  'hsien-ko':'レイレイ（ヴァンパイア）',
+  'i-no':'イノ（GUILTY GEAR）','baiken':'梅喧（GUILTY GEAR）',
+  'millia rage':'ミリア・レイジ（GUILTY GEAR）',
+  'dizzy (guilty gear)':'ディジー（GUILTY GEAR）',
+  'bridget (guilty gear)':'ブリジット（GUILTY GEAR）',
+  'ramlethal valentine':'ラムレザル・ヴァレンタイン（GG）',
+  'elphelt valentine':'エルフェルト・ヴァレンタイン（GG）',
+  'sol badguy':'ソル・バッドガイ（GUILTY GEAR）',
+  'ky kiske':'カイ・キスク（GUILTY GEAR）',
+  'valentine (skullgirls)':'ヴァレンタイン（スカルガールズ）',
+  'parasoul':'パラソウル（スカルガールズ）',
+  'filia (skullgirls)':'フィリア（スカルガールズ）',
+  'arcueid brunestud':'アルクェイド・ブリュンスタッド（月姫）',
+  'akiha tohno':'遠野秋葉（月姫）','hisui (tsukihime)':'翡翠（月姫）',
+  'kohaku (tsukihime)':'琥珀（月姫）','ciel (tsukihime)':'シエル（月姫）',
+  'shiki tohno':'遠野志貴（月姫）',
+  'beatrice (umineko)':'ベアトリーチェ（うみねこ）',
+  'bernkastel':'ベルンカステル（うみねこ）',
+  'lambdadelta':'ラムダデルタ（うみねこ）',
+  'ange ushiromiya':'右代宮縁寿（うみねこ）',
+  'rinslet walker':'リンスレット・ウォーカー（BLACK CAT）',
+  'panty (psg)':'パンティ（P&S）','stocking (psg)':'ストッキング（P&S）',
+  'kneesocks (psg)':'ニーソックス（P&S）','scanty (psg)':'スキャンティ（P&S）',
+  'nikaido (dorohedoro)':'ニカイドウ（ドロヘドロ）',
+  'ebisu (dorohedoro)':'エビス（ドロヘドロ）','noi (dorohedoro)':'ノイ（ドロヘドロ）',
+  'holly blue agate':'ホリー・ブルー・アゲート（SU）',
+  'peridot (steven universe)':'ペリドット（SU）',
+  'lapis lazuli (steven universe)':'ラピスラズリ（SU）',
+  'kasumi (doa)':'霞（DEAD OR ALIVE）','ayane (doa)':'あやね（DEAD OR ALIVE）',
+  'marie rose (doa)':'マリーローズ（DEAD OR ALIVE）',
+  'princess peach':'ピーチ姫（マリオ）','rosalina':'ロゼッタ（マリオ）',
+  'bowsette':'クッパ姫（マリオ二次創作）',
+  'saber (fate)':'セイバー（Fate）','rin tohsaka':'遠坂凛（Fate）',
+  'sakura matou':'間桐桜（Fate）','shirou emiya':'衛宮士郎（Fate）',
+  'gilgamesh (fate)':'ギルガメッシュ（Fate）',
+  'illyasviel von einzbern':'イリヤスフィール・フォン・アインツベルン（Fate）',
+  'frieren':'フリーレン（葬送のフリーレン）',
+  'fern':'フェルン（葬送のフリーレン）','stark':'シュタルク（葬送のフリーレン）',
+  'march 7th':'三月七日（崩壊：スターレイル）',
+  'kafka (honkai: star rail)':'カフカ（崩壊：スターレイル）',
+  'nahida (genshin impact)':'ナヒーダ（原神）',
+  'furina (genshin impact)':'フリーナ（原神）',
+  'todoroki shoto':'轟焦凍（僕のヒーローアカデミア）',
+  'bakugou katsuki':'爆豪勝己（僕のヒーローアカデミア）',
+  'kitagawa marin':'喜多川海夢（その着せ恋）',
+  'anya forger':'アーニャ・フォージャー（SPY×FAMILY）',
+  'amane suzuha':'阿万音鈴羽（シュタインズ・ゲート）',
+};
+
+/* ===== STATE ===== */
+let currentPreset = 'animagine';
+let selectedTags = []; // [{tag, preset}]  ポジティブ
+let negSelectedTags = []; // [{tag, preset}]  ネガティブプリセット選択分
+let lockedNsfwTags = new Set(); // 入れ替えで変更しないNSFWタグ
+let translatedText = '';
+let translatedNegText = '';
+let history = [];
+let saves = JSON.parse(localStorage.getItem('pf_saves') || '[]');
+let searchQuery = '';
+let dragSrcIdx = null;
+let apiKey = localStorage.getItem('pf_apikey') || '';
+let pendingImageData = null;
+let addImgTargetIdx = null;
+let nsfwAllPicked = []; // 全タブ一括で追加されたタグ記録（トグル用）
+let currentCharaSeries = ''; // 現在選択中の作品キー
+
+/* ===== API KEY ===== */
+function onKeyInput() {
+  apiKey = document.getElementById('apikeyInput').value.trim();
+  localStorage.setItem('pf_apikey', apiKey);
+  updateKeyStatus();
+}
+function updateKeyStatus() {
+  const st = document.getElementById('keyStatus');
+  if (apiKey.startsWith('sk-ant')) { st.textContent = '✓ 設定済'; st.className = 'apikey-status ok'; }
+  else { st.textContent = '未設定'; st.className = 'apikey-status no'; }
+}
+
+/* ===== SEARCH ===== */
+function onSearch() {
+  searchQuery = document.getElementById('searchInput').value.trim();
+  const tab = document.getElementById('searchTab');
+  if (searchQuery) { tab.style.display = ''; switchPreset('_search'); }
+  else { tab.style.display = 'none'; switchPreset('animagine'); }
+}
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  searchQuery = '';
+  document.getElementById('searchTab').style.display = 'none';
+  switchPreset('animagine');
+}
+
+/* ===== TABS ===== */
+function switchPreset(key) {
+  currentPreset = key;
+  document.querySelectorAll('.ptab').forEach(t => {
+    const m = t.getAttribute('onclick')?.match(/switchPreset\('([^']+)'\)/);
+    t.classList.toggle('active', m ? m[1] === key : false);
+  });
+  const randBtn = document.getElementById('randOneBtn');
+  if (randBtn) randBtn.style.display = key.startsWith('nsfw_') ? '' : 'none';
+  const csRow = document.getElementById('charaSeriesRow');
+  if (csRow) csRow.style.display = key === '_chara' || key === 'chara' ? '' : 'none';
+  const apRow = document.getElementById('appearSubRow');
+  if (apRow) apRow.style.display = key.startsWith('appear') ? '' : 'none';
+  updateAllBtn(); renderTags();
+}
+
+function onCharaSeriesChange() {
+  const sel = document.getElementById('charaSeriesSelect');
+  currentCharaSeries = sel.value;
+  const countEl = document.getElementById('charaSeriesCount');
+  if (currentCharaSeries && CHARA_DATA[currentCharaSeries]) {
+    countEl.textContent = CHARA_DATA[currentCharaSeries].length + '件';
+  } else {
+    countEl.textContent = '';
+  }
+  switchPreset('_chara');
+}
+
+function initCharaDropdown() {
+  const sel = document.getElementById('charaSeriesSelect');
+  if (!sel) return;
+  const entries = Object.entries(CHARA_SERIES_NAMES).sort(([a],[b]) => {
+    const ra = SERIES_READING[a] || a;
+    const rb = SERIES_READING[b] || b;
+    return ra.localeCompare(rb, 'ja');
+  });
+  entries.forEach(([key, name]) => {
+    const count = (CHARA_DATA[key] || []).length;
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = `${name}　(${count})`;
+    sel.appendChild(opt);
+  });
+  sel.options[0].textContent = `-- 作品を選択 (${entries.length}作品 / あいうえお順) --`;
+}
+
+function getDisplayTags() {
+  if (currentPreset === '_search') {
+    const q = searchQuery.toLowerCase();
+    const presetTags = [...new Set(Object.values(PRESETS).flat())].filter(t => t.toLowerCase().includes(q));
+    const charaTags = currentCharaSeries
+      ? (CHARA_DATA[currentCharaSeries] || []).filter(t => t.toLowerCase().includes(q))
+      : Object.values(CHARA_DATA).flat().filter(t => t.toLowerCase().includes(q));
+    return [...presetTags, ...charaTags.map(c => c + ', ' + (currentCharaSeries || ''))];
+  }
+  if (currentPreset === '_chara' || currentPreset === 'chara') {
+    let tags = CHARA_DATA[currentCharaSeries] || [];
+    if (charaSearchQuery) tags = tags.filter(t => t.toLowerCase().includes(charaSearchQuery));
+    return tags;
+  }
+  return PRESETS[currentPreset] || [];
+}
+
+function getTagPreset(tag) {
+  for (const [k, tags] of Object.entries(PRESETS)) { if (tags.includes(tag)) return k; }
+  return 'general';
+}
+
+function renderTags() {
+  const q = searchQuery.toLowerCase();
+  const grid = document.getElementById('tagsGrid');
+  const displayTags = getDisplayTags();
+  const isChara = currentPreset === '_chara' || currentPreset === 'chara';
+  const arr = isNegPreset(currentPreset) ? negSelectedTags : selectedTags;
+  const selNames = arr.map(s => s.tag);
+  grid.innerHTML = displayTags.map((t, i) => {
+    const fullTag = isChara ? `${t}, ${currentCharaSeries}` : t;
+    const isSel = selNames.includes(fullTag);
+    const isMatch = q && t.toLowerCase().includes(q);
+    const jp = TAG_JP[t] ? `<span class="tag-jp">${TAG_JP[t]}</span>` : '';
+    return `<span class="tag${isSel?' selected':''}${isMatch&&!isSel?' search-match':''}">${t}${jp}</span>`;
+  }).join('');
+  grid.querySelectorAll('.tag').forEach((el, i) => { el.onclick = () => toggleTag(displayTags[i]); });
+}
+
+function isAllSelected() {
+  const tags = getDisplayTags();
+  const isChara = currentPreset === '_chara' || currentPreset === 'chara';
+  const arr = isNegPreset(currentPreset) ? negSelectedTags : selectedTags;
+  const selNames = arr.map(s => s.tag);
+  return tags.length > 0 && tags.every(t => selNames.includes(isChara ? `${t}, ${currentCharaSeries}` : t));
+}
+function updateAllBtn() {
+  const btn = document.getElementById('allBtn'); const all = isAllSelected();
+  btn.textContent = all ? 'ALL OFF' : 'ALL ON'; btn.classList.toggle('all-on', all);
+}
+function toggleSelectAll() {
+  const isChara = currentPreset === '_chara' || currentPreset === 'chara';
+  const tags = getDisplayTags();
+  const isNeg = isNegPreset(currentPreset);
+  const arr = isNeg ? negSelectedTags : selectedTags;
+  const selNames = arr.map(s => s.tag);
+  if (isAllSelected()) {
+    const fullTags = tags.map(t => isChara ? `${t}, ${currentCharaSeries}` : t);
+    if (isNeg) negSelectedTags = negSelectedTags.filter(s => !fullTags.includes(s.tag));
+    else selectedTags = selectedTags.filter(s => !fullTags.includes(s.tag));
+  } else {
+    const storeP = isChara ? 'chara' : currentPreset;
+    tags.forEach(t => {
+      const fullT = isChara ? `${t}, ${currentCharaSeries}` : t;
+      if(!selNames.includes(fullT)) arr.push({tag: fullT, preset: storeP});
+    });
+  }
+  renderTags();
+  if (isNeg) renderNegSelZone(); else renderSelZone();
+  updateAllBtn(); updateTagCount(); updateFinal();
+}
+function isNegPreset(key) { return key === 'neg_animagine' || key === 'neg_pony'; }
+
+// ANI/PONYの行ごとに全オン/オフ（ポジ＋ネガ両方まとめて）
+function toggleSelectAllPreset(posKey, negKey, btnId) {
+  const posTags = PRESETS[posKey] || [];
+  const negTags = PRESETS[negKey] || [];
+  const posSelNames = selectedTags.map(s => s.tag);
+  const negSelNames = negSelectedTags.map(s => s.tag);
+  const allOn = posTags.every(t => posSelNames.includes(t)) && negTags.every(t => negSelNames.includes(t));
+
+  if (allOn) {
+    // 全オフ
+    selectedTags    = selectedTags.filter(s => !posTags.includes(s.tag));
+    negSelectedTags = negSelectedTags.filter(s => !negTags.includes(s.tag));
+  } else {
+    // 全オン
+    posTags.forEach(t => { if (!posSelNames.includes(t)) selectedTags.push({tag:t, preset:posKey}); });
+    negTags.forEach(t => { if (!negSelNames.includes(t)) negSelectedTags.push({tag:t, preset:negKey}); });
+  }
+
+  // ボタン表示更新
+  const btn = document.getElementById(btnId);
+  const nowAllOn = posTags.every(t => selectedTags.some(s=>s.tag===t)) && negTags.every(t => negSelectedTags.some(s=>s.tag===t));
+  btn.textContent = nowAllOn ? 'ALL OFF' : 'ALL ON';
+  btn.classList.toggle('all-on', nowAllOn);
+
+  renderTags(); renderSelZone(); renderNegSelZone(); updateAllBtn(); updateTagCount(); updateFinal();
+}
+
+function toggleTag(tag) {
+  const isChara = currentPreset === '_chara' || currentPreset === 'chara';
+  const fullTag = isChara ? `${tag}, ${currentCharaSeries}` : tag;
+  const storePreset = isChara ? 'chara' : currentPreset;
+  if (isNegPreset(currentPreset)) {
+    const idx = negSelectedTags.findIndex(s => s.tag === fullTag);
+    if (idx > -1) negSelectedTags.splice(idx, 1);
+    else negSelectedTags.push({tag: fullTag, preset: storePreset});
+    renderTags(); renderNegSelZone(); updateAllBtn(); updateTagCount(); updateFinal();
+  } else {
+    const idx = selectedTags.findIndex(s => s.tag === fullTag);
+    if (idx > -1) selectedTags.splice(idx, 1);
+    else selectedTags.push({tag: fullTag, preset: storePreset});
+    renderTags(); renderSelZone(); updateAllBtn(); updateTagCount(); updateFinal();
+  }
+}
+function updateTagCount() {
+  const total = selectedTags.length + negSelectedTags.length;
+  document.getElementById('tagCount').textContent = `${total} selected`;
+}
+
+/* ===== NEG SEL ZONE ===== */
+function renderNegSelZone() {
+  const zone = document.getElementById('negSelZone');
+  if (!negSelectedTags.length) {
+    zone.innerHTML = '<span class="empty-zone">ネガティブタグをクリックして追加</span>';
+    return;
+  }
+  let html = '';
+  negSelectedTags.forEach((s, i) => {
+    const meta = PRESET_META[s.preset] || PRESET_META.neg_animagine;
+    html += `<span class="sel-tag ${meta.colorClass}" style="cursor:default;">
+      ${escHtml(s.tag)}<span class="del-tag" onclick="removeNegSelTag(${i})">×</span>
+    </span>`;
+  });
+  zone.innerHTML = html;
+}
+function removeNegSelTag(i) {
+  negSelectedTags.splice(i, 1);
+  renderTags(); renderNegSelZone(); updateAllBtn(); updateTagCount(); updateFinal();
+}
+
+/* ===== SEL ZONE — shows translated text + grouped color tags ===== */
+function getSortedSelTags() {
+  return [...selectedTags].sort((a, b) => {
+    const pa = (PRESET_META[a.preset] || PRESET_META.general).priority;
+    const pb = (PRESET_META[b.preset] || PRESET_META.general).priority;
+    return pa - pb;
+  });
+}
+
+function renderSelZone() {
+  const zone = document.getElementById('selZone');
+  let html = '';
+
+  // ── 翻訳テキスト表示 ──
+  if (translatedText) {
+    html += `<div style="width:100%;flex-basis:100%;">
+      <span style="font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;color:var(--accent3);opacity:.7;">TRANSLATED ▸</span>
+      <div style="margin-top:3px;padding:6px 9px;background:rgba(0,229,255,.06);border:1px dashed rgba(0,229,255,.2);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent3);line-height:1.7;word-break:break-all;">${escHtml(translatedText)}</div>
+    </div>`;
+  }
+
+  if (!selectedTags.length) {
+    if (!translatedText) html += '<span class="empty-zone">タグをクリックして追加</span>';
+    zone.innerHTML = html; return;
+  }
+
+  const sorted = getSortedSelTags();
+  let lastGroup = null;
+  sorted.forEach((s) => {
+    const meta = PRESET_META[s.preset] || PRESET_META.general;
+    const g = meta.group;
+    const glKey = (g === 'quality' || g === 'style' || g === 'animagine' || g === 'pony') ? s.preset : g === 'neg' ? s.preset : 'nsfw';
+    if (g !== lastGroup) {
+      if (lastGroup !== null) html += '<div class="zone-sep"></div>';
+      html += `<span class="zone-group-label zgl-${glKey}">${meta.label}</span>`;
+      lastGroup = g;
+    }
+    const origIdx = selectedTags.findIndex(x => x.tag === s.tag);
+    const isNsfw = meta.group === 'nsfw';
+    const isLocked = lockedNsfwTags.has(s.tag);
+    const lockBtn = isNsfw
+      ? `<span class="lock-btn${isLocked?' is-locked':''}" onclick="toggleLock('${escHtml(s.tag)}')" title="${isLocked?'ロック中（入れ替え対象外）':'クリックでロック（入れ替えしない）'}">${isLocked?'🔒':'🔓'}</span>`
+      : '';
+    html += `<span class="sel-tag ${meta.colorClass}${isLocked?' locked':''}" draggable="true"
+      ondragstart="dragStart(event,${origIdx})" ondragover="dragOver(event,${origIdx})"
+      ondrop="dragDrop(event,${origIdx})" ondragend="dragEnd()">
+      ${escHtml(s.tag)}${lockBtn}<span class="del-tag" onclick="removeSelTag(${origIdx})">×</span>
+    </span>`;
+  });
+  zone.innerHTML = html;
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toggleLock(tag) { if(lockedNsfwTags.has(tag)) lockedNsfwTags.delete(tag); else lockedNsfwTags.add(tag); renderSelZone(); }
+function removeSelTag(i) { lockedNsfwTags.delete(selectedTags[i]?.tag); selectedTags.splice(i,1); renderTags(); renderSelZone(); updateAllBtn(); updateTagCount(); updateFinal(); }
+function dragStart(e,i) { dragSrcIdx=i; e.currentTarget.classList.add('dragging'); }
+function dragOver(e,i) { e.preventDefault(); document.querySelectorAll('.sel-tag').forEach((el,idx)=>el.classList.toggle('drag-over',idx===i&&i!==dragSrcIdx)); }
+function dragDrop(e,i) { e.preventDefault(); if(dragSrcIdx===null||dragSrcIdx===i)return; const item=selectedTags.splice(dragSrcIdx,1)[0]; selectedTags.splice(i,0,item); renderSelZone(); renderTags(); }
+function dragEnd() { dragSrcIdx=null; document.querySelectorAll('.sel-tag').forEach(el=>el.classList.remove('dragging','drag-over')); }
+
+/* ===== RANDOM ===== */
+// 現在のNSFWタブから1つ
+function randomOne() {
+  if (!currentPreset.startsWith('nsfw_')) return;
+  const tags = getDisplayTags();
+  const selNames = selectedTags.map(s => s.tag);
+  const candidates = tags.filter(t => !selNames.includes(t));
+  const res = document.getElementById('randomResult');
+  if (!candidates.length) {
+    res.style.display=''; res.textContent='✓ このタブのタグはすべて選択済みです';
+    setTimeout(()=>res.style.display='none', 2500); return;
+  }
+  const pick = candidates[Math.floor(Math.random()*candidates.length)];
+  selectedTags.push({tag:pick, preset:currentPreset});
+  const jp = TAG_JP[pick] ? `（${TAG_JP[pick]}）` : '';
+  res.style.display=''; res.textContent=`🎲 選択: ${pick}${jp}`;
+  setTimeout(()=>res.style.display='none', 3000);
+  renderTags(); renderSelZone(); updateTagCount(); updateFinal();
+}
+
+// NSFWタブ全て一括 — 各タブから1つずつ
+// NSFWタブ全て一括 — 2回目押しで前回分を削除し新たに1つずつ選択
+function randomAllNsfw() {
+  const btn = document.getElementById('nsfwAllBtn');
+
+  if (nsfwAllPicked.length) {
+    // ロックされていない前回分だけ削除
+    const toRemove = nsfwAllPicked.filter(t => !lockedNsfwTags.has(t));
+    selectedTags = selectedTags.filter(s => !toRemove.includes(s.tag));
+    nsfwAllPicked = nsfwAllPicked.filter(t => lockedNsfwTags.has(t)); // ロック分は保持
+    btn.textContent = '🎲 全タブ一括';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    renderTags(); renderSelZone(); updateTagCount(); updateFinal();
+  }
+
+  // ロックされていないタブから新たに1つずつ選ぶ
+  const selNames = selectedTags.map(s => s.tag);
+  const added = [];
+  NSFW_TABS.forEach(tabKey => {
+    // このタブにロック済みタグがあればスキップ
+    const alreadyLockedInTab = (PRESETS[tabKey] || []).some(t => lockedNsfwTags.has(t));
+    if (alreadyLockedInTab) return;
+    const tags = PRESETS[tabKey] || [];
+    const cands = tags.filter(t => !selNames.includes(t) && !added.includes(t));
+    if (!cands.length) return;
+    const pick = cands[Math.floor(Math.random() * cands.length)];
+    selectedTags.push({tag: pick, preset: tabKey});
+    added.push(pick);
+    selNames.push(pick);
+  });
+  nsfwAllPicked = [...nsfwAllPicked, ...added]; // ロック分＋新規
+
+  const res = document.getElementById('randomResult');
+  const lockedCount = lockedNsfwTags.size;
+  if (added.length) {
+    btn.textContent = '🔄 入れ替え';
+    btn.style.borderColor = '#ffab40';
+    btn.style.color = '#ffab40';
+    res.style.display = '';
+    const lockMsg = lockedCount ? ` 🔒${lockedCount}件ロック中` : '';
+    res.textContent = `🎲 ${added.length}件追加${lockMsg}: ${added.slice(0, 5).join(', ')}${added.length > 5 ? '…' : ''}`;
+    setTimeout(() => res.style.display = 'none', 4000);
+  }
+  renderTags(); renderSelZone(); updateTagCount(); updateFinal();
+}
+
+/* ===== TRANSLATION ===== */
+async function doTranslate(type) {
+  if (!apiKey||!apiKey.startsWith('sk-ant')) { alert('APIキーを入力してください（ページ上部）'); return; }
+  const isPos = type==='pos';
+  const jp = document.getElementById(isPos?'jpInput':'jpNegInput').value.trim();
+  if (!jp) return;
+  const btn = document.getElementById(isPos?'translateBtn':'translateNegBtn');
+  const out = document.getElementById(isPos?'translatedOutput':'translatedNegOutput');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>翻訳中...';
+  out.className=`output-area${isPos?'':' neg-color'}`; out.textContent='翻訳しています...';
+  const sys = isPos
+    ? `You are an expert at converting Japanese image generation prompts to English for Stable Diffusion / Fooocus.\nOutput ONLY comma-separated English tags. No explanations, no Japanese, no preamble.`
+    : `You are an expert at converting Japanese NEGATIVE image generation prompts to English for Stable Diffusion / Fooocus.\nOutput ONLY comma-separated English negative tags. No explanations, no Japanese, no preamble.`;
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:500,system:sys,messages:[{role:'user',content:`Translate:\n${jp}`}]})});
+    const data = await r.json();
+    if (data.error) throw new Error(data.error.message);
+    const result = data.content?.[0]?.text?.trim()||'エラー';
+    if (isPos) { translatedText=result; out.textContent=result; out.className='output-area'; addHistory(jp,result,'pos'); }
+    else { translatedNegText=result; out.textContent=result; out.className='output-area neg-color'; addHistory(jp,result,'neg'); }
+    updateFinal(); renderSelZone();
+  } catch(e) { out.textContent='エラー: '+e.message; out.className='output-area empty'; }
+  btn.disabled=false; btn.innerHTML=isPos?'✦ 英語に翻訳する':'✦ ネガティブを翻訳する';
+}
+
+/* ===== FINAL ===== */
+function getFinalPos() {
+  const sorted = getSortedSelTags();
+  const parts=[];
+  if(translatedText) parts.push(translatedText);
+  if(sorted.length) parts.push(sorted.map(s=>s.tag).join(', '));
+  return parts.join(', ');
+}
+function getFinalNeg() {
+  const parts=[];
+  if(translatedNegText) parts.push(translatedNegText);
+  if(negSelectedTags.length) parts.push(negSelectedTags.map(s=>s.tag).join(', '));
+  return parts.join(', ');
+}
+function appendToFinal() { updateFinal(); }
+function updateFinal() {
+  document.getElementById('finalOutput').textContent = getFinalPos()||'ここにポジティブプロンプトが表示されます';
+  document.getElementById('finalNegOutput').textContent = getFinalNeg()||'ここにネガティブプロンプトが表示されます';
+}
+
+/* ===== SAVE ===== */
+function onImageSelect(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingImageData = ev.target.result;
+    const thumb = document.getElementById('saveImgThumb');
+    thumb.src = pendingImageData;
+    document.getElementById('saveImagePreview').style.display='';
+  };
+  reader.readAsDataURL(file);
+}
+function clearImageInput() {
+  pendingImageData=null;
+  document.getElementById('saveImageInput').value='';
+  document.getElementById('saveImagePreview').style.display='none';
+  document.getElementById('saveImgThumb').src='';
+}
+// 画像リサイズ（onload完全待ち・安全版）
+function resizeImage(dataUrl, maxW) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        if (!w || !h) { resolve(dataUrl); return; }
+        const scale = Math.min(1, maxW / w);
+        const cw = Math.max(1, Math.round(w * scale));
+        const ch = Math.max(1, Math.round(h * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff'; // 背景白（透過PNG対策）
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.drawImage(img, 0, 0, cw, ch);
+        const result = canvas.toDataURL('image/jpeg', 0.82);
+        // canvas が黒になった場合（空データ）はオリジナルを返す
+        if (result === 'data:,') { resolve(dataUrl); return; }
+        resolve(result);
+      } catch(e) { resolve(dataUrl); }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+async function savePrompt() {
+  const name = document.getElementById('saveNameInput').value.trim();
+  if (!name) { alert('保存名を入力してください'); return; }
+  const pos = getFinalPos();
+  if (!pos&&!translatedNegText) { alert('保存するプロンプトがありません'); return; }
+  const now=new Date();
+  const time=`${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  const imgData = pendingImageData ? await resizeImage(pendingImageData, 300) : null;
+  saves.unshift({name,pos,neg:translatedNegText,time,img:imgData});
+  document.getElementById('saveNameInput').value='';
+  clearImageInput();
+  localStorage.setItem('pf_saves',JSON.stringify(saves));
+  renderSaves();
+}
+
+// 保存済みアイテムに画像を後から追加
+function openAddImg(idx) {
+  addImgTargetIdx = idx;
+  document.getElementById('addImgInput').click();
+}
+function onAddImgSelect(e) {
+  const file = e.target.files[0]; if(!file||addImgTargetIdx===null) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const resized = await resizeImage(ev.target.result, 300);
+    saves[addImgTargetIdx].img = resized;
+    localStorage.setItem('pf_saves',JSON.stringify(saves));
+    renderSaves();
+    addImgTargetIdx=null;
+    e.target.value='';
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderSaves() {
+  const list = document.getElementById('saveList');
+  if (!saves.length) { list.innerHTML='<div class="empty-saves">保存なし</div>'; return; }
+  list.innerHTML = saves.map((s,i) => {
+    const imgBlock = s.img
+      ? `<img src="${s.img}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0;cursor:pointer;" onclick="expandImg(${i})" title="クリックで拡大">`
+      : `<div onclick="openAddImg(${i})" title="画像を追加" style="width:60px;height:60px;border-radius:6px;border:1px dashed var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;color:var(--text2);transition:border-color .2s;" onmouseenter="this.style.borderColor='var(--accent3)'" onmouseleave="this.style.borderColor='var(--border)'">🖼️</div>`;
+    return `<div class="save-item" style="display:flex;gap:8px;align-items:flex-start;">
+      ${imgBlock}
+      <div style="flex:1;min-width:0;">
+        <div class="save-item-name">${s.name} <span style="color:var(--text2);font-size:8px;">${s.time}</span></div>
+        ${s.pos?`<div class="save-item-pos">${s.pos.slice(0,70)}${s.pos.length>70?'...':''}</div>`:''}
+        ${s.neg?`<div class="save-item-neg">[-] ${s.neg.slice(0,50)}${s.neg.length>50?'...':''}</div>`:''}
+        <div class="save-item-row">
+          <button class="btn" style="font-size:8px;" onclick="loadSave(${i})">↑ 読み込む</button>
+          ${s.img?`<button class="btn btn-save" style="font-size:8px;" onclick="openAddImg(${i})">🖼 差替</button>`:''}
+          <button class="btn btn-d" style="font-size:8px;" onclick="deleteSave(${i})">削除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function expandImg(i) {
+  const s=saves[i]; if(!s||!s.img) return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:pointer;';
+  ov.innerHTML=`<img src="${s.img}" style="max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8);">`;
+  ov.onclick=()=>document.body.removeChild(ov);
+  document.body.appendChild(ov);
+}
+function loadSave(i) {
+  const s=saves[i];
+  if(s.pos){translatedText=s.pos;document.getElementById('translatedOutput').textContent=s.pos;document.getElementById('translatedOutput').className='output-area';}
+  if(s.neg){translatedNegText=s.neg;document.getElementById('translatedNegOutput').textContent=s.neg;document.getElementById('translatedNegOutput').className='output-area neg-color';}
+  updateFinal(); renderSelZone();
+}
+function deleteSave(i) { saves.splice(i,1); localStorage.setItem('pf_saves',JSON.stringify(saves)); renderSaves(); }
+
+/* ===== HISTORY ===== */
+function addHistory(jp,en,type) {
+  const now=new Date();
+  const time=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  history.unshift({jp,en,type,time}); if(history.length>20) history.pop(); renderHistory();
+}
+function renderHistory() {
+  const list=document.getElementById('historyList');
+  if(!history.length){list.innerHTML='<div class="empty-saves">まだ履歴がありません</div>';return;}
+  list.innerHTML=history.map((h,i)=>`
+    <div class="save-item" onclick="restoreHist(${i})" style="cursor:pointer;">
+      <div class="save-item-name">${h.time} · ${h.type==='pos'?'POSITIVE':'NEGATIVE'}</div>
+      <div style="color:var(--text2);font-size:10px;font-family:'Noto Sans JP',sans-serif;margin-bottom:2px;">${h.jp.slice(0,40)}${h.jp.length>40?'...':''}</div>
+      <div class="${h.type==='pos'?'save-item-pos':'save-item-neg'}">${h.en.slice(0,70)}${h.en.length>70?'...':''}</div>
+    </div>`).join('');
+}
+function restoreHist(i) {
+  const h=history[i];
+  if(h.type==='pos'){translatedText=h.en;document.getElementById('translatedOutput').textContent=h.en;document.getElementById('translatedOutput').className='output-area';document.getElementById('jpInput').value=h.jp;}
+  else{translatedNegText=h.en;document.getElementById('translatedNegOutput').textContent=h.en;document.getElementById('translatedNegOutput').className='output-area neg-color';document.getElementById('jpNegInput').value=h.jp;}
+  updateFinal(); renderSelZone();
+}
+function clearHistory() { history=[]; renderHistory(); }
+
+/* ===== UTILS ===== */
+function copyBtn(text,id,label) {
+  if(!text) return;
+  const btn=document.getElementById(id);
+  const done=()=>{ btn.textContent='✓ OK'; btn.classList.add('copied'); setTimeout(()=>{ btn.textContent=label; btn.classList.remove('copied'); },1800); };
+  if(navigator.clipboard && location.protocol !== 'file:') {
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else {
+    fallbackCopy(text,done);
+  }
+}
+function fallbackCopy(text,cb) {
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.cssText='position:fixed;opacity:0;top:0;left:0;';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand('copy'); if(cb)cb(); }catch(e){}
+  document.body.removeChild(ta);
+}
+function clearTags() { selectedTags=[]; negSelectedTags=[]; lockedNsfwTags.clear(); nsfwAllPicked=[]; renderTags(); renderSelZone(); renderNegSelZone(); updateAllBtn(); updateTagCount(); updateFinal(); }
+function resetAll() {
+  translatedText=''; translatedNegText=''; selectedTags=[]; negSelectedTags=[]; lockedNsfwTags.clear(); nsfwAllPicked=[];
+  ['jpInput','jpNegInput'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('translatedOutput').textContent='← 上で翻訳ボタンを押してください';
+  document.getElementById('translatedOutput').className='output-area empty';
+  document.getElementById('translatedNegOutput').textContent='← ネガティブを翻訳してください';
+  document.getElementById('translatedNegOutput').className='output-area neg-color empty';
+  clearSearch(); clearImageInput(); renderTags(); renderSelZone(); renderNegSelZone(); updateAllBtn(); updateTagCount(); updateFinal();
+}
+function toggleColl(el,bodyId) {
+  const body=document.getElementById(bodyId); const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen); body.classList.toggle('closed',isOpen); el.classList.toggle('open',!isOpen);
+}
+
+
+/* ===== WILDCARD ===== */
+const WILDCARD_NAMES = {
+  general: 'pf_general', style: 'pf_style', chara: 'pf_chara_pose',
+  character: 'pf_character',
+  appear_hair: 'pf_appear_hair', appear_eye: 'pf_appear_eye',
+  appear_face: 'pf_appear_face', appear_body: 'pf_appear_body',
+  appear_height: 'pf_appear_height', appear_special: 'pf_appear_special',
+  nsfw_rating: 'pf_nsfw_rating', nsfw_body_f: 'pf_nsfw_body_f',
+  nsfw_body_m: 'pf_nsfw_body_m', nsfw_position: 'pf_nsfw_position',
+  nsfw_vaginal: 'pf_nsfw_vaginal', nsfw_oral: 'pf_nsfw_oral',
+  nsfw_anal: 'pf_nsfw_anal', nsfw_cum: 'pf_nsfw_cum',
+  nsfw_reaction: 'pf_nsfw_reaction', nsfw_costume: 'pf_nsfw_costume',
+  nsfw_bondage: 'pf_nsfw_bondage', nsfw_special: 'pf_nsfw_special',
+  nsfw_misc: 'pf_nsfw_misc',
+  lewd: 'pf_lewd', location: 'pf_location',
+};
+function insertWildcard(key, fname) {
+  const wc = '__' + (fname || WILDCARD_NAMES[key] || key) + '__';
+  if (!selectedTags.find(t => t.tag === wc)) {
+    selectedTags.push({ tag: wc, preset: key });
+  }
+  renderSelZone(); updateTagCount(); updateFinal();
+  syncWcActiveStates();
+  showWcToast(wc);
+}
+
+function syncWcActiveStates() {
+  const activeWcTags = new Set(
+    selectedTags.filter(t => t.tag.startsWith('__') && t.tag.endsWith('__')).map(t => t.tag)
+  );
+  document.querySelectorAll('.wc-btn[data-wc]').forEach(btn => {
+    btn.classList.toggle('wc-active', activeWcTags.has(btn.dataset.wc));
+  });
+  document.querySelectorAll('.wc-shelf-btn[data-wc]').forEach(btn => {
+    btn.classList.toggle('wc-active', activeWcTags.has(btn.dataset.wc));
+  });
+}
+
+function wcShelfAllOn() {
+  document.querySelectorAll('.wc-shelf-btn[data-wc]').forEach(btn => {
+    const wc = btn.dataset.wc;
+    const fname = wc.replace(/^__|__$/g, '');
+    if (!selectedTags.find(t => t.tag === wc)) {
+      selectedTags.push({ tag: wc, preset: fname });
+    }
+  });
+  renderSelZone(); updateTagCount(); updateFinal(); syncWcActiveStates();
+  showWcToast('Wildcard 全項目 ON');
+}
+
+function wcShelfAllOff() {
+  const shelfWcs = new Set(
+    Array.from(document.querySelectorAll('.wc-shelf-btn[data-wc]')).map(b => b.dataset.wc)
+  );
+  selectedTags = selectedTags.filter(t => !shelfWcs.has(t.tag));
+  renderSelZone(); updateTagCount(); updateFinal(); syncWcActiveStates();
+  showWcToast('Wildcard 全項目 OFF');
+}
+function showWcToast(wc) {
+  const t = document.getElementById('wcToast');
+  if (!t) return;
+  t.textContent = wc + ' を追加しました';
+  t.classList.add('show');
+  clearTimeout(window._wcToastTimer);
+  window._wcToastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+/* ===== CHARA SEARCH ===== */
+let charaSearchQuery = '';
+function onCharaSearch() {
+  charaSearchQuery = (document.getElementById('charaSearchInput')?.value || '').toLowerCase().trim();
+  renderCharaSearchCount();
+  if (currentPreset === '_chara' || currentPreset === 'chara') renderTags();
+}
+function clearCharaSearch() {
+  const inp = document.getElementById('charaSearchInput');
+  if (inp) inp.value = '';
+  charaSearchQuery = '';
+  renderCharaSearchCount();
+  if (currentPreset === '_chara' || currentPreset === 'chara') renderTags();
+}
+function renderCharaSearchCount() {
+  const el = document.getElementById('charaSearchCount');
+  if (!el) return;
+  if (!charaSearchQuery) { el.textContent = ''; return; }
+  const tags = getDisplayTags();
+  el.textContent = tags.length + '件';
+}
+
+/* ===== INIT ===== */
+function init() {
+  initCharaDropdown();
+  switchPreset('animagine');
+  renderSelZone(); renderNegSelZone(); renderSaves();
+  if (apiKey) {
+    const inp = document.getElementById('apikeyInput');
+    if (inp) { inp.value = apiKey; updateKeyStatus(); }
+  }
+}
+/* ===== GLOBAL EXPORTS (inline onclick access) ===== */
+/* ===== GLOBAL EXPORTS (inline onclick access) ===== */
+window.doTranslate        = doTranslate;
+window.insertWildcard     = insertWildcard;
+window.onCharaSearch      = onCharaSearch;
+window.clearCharaSearch   = clearCharaSearch;
+window.switchPreset       = switchPreset;
+window.toggleTag          = toggleTag;
+window.toggleSelectAll    = toggleSelectAll;
+window.toggleSelectAllPreset = toggleSelectAllPreset;
+window.randomOne          = randomOne;
+window.randomAllNsfw      = randomAllNsfw;
+window.removeSelTag       = removeSelTag;
+window.removeNegSelTag    = removeNegSelTag;
+window.toggleLock         = toggleLock;
+window.dragStart          = dragStart;
+window.dragOver           = dragOver;
+window.dragDrop           = dragDrop;
+window.dragEnd            = dragEnd;
+window.appendToFinal      = appendToFinal;
+window.copyBtn            = copyBtn;
+window.clearTags          = clearTags;
+window.resetAll           = resetAll;
+window.toggleColl         = toggleColl;
+window.onKeyInput         = onKeyInput;
+window.onSearch           = onSearch;
+window.clearSearch        = clearSearch;
+window.onCharaSeriesChange= onCharaSeriesChange;
+window.doTranslate        = doTranslate;
+window.insertWildcard     = insertWildcard;
+window.syncWcActiveStates = syncWcActiveStates;
+window.wcShelfAllOn       = wcShelfAllOn;
+window.wcShelfAllOff      = wcShelfAllOff;
+window.onCharaSearch      = onCharaSearch;
+window.clearCharaSearch   = clearCharaSearch;
+window.onImageSelect      = onImageSelect;
+window.clearImageInput    = clearImageInput;
+window.openAddImg         = openAddImg;
+window.onAddImgSelect     = onAddImgSelect;
+window.savePrompt         = savePrompt;
+window.loadSave           = loadSave;
+window.deleteSave         = deleteSave;
+window.expandImg          = expandImg;
+window.restoreHist        = restoreHist;
+window.clearHistory       = clearHistory;
+
+
+/* ===== INIT ===== */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+<div class="wc-toast" id="wcToast"></div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "アルビノ": {
+    "prompt": "white skin,clause up,__pf_angle__,masterpiece, high score, great score, absurdres, very aesthetic, smooth hair, neat hair, tidy hair, clean lineart, crisp detail, official art, highres, well-groomed hair, sleek hair, perfect hair, styled hair, hair in place, pure white background, simple background, white background, 1girl, looking at viewer, sensitive,red eyes, distinct pupils, detailed eyes, beautiful eyes, half-closed eyes, white skin, albino, porcelain skin, enigmatic, mysterious, distant, gloomy, white hair, __pf_hairstyle__,detailed white eyelashes,__pf_fetish__,__pf_costume_casual__",
+    "negative_prompt": "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digits, fewer digits, cropped, worst quality, low quality, low score, bad score, average score, signature, watermark, username, blurry, sketch, doodle, rough draft, messy lines, rough lines, traditional media, watercolor, pencil, background, scenery, building, nature, detailed background, head out of frame, no sclera, colored sclera, solid eyes, frizzy hair, messy hair, flyaway hair, bad hair day, ahoge, stray hair, unruly hair, wild hair,sunmissing_limb,lace fabric,background,bad eyes, deformed eyes, thick eyelashes, clumped eyelashes, fused eyelashes, solid eyelashes, heavy eyelashes, messy eyelashes, overly dramatic eyelashes, clumpy mascara",
+    "styles": "[]",
+    "performance": "Quality",
+    "resolution": "(1024, 1024)",
+    "image_number": 1,
+    "guidance_scale": 6.0,
+    "sharpness": 2.0,
+    "base_model": "animagineXL40_v4Opt.safetensors",
+    "refiner_model": "None",
+    "refiner_switch": 0.5,
+    "sampler": "dpmpp_2m_sde_gpu",
+    "scheduler": "karras",
+    "vae": "Default (model)",
+    "adm_guidance": "(1.5, 0.8, 0.3)",
+    "refiner_swap_method": "joint",
+    "adaptive_cfg": 7.0,
+    "clip_skip": 2,
+    "input_image_enabled": false,
+    "enhance_enabled": true,
+    "uov_method": "Disabled",
+    "lora_combined_1": "True : add-detail-xl.safetensors : 0.58",
+    "lora_combined_2": "True : SDXL_FILM_PHOTOGRAPHY_STYLE_V1.safetensors : 0.38",
+    "lora_combined_3": "True : sexy_details_v4.safetensors : 0.22",
+    "lora_combined_4": "True : None : 1",
+    "lora_combined_5": "True : None : 1"
+  }
+}
