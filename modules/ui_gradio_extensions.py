@@ -52,12 +52,21 @@ def css_html():
     head = f'<link rel="stylesheet" property="stylesheet" href="{style_css_path}">'
     return head
 
-
 def reload_javascript():
     js = javascript_html()
     css = css_html()
 
     def template_response(*args, **kwargs):
+        # Gradio 3.41.2 gọi old-style: TemplateResponse("index.html", {"request": req, ...})
+        # Starlette mới expect:          TemplateResponse(request, "index.html", {"request": req, ...})
+        # → args bị lệch → dict bị truyền vào jinja2 làm template name → crash
+        if args and isinstance(args[0], str) and len(args) > 1 and isinstance(args[1], dict):
+            name = args[0]
+            context = args[1]
+            request = context.get("request")
+            if request is not None:
+                args = (request, name, context) + args[2:]
+
         res = GradioTemplateResponseOriginal(*args, **kwargs)
         res.body = res.body.replace(b'</head>', f'{js}</head>'.encode("utf8"))
         res.body = res.body.replace(b'</body>', f'{css}</body>'.encode("utf8"))
