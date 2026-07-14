@@ -123,6 +123,9 @@ A very small amount of devices does have this problem. The cause can be complica
 1. Make sure that you are using official version and latest version installed from [here](https://github.com/lllyasviel/Fooocus#download). (Some forks and other versions are more likely to cause this problem.)
 2. Upgrade your Nvidia driver to the latest version. (Usually the version of your Nvidia driver should be 53X, not 3XX or 4XX.)
 3. If things still do not work, then perhaps it is a problem with CUDA 12. You can use CUDA 11 and Xformers to try to solve this problem. We have prepared all files for you, and please do NOT install any CUDA or other environment on you own. The only one official way to do this is: (1) Backup and delete your `python_embeded` folder (near the `run.bat`); (2) Download the "previous_old_xformers_env.7z" from the [release page](https://github.com/lllyasviel/Fooocus/releases/tag/release), decompress it, and put the newly extracted `python_embeded` folder near your `run.bat`; (3) run Fooocus.
+
+> [!WARNING]
+> **Note:** If you use this old environment with the latest Fooocus source code, you will encounter a `ModuleNotFoundError: No module named 'supervision'`. To fix this, open a command prompt in your Fooocus folder and run: `.\python_embeded\python.exe -m pip install supervision`
 4. If it still does not work, please open an issue for us to take a look.
 
 ### Found no NVIDIA driver on your system
