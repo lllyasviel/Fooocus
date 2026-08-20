@@ -5,7 +5,7 @@ import json
 import time
 import shared
 import modules.config
-import fooocus_version
+import extras.facexlib.detection
 import modules.html
 import modules.async_worker as worker
 import modules.constants as constants
@@ -145,7 +145,7 @@ def inpaint_mode_change(mode, inpaint_engine_version):
 
 reload_javascript()
 
-title = f'Fooocus {fooocus_version.version}'
+title = f'Fooocus {extras.facexlib.detection.version}'
 
 if isinstance(args_manager.args.preset, str):
     title += ' ' + args_manager.args.preset

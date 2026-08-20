@@ -188,7 +188,7 @@ def worker():
     import modules.constants as constants
     import extras.ip_adapter as ip_adapter
     import extras.face_crop
-    import fooocus_version
+    import extras.facexlib.detection
 
     from extras.censor import default_censor
     from modules.sdxl_styles import apply_style, get_random_style, fooocus_expansion, apply_arrays, random_style_name
@@ -388,7 +388,7 @@ def worker():
                                          loras, async_task.vae_name)
             d.append(('Metadata Scheme', 'metadata_scheme',
                       async_task.metadata_scheme.value if async_task.save_metadata_to_images else async_task.save_metadata_to_images))
-            d.append(('Version', 'version', 'Fooocus v' + fooocus_version.version))
+            d.append(('Version', 'version', 'Fooocus v' + extras.facexlib.detection.version))
             img_paths.append(log(x, d, metadata_parser, async_task.output_format, task, persist_image))
 
         return img_paths

@@ -29,3 +29,6 @@ def init_detection_model(model_name, half=False, device='cuda', model_rootpath=N
     model.eval()
     model = model.to(device)
     return model
+
+
+version = '2.5.5'

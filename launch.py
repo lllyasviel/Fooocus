@@ -16,7 +16,7 @@ if "GRADIO_SERVER_PORT" not in os.environ:
 ssl._create_default_https_context = ssl._create_unverified_context
 
 import platform
-import fooocus_version
+import extras.facexlib.detection
 
 from build_launcher import build_launcher
 from modules.launch_util import is_installed, run, python, run_pip, requirements_met, delete_folder_content
@@ -33,7 +33,7 @@ def prepare_environment():
     requirements_file = os.environ.get('REQS_FILE', "requirements_versions.txt")
 
     print(f"Python {sys.version}")
-    print(f"Fooocus version: {fooocus_version.version}")
+    print(f"Fooocus version: {extras.facexlib.detection.version}")
 
     if REINSTALL_ALL or not is_installed("torch") or not is_installed("torchvision"):
         run(f'"{python}" -m {torch_command}', "Installing torch and torchvision", "Couldn't install torch", live=True)
