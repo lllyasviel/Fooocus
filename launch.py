@@ -4,6 +4,13 @@ import sys
 
 print('[System ARGV] ' + str(sys.argv))
 
+# When this file is executed as `python launch.py`, Python names it `__main__`.
+# webui.py imports `launch` later to call download_models(). Without this alias,
+# that import executes launch.py a second time as module `launch`, duplicating
+# startup/model initialization and causing unstable native crashes on some systems.
+if __name__ == "__main__":
+    sys.modules.setdefault("launch", sys.modules[__name__])
+
 root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(root)
 os.chdir(root)

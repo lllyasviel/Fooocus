@@ -11,6 +11,13 @@ psutil==6.0.0
 pytorch_lightning==2.3.3
 omegaconf==2.3.0
 gradio==3.41.2
+fastapi==0.103.2
+starlette==0.27.0
+pydantic==2.5.3
+pydantic-core==2.14.6
+jinja2==3.1.2
+uvicorn==0.23.2
+anyio==3.7.1
 pygit2==1.15.1
 opencv-contrib-python-headless==4.10.0.84
 httpx==0.27.0

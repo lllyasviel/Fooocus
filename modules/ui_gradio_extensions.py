@@ -30,6 +30,7 @@ def javascript_html():
     edit_attention_js_path = webpath('javascript/edit-attention.js')
     viewer_js_path = webpath('javascript/viewer.js')
     image_viewer_js_path = webpath('javascript/imageviewer.js')
+    studio_autofill_bridge_js_path = webpath('javascript/studio-autofill-bridge.js')
     samples_path = webpath(os.path.abspath('./sdxl_styles/samples/fooocus_v2.jpg'))
     head = f'<script type="text/javascript">{localization_js(args_manager.args.language)}</script>\n'
     head += f'<script type="text/javascript" src="{script_js_path}"></script>\n'
@@ -39,6 +40,7 @@ def javascript_html():
     head += f'<script type="text/javascript" src="{edit_attention_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{viewer_js_path}"></script>\n'
     head += f'<script type="text/javascript" src="{image_viewer_js_path}"></script>\n'
+    head += f'<script type="text/javascript" src="{studio_autofill_bridge_js_path}"></script>\n'
     head += f'<meta name="samples-path" content="{samples_path}">\n'
 
     if args_manager.args.theme:

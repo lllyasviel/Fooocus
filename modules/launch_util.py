@@ -1,38 +1,32 @@
 import os
-import importlib
-import importlib.util
+import re
 import shutil
 import subprocess
 import sys
-import re
-import logging
+
 import importlib.metadata
 import packaging.version
 from packaging.requirements import Requirement
 
-logging.getLogger("torch.distributed.nn").setLevel(logging.ERROR)  # sshh...
-logging.getLogger("xformers").addFilter(lambda record: 'A matching Triton is not available' not in record.getMessage())
 
-re_requirement = re.compile(r"\s*([-\w]+)\s*(?:==\s*([-+.\w]+))?\s*")
-
-python = sys.executable
-default_command_live = (os.environ.get('LAUNCH_LIVE_OUTPUT') == "1")
-index_url = os.environ.get('INDEX_URL', "")
-
-modules_path = os.path.dirname(os.path.realpath(__file__))
-script_path = os.path.dirname(modules_path)
-
-
-def is_installed(package):
+def is_installed(package, version=None, strict=True):
+    has_package = None
     try:
-        spec = importlib.util.find_spec(package)
-    except ModuleNotFoundError:
+        has_package = importlib.metadata.version(package)
+        if has_package is not None:
+            if version is not None:
+                installed_version = packaging.version.parse(has_package)
+                target_version = packaging.version.parse(version)
+                return installed_version == target_version if strict else installed_version >= target_version
+            else:
+                return True
+        else:
+            return False
+    except Exception:
         return False
 
-    return spec is not None
 
-
-def run(command, desc=None, errdesc=None, custom_env=None, live: bool = default_command_live) -> str:
+def run(command, desc=None, errdesc=None, custom_env=None, live=False):
     if desc is not None:
         print(desc)
 
@@ -51,8 +45,7 @@ def run(command, desc=None, errdesc=None, custom_env=None, live: bool = default_
 
     if result.returncode != 0:
         error_bits = [
-            f"{errdesc or 'Error running command'}.",
-            f"Command: {command}",
+            f"{errdesc or 'Error running command'}. Command: {command}",
             f"Error code: {result.returncode}",
         ]
         if result.stdout:
@@ -61,18 +54,15 @@ def run(command, desc=None, errdesc=None, custom_env=None, live: bool = default_
             error_bits.append(f"stderr: {result.stderr}")
         raise RuntimeError("\n".join(error_bits))
 
-    return (result.stdout or "")
+    return result.stdout or ""
 
 
-def run_pip(command, desc=None, live=default_command_live):
-    try:
-        index_url_line = f' --index-url {index_url}' if index_url != '' else ''
-        return run(f'"{python}" -m pip {command} --prefer-binary{index_url_line}', desc=f"Installing {desc}",
-                   errdesc=f"Couldn't install {desc}", live=live)
-    except Exception as e:
-        print(e)
-        print(f'CMD Failed {desc}: {command}')
-        return None
+def python(command, desc=None, errdesc=None, custom_env=None, live=False):
+    return run(f'"{sys.executable}" {command}', desc, errdesc, custom_env, live)
+
+
+def run_pip(command, desc=None, live=False):
+    return python(f'-m pip {command}', desc=f"Installing {desc}", errdesc=f"Couldn't install {desc}", live=live)
 
 
 def requirements_met(requirements_file):
@@ -102,6 +92,12 @@ def requirements_met(requirements_file):
 
 def delete_folder_content(folder, prefix=None):
     result = True
+    prefix = prefix or ''
+
+    if not os.path.exists(folder):
+        os.makedirs(folder, exist_ok=True)
+        print(f'{prefix}Temp dir did not exist; created {folder}')
+        return True
 
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)

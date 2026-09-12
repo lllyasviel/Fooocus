@@ -1,0 +1,46 @@
+name: Local Smoke Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'local_markup/**'
+      - 'local_markup_app.py'
+      - 'tests/test_local_markup*'
+      - '.github/workflows/local-smoke.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'local_markup/**'
+      - 'local_markup_app.py'
+      - 'tests/test_local_markup*'
+      - '.github/workflows/local-smoke.yml'
+
+jobs:
+  local-markup-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest gradio==3.41.2
+
+      - name: Run local markup tests
+        run: |
+          python -m pytest tests/test_local_markup* -q
+
+      - name: Import local markup app
+        run: |
+          python - <<'PY'
+          import local_markup_app
+          app = local_markup_app.build_app()
+          print(type(app).__name__)
+          PY

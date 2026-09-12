@@ -212,6 +212,7 @@ def set_clip_skip(clip_skip: int):
     final_clip.clip_layer(-abs(clip_skip))
     return
 
+
 @torch.no_grad()
 @torch.inference_mode()
 def clear_all_caches():
@@ -231,16 +232,20 @@ def prepare_text_encoder(async_call=True):
 
 @torch.no_grad()
 @torch.inference_mode()
-def refresh_everything(refiner_model_name, base_model_name, loras,
-                       base_model_additional_loras=None, use_synthetic_refiner=False, vae_name=None):
-    global final_unet, final_clip, final_vae, final_refiner_unet, final_refiner_vae, final_expansion
+def _reset_final_model_handles():
+    global final_unet, final_clip, final_vae, final_refiner_unet, final_refiner_vae
 
     final_unet = None
     final_clip = None
     final_vae = None
     final_refiner_unet = None
     final_refiner_vae = None
+    return
 
+
+@torch.no_grad()
+@torch.inference_mode()
+def _refresh_requested_models(refiner_model_name, base_model_name, use_synthetic_refiner=False, vae_name=None):
     if use_synthetic_refiner and refiner_model_name == 'None':
         print('Synthetic Refiner Activated')
         refresh_base_model(base_model_name, vae_name)
@@ -248,9 +253,21 @@ def refresh_everything(refiner_model_name, base_model_name, loras,
     else:
         refresh_refiner_model(refiner_model_name)
         refresh_base_model(base_model_name, vae_name)
+    return
 
+
+@torch.no_grad()
+@torch.inference_mode()
+def _apply_loras_and_validate(loras, base_model_additional_loras=None):
     refresh_loras(loras, base_model_additional_loras=base_model_additional_loras)
     assert_model_integrity()
+    return
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def _bind_final_model_handles():
+    global final_unet, final_clip, final_vae, final_refiner_unet, final_refiner_vae
 
     final_unet = model_base.unet_with_lora
     final_clip = model_base.clip_with_lora
@@ -258,12 +275,42 @@ def refresh_everything(refiner_model_name, base_model_name, loras,
 
     final_refiner_unet = model_refiner.unet_with_lora
     final_refiner_vae = model_refiner.vae
+    return
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def _ensure_expansion_loaded():
+    global final_expansion
 
     if final_expansion is None:
         final_expansion = FooocusExpansion()
+    return
 
+
+@torch.no_grad()
+@torch.inference_mode()
+def _prepare_text_encoder_and_clear_cache():
     prepare_text_encoder(async_call=True)
     clear_all_caches()
+    return
+
+
+@torch.no_grad()
+@torch.inference_mode()
+def refresh_everything(refiner_model_name, base_model_name, loras,
+                       base_model_additional_loras=None, use_synthetic_refiner=False, vae_name=None):
+    _reset_final_model_handles()
+    _refresh_requested_models(
+        refiner_model_name=refiner_model_name,
+        base_model_name=base_model_name,
+        use_synthetic_refiner=use_synthetic_refiner,
+        vae_name=vae_name,
+    )
+    _apply_loras_and_validate(loras, base_model_additional_loras=base_model_additional_loras)
+    _bind_final_model_handles()
+    _ensure_expansion_loaded()
+    _prepare_text_encoder_and_clear_cache()
     return
 
 
