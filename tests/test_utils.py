@@ -135,3 +135,16 @@ class TestUtils(unittest.TestCase):
             expected = test["output"]
             actual = util.parse_lora_references_from_prompt(prompt, loras, loras_limit=loras_limit, lora_filenames=lora_filenames)
             self.assertEqual(expected, actual)
+
+    def test_quoted_metadata_value_keeps_its_quotes(self):
+        import re
+
+        pattern = re.compile(r'\s*(\w[\w \-/]+):\s*("(?:\\.|[^\\"])+"|[^,]*)(?:,|$)')
+        for value in ['"hi"', '""', '"a cat"', '"a, cat"', 'a cat', 'a, cat', 'a: cat', 'say "hi"']:
+            line = f"Prompt: {util.quote(value)}, Seed: 1"
+            raw = pattern.findall(line)[0][1]
+            if raw != '' and raw[0] == '"' and raw[-1] == '"':
+                got = util.unquote(raw)
+            else:
+                got = raw
+            self.assertEqual(value, got)

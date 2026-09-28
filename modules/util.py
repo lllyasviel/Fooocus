@@ -214,7 +214,15 @@ def calculate_sha256(filename) -> str:
 
 
 def quote(text):
-    if ',' not in str(text) and '\n' not in str(text) and ':' not in str(text):
+    rendered = str(text)
+    # unquote() json-decodes any value that starts and ends with a quote.
+    # A value that is already quoted has to be encoded, or those quotes are dropped.
+    if (
+        ',' not in rendered
+        and '\n' not in rendered
+        and ':' not in rendered
+        and not (len(rendered) >= 2 and rendered[0] == '"' and rendered[-1] == '"')
+    ):
         return text
 
     return json.dumps(text, ensure_ascii=False)
