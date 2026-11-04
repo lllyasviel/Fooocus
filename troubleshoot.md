@@ -1,5 +1,35 @@
 Below are many common problems that people encountered:
 
+---
+
+## Quick Troubleshooting Checklist
+
+Work through this checklist when Fooocus fails to start or behaves unexpectedly:
+
+**1. Process & port checks**
+- Windows: `Task Manager` → End any existing `python` processes named `python_embeded/python` or `launch.py`, then restart Fooocus. Do not run two Fooocus instances at the same time.
+- Port in use: another instance may already be running. Check that nothing else is listening on the Fooocus port before relaunching.
+
+**2. Console & logs**
+- Do not close the black console window while Fooocus is running — closing it kills the server.
+- If the console closes instantly with no error, look for a `.log` file or run `run.bat` from a terminal to see the output directly.
+- Copy the last 20 lines of the console output, including the exact error text, when opening an issue.
+
+**3. Installation & environment**
+- Use **Python 3.10** (via the bundled `python_embeded`). Other versions cause dependency errors.
+- In `vc` mode, delete `python_embeded` entirely before re-installing. A partial folder causes broken imports.
+- DLL errors / missing MSVCRTD: reinstall the Microsoft Visual C++ Redistributable (x64) from Microsoft's site. Conda users should run `conda update --all` for the environment.
+
+**4. OpenMP workaround (Windows startup crash)**
+- If Fooocus crashes on launch with an OpenMP runtime error, set the environment variable `KMP_DUPLICATE_LIB_OK=TRUE` before running `run.bat`.
+
+**5. Restart & run guidance**
+- Restart your computer after any swap or driver change so that swap and driver settings take effect.
+- Run `run.bat` from the Fooocus installation folder (not a shortcut) so that relative paths resolve correctly.
+- If `run.bat` does nothing, run it from a terminal to see the error output captured by the window.
+
+---
+
 ### RuntimeError: CPUAllocator
 
 See also the section: **System Swap**
